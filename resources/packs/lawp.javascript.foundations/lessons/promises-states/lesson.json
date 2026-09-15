@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Pending, fulfilled, rejected\n\nA Promise starts **pending**. It becomes **fulfilled** with a value or **rejected** with a reason. It does not go back.\n\n`Promise.resolve(\"locked\")` is already fulfilled. Print that value with `then` or `await` in the next lesson — here, return it from an async setup using `.then` and print `locked`."
+      "md": "## Pending, fulfilled, rejected\n\nA Promise starts **pending**. It becomes **fulfilled** with a value or **rejected** with a reason. After that, the state sticks. You cannot send it back to pending.\n\n`Promise.resolve(\"locked\")` is already fulfilled. The desk already stamped the slip. Print that value with `.then` here — `await` comes next.\n\nOn the board: a beacon key that is already locked is still a promise. You just do not wait for a later tick to settle it."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "no"
+    },
+    {
+      "type": "check",
+      "id": "promise-reset",
+      "kind": "tf",
+      "promptMd": "A fulfilled promise can become pending again.",
+      "answer": "false",
+      "explainMd": "Pending, then fulfilled or rejected. The state does not go backward."
     },
     {
       "type": "code",
@@ -62,7 +70,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "label().then(v => console.log(v))"
+          "md": "`label` should return an already-fulfilled promise."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Use `Promise.resolve(\"locked\")`, then print the value from `then`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The desk already stamped locked. You only need to read the slip."
         },
         {
           "level": 4,

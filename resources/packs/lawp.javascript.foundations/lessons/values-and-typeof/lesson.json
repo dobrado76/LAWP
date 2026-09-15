@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Kinds you can print\n\nEvery value has a kind. `typeof 3` is `\"number\"`. `typeof \"3\"` is `\"string\"`. `typeof null` is `\"object\"` — that answer is a leftover bug. Do not treat `null` as a bag of fields.\n\nExport `kindOf` so a hidden test can call it. Print the kind of the number 3."
+      "md": "## Kinds you can print\n\nEvery value has a kind. `typeof 3` is `\"number\"`. `typeof \"3\"` is `\"string\"`. A later desk will ask “what kind of signal is this?” before it files the record.\n\n`typeof null` is `\"object\"` — that answer is a leftover bug. Do not treat `null` as a bag of fields. Export `kindOf` so a hidden test can call it. Print the kind of the number 3."
     },
     {
       "type": "predict",
@@ -37,6 +37,53 @@
         }
       ],
       "answer": "object"
+    },
+    {
+      "type": "check",
+      "id": "kind-words",
+      "kind": "cloze",
+      "promptMd": "`typeof 3` is {{a}}. `typeof \"3\"` is {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "number",
+              "md": "number"
+            },
+            {
+              "id": "string",
+              "md": "string"
+            },
+            {
+              "id": "object",
+              "md": "object"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "number",
+              "md": "number"
+            },
+            {
+              "id": "string",
+              "md": "string"
+            },
+            {
+              "id": "object",
+              "md": "object"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "number",
+        "b": "string"
+      },
+      "explainMd": "A numeral is a number. Quotes make text, even when the text looks like a digit."
     },
     {
       "type": "code",

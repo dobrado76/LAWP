@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.http"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. Catch that and return `\"bad-json\"`.\n\nGood `/beacons.json` still parses."
+      "md": "## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `\"bad-json\"`.\n\nGood `/beacons.json` still parses. The fox asked for a record and got a torn slip. Handle the tear. Do not pretend the body was `{}`."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "throw"
+    },
+    {
+      "type": "check",
+      "id": "json-empty",
+      "kind": "tf",
+      "promptMd": "`res.json()` on `{` returns `{}`.",
+      "answer": "false",
+      "explainMd": "A torn body is a parse error. Catch it. Do not invent an empty object."
     },
     {
       "type": "code",
@@ -70,7 +78,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "try { return await res.json() } catch { return \"bad-json\" }"
+          "md": "Fetch the URL, then try to parse the body."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Wrap `res.json()` in `try/catch`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "On parse failure, return the string `bad-json`."
         },
         {
           "level": 4,

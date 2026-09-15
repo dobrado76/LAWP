@@ -77,7 +77,7 @@
         {
           "level": 4,
           "kind": "assist",
-          "md": "south; north north north; west west (glint); east east east east (key); west west; north; rotate(90); scale(2); say(\"ready\")."
+          "md": "Player.move(\"south\")\nPlayer.move(\"north\")\nPlayer.move(\"north\")\nPlayer.move(\"north\")\nPlayer.move(\"west\")\nPlayer.move(\"west\")\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"west\")\nPlayer.move(\"west\")\nPlayer.move(\"north\")\nPlayer.rotate(90)\nPlayer.scale(2)\nPlayer.say(\"ready\")"
         }
       ],
       "play": {
@@ -281,15 +281,31 @@
             "kind": "grid",
             "grid": {
               "cols": 5,
-              "rows": 5
+              "rows": 5,
+              "floor": "floor-stone"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

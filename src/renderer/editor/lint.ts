@@ -398,6 +398,7 @@ function playerApiIssues(state: EditorState, language: EditorLanguage): EditorIs
 
 export function collectIssues(state: EditorState, ctx: LintContext): EditorIssue[] {
   const parse: EditorIssue[] = []
+  if (ctx.language === 'html' || ctx.language === 'css' || ctx.language === 'plaintext') return []
   if (ctx.language === 'javascript') parse.push(...javascriptParseIssues(state))
   else if (ctx.language === 'json') parse.push(...jsonParseIssues(state))
   else if (ctx.language === 'python') {

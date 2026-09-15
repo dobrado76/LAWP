@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.dom"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Nodes, not one long string\n\nThe page is a tree of nodes. `document.body` is an element. Changing `textContent` changes a node. You do not rebuild the whole HTML string to rename a heading."
+      "md": "## Nodes, not one long string\n\nThe page is a tree of nodes. `document.body` is an element. Changing `textContent` changes a node. You do not rebuild the whole HTML string to rename a heading.\n\n`document.querySelector(\"h1\")` returns that heading node, or `null` if it is missing. On this board, the channel plate still says “Old radio.” Change the `h1#title` node to `Signal desk`."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "node"
+    },
+    {
+      "type": "check",
+      "id": "query-string",
+      "kind": "tf",
+      "promptMd": "`document.querySelector(\"h1\")` returns the tag as a string.",
+      "answer": "false",
+      "explainMd": "It returns an element node, or null if nothing matches. The HTML string is not the return value."
     },
     {
       "type": "code",
@@ -65,7 +73,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "document.querySelector(\"#title\").textContent = \"Signal desk\""
+          "md": "Find the heading node. Do not rewrite the HTML file as a string."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Use `querySelector(\"#title\")`, then set `textContent`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The plate should read Signal desk after you change the node."
         },
         {
           "level": 4,

@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.dom"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Find, then write text\n\n`querySelector` takes a CSS selector. `#id`, `.class`, `li`.\n\nPut the name `North` into `#beacon-name`. Use `textContent`, not `innerHTML`, for plain text."
+      "md": "## Find, then write text\n\n`querySelector` takes a CSS selector. `#id`, `.class`, `li`. It returns one node or `null`. It does not return the HTML as a string.\n\nPut the name `North` into `#beacon-name`. Use `textContent`, not `innerHTML`, for plain text. The tag on the desk is a node. You find it, then you write the word."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "null"
+    },
+    {
+      "type": "check",
+      "id": "missing-empty",
+      "kind": "tf",
+      "promptMd": "`querySelector(\"#nope\")` is the empty string.",
+      "answer": "false",
+      "explainMd": "A miss is null, not \"\". You must check before you set textContent."
     },
     {
       "type": "code",
@@ -65,7 +73,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "textContent on the node you queried."
+          "md": "Find `#beacon-name` with a selector."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Set `textContent` to `North`. Do not use `innerHTML` for this word."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The beacon tag is already a node on the plate."
         },
         {
           "level": 4,

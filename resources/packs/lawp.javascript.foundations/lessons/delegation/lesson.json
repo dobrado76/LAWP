@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.events"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Delegation\n\nOne listener on `ul#list` can handle clicks on any `button` inside, including buttons you add later. Check `event.target.matches(\"button\")`."
+      "md": "## Delegation\n\nOne listener on `ul#list` can handle clicks on any `button` inside, including buttons you add later. Check `event.target.matches(\"button\")` or use `closest(\"button\")`.\n\nYou do not bind each button by hand. On this pick board, North and East are already listed. Clicking East should write `East` into `#picked` from `data-name`."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "yes"
+    },
+    {
+      "type": "check",
+      "id": "later-no",
+      "kind": "tf",
+      "promptMd": "A parent bubble listener misses buttons appended after you bound it.",
+      "answer": "false",
+      "explainMd": "The click still bubbles to the parent. New children are covered without a new listener."
     },
     {
       "type": "code",
@@ -65,7 +73,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "list.addEventListener(\"click\", (e) => { const b = e.target.closest(\"button\"); if (b) ... })"
+          "md": "One listener on `#list` is enough."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Use `closest(\"button\")` so a click on the button text still counts."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Write that button’s `data-name` into `#picked`."
         },
         {
           "level": 4,

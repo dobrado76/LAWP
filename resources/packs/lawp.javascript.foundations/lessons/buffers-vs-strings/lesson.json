@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 18,
+  "taskRev": 2,
+  "estimatedMinutes": 20,
   "skillIds": [
     "js.node.fs"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A Buffer is bytes\n\n`Buffer.from(\"café\", \"utf8\")` is bytes. `.toString(\"utf8\")` is text again. `.length` on a buffer is byte length, not character count.\n\nPrint the UTF-8 byte length of `café` (`5`)."
+      "md": "## A Buffer is bytes\n\n`Buffer.from(\"café\", \"utf8\")` stores the UTF-8 bytes. `.toString(\"utf8\")` turns those bytes back into text. `.length` on a Buffer is the byte count, not the number of letters you see.\n\nThe letter `é` is often two UTF-8 bytes. So `\"café\"` is 5 bytes: `c`, `a`, `f`, and two for `é`.\n\nA fox tag painted `café` on the desk is four letters on the glass and five bytes in the log file. Print that byte length (`5`)."
     },
     {
       "type": "predict",
@@ -32,6 +32,53 @@
         }
       ],
       "answer": "two"
+    },
+    {
+      "type": "check",
+      "id": "byte-vs-char",
+      "kind": "cloze",
+      "promptMd": "`Buffer.byteLength` counts {{a}}. `\"é\"` in UTF-8 is typically {{b}} byte(s).",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "bytes",
+              "md": "bytes"
+            },
+            {
+              "id": "letters on screen",
+              "md": "letters on screen"
+            },
+            {
+              "id": "argv flags",
+              "md": "argv flags"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "1",
+              "md": "1"
+            },
+            {
+              "id": "2",
+              "md": "2"
+            },
+            {
+              "id": "0",
+              "md": "0"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "bytes",
+        "b": "2"
+      },
+      "explainMd": "Letters you see and bytes on disk are not the same count. café is 4 letters and 5 UTF-8 bytes."
     },
     {
       "type": "code",
@@ -65,6 +112,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Do not use `text.length` — that counts UTF-16 code units, not UTF-8 bytes."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`Buffer.byteLength(text, \"utf8\")` is the disk size of the string."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "Buffer.byteLength(text, \"utf8\")"
         },

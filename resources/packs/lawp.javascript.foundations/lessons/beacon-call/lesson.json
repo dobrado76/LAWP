@@ -58,17 +58,22 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Beacon is at x=3, y=2. One move changes one coordinate by 1."
+          "md": "Beacon is at x=3, y=2. One move changes one coordinate by 1. Trees and rocks block; walk around them."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "You need three east calls and two south calls. Order does not matter."
+          "md": "You need three east calls and two south calls. Order does not matter. The coin on the way is optional."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "east increases x. south increases y. The owl is scenery."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "Player.move(\"east\") three times, then Player.move(\"south\") twice."
+          "md": "Player.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"south\")\nPlayer.move(\"south\")"
         }
       ],
       "play": {
@@ -94,6 +99,52 @@
                 "y": 2,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "coin",
+              "type": "coin",
+              "props": {
+                "x": 1,
+                "y": 0,
+                "collect": true,
+                "taken": false,
+                "label": "coin"
+              }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 5,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "t2",
+              "type": "tree",
+              "props": {
+                "x": 6,
+                "y": 4,
+                "solid": true
+              }
+            },
+            {
+              "id": "owl",
+              "type": "owl",
+              "props": {
+                "x": 6,
+                "y": 1
+              }
+            },
+            {
+              "id": "r1",
+              "type": "rock",
+              "props": {
+                "x": 5,
+                "y": 3,
+                "solid": true
+              }
             }
           ],
           "connections": [],
@@ -102,16 +153,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-grass"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 20,
+  "taskRev": 2,
+  "estimatedMinutes": 22,
   "skillIds": [
     "js.node.fs"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Join names, do not climb out\n\n`path.join(\"logs\", \"today.txt\")` builds a path for *this* folder. `..` is how people try to leave. This lesson refuses it.\n\n`safeJoin(\"logs\", name)` should throw if `name` includes `..`."
+      "md": "## Join names, do not climb out\n\n`path.join(\"logs\", \"today.txt\")` builds a path for *this* folder. It puts the right slash for the machine. It does not check whether the second name is a trick.\n\n`..` means go up one folder. A careless join of `\"logs\"` and `\"../secret\"` can point outside `logs`. `safeJoin(\"logs\", name)` must throw if `name` includes `..`.\n\nThe log scrubber only opens files under `logs/`. A heading named `../secret` is not a log — refuse it."
     },
     {
       "type": "predict",
@@ -33,6 +33,15 @@
         }
       ],
       "answer": "escape"
+    },
+    {
+      "type": "check",
+      "id": "join-jail",
+      "kind": "tf",
+      "promptMd": "`path.join` by itself blocks `..` and keeps you inside the folder.",
+      "answer": "false",
+      "explainMd": "join glues names. You must refuse .. yourself before you open the path.",
+      "misconceptionId": "path-dotdot-ok"
     },
     {
       "type": "code",
@@ -62,6 +71,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Join the root and the name. Check the name first."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "If `name` includes `..`, throw. Do not open that path."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "if (name.includes(\"..\")) throw new Error(\"no\")"
         },

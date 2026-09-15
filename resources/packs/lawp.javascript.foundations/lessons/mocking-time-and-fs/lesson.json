@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.test"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Do not wait on the real clock\n\n`now()` should call `deps.clock()`. In tests, pass `{ clock: () => 1000 }`.\n\n`load(deps)` should call `deps.read(\"log.txt\")`. Fake `read` returns `\"north\"`.\n\nPrint `1000 north`."
+      "md": "## Do not wait on the real clock\n\n`report(deps)` should call `deps.clock()` and `deps.read(\"log.txt\")`. In tests you pass `{ clock: () => 1000, read: () => \"north\" }`. You do not call `Date.now()` or `fs` inside `report`.\n\nPrint `1000 north`. The hidden test will pass a different clock and a different `read`. If you touch the real disk, that test cannot control the bytes.\n\nThe desk stamps a log with a fake noon so the fox walk test does not wait for a real midnight file."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "pure"
+    },
+    {
+      "type": "check",
+      "id": "report-hits-disk",
+      "kind": "tf",
+      "promptMd": "`report` should call `fs.readFileSync` so the test always hits the real disk.",
+      "answer": "false",
+      "explainMd": "Pass read in. The test supplies the bytes. report only concatenates clock() and that text."
     },
     {
       "type": "code",
@@ -61,6 +69,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "`report` only talks to `deps`. It does not import `fs` or `Date`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Call `deps.clock()` and `deps.read(\"log.txt\")`. Join them with a space."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "Do not call Date.now() or fs in report — use deps."
         },

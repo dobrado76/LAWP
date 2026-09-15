@@ -533,7 +533,7 @@ Renderer shows `lamp` with `assets/lamp-bright.svg` when `brightness===2`.
   timeoutMs: number
   checks: CodeCheck[]
   hintLadder: Hint[]
-  preview?: { kind: "none" | "iframe" }
+  preview?: { kind: "none" | "iframe" }  // iframe → Studio Preview/HTML/CSS + dom-v1 editor
   promptMd?: string
   play?: {
     api: "player-v1"

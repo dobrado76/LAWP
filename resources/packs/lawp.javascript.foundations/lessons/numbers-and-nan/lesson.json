@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.values"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Not a Number is still a number kind\n\n`Number(\"fox\")` is `NaN`. `typeof NaN` is `\"number\"`. `NaN === NaN` is **false**. Use `Number.isNaN(x)` when you mean “this failed to become a number.”"
+      "md": "## Not a Number is still a number kind\n\n`Number(\"fox\")` is `NaN`. `typeof NaN` is `\"number\"`. `NaN === NaN` is **false**. A desk that stores lamp current as a number must catch that — otherwise it files a broken reading as if it were zero.\n\nUse `Number.isNaN(x)` when you mean “this failed to become a number.”"
     },
     {
       "type": "predict",

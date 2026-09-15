@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 18,
+  "taskRev": 2,
+  "estimatedMinutes": 20,
   "skillIds": [
     "js.test"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Time a loop; do not guess\n\n`performance.now()` (or `Date.now()`) before and after. Print the **count** you measured (`1000`), not a made-up faster algorithm.\n\nThe point is the habit: measure the loop you have."
+      "md": "## Time a loop; do not guess\n\n`performance.now()` (or `Date.now()`) before and after a loop tells you how long it took. Guessing “this feels slow” is not a measurement.\n\nThis lesson asks for the **count** you measured (`1000`), not a clever faster algorithm. Run the loop. Increment `n`. Print `n`.\n\nThe desk timed a thousand fox steps before anyone rewrote the walker. Change the path after you have a number, not because the loop looked long."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "number"
+    },
+    {
+      "type": "check",
+      "id": "rewrite-on-feel",
+      "kind": "tf",
+      "promptMd": "You should rewrite a loop because it feels slow, even with no measurement.",
+      "answer": "false",
+      "explainMd": "Measure first. This lesson’s proof is the count 1000 from the loop you actually ran."
     },
     {
       "type": "code",
@@ -61,6 +69,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Start `n` at `0`. Add one, a thousand times."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A `for` loop with `i < 1000` runs the body 1000 times."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "for (let i = 0; i < 1000; i++) n++"
         },

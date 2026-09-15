@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.errors"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A bad dir is not the end\n\n`Player.move` already faults on a bad dir. Here **you** throw `new Error(\"bad dir\")` if the string is not a compass word. `catch` `say`s the fault, then you still finish the walk east to the beacon.\n\nThe program continues after a handled error."
+      "md": "## A bad dir is not the end\n\n`Player.move` already faults on a bad dir. Here **you** throw `new Error(\"bad dir\")` if the string is not a compass word. `catch` `say`s the fault, then you still finish the walk east to the beacon.\n\nThe program continues after a handled error. The next line after the `try/catch` still runs.\n\nThe fox is told `\"up\"`. That is not a heading. It says `\"fault\"`, then walks east twice onto the lamp."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "runs"
+    },
+    {
+      "type": "check",
+      "id": "after-catch",
+      "kind": "cloze",
+      "promptMd": "After `catch` runs, the next line {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "still runs",
+              "md": "still runs"
+            },
+            {
+              "id": "never runs",
+              "md": "never runs"
+            },
+            {
+              "id": "throws again",
+              "md": "throws again"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "still runs"
+      },
+      "explainMd": "catch handled the error. Code after the try/catch is ordinary code again."
     },
     {
       "type": "code",
@@ -58,7 +87,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "try { step(\"up\") } catch (e) { Player.say(\"fault\") }"
+          "md": "`step` should throw when the string is not a compass word."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Catch the bad `\"up\"` call, then `Player.say(\"fault\")`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "After the catch, walk east twice with legal `step` calls."
         },
         {
           "level": 4,
@@ -89,6 +128,78 @@
                 "y": 0,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "w1",
+              "type": "wall",
+              "props": {
+                "x": 0,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "w2",
+              "type": "wall",
+              "props": {
+                "x": 1,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "w3",
+              "type": "wall",
+              "props": {
+                "x": 2,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 5,
+                "y": 1,
+                "solid": true
+              }
+            },
+            {
+              "id": "r1",
+              "type": "rock",
+              "props": {
+                "x": 6,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "owl",
+              "type": "owl",
+              "props": {
+                "x": 6,
+                "y": 0
+              }
+            },
+            {
+              "id": "coin",
+              "type": "coin",
+              "props": {
+                "x": 4,
+                "y": 4,
+                "collect": true,
+                "taken": false,
+                "label": "coin"
+              }
+            },
+            {
+              "id": "chest",
+              "type": "chest",
+              "props": {
+                "x": 5,
+                "y": 4
+              }
             }
           ],
           "connections": [],
@@ -97,16 +208,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-wood"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

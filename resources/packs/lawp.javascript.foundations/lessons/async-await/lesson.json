@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Sugar over promises\n\n`async function` always returns a Promise. `await` pauses **that** function until the promise settles. Other JavaScript on the page can still run. The OS is not frozen."
+      "md": "## Sugar over promises\n\nAn `async function` always returns a Promise. `await` pauses **that** function until the promise settles. Other JavaScript on the page can still run. The operating system is not frozen.\n\nThe fox can `await` a wait on the field while the desk still lights other lamps. Only the fox’s function is paused. When the promise settles, that function continues with the value."
     },
     {
       "type": "predict",
@@ -33,6 +33,15 @@
         }
       ],
       "answer": "fn"
+    },
+    {
+      "type": "check",
+      "id": "await-os-again",
+      "kind": "tf",
+      "promptMd": "`await` blocks the operating system.",
+      "answer": "false",
+      "explainMd": "Only the async function waits. Other work on the page can still run.",
+      "misconceptionId": "await-blocks-the-os"
     },
     {
       "type": "code",
@@ -67,7 +76,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "async function label() { await Promise.resolve(); return \"keyed\" }"
+          "md": "`label` must be `async` so you can `await` inside it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Await a resolved promise, then return the word `keyed`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Print the returned value from `then`, and export `label`."
         },
         {
           "level": 4,

@@ -14,7 +14,7 @@
     {
       "id": "live",
       "title": "Events and trust",
-      "lessonIds": ["events-bubble", "delegation", "forms-and-input", "a11y-name-and-role", "xss-text-vs-html", "transfer-filter-list-ui", "creation-signal-board"]
+      "lessonIds": ["events-bubble", "delegation", "forms-and-input", "prevent-default", "a11y-name-and-role", "xss-text-vs-html", "transfer-filter-list-ui", "creation-signal-board"]
     }
   ]
 }

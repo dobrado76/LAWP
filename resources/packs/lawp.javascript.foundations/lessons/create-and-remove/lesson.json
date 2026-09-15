@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.dom"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Grow the tree\n\n`document.createElement(\"li\")`, set `textContent`, `ul.append(li)`.\n\n`li.remove()` takes a node off. Do not concatenate HTML strings to add one item."
+      "md": "## Grow the tree\n\n`document.createElement(\"li\")` makes a node that is not on the page yet. Set `textContent`, then `ul.append(li)` to hang it on the list. `li.remove()` takes a node off.\n\nDo not concatenate HTML strings to add one item. On this tray, the beacon log starts empty. Create an `li` that says `East` and append it to `#list`."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "ul"
+    },
+    {
+      "type": "check",
+      "id": "append-doc",
+      "kind": "tf",
+      "promptMd": "After `ul.append(li)`, `li.parentNode` is `document`.",
+      "answer": "false",
+      "explainMd": "append hangs the node on that ul. The parent is the list, not the whole document."
     },
     {
       "type": "code",
@@ -65,7 +73,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "const li = document.createElement(\"li\"); li.textContent = \"East\"; list.append(li)"
+          "md": "Create an `li` node first. It is not on the page yet."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Set `textContent` to `East`, then append it to `#list`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The log tray starts empty. One node is enough."
         },
         {
           "level": 4,

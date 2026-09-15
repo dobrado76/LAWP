@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.this"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Four rules (plain functions)\n\n1. `obj.method()` — `this` is `obj`.\n2. `fn()` — `this` is undefined in strict / global in sloppy.\n3. `fn.call(obj)` / `apply` — you pick `this`.\n4. `fn.bind(obj)` — returns a new function with `this` locked.\n\nBind a mover so the callback still walks east."
+      "md": "## Four rules (plain functions)\n\n`obj.method()` sets `this` to `obj`. A bare `fn()` loses that receiver. `fn.call(obj)` / `apply` pick `this`. `fn.bind(obj)` returns a new function with `this` locked.\n\nAfter `const go = obj.go; go()`, the call site lost the receiver. Bind a mover so the callback still walks east.\n\nThe desk pulls `go` off the fox’s route card and later calls `go()`. Without `bind`, `this.dir` is gone and the fox stands still."
     },
     {
       "type": "predict",
@@ -32,6 +32,38 @@
         }
       ],
       "answer": "lost"
+    },
+    {
+      "type": "check",
+      "id": "this-lost",
+      "kind": "cloze",
+      "promptMd": "After `const go = obj.go; go()`, `this` is {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "not obj",
+              "md": "not obj"
+            },
+            {
+              "id": "obj",
+              "md": "obj"
+            },
+            {
+              "id": "the fox",
+              "md": "the fox"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "not obj"
+      },
+      "explainMd": "The method was pulled off the object. A bare call does not pass obj as this.",
+      "skillIds": [
+        "js.this"
+      ]
     },
     {
       "type": "code",
@@ -62,7 +94,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "bind locks this to mover so go() still reads this.dir."
+          "md": "A bare `go()` no longer has `mover` as `this`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`bind` locks `this` to `mover` so `go()` still reads `this.dir`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Call the bound function three times."
         },
         {
           "level": 4,
@@ -93,6 +135,60 @@
                 "y": 0,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 6,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "r1",
+              "type": "rock",
+              "props": {
+                "x": 5,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "owl",
+              "type": "owl",
+              "props": {
+                "x": 6,
+                "y": 2
+              }
+            },
+            {
+              "id": "coin",
+              "type": "coin",
+              "props": {
+                "x": 1,
+                "y": 3,
+                "collect": true,
+                "taken": false,
+                "label": "coin"
+              }
+            },
+            {
+              "id": "chest",
+              "type": "chest",
+              "props": {
+                "x": 6,
+                "y": 4
+              }
+            },
+            {
+              "id": "w1",
+              "type": "wall",
+              "props": {
+                "x": 4,
+                "y": 4,
+                "solid": true
+              }
             }
           ],
           "connections": [],
@@ -101,16 +197,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-dirt"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

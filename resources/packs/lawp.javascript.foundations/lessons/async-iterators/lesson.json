@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.async",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A stream of steps\n\n`async function* steps() { yield \"east\"; yield \"south\" }`.\n\n`for await (const d of steps())` waits for each yield. Print `east-south` joined from the stream."
+      "md": "## A stream of steps\n\n`async function* steps() { yield \"east\"; yield \"south\" }` is a function that hands you one direction at a time. Each `yield` can wait. You do not get the whole list up front.\n\n`for await (const d of steps())` waits for each yield. Print `east-south` joined from the stream.\n\nOn the desk, each slip arrives when it is ready, then you file the next one. The fox reads east, then south, then joins the two words."
     },
     {
       "type": "predict",
@@ -33,6 +33,14 @@
         }
       ],
       "answer": "async"
+    },
+    {
+      "type": "check",
+      "id": "for-await-arrays-only",
+      "kind": "tf",
+      "promptMd": "`for await` is only for ordinary arrays.",
+      "answer": "false",
+      "explainMd": "It is for async iterables. It can also walk a sync iterable. It is not limited to arrays."
     },
     {
       "type": "code",
@@ -67,7 +75,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "for await (const d of steps()) out.push(d)"
+          "md": "Make `steps` an async generator that yields two words."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "In `join`, `for await` each yield into an array, then `join(\"-\")`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Export both `steps` and `join`, and print the joined string."
         },
         {
           "level": 4,

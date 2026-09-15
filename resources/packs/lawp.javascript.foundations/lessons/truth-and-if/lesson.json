@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.flow"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Some values act as “no”\n\nIn an `if`, these are falsy: `0`, `\"\"`, `null`, `undefined`, `NaN`, `false`.\n\n`[]` and `\"0\"` are truthy. An empty list is still a list. The string zero is still text."
+      "md": "## Some values act as “no”\n\nIn an `if`, these are falsy: `0`, `\"\"`, `null`, `undefined`, `NaN`, `false`. A lamp at brightness `0` is off. An empty name `\"\"` is missing.\n\n`[]` and `\"0\"` are truthy. An empty list is still a list. The string zero is still text. Do not treat them as “no.”"
     },
     {
       "type": "predict",
@@ -32,6 +32,53 @@
         }
       ],
       "answer": "go"
+    },
+    {
+      "type": "check",
+      "id": "falsy-set",
+      "kind": "cloze",
+      "promptMd": "In an `if`, {{a}} is falsy and {{b}} is truthy.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "0",
+              "md": "0"
+            },
+            {
+              "id": "[]",
+              "md": "[]"
+            },
+            {
+              "id": "\"0\"",
+              "md": "\"0\""
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "0",
+              "md": "0"
+            },
+            {
+              "id": "[]",
+              "md": "[]"
+            },
+            {
+              "id": "null",
+              "md": "null"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "0",
+        "b": "[]"
+      },
+      "explainMd": "Zero is falsy. An empty array is still an object, so it is truthy."
     },
     {
       "type": "code",

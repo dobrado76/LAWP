@@ -1,0 +1,138 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.flow",
+    "js.values"
+  ],
+  "id": "short-circuit",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "Stop at the first yes or no",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## `&&`, `||`, and `??`\n\n`a && b` returns `a` if `a` is falsy, otherwise `b`. `a || b` returns `a` if `a` is truthy, otherwise `b`. They stop as soon as they know the answer.\n\n`??` is narrower: it only skips `null` or `undefined`. `0 || \"north\"` becomes `\"north\"`. `0 ?? \"north\"` stays `0`. A lamp at brightness zero is still a reading — do not replace it with a default name."
+    },
+    {
+      "type": "predict",
+      "id": "or-zero",
+      "promptMd": "`0 || \"north\"` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "zero",
+          "md": "`0` — zero is a real value"
+        },
+        {
+          "id": "north",
+          "md": "`\"north\"` — `||` treats 0 as no"
+        },
+        {
+          "id": "true",
+          "md": "`true`"
+        }
+      ],
+      "answer": "north"
+    },
+    {
+      "type": "check",
+      "id": "nullish",
+      "kind": "cloze",
+      "promptMd": "`0 ?? \"north\"` is {{a}}. `null ?? \"north\"` is {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "0",
+              "md": "0"
+            },
+            {
+              "id": "\"north\"",
+              "md": "\"north\""
+            },
+            {
+              "id": "null",
+              "md": "null"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "0",
+              "md": "0"
+            },
+            {
+              "id": "\"north\"",
+              "md": "\"north\""
+            },
+            {
+              "id": "null",
+              "md": "null"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "0",
+        "b": "\"north\""
+      },
+      "explainMd": "?? only replaces null or undefined. Zero is kept. || would have thrown zero away."
+    },
+    {
+      "type": "code",
+      "id": "label-or",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `label(name)` returns `name` if it is a non-empty string, otherwise `\"anon\"`. Print `label(\"\")`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "anon"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Empty string is falsy. || can supply a default."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Do not use ?? here — \"\" is not null."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "function label(name) { return name || \"anon\" }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function label(name) {\n  return name || \"anon\"\n}\nconsole.log(label(\"\"))\nmodule.exports = { label }"
+        }
+      ]
+    }
+  ],
+  "description": "And, or, and nullish stop as soon as they know the answer. Zero is a real reading."
+}

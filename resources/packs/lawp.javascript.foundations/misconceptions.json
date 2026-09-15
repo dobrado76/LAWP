@@ -3,6 +3,7 @@
   { "id": "const-means-immutable", "title": "Thinks const freezes an object", "skillIds": ["js.values"], "followUpLessonId": "names-let-const" },
   { "id": "double-equals-is-fine", "title": "Treats == as safe equality", "skillIds": ["js.values"], "followUpLessonId": "triple-equals" },
   { "id": "double-equals-ok", "title": "Treats == as safe equality", "skillIds": ["js.values"], "followUpLessonId": "triple-equals" },
+  { "id": "or-eats-zero", "title": "Uses || when zero is a real value", "skillIds": ["js.flow"], "followUpLessonId": "short-circuit" },
   { "id": "print-is-return", "title": "Thinks printing is the function result", "skillIds": ["js.functions"], "followUpLessonId": "return-not-print" },
   { "id": "off-by-one-inclusive", "title": "Counts the last index one too far", "skillIds": ["js.flow"], "followUpLessonId": "debug-off-by-one-path" },
   { "id": "arrays-are-copied-by-assign", "title": "Thinks array assign copies items", "skillIds": ["js.arrays"], "followUpLessonId": "reference-vs-copy" },

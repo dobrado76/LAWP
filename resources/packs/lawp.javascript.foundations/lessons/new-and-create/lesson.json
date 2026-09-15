@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.proto"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Two ways to set the prototype\n\n`new Fn()` runs `Fn` and sets the instance proto to `Fn.prototype`.\n\n`Object.create(proto)` makes an object whose proto is `proto` and does not run a constructor. Use `create` when you want a chain without `new`."
+      "md": "## Two ways to set the prototype\n\n`new Fn()` runs `Fn` and sets the instance proto to `Fn.prototype`.\n\n`Object.create(proto)` makes an object whose proto is `proto` and does not run a constructor. Use `create` when you want a chain without `new`.\n\n`Object.create(null)` has no prototype — a clean dictionary. The fox can store headings without inheriting `toString` from `Object.prototype`."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "null-proto"
+    },
+    {
+      "type": "check",
+      "id": "create-proto",
+      "kind": "cloze",
+      "promptMd": "`Object.create(null)` has {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "no prototype",
+              "md": "no prototype"
+            },
+            {
+              "id": "Object.prototype",
+              "md": "Object.prototype"
+            },
+            {
+              "id": "Array.prototype",
+              "md": "Array.prototype"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "no prototype"
+      },
+      "explainMd": "The argument is the prototype. null means none. {} would have given you Object.prototype."
     },
     {
       "type": "code",
@@ -66,7 +95,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "The field lives on the prototype. The child still reads it."
+          "md": "The field should live on the prototype, not as an own field."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`Object.create({ kind: \"beacon\" })` makes a child that can still read `kind`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Return that child. Print `child().kind`."
         },
         {
           "level": 4,

@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.arrays",
+    "js.objects"
+  ],
+  "id": "set-and-map",
+  "courseId": "data",
+  "moduleId": "records",
+  "title": "Set and Map",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Unique names, keyed lookup\n\nA `Set` keeps each value once. `new Set([\"east\", \"east\", \"south\"])` has size `2`. A `Map` stores a value under a key you choose — not only a string field on an object.\n\nThe desk uses a set to scrub a log (`east` twice is still one heading) and a map to look up a beacon by name. `map.get(\"north\")` is missing when the key was never set — that is `undefined`, not a throw."
+    },
+    {
+      "type": "predict",
+      "id": "set-size",
+      "promptMd": "`new Set([\"east\", \"east\", \"south\"]).size` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "3",
+          "md": "`3` — it kept every push"
+        },
+        {
+          "id": "2",
+          "md": "`2` — the second east was already there"
+        },
+        {
+          "id": "1",
+          "md": "`1`"
+        }
+      ],
+      "answer": "2"
+    },
+    {
+      "type": "check",
+      "id": "map-missing",
+      "kind": "tf",
+      "promptMd": "`map.get(\"ghost\")` throws if the key is missing.",
+      "answer": "false",
+      "explainMd": "get returns undefined. has tells you whether the key exists."
+    },
+    {
+      "type": "code",
+      "id": "unique-join",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `unique(dirs)` returns the unique headings joined with `-`. Print `unique([\"east\",\"east\",\"south\"])` (`east-south`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east-south"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "new Set(array) drops duplicates and keeps first-seen order."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "[...set] turns the set back into a list you can join."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "function unique(dirs) { return [...new Set(dirs)].join(\"-\") }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function unique(dirs) {\n  return [...new Set(dirs)].join(\"-\")\n}\nconsole.log(unique([\"east\", \"east\", \"south\"]))\nmodule.exports = { unique }"
+        }
+      ]
+    }
+  ],
+  "description": "A set keeps each value once. A map stores a value under a key you choose."
+}

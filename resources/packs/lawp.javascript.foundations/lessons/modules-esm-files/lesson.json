@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.modules"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Two files\n\n`walker.mjs` exports `walkLength`. `main.mjs` imports it and prints `2` for `[\"east\", \"south\"]`."
+      "md": "## Two files\n\n`walker.mjs` exports `walkLength`. `main.mjs` imports that name and prints `2` for `[\"east\", \"south\"]`. A named export is not a global. The other file must import it.\n\nKeep the function in `walker.mjs`. The hidden test imports `walkLength` from there, not from `main.mjs`.\n\nThe desk’s fox helper lives in one file. The night log printer lives in another. Sharing a name is an `export` / `import`, not a hope that both files see the same global."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "named"
+    },
+    {
+      "type": "check",
+      "id": "export-is-global",
+      "kind": "tf",
+      "promptMd": "`export function walkLength` is automatically a global in every file.",
+      "answer": "false",
+      "explainMd": "main.mjs must import { walkLength } from \"./walker.mjs\". The hidden test does the same."
     },
     {
       "type": "code",
@@ -66,12 +74,22 @@
         {
           "level": 1,
           "kind": "concept",
+          "md": "Put `walkLength` in `walker.mjs` and export it. Import it in `main.mjs`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`walkLength` returns `dirs.length`. Print that for east then south."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
           "md": "import { walkLength } from \"./walker.mjs\""
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "walker.mjs: export function walkLength(dirs) { return dirs.length }\nmain.mjs: import { walkLength } from \"./walker.mjs\"\nconsole.log(walkLength([\"east\", \"south\"]))"
+          "md": "walker.mjs:\nexport function walkLength(dirs) { return dirs.length }\nmain.mjs:\nimport { walkLength } from \"./walker.mjs\"\nconsole.log(walkLength([\"east\", \"south\"]))"
         }
       ]
     }

@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 22,
+  "taskRev": 2,
+  "estimatedMinutes": 24,
   "skillIds": [
     "js.node.fs"
   ],
@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A tool you keep\n\n`scrub(input, output)` reads UTF-8, writes unique trimmed sorted names to `output`. Use the same rules as the transfer lesson.\n\nPrint `ok` after writing `clean.txt` from `messy.txt`."
+      "md": "## A tool you keep\n\n`scrub(input, output)` reads UTF-8 from `input`, cleans names the same way as the transfer lesson, and writes that text to `output`. The next program can open the file. Printing names is not enough.\n\nPrint `ok` after writing `clean.txt` from `messy.txt`. Reuse a `clean` helper if you want — the hidden test calls `scrub` and then reads the file it wrote.\n\nNight shift leaves `clean.txt` on the desk. Morning shift opens that file. They do not re-read the messy log."
     },
     {
       "type": "predict",
@@ -37,6 +37,14 @@
         }
       ],
       "answer": "write"
+    },
+    {
+      "type": "check",
+      "id": "scrub-must-write",
+      "kind": "tf",
+      "promptMd": "`scrub` must write a file, not only print the cleaned names.",
+      "answer": "true",
+      "explainMd": "Morning shift opens the output path. stdout is a notebook, not the kept list."
     },
     {
       "type": "code",
@@ -70,6 +78,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Read the input file as UTF-8. Clean it. Write the result to `output`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Cleaning is the same rules: trim, drop blanks, unique, sort."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "Reuse clean(), then writeFileSync."
         },

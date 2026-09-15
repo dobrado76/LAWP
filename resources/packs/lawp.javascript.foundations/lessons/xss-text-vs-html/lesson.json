@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.security",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The fixture tries a payload\n\n`#raw` starts with a fake script payload in a data attribute. Put that string into `#safe` with **`textContent`**. If you use `innerHTML`, you are practicing the bug.\n\nThe page should show the characters, not run them."
+      "md": "## The fixture tries a payload\n\n`#raw` starts with a fake script payload in a data attribute. Put that string into `#safe` with **`textContent`**. If you use `innerHTML`, you are practicing the bug.\n\nThe page should show the characters, not run them. On the safe-copy plate, the fox files the raw string as text so it cannot become a new node."
     },
     {
       "type": "predict",
@@ -34,6 +34,15 @@
         }
       ],
       "answer": "xss"
+    },
+    {
+      "type": "check",
+      "id": "innerhtml-fine",
+      "kind": "tf",
+      "promptMd": "Putting untrusted text into `innerHTML` is fine in a lesson.",
+      "answer": "false",
+      "explainMd": "innerHTML parses markup. Untrusted text can become elements. Use textContent for words.",
+      "misconceptionId": "innerhtml-for-text"
     },
     {
       "type": "code",
@@ -67,7 +76,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "safe.textContent = raw.getAttribute(\"data-payload\")"
+          "md": "Read the payload from the `data-payload` attribute on `#raw`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Write it onto `#safe` with `textContent`, not `innerHTML`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The characters should show. No `img` node should appear."
         },
         {
           "level": 4,

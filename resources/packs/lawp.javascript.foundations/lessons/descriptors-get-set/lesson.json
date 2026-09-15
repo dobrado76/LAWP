@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.objects"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A `position` getter\n\n`get position() { return this.x + \",\" + this.y }` runs on read. `Object.getOwnPropertyDescriptor` shows `get` / `set` / `writable`.\n\nPrint `2,1` from a fox-like object."
+      "md": "## A `position` getter\n\n`get position() { return this.x + \",\" + this.y }` runs on read. You do not get the getter function itself.\n\n`Object.getOwnPropertyDescriptor` shows `get` / `set` / `writable`.\n\nThe fox-like object has `x: 2`, `y: 1`. Reading `fox.position` should print `2,1` as if it were a field."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "run"
+    },
+    {
+      "type": "check",
+      "id": "getter-runs",
+      "kind": "cloze",
+      "promptMd": "Reading `obj.position` {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "runs the getter",
+              "md": "runs the getter"
+            },
+            {
+              "id": "returns the getter function",
+              "md": "returns the getter function"
+            },
+            {
+              "id": "throws",
+              "md": "throws"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "runs the getter"
+      },
+      "explainMd": "A get trap is a field read. The engine calls the getter and hands you its return value."
     },
     {
       "type": "code",
@@ -65,6 +94,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Use `get position()` in an object literal."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Join `this.x` and `this.y` with a comma."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "get position() { return this.x + \",\" + this.y }"
         },

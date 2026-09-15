@@ -10,10 +10,10 @@
 - Shared AppData for dev and installed builds (D3); window restore (D4); custom icon (D20)
 - **Circuits** (`lawp.circuits.basics`): `world-v1` experiment, Why / misconceptions, hints, transfer, kept creation + export
 - **Python** and **JavaScript** code lessons: spawn in a temp sandbox, stdout / AST / assert checks, Why, hints
-- **JavaScript expert path** (`lawp.javascript.foundations`): placement through Node, DOM, fetch, tests, and a multi-file capstone (~80–100 h). Hidden `js-assert` on every code lesson. DOM lessons preview a styled page in the iframe (grade still happy-dom in main)
+- **JavaScript expert path** (`lawp.javascript.foundations`): placement through Node, DOM, fetch, tests, and a multi-file capstone. Hidden `js-assert` on every code lesson. Fox grids use play-kit scenery. DOM lessons preview a styled page. Four extra lessons: short-circuit, Set/Map, preventDefault, method/headers
 - **`player-v1` grid:** `Player.move` / `rotate` / `scale` / `say` / `wait(ticks)`; main applies `play-log.json` and grades that world (D43). Built-in play kit (floors, terrain, items, characters, hazards) under `resources/play/assets`; Author picks pieces; Studio paints a floor tile on every cell
 - Author: form-first lesson maker (every check kind, world parts/actions/rules, code files, **play-kit picker** on grid worlds). Save, validate, import picture/audio, play in Studio, export zip. JSON inspector is optional. How-to: [AUTHORING.md](AUTHORING.md)
-- Studio editor: CodeMirror, language lint, Player autocomplete; learner **drafts** under `learners/<id>/drafts/`
+- Studio editor: CodeMirror, language lint, Player autocomplete on fox grids, **DOM autocomplete** (`document`, `querySelector`, element members, page selectors) on iframe lessons. Those lessons also have **Preview / HTML / CSS** tabs so the fixture source is inspectable. Learner **drafts** under `learners/<id>/drafts/`
 - Studio bar: Back / Next / Hint / Restart are icons with tooltips. After a correct Submit, that same control becomes Next in place (incorrect keeps Submit so they can retry). Last lesson: **Return to library** plus Congratulations and a first-try score; Correct / Incorrect shows in the left pane
 - Progress: activity log, grades ledger, snapshots on Check, restart keeps history (D28, D41)
 - Library lessons: longer authored card blurbs (no code), takeaway pills, and a Lucide icon per lesson; placement / diagnostic courses are a compact intro row; export / restart / clear live in an overflow menu

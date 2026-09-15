@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.dom",
@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Filter in the page\n\nThe list is already in the tree. On `input` of `#q`, hide `li` nodes whose text does not include the query (case-insensitive). Use a class or `hidden` — do not rebuild innerHTML from a string of names."
+      "md": "## Filter in the page\n\nThe list is already in the tree. On `input` of `#q`, hide `li` nodes whose text does not include the query (case-insensitive). Use a class or `hidden` — do not rebuild innerHTML from a string of names.\n\nTyping `ea` should hide `North` and leave `East` visible. The filter tray already holds the names. You only show or hide them."
     },
     {
       "type": "predict",
@@ -37,6 +37,14 @@
         }
       ],
       "answer": "nodes"
+    },
+    {
+      "type": "check",
+      "id": "filter-html",
+      "kind": "tf",
+      "promptMd": "The honest filter writes a new innerHTML string of the matches.",
+      "answer": "false",
+      "explainMd": "Keep the nodes. Hide the ones that do not match. Rebuilding innerHTML throws the tree away."
     },
     {
       "type": "code",
@@ -70,7 +78,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "for (const li of list.querySelectorAll(\"li\")) li.hidden = !li.textContent.toLowerCase().includes(q)"
+          "md": "Listen for `input` on `#q`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "For each `li` in `#list`, set `hidden` if its text does not include the query."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Compare in lower case so `ea` matches `East`."
         },
         {
           "level": 4,

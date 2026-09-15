@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.events",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The live value\n\n`input` fires as the person types. Read `event.target.value` (or the input’s `.value`). Copy it into `#echo`."
+      "md": "## The live value\n\nThe `input` event fires as the person types. Read `event.target.value` (or the input’s `.value`). That string is the live field, not `innerHTML`.\n\nCopy it into `#echo`. On the echo plate, each letter the fox types should appear on the line below as it is typed."
     },
     {
       "type": "predict",
@@ -33,6 +33,14 @@
         }
       ],
       "answer": "value"
+    },
+    {
+      "type": "check",
+      "id": "value-html",
+      "kind": "tf",
+      "promptMd": "The text in a text field lives on `innerHTML`.",
+      "answer": "false",
+      "explainMd": "A text input holds its string on .value. innerHTML is the wrong place to read it."
     },
     {
       "type": "code",
@@ -66,7 +74,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "name.addEventListener(\"input\", (e) => { echo.textContent = e.target.value })"
+          "md": "Listen for `input` on `#name`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Read `e.target.value` each time."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Write that string into `#echo` with `textContent`."
         },
         {
           "level": 4,

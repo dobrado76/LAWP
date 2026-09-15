@@ -14,7 +14,7 @@
     {
       "id": "records",
       "title": "Records and copies",
-      "lessonIds": ["objects-props", "reference-vs-copy", "destructure-spread", "json-roundtrip", "signal-log"]
+      "lessonIds": ["objects-props", "set-and-map", "reference-vs-copy", "destructure-spread", "json-roundtrip", "signal-log"]
     }
   ]
 }

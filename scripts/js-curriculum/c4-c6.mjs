@@ -2,12 +2,19 @@ import {
   lesson,
   explain,
   predict,
-  hints,
+  cloze,
+  tf,
+  ladder,
   stdoutCode,
   playCode,
   fox,
   beacon,
-  gridWorld,
+  rock,
+  tree,
+  token,
+  piece,
+  wall,
+  field,
   at,
   srcIncludes,
   playLogOk,
@@ -27,7 +34,7 @@ export function lessonsC4C6() {
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A name before it is ready\n\n`let` and `const` exist in a temporal dead zone from the start of the block until the line that initializes them. Reading `label` above `let label = "east"` throws `ReferenceError`.\n\n`var` is older and hoists as `undefined`. Prefer `let`/`const` so the crash teaches you.'
+          '## A name before it is ready\n\n`let` and `const` exist from the start of the block, but you cannot read them until the line that sets them. That empty stretch is the temporal dead zone. `console.log(label)` above `let label = "east"` throws `ReferenceError`.\n\n`var` is older: it hoists as `undefined`, so a read before the assign is quiet and wrong. Prefer `let` and `const` so the crash teaches you.\n\nOn the desk, the fox cannot read a heading sticker that is still blank. Write the heading first, then walk.'
         ),
         predict(
           'tdz',
@@ -38,15 +45,24 @@ export function lessonsC4C6() {
           ],
           'throw'
         ),
+        cloze(
+          'tdz-name',
+          'Reading a `let` before it is set throws {{a}}.',
+          [{ id: 'a', choices: ['undefined', 'ReferenceError', 'TypeError'] }],
+          { a: 'ReferenceError' },
+          { explainMd: 'The name is reserved in the block, but it is not ready. The language throws ReferenceError, not a quiet undefined.' }
+        ),
         stdoutCode({
           id: 'after-init',
           prompt: '> `readyLabel()` returns `"east"` from a `let` that is initialized before you read it. Print it.',
           equals: 'east',
           ast: 'let',
           hidden: true,
-          hints: hints(
-            'Declare, then assign or initialize, then return.',
-            { level: 4, kind: 'assist', md: 'function readyLabel() {\n  let dir = "east"\n  return dir\n}\nconsole.log(readyLabel())\nmodule.exports = { readyLabel }' }
+          hints: ladder(
+            'A `let` is safe to read only after the line that sets it.',
+            'Declare the name, give it `"east"`, then return that name.',
+            'function readyLabel() { let dir = "east"; return dir }',
+            'function readyLabel() {\n  let dir = "east"\n  return dir\n}\nconsole.log(readyLabel())\nmodule.exports = { readyLabel }'
           )
         })
       ]
@@ -74,7 +90,7 @@ module.exports = { readyLabel }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## The function keeps the box\n\n`makeMover(dir)` returns a function. That inner function still sees `dir` later — that is a closure. The fox can call the returned function after you have left `makeMover`.\n\nThe closure does not copy the value onto a sticky note unless you create a new binding each time.'
+          '## The function keeps the box\n\n`makeMover(dir)` returns a function. That inner function still sees `dir` later — that is a closure. The fox can call the returned function after you have left `makeMover`.\n\nThe closure keeps a live binding, not a sticky-note copy, unless you create a new binding each time.\n\nAt the signal desk, you hand the fox a radio tuned to `"east"`. Three later calls still walk east, even though `makeMover` has finished.'
         ),
         predict(
           'remembers-dir',
@@ -85,15 +101,36 @@ module.exports = { readyLabel }
           ],
           'east'
         ),
+        cloze(
+          'closure-binding',
+          'After `makeMover` returns, the inner function still sees {{a}}.',
+          [{ id: 'a', choices: ['dir', 'undefined', 'a printed copy'] }],
+          { a: 'dir' },
+          { explainMd: 'The inner function keeps the binding named dir. It does not lose the heading when makeMover ends.', skillIds: ['js.closures'] }
+        ),
         playCode({
           id: 'radio-east',
           prompt: '> `makeMover("east")` returns a function. Call it three times to reach x=3.',
-          world: gridWorld([fox(0, 0), beacon(3, 0)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(3, 0),
+              tree('t1', 5, 0),
+              tree('t2', 6, 4),
+              rock('r1', 5, 3),
+              piece('owl', 'owl', 6, 1),
+              token('coin', 'coin', 0, 3),
+              piece('chest', 'chest', 6, 3)
+            ],
+            { floor: 'floor-grass' }
+          ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
-          hints: hints(
-            'return function () { Player.move(dir) }',
-            { level: 4, kind: 'assist', md: 'function makeMover(dir) {\n  return function go() { Player.move(dir) }\n}\nconst go = makeMover("east")\ngo(); go(); go()\nmodule.exports = { makeMover }' }
+          hints: ladder(
+            'Return a function that still sees the `dir` parameter.',
+            'Inside that function, call `Player.move(dir)`.',
+            'Call the returned function three times after `makeMover("east")`.',
+            'function makeMover(dir) {\n  return function go() { Player.move(dir) }\n}\nconst go = makeMover("east")\ngo(); go(); go()\nmodule.exports = { makeMover }'
           )
         })
       ]
@@ -120,7 +157,7 @@ module.exports = { makeMover }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A table of functions\n\n`const cmds = { go(dir) { Player.move(dir) }, turn() { Player.rotate(90) } }`.\n\nYou look up a name and call it. That is how a small language of stage commands stays data.'
+          '## A table of functions\n\n`const cmds = { go(dir) { Player.move(dir) }, turn() { Player.rotate(90) } }` stores functions under names. You look up a name and call it. That is how a small language of stage commands stays data.\n\nThe name without `()` is the function value. You still have to call it.\n\nThe desk files `go` and `turn` on a clipboard. The fox only moves when you say `cmds.go("east")`, not when you glance at `cmds.go`.'
         ),
         predict(
           'lookup-call',
@@ -131,15 +168,38 @@ module.exports = { makeMover }
           ],
           'fn'
         ),
+        cloze(
+          'lookup-kind',
+          '`cmds.go` without `()` is {{a}}.',
+          [{ id: 'a', choices: ['the function value', 'a finished move', 'undefined'] }],
+          { a: 'the function value' },
+          { explainMd: 'Looking up the name gives you the function. Parentheses are what run it.' }
+        ),
         playCode({
           id: 'cmd-table',
           prompt: '> Build `cmds.go` / `cmds.turn`. go east three times, turn, stand on (3,0) facing 90°.',
-          world: gridWorld([fox(0, 0), beacon(3, 0)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(3, 0),
+              wall('w1', 0, 2),
+              wall('w2', 1, 2),
+              wall('w3', 2, 2),
+              tree('t1', 6, 0),
+              rock('r1', 5, 4),
+              piece('owl', 'owl', 6, 3),
+              token('coin', 'coin', 4, 4),
+              piece('chest', 'chest', 6, 4)
+            ],
+            { floor: 'floor-dirt' }
+          ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0), at('fox', 'rot', 90)] },
           hidden: true,
-          hints: hints(
-            'cmds.go("east") three times, then cmds.turn().',
-            { level: 4, kind: 'assist', md: 'const cmds = {\n  go(dir) { Player.move(dir) },\n  turn() { Player.rotate(90) }\n}\ncmds.go("east"); cmds.go("east"); cmds.go("east"); cmds.turn()\nmodule.exports = { cmds }' }
+          hints: ladder(
+            'Put the move and the rotate on the same object under names.',
+            '`go` should call `Player.move(dir)`. `turn` should call `Player.rotate(90)`.',
+            'Call `cmds.go("east")` three times, then `cmds.turn()`.',
+            'const cmds = {\n  go(dir) { Player.move(dir) },\n  turn() { Player.rotate(90) }\n}\ncmds.go("east"); cmds.go("east"); cmds.go("east"); cmds.turn()\nmodule.exports = { cmds }'
           )
         })
       ]
@@ -167,7 +227,7 @@ assert.strictEqual(typeof m.cmds.turn, 'function')
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Shorter is not the whole story\n\n`const add = (a, b) => a + b` is shorter. An arrow also **does not get its own `this`**. It keeps the `this` from outside.\n\nA method that needs `this.dir` should stay a `function`, or you bind it later. This lesson is syntax plus that preview — no DOM yet.'
+          '## Shorter is not the whole story\n\n`const add = (a, b) => a + b` is shorter. An arrow also **does not get its own `this`**. It keeps the `this` from the scope where it was created.\n\nA method that needs `this.dir` should stay a `function`, or you bind it later. This lesson is syntax plus that preview — no page tree yet.\n\nIf the fox writes an arrow as `go` on a route object, `this.dir` is not the route. A plain `function go()` would see the object that called it.'
         ),
         predict(
           'arrow-this',
@@ -178,15 +238,24 @@ assert.strictEqual(typeof m.cmds.turn, 'function')
           ],
           'outer'
         ),
+        cloze(
+          'arrow-keeps',
+          "An arrow's `this` is {{a}}.",
+          [{ id: 'a', choices: ['from the outer scope', 'whatever called it', 'always the global'] }],
+          { a: 'from the outer scope' },
+          { explainMd: 'Arrows do not get a new this at the call site. They keep the this from where they were written.', skillIds: ['js.this'] }
+        ),
         stdoutCode({
           id: 'arrow-sum',
           prompt: '> Write `add` as an arrow that returns `a + b`. Print `add(2, 3)` (`5`).',
           equals: '5',
           ast: '=>',
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            'Use `=>` so the hidden check can see an arrow.',
+            'Two parameters, then the sum. No `function` keyword.',
             'const add = (a, b) => a + b',
-            { level: 4, kind: 'assist', md: 'const add = (a, b) => a + b\nconsole.log(add(2, 3))\nmodule.exports = { add }' }
+            'const add = (a, b) => a + b\nconsole.log(add(2, 3))\nmodule.exports = { add }'
           )
         })
       ]
@@ -214,7 +283,7 @@ assert.strictEqual(m.add(0, 1), 1)
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## A function that takes a function\n\n`function walk(steps, fn)` calls `fn` once per step. You pass `function () { Player.move("east") }` or an arrow.\n\nThe higher-order function owns the count. The callback owns the action.'
+          '## A function that takes a function\n\n`function walk(steps, fn)` calls `fn` once per step. You pass `function () { Player.move("east") }` or an arrow.\n\nThe higher-order function owns the count. The callback owns the action.\n\nThe desk says “three steps.” The fox decides what a step is. `walk(3, goEast)` walks east three times without hard-coding the loop at the call site.'
         ),
         predict(
           'hof-count',
@@ -225,15 +294,36 @@ assert.strictEqual(m.add(0, 1), 1)
           ],
           'three'
         ),
+        cloze(
+          'hof-times',
+          '`walk(3, fn)` calls `fn` {{a}}.',
+          [{ id: 'a', choices: ['once', 'three times', 'zero times'] }],
+          { a: 'three times' },
+          { explainMd: 'The first argument is how many times to run the callback. Three means three calls.' }
+        ),
         playCode({
           id: 'walk-fn',
           prompt: '> Implement `walk(steps, fn)` and pass a mover that goes east. Reach (3, 0).',
-          world: gridWorld([fox(0, 0), beacon(3, 0)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(3, 0),
+              tree('t1', 5, 1),
+              rock('r1', 4, 3),
+              piece('owl', 'owl', 6, 0),
+              token('coin', 'coin', 1, 4),
+              piece('chest', 'chest', 6, 4),
+              wall('w1', 0, 2)
+            ],
+            { floor: 'floor-path' }
+          ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            '`walk` should run the callback once per step, not once in total.',
+            'A counted `for` loop from `0` to `steps` is enough.',
             'for (let i = 0; i < steps; i++) fn()',
-            { level: 4, kind: 'assist', md: 'function walk(steps, fn) {\n  for (let i = 0; i < steps; i++) fn()\n}\nwalk(3, () => Player.move("east"))\nmodule.exports = { walk }' }
+            'function walk(steps, fn) {\n  for (let i = 0; i < steps; i++) fn()\n}\nwalk(3, () => Player.move("east"))\nmodule.exports = { walk }'
           )
         })
       ]
@@ -262,7 +352,7 @@ assert.strictEqual(n, 4)
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## One binding, many callbacks\n\nA loop with `var i` (or one `let dir` you overwrite) makes every callback see the **last** value. The fox repeats the last dir.\n\nFix it: `let` in the loop, or `dirs.forEach((dir) => { ... })` so each callback has its own `dir`.'
+          '## One binding, many callbacks\n\nA loop with `var i` (or one `let dir` you overwrite) makes every callback see the **last** value. The fox repeats the last heading.\n\nFix it: `let` in the loop, or `dirs.forEach((dir) => { ... })` so each callback has its own `dir`.\n\nThe plan was east, then south. After the loop, every queued mover still reads the last cell of `dirs`, so the fox walks the last heading twice and misses the beacon.'
         ),
         predict(
           'var-loop',
@@ -273,16 +363,37 @@ assert.strictEqual(n, 4)
           ],
           'last'
         ),
+        cloze(
+          'stale-last',
+          'Callbacks from a `var` loop often all see the {{a}} value.',
+          [{ id: 'a', choices: ['last', 'first', 'each own'] }],
+          { a: 'last' },
+          { explainMd: 'var is one binding for the whole function. After the loop, i (or the shared dir) is the last value.' }
+        ),
         playCode({
           id: 'fix-stale',
           debug: true,
           prompt: '> The starter queues movers that all walk the last dir. Fix them so the path is east, south (1, 1).',
-          world: gridWorld([fox(0, 0), beacon(1, 1)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(1, 1),
+              tree('t1', 4, 0),
+              rock('r1', 5, 2),
+              piece('owl', 'owl', 6, 0),
+              token('coin', 'coin', 0, 3),
+              piece('chest', 'chest', 6, 4),
+              wall('w1', 3, 3)
+            ],
+            { floor: 'floor-sand' }
+          ),
           goal: { all: [at('fox', 'x', 1), at('fox', 'y', 1)] },
           hidden: true,
-          hints: hints(
-            'forEach gives each function its own dir parameter.',
-            { level: 4, kind: 'assist', md: 'const dirs = ["east", "south"]\nconst movers = dirs.map((dir) => () => Player.move(dir))\nfor (const go of movers) go()' }
+          hints: ladder(
+            'Each queued function needs its own `dir`, not one shared `var i`.',
+            '`map` or `forEach` gives each callback its own parameter.',
+            'const movers = dirs.map((dir) => () => Player.move(dir))',
+            'const dirs = ["east", "south"]\nconst movers = dirs.map((dir) => () => Player.move(dir))\nfor (const go of movers) go()'
           )
         })
       ]
@@ -314,7 +425,7 @@ assert.ok(log.some((row) => row.dir === 'south'))
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Dispatch drives the walk\n\n`run(plan, table)` looks up each string in `table` and calls that function. A new maze is a new plan array — not a new pile of copy-paste moves.\n\nPlan: `"e"`, `"e"`, `"s"` to (2, 1).'
+          '## Dispatch drives the walk\n\n`run(plan, table)` looks up each string in `table` and calls that function. A new maze is a new plan array — not a new pile of copy-paste moves.\n\nIf a key is missing, a careful runner throws or names the unknown key. A silent skip hides a typo forever.\n\nPlan `"e"`, `"e"`, `"s"` should put the fox on the beacon at (2, 1). A stray `"n"` should not vanish.'
         ),
         predict(
           'missing-key',
@@ -325,15 +436,36 @@ assert.ok(log.some((row) => row.dir === 'south'))
           ],
           'throw'
         ),
+        cloze(
+          'missing-plan',
+          'A missing plan key should {{a}}.',
+          [{ id: 'a', choices: ['throw or name it', 'skip forever', 'walk east'] }],
+          { a: 'throw or name it' },
+          { explainMd: 'Unknown commands are faults. Name them or throw so a typo cannot hide.' }
+        ),
         playCode({
           id: 'run-plan',
           prompt: '> `run(plan, table)` with table keys `e` / `s`. Reach the beacon at (2, 1).',
-          world: gridWorld([fox(0, 0), beacon(2, 1)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(2, 1),
+              tree('t1', 5, 0),
+              rock('r1', 4, 3),
+              piece('owl', 'owl', 6, 2),
+              token('coin', 'coin', 0, 4),
+              piece('chest', 'chest', 6, 4),
+              wall('w1', 3, 4)
+            ],
+            { floor: 'floor-brick' }
+          ),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 1)] },
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            'Walk the plan in order. Each string is a key in `table`.',
+            'If `table[key]` is missing, throw. If it exists, call it.',
             'for (const key of plan) table[key]()',
-            { level: 4, kind: 'assist', md: 'function run(plan, table) {\n  for (const key of plan) {\n    if (!table[key]) throw new Error("unknown " + key)\n    table[key]()\n  }\n}\nconst table = { e: () => Player.move("east"), s: () => Player.move("south") }\nrun(["e", "e", "s"], table)\nmodule.exports = { run }' }
+            'function run(plan, table) {\n  for (const key of plan) {\n    if (!table[key]) throw new Error("unknown " + key)\n    table[key]()\n  }\n}\nconst table = { e: () => Player.move("east"), s: () => Player.move("south") }\nrun(["e", "e", "s"], table)\nmodule.exports = { run }'
           )
         })
       ]
@@ -364,7 +496,7 @@ assert.strictEqual(n, 2)
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A bad dir is not the end\n\n`Player.move` already faults on a bad dir. Here **you** throw `new Error("bad dir")` if the string is not a compass word. `catch` `say`s the fault, then you still finish the walk east to the beacon.\n\nThe program continues after a handled error.'
+          '## A bad dir is not the end\n\n`Player.move` already faults on a bad dir. Here **you** throw `new Error("bad dir")` if the string is not a compass word. `catch` `say`s the fault, then you still finish the walk east to the beacon.\n\nThe program continues after a handled error. The next line after the `try/catch` still runs.\n\nThe fox is told `"up"`. That is not a heading. It says `"fault"`, then walks east twice onto the lamp.'
         ),
         predict(
           'catch-continues',
@@ -375,15 +507,38 @@ assert.strictEqual(n, 2)
           ],
           'runs'
         ),
+        cloze(
+          'after-catch',
+          'After `catch` runs, the next line {{a}}.',
+          [{ id: 'a', choices: ['still runs', 'never runs', 'throws again'] }],
+          { a: 'still runs' },
+          { explainMd: 'catch handled the error. Code after the try/catch is ordinary code again.' }
+        ),
         playCode({
           id: 'catch-say',
           prompt: '> `step("up")` throws. Catch it, `Player.say("fault")`, then walk east to (2, 0).',
-          world: gridWorld([fox(0, 0), beacon(2, 0)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(2, 0),
+              wall('w1', 0, 2),
+              wall('w2', 1, 2),
+              wall('w3', 2, 2),
+              tree('t1', 5, 1),
+              rock('r1', 6, 3),
+              piece('owl', 'owl', 6, 0),
+              token('coin', 'coin', 4, 4),
+              piece('chest', 'chest', 5, 4)
+            ],
+            { floor: 'floor-wood' }
+          ),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 0), at('fox', 'say', 'fault')] },
           hidden: true,
-          hints: hints(
-            'try { step("up") } catch (e) { Player.say("fault") }',
-            { level: 4, kind: 'assist', md: 'function step(dir) {\n  if (!["north", "south", "east", "west"].includes(dir)) throw new Error("bad dir")\n  Player.move(dir)\n}\ntry { step("up") } catch (e) { Player.say("fault") }\nstep("east"); step("east")\nmodule.exports = { step }' }
+          hints: ladder(
+            '`step` should throw when the string is not a compass word.',
+            'Catch the bad `"up"` call, then `Player.say("fault")`.',
+            'After the catch, walk east twice with legal `step` calls.',
+            'function step(dir) {\n  if (!["north", "south", "east", "west"].includes(dir)) throw new Error("bad dir")\n  Player.move(dir)\n}\ntry { step("up") } catch (e) { Player.say("fault") }\nstep("east"); step("east")\nmodule.exports = { step }'
           )
         })
       ]
@@ -410,7 +565,7 @@ module.exports = { step }
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Cleanup, then fail\n\n`finally` runs whether `try` threw or not. Use it to `Player.say("clear")` after an attempt.\n\nIf you still want the caller to see the error, `throw e` again after cleanup.'
+          '## Cleanup, then fail\n\n`finally` runs whether `try` threw or not. Use it to push a clear note after an attempt.\n\nIf you still want the caller to see the error, throw again after cleanup. `finally` is not a catch that swallows the fault.\n\nThe desk wipes the clipboard (`"clear"`) even when the attempt fails. Then it can still rethrow so the night log shows the fault.'
         ),
         predict(
           'finally-always',
@@ -421,15 +576,24 @@ module.exports = { step }
           ],
           'yes'
         ),
+        cloze(
+          'finally-runs',
+          '`finally` {{a}} when `try` throws.',
+          [{ id: 'a', choices: ['always runs', 'never runs', 'runs only if catch exists'] }],
+          { a: 'always runs' },
+          { explainMd: 'finally is cleanup. It runs after try, whether or not a throw happened.' }
+        ),
         stdoutCode({
           id: 'cleanup',
           prompt: '> `attempt()` tries a throw, `finally` pushes `"clear"` into `notes`, then rethrows. Print `notes[0]` by catching outside (`clear`).',
           equals: 'clear',
           ast: 'finally',
           hidden: true,
-          hints: hints(
-            'try { throw new Error("x") } finally { notes.push("clear") }',
-            { level: 4, kind: 'assist', md: 'const notes = []\nfunction attempt() {\n  try { throw new Error("x") }\n  finally { notes.push("clear") }\n}\ntry { attempt() } catch (e) {}\nconsole.log(notes[0])\nmodule.exports = { attempt, notes }' }
+          hints: ladder(
+            '`finally` is the place that always records cleanup.',
+            'Push `"clear"` in `finally`. Let the throw leave `attempt`.',
+            'Catch outside `attempt` so you can print `notes[0]`.',
+            'const notes = []\nfunction attempt() {\n  try { throw new Error("x") }\n  finally { notes.push("clear") }\n}\ntry { attempt() } catch (e) {}\nconsole.log(notes[0])\nmodule.exports = { attempt, notes }'
           )
         })
       ]
@@ -460,7 +624,7 @@ assert.strictEqual(m.notes[0], 'clear')
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Name the failure\n\n`class RouteError extends Error {}` lets `catch (e)` ask `e instanceof RouteError`. A generic `Error` is a shrug. A named class is a signal.'
+          '## Name the failure\n\n`class RouteError extends Error {}` lets `catch (e)` ask `e instanceof RouteError`. A generic `Error` is a shrug. A named class is a signal.\n\nA `RouteError` is still an `Error`. `e instanceof Error` stays true.\n\nWhen the path is blocked, the fox throws `RouteError("blocked")`. The desk can tell a blocked route from a missing file.'
         ),
         predict(
           'instanceof',
@@ -471,15 +635,24 @@ assert.strictEqual(m.notes[0], 'clear')
           ],
           'true'
         ),
+        cloze(
+          'still-error',
+          '`new RouteError` is {{a}} an Error.',
+          [{ id: 'a', choices: ['still', 'never', 'only if you wrap it'] }],
+          { a: 'still' },
+          { explainMd: 'extends Error keeps the subclass in the Error family. instanceof Error is true.' }
+        ),
         stdoutCode({
           id: 'route-error',
           prompt: '> Define `RouteError`. `fail()` throws one with message `blocked`. Catch it and print `blocked`.',
           equals: 'blocked',
           ast: 'class RouteError',
           hidden: true,
-          hints: hints(
-            'class RouteError extends Error {}',
-            { level: 4, kind: 'assist', md: 'class RouteError extends Error {}\nfunction fail() { throw new RouteError("blocked") }\ntry { fail() } catch (e) { console.log(e.message) }\nmodule.exports = { RouteError, fail }' }
+          hints: ladder(
+            'Make a class that extends `Error`.',
+            '`fail` should `throw new RouteError("blocked")`, not a plain Error.',
+            'Catch it and print `e.message`.',
+            'class RouteError extends Error {}\nfunction fail() { throw new RouteError("blocked") }\ntry { fail() } catch (e) { console.log(e.message) }\nmodule.exports = { RouteError, fail }'
           )
         })
       ]
@@ -511,7 +684,7 @@ try { m.fail() } catch (e) {
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## The top line is the throw\n\nA stack lists calls from newest to oldest. The first `at step` line is where `throw` ran. Fix `step` so `"east"` moves and `"up"` still throws.\n\nPrint `ok` after a good step.'
+          '## The top line is the throw\n\nA stack lists calls from newest to oldest. The first `at step` line is where `throw` ran. Fix `step` so `"east"` is legal and `"up"` still throws.\n\nPrint `ok` after a good step. Do not throw on a compass heading.\n\nThe fox was told `"east"` and still crashed. The stack’s first `at` line points at `step`, not at the first function in the file.'
         ),
         predict(
           'stack-top',
@@ -522,15 +695,24 @@ try { m.fail() } catch (e) {
           ],
           'throw'
         ),
+        cloze(
+          'stack-first',
+          'The first `at` line is usually {{a}}.',
+          [{ id: 'a', choices: ['the function that threw', 'the first function in the file', 'the catch block'] }],
+          { a: 'the function that threw' },
+          { explainMd: 'Newest call is on top. That is where throw ran, not where the file began.' }
+        ),
         stdoutCode({
           id: 'fix-step',
           debug: true,
           prompt: '> `step("east")` should not throw. Print `ok`. `step("up")` still throws.',
           equals: 'ok',
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            'The crash is inside `step`. Read the first `at` line.',
             'Only throw when the dir is unknown.',
-            { level: 4, kind: 'assist', md: 'function step(dir) {\n  if (dir !== "east" && dir !== "west" && dir !== "north" && dir !== "south") throw new Error("bad")\n  return dir\n}\nstep("east")\nconsole.log("ok")\nmodule.exports = { step }' }
+            'Return a legal dir such as `"east"` instead of throwing.',
+            'function step(dir) {\n  if (dir !== "east" && dir !== "west" && dir !== "north" && dir !== "south") throw new Error("bad")\n  return dir\n}\nstep("east")\nconsole.log("ok")\nmodule.exports = { step }'
           )
         })
       ]
@@ -560,7 +742,7 @@ assert.throws(() => m.step('up'))
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## `+` and `==` ask an object for a primitive\n\n`[] + []` is `""`. `[] == false` is `true` because both sides coerce. `{ valueOf() { return 1 } } + 1` is `2`.\n\nPrefer `===` and explicit `Number` / `String`. The Why is: the language has a ToPrimitive walk, not a moral about “empty”.'
+          '## `+` and `==` ask an object for a primitive\n\n`[] + []` is `""`. `[] == false` is `true` because both sides coerce. `{ valueOf() { return 1 } } + 1` is `2`.\n\nPrefer `===` and explicit `Number` / `String`. The language has a ToPrimitive walk, not a moral about “empty.”\n\nThe desk asked whether an empty tray `[]` equals `false` (lamp off). Loose `==` says yes. The fox should not treat an empty list as “off.”'
         ),
         predict(
           'empty-array-eq',
@@ -571,14 +753,23 @@ assert.throws(() => m.step('up'))
           ],
           'true'
         ),
+        cloze(
+          'coerce-empty',
+          '`[] == false` is {{a}} because both sides coerce.',
+          [{ id: 'a', choices: ['true', 'false', 'TypeError'] }],
+          { a: 'true' },
+          { explainMd: 'Loose == walks both sides toward numbers. An empty array becomes 0, and false becomes 0.' }
+        ),
         stdoutCode({
           id: 'valueof',
           prompt: '> `asNumber` returns `Number(box)` where `box.valueOf` returns `2`. Print `2`.',
           equals: '2',
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            '`Number(object)` asks the object for a primitive.',
+            'Give `box` a `valueOf` that returns `2`.',
             'const box = { valueOf() { return 2 } }',
-            { level: 4, kind: 'assist', md: 'function asNumber() {\n  const box = { valueOf() { return 2 } }\n  return Number(box)\n}\nconsole.log(asNumber())\nmodule.exports = { asNumber }' }
+            'function asNumber() {\n  const box = { valueOf() { return 2 } }\n  return Number(box)\n}\nconsole.log(asNumber())\nmodule.exports = { asNumber }'
           )
         })
       ]
@@ -605,7 +796,7 @@ module.exports = { asNumber }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Shared methods live on the prototype\n\n`Object.getPrototypeOf(obj)` is the next place JS looks for a field. Many objects share one method object. That is `[[Prototype]]`, not a copy of the function on every instance.'
+          '## Shared methods live on the prototype\n\n`Object.getPrototypeOf(obj)` is the next place JS looks for a field. Many objects share one method object. That is `[[Prototype]]`, not a copy of the function on every instance.\n\nTwo foxes from the same prototype share one `go` function.\n\nThe desk does not copy `move` onto every route card. Each card looks up `go` on the shared prototype when you call it.'
         ),
         predict(
           'shared-method',
@@ -616,15 +807,24 @@ module.exports = { asNumber }
           ],
           'one'
         ),
+        cloze(
+          'proto-share',
+          'Two objects from one prototype share {{a}}.',
+          [{ id: 'a', choices: ['one method function', 'a private copy each', 'no methods'] }],
+          { a: 'one method function' },
+          { explainMd: 'The method lives once on the prototype. Instances look it up; they do not each get a copy.' }
+        ),
         stdoutCode({
           id: 'read-proto',
           prompt: '> `protoName()` returns `Object.getPrototypeOf({}).constructor.name` (`Object`). Print it.',
           equals: 'Object',
           ast: 'getPrototypeOf',
           hidden: true,
-          hints: hints(
-            'Object.getPrototypeOf({}) is Object.prototype.',
-            { level: 4, kind: 'assist', md: 'function protoName() {\n  return Object.getPrototypeOf({}).constructor.name\n}\nconsole.log(protoName())\nmodule.exports = { protoName }' }
+          hints: ladder(
+            'A plain `{}` has `Object.prototype` behind it.',
+            'Read `Object.getPrototypeOf({})`, then `.constructor.name`.',
+            'That name is the string `Object`.',
+            'function protoName() {\n  return Object.getPrototypeOf({}).constructor.name\n}\nconsole.log(protoName())\nmodule.exports = { protoName }'
           )
         })
       ]
@@ -651,7 +851,7 @@ module.exports = { protoName }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Two ways to set the prototype\n\n`new Fn()` runs `Fn` and sets the instance proto to `Fn.prototype`.\n\n`Object.create(proto)` makes an object whose proto is `proto` and does not run a constructor. Use `create` when you want a chain without `new`.'
+          '## Two ways to set the prototype\n\n`new Fn()` runs `Fn` and sets the instance proto to `Fn.prototype`.\n\n`Object.create(proto)` makes an object whose proto is `proto` and does not run a constructor. Use `create` when you want a chain without `new`.\n\n`Object.create(null)` has no prototype — a clean dictionary. The fox can store headings without inheriting `toString` from `Object.prototype`.'
         ),
         predict(
           'create-null',
@@ -662,15 +862,24 @@ module.exports = { protoName }
           ],
           'null-proto'
         ),
+        cloze(
+          'create-proto',
+          '`Object.create(null)` has {{a}}.',
+          [{ id: 'a', choices: ['no prototype', 'Object.prototype', 'Array.prototype'] }],
+          { a: 'no prototype' },
+          { explainMd: 'The argument is the prototype. null means none. {} would have given you Object.prototype.' }
+        ),
         stdoutCode({
           id: 'create-child',
           prompt: '> `child()` returns `Object.create({ kind: "beacon" })`. Print `child().kind`.',
           equals: 'beacon',
           ast: 'Object.create',
           hidden: true,
-          hints: hints(
-            'The field lives on the prototype. The child still reads it.',
-            { level: 4, kind: 'assist', md: 'function child() { return Object.create({ kind: "beacon" }) }\nconsole.log(child().kind)\nmodule.exports = { child }' }
+          hints: ladder(
+            'The field should live on the prototype, not as an own field.',
+            '`Object.create({ kind: "beacon" })` makes a child that can still read `kind`.',
+            'Return that child. Print `child().kind`.',
+            'function child() { return Object.create({ kind: "beacon" }) }\nconsole.log(child().kind)\nmodule.exports = { child }'
           )
         })
       ]
@@ -699,7 +908,7 @@ assert.ok(!Object.hasOwn(c, 'kind'))
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods. The fox uses `new Route("east").go()` three times.'
+          '## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods.\n\n`go` lives on `Route.prototype`. Two instances share the same function.\n\nThe fox builds `new Route("east")` and calls `go` three times. The heading lives on the instance; the walk method is shared.'
         ),
         predict(
           'class-proto',
@@ -710,16 +919,36 @@ assert.ok(!Object.hasOwn(c, 'kind'))
           ],
           'true'
         ),
+        cloze(
+          'go-lives',
+          '`go` lives on {{a}}.',
+          [{ id: 'a', choices: ['Route.prototype', 'each instance', 'the global object'] }],
+          { a: 'Route.prototype' },
+          { explainMd: 'class methods are prototype methods. Instances share one go function.' }
+        ),
         playCode({
           id: 'class-route',
           prompt: '> `class Route` with `go()`. Walk east to (3, 0).',
-          world: gridWorld([fox(0, 0), beacon(3, 0)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(3, 0),
+              tree('t1', 5, 0),
+              rock('r1', 4, 2),
+              piece('owl', 'owl', 6, 1),
+              token('coin', 'coin', 0, 4),
+              piece('chest', 'chest', 6, 4)
+            ],
+            { floor: 'floor-grass' }
+          ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
           ast: 'class Route',
-          hints: hints(
+          hints: ladder(
+            '`constructor` stores `dir` on `this`. `go` reads it and moves.',
+            'Make one `Route("east")`, then call `go` three times.',
             'const r = new Route("east"); r.go(); r.go(); r.go()',
-            { level: 4, kind: 'assist', md: 'class Route {\n  constructor(dir) { this.dir = dir }\n  go() { Player.move(this.dir) }\n}\nconst r = new Route("east")\nr.go(); r.go(); r.go()\nmodule.exports = { Route }' }
+            'class Route {\n  constructor(dir) { this.dir = dir }\n  go() { Player.move(this.dir) }\n}\nconst r = new Route("east")\nr.go(); r.go(); r.go()\nmodule.exports = { Route }'
           )
         })
       ]
@@ -748,7 +977,7 @@ assert.strictEqual(r.go, m.Route.prototype.go)
       estimatedMinutes: 25,
       blocks: [
         explain(
-          '## Four rules (plain functions)\n\n1. `obj.method()` — `this` is `obj`.\n2. `fn()` — `this` is undefined in strict / global in sloppy.\n3. `fn.call(obj)` / `apply` — you pick `this`.\n4. `fn.bind(obj)` — returns a new function with `this` locked.\n\nBind a mover so the callback still walks east.'
+          '## Four rules (plain functions)\n\n`obj.method()` sets `this` to `obj`. A bare `fn()` loses that receiver. `fn.call(obj)` / `apply` pick `this`. `fn.bind(obj)` returns a new function with `this` locked.\n\nAfter `const go = obj.go; go()`, the call site lost the receiver. Bind a mover so the callback still walks east.\n\nThe desk pulls `go` off the fox’s route card and later calls `go()`. Without `bind`, `this.dir` is gone and the fox stands still.'
         ),
         predict(
           'detached',
@@ -759,16 +988,37 @@ assert.strictEqual(r.go, m.Route.prototype.go)
           ],
           'lost'
         ),
+        cloze(
+          'this-lost',
+          'After `const go = obj.go; go()`, `this` is {{a}}.',
+          [{ id: 'a', choices: ['not obj', 'obj', 'the fox'] }],
+          { a: 'not obj' },
+          { explainMd: 'The method was pulled off the object. A bare call does not pass obj as this.', skillIds: ['js.this'] }
+        ),
         playCode({
           id: 'bind-mover',
           prompt: '> `const go = mover.go.bind(mover)` then `go()` three times east to (3, 0).',
-          world: gridWorld([fox(0, 0), beacon(3, 0)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(3, 0),
+              tree('t1', 6, 0),
+              rock('r1', 5, 3),
+              piece('owl', 'owl', 6, 2),
+              token('coin', 'coin', 1, 3),
+              piece('chest', 'chest', 6, 4),
+              wall('w1', 4, 4)
+            ],
+            { floor: 'floor-dirt' }
+          ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
           ast: 'bind',
-          hints: hints(
-            'bind locks this to mover so go() still reads this.dir.',
-            { level: 4, kind: 'assist', md: 'const mover = {\n  dir: "east",\n  go() { Player.move(this.dir) }\n}\nconst go = mover.go.bind(mover)\ngo(); go(); go()\nmodule.exports = { mover }' }
+          hints: ladder(
+            'A bare `go()` no longer has `mover` as `this`.',
+            '`bind` locks `this` to `mover` so `go()` still reads `this.dir`.',
+            'Call the bound function three times.',
+            'const mover = {\n  dir: "east",\n  go() { Player.move(this.dir) }\n}\nconst go = mover.go.bind(mover)\ngo(); go(); go()\nmodule.exports = { mover }'
           )
         })
       ]
@@ -796,7 +1046,7 @@ module.exports = { mover }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A `position` getter\n\n`get position() { return this.x + "," + this.y }` runs on read. `Object.getOwnPropertyDescriptor` shows `get` / `set` / `writable`.\n\nPrint `2,1` from a fox-like object.'
+          '## A `position` getter\n\n`get position() { return this.x + "," + this.y }` runs on read. You do not get the getter function itself.\n\n`Object.getOwnPropertyDescriptor` shows `get` / `set` / `writable`.\n\nThe fox-like object has `x: 2`, `y: 1`. Reading `fox.position` should print `2,1` as if it were a field.'
         ),
         predict(
           'getter-call',
@@ -807,15 +1057,24 @@ module.exports = { mover }
           ],
           'run'
         ),
+        cloze(
+          'getter-runs',
+          'Reading `obj.position` {{a}}.',
+          [{ id: 'a', choices: ['runs the getter', 'returns the getter function', 'throws'] }],
+          { a: 'runs the getter' },
+          { explainMd: 'A get trap is a field read. The engine calls the getter and hands you its return value.' }
+        ),
         stdoutCode({
           id: 'pos-get',
           prompt: '> Object with `x: 2`, `y: 1`, getter `position` → `2,1`. Print it.',
           equals: '2,1',
           ast: 'get ',
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            'Use `get position()` in an object literal.',
+            'Join `this.x` and `this.y` with a comma.',
             'get position() { return this.x + "," + this.y }',
-            { level: 4, kind: 'assist', md: 'const fox = {\n  x: 2,\n  y: 1,\n  get position() { return this.x + "," + this.y }\n}\nconsole.log(fox.position)\nmodule.exports = { fox }' }
+            'const fox = {\n  x: 2,\n  y: 1,\n  get position() { return this.x + "," + this.y }\n}\nconsole.log(fox.position)\nmodule.exports = { fox }'
           )
         })
       ]
@@ -841,7 +1100,7 @@ assert.ok(Object.getOwnPropertyDescriptor(m.fox, 'position').get)
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## A key that will not collide\n\n`const meta = Symbol("meta")` is unique. `obj[meta] = "hidden"` does not show up in `Object.keys` or JSON by default.\n\nPrint the hidden meta field.'
+          '## A key that will not collide\n\n`const meta = Symbol("meta")` is unique. `obj[meta] = "hidden"` does not show up in `Object.keys` or JSON by default.\n\n`Object.keys({ [Symbol("m")]: 1 })` is `[]`. Symbols are skipped.\n\nThe desk pins a private note on a route card. The night log lists ordinary keys; the note stays off that list.'
         ),
         predict(
           'keys-skip',
@@ -852,15 +1111,24 @@ assert.ok(Object.getOwnPropertyDescriptor(m.fox, 'position').get)
           ],
           'empty'
         ),
+        cloze(
+          'keys-skip-sym',
+          '`Object.keys` on a symbol-only object is {{a}}.',
+          [{ id: 'a', choices: ['[]', '["Symbol(m)"]', '["m"]'] }],
+          { a: '[]' },
+          { explainMd: 'Object.keys lists string keys. Symbol keys stay off that list unless you ask for them.' }
+        ),
         stdoutCode({
           id: 'hide-meta',
           prompt: '> Store `"note"` under a symbol key and print it (`note`).',
           equals: 'note',
           ast: 'Symbol',
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            'Make a `Symbol`, then use it as a key.',
+            'Store `"note"` at `obj[k]`. Read it back the same way.',
             'const k = Symbol("meta"); obj[k] = "note"',
-            { level: 4, kind: 'assist', md: 'const k = Symbol("meta")\nconst obj = { [k]: "note" }\nfunction hiddenNote() { return obj[k] }\nconsole.log(hiddenNote())\nmodule.exports = { hiddenNote, k, obj }' }
+            'const k = Symbol("meta")\nconst obj = { [k]: "note" }\nfunction hiddenNote() { return obj[k] }\nconsole.log(hiddenNote())\nmodule.exports = { hiddenNote, k, obj }'
           )
         })
       ]
@@ -887,7 +1155,7 @@ module.exports = { hiddenNote }
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Private-ish notes on objects you do not own\n\n`WeakMap` keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point.\n\nTiny code: remember a note on a route object.'
+          '## Notes you do not own\n\n`WeakMap` keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point.\n\nA string like `"fox"` cannot be a key.\n\nThe desk remembers `"keep"` on a route object it does not own. When that route is gone, the note can vanish with it.'
         ),
         predict(
           'weak-key',
@@ -898,15 +1166,23 @@ module.exports = { hiddenNote }
           ],
           'no'
         ),
+        tf(
+          'weak-must',
+          'A WeakMap key can be the string `"fox"`.',
+          false,
+          { explainMd: 'Keys must be objects (or symbols in a WeakMap of objects). A string is not allowed.' }
+        ),
         stdoutCode({
           id: 'weak-note',
           prompt: '> `noteOf(route)` reads a WeakMap. Store `"keep"` on `{}` and print it.',
           equals: 'keep',
           ast: 'WeakMap',
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            'Use `WeakMap`, not `Map`, so the hidden check can see the type.',
+            '`notes.set(route, "keep")` stores the string on that object key.',
             'const notes = new WeakMap(); notes.set(route, "keep")',
-            { level: 4, kind: 'assist', md: 'const notes = new WeakMap()\nfunction noteOf(route) { return notes.get(route) }\nconst route = {}\nnotes.set(route, "keep")\nconsole.log(noteOf(route))\nmodule.exports = { noteOf, notes, route }' }
+            'const notes = new WeakMap()\nfunction noteOf(route) { return notes.get(route) }\nconst route = {}\nnotes.set(route, "keep")\nconsole.log(noteOf(route))\nmodule.exports = { noteOf, notes, route }'
           )
         })
       ]
@@ -937,7 +1213,7 @@ assert.ok(m.notes instanceof WeakMap)
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## `for...of` calls `[Symbol.iterator]`\n\nAn object is iterable if that method returns `{ next() { return { value, done } } }`.\n\nBuild a tiny iterable that yields `"east"`, `"east"`, `"south"` so the fox can `for (const d of path) Player.move(d)`.'
+          '## `for...of` calls `[Symbol.iterator]`\n\nAn object is iterable if that method returns `{ next() { return { value, done } } }`. It does not have to be an Array.\n\nBuild a tiny iterable that yields `"east"`, `"east"`, `"south"` so the fox can `for (const d of path) Player.move(d)`.\n\nThe plan lives on a custom `path` object. The fox only cares that `for...of` can pull the next heading.'
         ),
         predict(
           'for-of-needs',
@@ -948,15 +1224,35 @@ assert.ok(m.notes instanceof WeakMap)
           ],
           'iter'
         ),
+        cloze(
+          'forof-needs',
+          '`for...of` needs {{a}}.',
+          [{ id: 'a', choices: ['Symbol.iterator', 'an Array only', 'Object.keys'] }],
+          { a: 'Symbol.iterator' },
+          { explainMd: 'Arrays work because they have Symbol.iterator. Any object with that method is iterable.' }
+        ),
         playCode({
           id: 'iterable-path',
           prompt: '> Make `path` iterable: east, east, south. Walk to (2, 1).',
-          world: gridWorld([fox(0, 0), beacon(2, 1)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(2, 1),
+              tree('t1', 5, 1),
+              rock('r1', 3, 3),
+              piece('owl', 'owl', 6, 0),
+              token('coin', 'coin', 0, 3),
+              piece('chest', 'chest', 6, 4)
+            ],
+            { floor: 'floor-path' }
+          ),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 1)] },
           hidden: true,
-          hints: hints(
-            'You can also use dirs[Symbol.iterator] from an array. A custom next() is the lesson.',
-            { level: 4, kind: 'assist', md: 'const dirs = ["east", "east", "south"]\nconst path = {\n  [Symbol.iterator]() { return dirs[Symbol.iterator]() }\n}\nfor (const d of path) Player.move(d)\nmodule.exports = { path }' }
+          hints: ladder(
+            '`path` needs `[Symbol.iterator]`, not just a list field.',
+            'You can also use `dirs[Symbol.iterator]` from an array. A custom `next()` is the lesson.',
+            'for (const d of path) Player.move(d)',
+            'const dirs = ["east", "east", "south"]\nconst path = {\n  [Symbol.iterator]() { return dirs[Symbol.iterator]() }\n}\nfor (const d of path) Player.move(d)\nmodule.exports = { path }'
           )
         })
       ]
@@ -980,7 +1276,7 @@ module.exports = { path }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Pause, yield, resume\n\n`function* steps() { yield "east"; yield "south" }` returns a generator. `for...of` pulls each yield.\n\nThe fox walks what you yield.'
+          '## Pause, yield, resume\n\n`function* steps() { yield "east"; yield "south" }` returns a generator. It does not return the first yield immediately.\n\n`for...of` pulls each yield. The fox walks what you yield.\n\n`function* route()` yields east, east, south. The beacon sits at (2, 1) when those three steps run.'
         ),
         predict(
           'yield-pause',
@@ -991,16 +1287,37 @@ module.exports = { path }
           ],
           'gen'
         ),
+        cloze(
+          'gen-returns',
+          'A generator function returns {{a}}.',
+          [{ id: 'a', choices: ['a generator object', 'the first yield', 'undefined'] }],
+          { a: 'a generator object' },
+          { explainMd: 'Calling function* gives you an iterator. Values come out when you iterate it.' }
+        ),
         playCode({
           id: 'yield-walk',
           prompt: '> `function* route()` yields east twice and south once. Walk to (2, 1).',
-          world: gridWorld([fox(0, 0), beacon(2, 1)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(2, 1),
+              tree('t1', 4, 4),
+              rock('r1', 5, 0),
+              piece('owl', 'owl', 6, 3),
+              token('coin', 'coin', 1, 3),
+              piece('chest', 'chest', 6, 4),
+              wall('w1', 3, 2)
+            ],
+            { floor: 'floor-sand' }
+          ),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 1)] },
           hidden: true,
           ast: 'function*',
-          hints: hints(
+          hints: ladder(
+            '`function*` plus `yield` makes the iterator for you.',
+            'Yield `"east"`, `"east"`, then `"south"`.',
             'for (const d of route()) Player.move(d)',
-            { level: 4, kind: 'assist', md: 'function* route() {\n  yield "east"\n  yield "east"\n  yield "south"\n}\nfor (const d of route()) Player.move(d)\nmodule.exports = { route }' }
+            'function* route() {\n  yield "east"\n  yield "east"\n  yield "south"\n}\nfor (const d of route()) Player.move(d)\nmodule.exports = { route }'
           )
         })
       ]
@@ -1026,7 +1343,7 @@ module.exports = { route }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Trap `get`, do not build a framework\n\n`new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` intercepts reads. Use it once to default missing dirs to `"east"`.\n\nPrint the fallback dir.'
+          '## Trap `get`, do not build a framework\n\n`new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` intercepts reads. A `get` trap runs when you read a field, not when you write one.\n\nUse it once to default missing dirs to `"east"`.\n\nThe desk wraps a blank route card. Asking for `unknown` still returns `"east"`, so the fox has a fallback heading.'
         ),
         predict(
           'proxy-get',
@@ -1037,15 +1354,24 @@ module.exports = { route }
           ],
           'read'
         ),
+        cloze(
+          'trap-when',
+          'A `get` trap runs when you {{a}} a field.',
+          [{ id: 'a', choices: ['read', 'write', 'delete'] }],
+          { a: 'read' },
+          { explainMd: 'get is the read trap. set would run on a write. deleteProperty would run on delete.' }
+        ),
         stdoutCode({
           id: 'proxy-default',
           prompt: '> Proxy a `{}` so missing keys return `"east"`. Print `wrap.unknown`.',
           equals: 'east',
           ast: 'Proxy',
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            'Wrap the object in `new Proxy`.',
+            'In `get`, return the real field when it exists, otherwise `"east"`.',
             'get(t, key) { return key in t ? t[key] : "east" }',
-            { level: 4, kind: 'assist', md: 'function wrapRoute(obj) {\n  return new Proxy(obj, {\n    get(t, key) {\n      if (key in t) return Reflect.get(t, key)\n      return "east"\n    }\n  })\n}\nconsole.log(wrapRoute({}).unknown)\nmodule.exports = { wrapRoute }' }
+            'function wrapRoute(obj) {\n  return new Proxy(obj, {\n    get(t, key) {\n      if (key in t) return Reflect.get(t, key)\n      return "east"\n    }\n  })\n}\nconsole.log(wrapRoute({}).unknown)\nmodule.exports = { wrapRoute }'
           )
         })
       ]
@@ -1075,7 +1401,7 @@ assert.strictEqual(w.nope, 'east')
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## An object graph that matches a world part\n\nBuild `{ id, type, props }` like `world-v1`. `makePart("fox", { x: 1, y: 0 })` returns that shape. `movePart(part, "east")` increments `props.x`.\n\nPrint `2` after two easts from x=0.'
+          '## An object graph that matches a world part\n\nBuild `{ id, type, props }` like `world-v1`. `makePart("fox", { x: 1, y: 0 })` returns that shape. `movePart(part, "east")` increments `props.x`.\n\n`part.props` is an object the engine can read (`x`, `y`…), not a string dump.\n\nTwo easts from x=0 put the modeled fox at x=2, the same way the stage fox walks.'
         ),
         predict(
           'props-box',
@@ -1086,14 +1412,23 @@ assert.strictEqual(w.nope, 'east')
           ],
           'obj'
         ),
+        cloze(
+          'props-shape',
+          '`part.props` should be {{a}}.',
+          [{ id: 'a', choices: ['an object with x and y', 'a string dump', 'a function'] }],
+          { a: 'an object with x and y' },
+          { explainMd: 'The stage reads fields on props. A printed string cannot increment x.' }
+        ),
         stdoutCode({
           id: 'make-part',
           prompt: '> `makePart` + `movePart` east twice from x=0. Print the new x (`2`).',
           equals: '2',
           hidden: true,
-          hints: hints(
+          hints: ladder(
+            '`makePart` returns `{ id, type, props }`. Copy `props` so callers cannot share one box by accident.',
+            'For `"east"`, add 1 to `part.props.x`.',
             'part.props.x += 1 for east.',
-            { level: 4, kind: 'assist', md: 'function makePart(type, props) {\n  return { id: type, type, props: { ...props } }\n}\nfunction movePart(part, dir) {\n  if (dir === "east") part.props.x += 1\n}\nconst fox = makePart("fox", { x: 0, y: 0 })\nmovePart(fox, "east")\nmovePart(fox, "east")\nconsole.log(fox.props.x)\nmodule.exports = { makePart, movePart }' }
+            'function makePart(type, props) {\n  return { id: type, type, props: { ...props } }\n}\nfunction movePart(part, dir) {\n  if (dir === "east") part.props.x += 1\n}\nconst fox = makePart("fox", { x: 0, y: 0 })\nmovePart(fox, "east")\nmovePart(fox, "east")\nconsole.log(fox.props.x)\nmodule.exports = { makePart, movePart }'
           )
         })
       ]

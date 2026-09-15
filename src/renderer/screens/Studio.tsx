@@ -6,6 +6,7 @@ import { DEFAULT_FLOOR, playKitLayerRank, playKitPiece, playKitSrc } from '@shar
 import { IPC, invoke } from '../api'
 import { CheckPanel } from '../checks/CheckPanel'
 import { CodeEditor } from '../editor/CodeEditor'
+import { inspectPage } from '../editor/pageSource'
 import { md } from '../md'
 import { BackIcon, CheckVerdict, HintIcon, IconBtn, NextIcon, RestartIcon } from '../ui/IconBtn'
 
@@ -156,6 +157,7 @@ export function Studio({
     const gen = ++workGen.current
     replayGen.current += 1
     setDraftReady(false)
+    setFiles([])
     void load(gen)
     return () => {
       workGen.current += 1
@@ -596,35 +598,46 @@ export function Studio({
               </div>
             </div>
           ))}
-          {code?.preview?.kind === 'iframe' && (
-            <DomPreview html={code.files?.find((f) => f.path.endsWith('.html'))?.contents ?? ''} js={files.find((f) => f.path.endsWith('.js'))?.contents ?? ''} fixtures={Object.fromEntries(
-              (code.files ?? [])
-                .filter((f) => f.path.endsWith('.json') && f.contents)
-                .flatMap((f) => {
-                  const name = f.path.replace(/^files\//, '')
-                  const base = name.split('/').pop() ?? name
-                  return [
-                    [name, f.contents as string],
-                    ['/' + name, f.contents as string],
-                    [base, f.contents as string],
-                    ['/' + base, f.contents as string]
-                  ] as [string, string][]
-                })
-            )} />
-          )}
-          {files.map((f) => (
-            <CodeEditor
-              key={f.path}
-              path={f.path}
-              value={f.contents}
-              engine={code?.engine}
-              api={code?.play ? 'player-v1' : undefined}
-              onChange={(contents) => {
-                setBanner(null)
-                setFiles((prev) => prev.map((x) => (x.path === f.path ? { ...x, contents } : x)))
-              }}
+          {draftReady && code?.preview?.kind === 'iframe' && (
+            <PageBoard
+              key={lessonId}
+              html={code.files?.find((f) => f.path.endsWith('.html'))?.contents ?? ''}
+              js={files.find((f) => f.path.endsWith('.js'))?.contents ?? ''}
+              fixtures={Object.fromEntries(
+                (code.files ?? [])
+                  .filter((f) => f.path.endsWith('.json') && f.contents)
+                  .flatMap((f) => {
+                    const name = f.path.replace(/^files\//, '')
+                    const base = name.split('/').pop() ?? name
+                    return [
+                      [name, f.contents as string],
+                      ['/' + name, f.contents as string],
+                      [base, f.contents as string],
+                      ['/' + base, f.contents as string]
+                    ] as [string, string][]
+                  })
+              )}
             />
-          ))}
+          )}
+          {draftReady &&
+            files.map((f) => (
+              <CodeEditor
+                key={f.path}
+                path={f.path}
+                value={f.contents}
+                engine={code?.engine}
+                api={code?.play ? 'player-v1' : code?.preview?.kind === 'iframe' ? 'dom-v1' : undefined}
+                selectors={
+                  code?.preview?.kind === 'iframe'
+                    ? inspectPage(code.files?.find((x) => x.path.endsWith('.html'))?.contents ?? '').selectors
+                    : undefined
+                }
+                onChange={(contents) => {
+                  setBanner(null)
+                  setFiles((prev) => prev.map((x) => (x.path === f.path ? { ...x, contents } : x)))
+                }}
+              />
+            ))}
           {output ? <pre className="output">{output}</pre> : null}
           {checkOnly &&
             checks.map((ch) => (
@@ -863,7 +876,7 @@ function replayPlay(
   })
 }
 
-function DomPreview({
+function PageBoard({
   html,
   js,
   fixtures
@@ -872,6 +885,43 @@ function DomPreview({
   js: string
   fixtures: Record<string, string>
 }) {
+  const [tab, setTab] = useState<'preview' | 'html' | 'css'>('preview')
+  const page = useMemo(() => inspectPage(html), [html])
+  const tabs: Array<{ id: 'preview' | 'html' | 'css'; label: string }> = [
+    { id: 'preview', label: 'Preview' },
+    { id: 'html', label: 'HTML' }
+  ]
+  if (page.css) tabs.push({ id: 'css', label: 'CSS' })
+  return (
+    <div className="page-board">
+      <div className="page-board-tabs" role="tablist" aria-label="Page">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            className={tab === t.id ? 'is-on' : ''}
+            onClick={() => setTab(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === 'preview' ? (
+        <DomFrame html={html} js={js} fixtures={fixtures} />
+      ) : null}
+      {tab === 'html' ? (
+        <CodeEditor language="html" path="files/index.html" value={page.html || html} readOnly onChange={() => undefined} />
+      ) : null}
+      {tab === 'css' ? (
+        <CodeEditor language="css" path="page.css" value={page.css} readOnly onChange={() => undefined} />
+      ) : null}
+    </div>
+  )
+}
+
+function composePageSrc(html: string, js: string, fixtures: Record<string, string>): string {
   const chrome = `<style>
 html,body{margin:0}
 body{box-sizing:border-box;min-height:100%;font:16px/1.45 system-ui,"Segoe UI",sans-serif;color:#1c2430;background:#f3efe6;padding:16px 18px}
@@ -895,16 +945,61 @@ window.fetch = function(url) {
   return Promise.resolve(new Response(body, { status: 200, headers: { 'content-type': 'application/json' } }));
 };
 </script>
-<script>${js.replace(/<\/script/gi, '<\\/script')}</script>`
-  const srcdoc = /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${boot}</body>`) : `${html}${boot}`
-  return (
-    <iframe
-      className="dom-preview"
-      title="Page preview"
-      sandbox="allow-scripts"
-      srcDoc={srcdoc}
-    />
-  )
+<script>
+(function () {
+  function run() {
+    ${js.replace(/<\/script/gi, '<\\/script')}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+</script>`
+  return /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${boot}</body>`) : `${html}${boot}`
+}
+
+function DomFrame({
+  html,
+  js,
+  fixtures
+}: {
+  html: string
+  js: string
+  fixtures: Record<string, string>
+}) {
+  const ref = useRef<HTMLIFrameElement>(null)
+  const urlRef = useRef<string | null>(null)
+  const [liveJs, setLiveJs] = useState(js)
+  useEffect(() => {
+    const t = window.setTimeout(() => setLiveJs(js), 140)
+    return () => window.clearTimeout(t)
+  }, [js])
+  const src = useMemo(() => composePageSrc(html, liveJs, fixtures), [html, liveJs, fixtures])
+
+  useEffect(() => {
+    const iframe = ref.current
+    if (!iframe) return
+    let cancelled = false
+    const paint = () => {
+      if (cancelled || !ref.current) return
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current)
+      const url = URL.createObjectURL(new Blob([src], { type: 'text/html' }))
+      urlRef.current = url
+      ref.current.removeAttribute('srcdoc')
+      ref.current.src = url
+    }
+    paint()
+    const retry = window.setTimeout(paint, 60)
+    return () => {
+      cancelled = true
+      window.clearTimeout(retry)
+      if (urlRef.current) {
+        URL.revokeObjectURL(urlRef.current)
+        urlRef.current = null
+      }
+    }
+  }, [src])
+
+  return <iframe ref={ref} className="dom-preview" title="Page preview" sandbox="allow-scripts" />
 }
 
 function GridStage({

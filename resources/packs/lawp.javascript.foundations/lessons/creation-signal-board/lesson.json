@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.dom",
@@ -20,7 +20,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A board you keep\n\nAdd one `li` for each starter name already in `#seeds` (comma-separated), then keep the filter from the last lesson: `#q` hides non-matches.\n\nThe board is yours — export later from Studio."
+      "md": "## A board you keep\n\nAdd one `li` for each starter name already in `#seeds` (comma-separated), then keep the filter from the last lesson: `#q` hides non-matches.\n\nThe board is yours — export later from Studio. Split the seed line, grow the list as nodes, then let the filter hide what does not match. Do not paste the names as one innerHTML string."
     },
     {
       "type": "predict",
@@ -38,6 +38,14 @@
         }
       ],
       "answer": "lis"
+    },
+    {
+      "type": "check",
+      "id": "seeds-p",
+      "kind": "tf",
+      "promptMd": "Starter names should become one paragraph of comma text.",
+      "answer": "false",
+      "explainMd": "Split the seed line. Create one li per name. Then filter those nodes."
     },
     {
       "type": "code",
@@ -71,7 +79,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Split seeds, createElement li, append, then bind input filter."
+          "md": "Read `#seeds`, split on commas, and trim each name."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Create an `li` for each name and append it to `#list`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Then bind the same hide-on-input filter you used on the last board."
         },
         {
           "level": 4,

@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 18,
+  "taskRev": 2,
+  "estimatedMinutes": 20,
   "skillIds": [
     "js.test"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## AAA on a route helper\n\n**Arrange** a list of dirs. **Act** by calling `walkLength`. **Assert** with `assert.strictEqual`.\n\n`walkLength([\"east\", \"south\"])` is `2`. Print `pass` after your own assert in `main.js` (the hidden test also asserts)."
+      "md": "## AAA on a route helper\n\n**Arrange** a list of dirs. **Act** by calling `walkLength`. **Assert** with `assert.strictEqual`. A failed assert throws. The process exits non-zero — it does not only print a sad line.\n\n`walkLength([\"east\", \"south\"])` is `2`. Print `pass` after your own assert in `main.js`. The hidden test also calls the function.\n\nThe fox walked two headings. A test that only `console.log`s `2` can lie. `assert` stops the run when the length is wrong."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "throw"
+    },
+    {
+      "type": "check",
+      "id": "assert-still-zero",
+      "kind": "tf",
+      "promptMd": "A failed `assert.strictEqual` only prints and the process still exits 0.",
+      "answer": "false",
+      "explainMd": "A thrown assert fails the process. That is how the grader knows the check did not hold."
     },
     {
       "type": "code",
@@ -65,6 +73,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "`walkLength` returns how many headings are in the list."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Call `assert.strictEqual` on a case you know, then print `pass`."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "const assert = require(\"assert\"); assert.strictEqual(walkLength([\"east\"]), 1)"
         },

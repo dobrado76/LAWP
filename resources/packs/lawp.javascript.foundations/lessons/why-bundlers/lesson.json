@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 12,
+  "taskRev": 2,
+  "estimatedMinutes": 16,
   "skillIds": [
     "js.modules"
   ],
@@ -14,7 +14,32 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The browser has no `require` of your files\n\nA page can load one script URL. `require(\"./walker.js\")` is a Node idea. A **bundler** walks your `import` graph and emits files the browser can load.\n\nThis lesson does not run a bundler. It asks you to name the problem."
+      "md": "## The browser has no `require` of your files\n\nA page can load one script URL (or native ESM URLs you list). `require(\"./walker.js\")` is a Node idea. The browser does not walk a folder of files the way Node does.\n\nA **bundler** follows your `import` graph and emits files the browser can load. This lesson does not run a bundler. It asks you to name the gap.\n\nThe fox walker lives in `walker.mjs`. On the desk, Node can `import` it. A plain page cannot `require` that folder unless you bundle or ship real ESM URLs."
+    },
+    {
+      "type": "predict",
+      "id": "bundle-why",
+      "promptMd": "A bundler mainly exists because…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fashion",
+          "md": "Minify is the only reason"
+        },
+        {
+          "id": "load",
+          "md": "The browser is not Node’s folder `require`"
+        }
+      ],
+      "answer": "load"
+    },
+    {
+      "type": "check",
+      "id": "native-esm-gap",
+      "kind": "tf",
+      "promptMd": "You can also ship native ESM with import maps; the gap is still the loader, not fashion.",
+      "answer": "true",
+      "explainMd": "Minify is extra. The first problem is that the browser is not Node’s module loader."
     },
     {
       "type": "check",

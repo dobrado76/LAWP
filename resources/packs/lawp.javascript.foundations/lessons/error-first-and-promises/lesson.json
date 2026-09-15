@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 20,
+  "taskRev": 2,
+  "estimatedMinutes": 22,
   "skillIds": [
     "js.node.fs",
     "js.async"
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## From callbacks to promises\n\nOld Node: `fs.readFile(path, (err, data) => …)` — error first. New: `await fs.promises.readFile(path, \"utf8\")` and `try/catch`.\n\nRead `note.txt` and print `north`."
+      "md": "## From callbacks to promises\n\nOld Node: `fs.readFile(path, (err, data) => …)`. The first argument is the error, or `null` when the read worked. New style: `await fs.promises.readFile(path, \"utf8\")` and `try/catch`.\n\nYou still read the same fixture. The promise version returns text instead of stuffing it into a callback. The source must mention `promises` so the habit is visible.\n\nThe desk used to check `err` first. Now the fox walk slip is awaited: read `note.txt`, trim, print `north`."
     },
     {
       "type": "predict",
@@ -33,6 +33,14 @@
         }
       ],
       "answer": "err"
+    },
+    {
+      "type": "check",
+      "id": "err-is-text",
+      "kind": "tf",
+      "promptMd": "In `fs.readFile(path, cb)`, the first callback argument is the file text.",
+      "answer": "false",
+      "explainMd": "Error first: err is argument 0. The bytes or text come second, and only if err is null."
     },
     {
       "type": "code",
@@ -70,6 +78,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "`load` is async. Read with `fs.promises`, not the callback form."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Await the read, then `trim()` the text."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "await fs.promises.readFile(\"note.txt\", \"utf8\")"
         },

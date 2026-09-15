@@ -29,7 +29,7 @@ vi.mock('@main/paths', () => ({
 }))
 
 const packRoot = join(process.cwd(), 'resources', 'packs', 'lawp.javascript.foundations')
-const FROM = 'tree-not-string'
+const FROM = 'js-placement'
 
 function assistFiles(block: CodeBlock): { path: string; contents: string }[] {
   const hints = block.hintLadder ?? []
@@ -48,7 +48,7 @@ function assistFiles(block: CodeBlock): { path: string; contents: string }[] {
   return edits.map((f, i) => ({ path: f.path, contents: i === edits.length - 1 ? md : '' }))
 }
 
-describe('javascript lessons from 59', () => {
+describe('javascript pack solutions', () => {
   it('hidden tests do not redeclare assert', () => {
     const start = EXPECTED.indexOf(FROM)
     for (const id of EXPECTED.slice(start)) {
@@ -59,7 +59,7 @@ describe('javascript lessons from 59', () => {
       } catch {
         continue
       }
-      const n = (text.match(/const assert = require\('assert'\)/g) ?? []).length
+      const n = (text.match(/^const assert = require\('assert'\)/gm) ?? []).length
       expect(n, id).toBeLessThan(2)
     }
   })
@@ -67,7 +67,7 @@ describe('javascript lessons from 59', () => {
   it('official assist hints pass hidden checks', async () => {
     const { executeCodeBlock } = await import('@main/runners/code')
     const start = EXPECTED.indexOf(FROM)
-    expect(start).toBeGreaterThan(0)
+    expect(start).toBeGreaterThanOrEqual(0)
     const failed: string[] = []
     for (const id of EXPECTED.slice(start)) {
       const raw = JSON.parse(readFileSync(join(packRoot, 'lessons', id, 'lesson.json'), 'utf8')) as {

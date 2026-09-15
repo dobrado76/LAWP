@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.events"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using target id then currentTarget id."
+      "md": "## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running. One listener on a parent can hear a click on a child.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using the target id, then the currentTarget id. The inner ping is the target. The outer nest is the listener."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "inner"
+    },
+    {
+      "type": "check",
+      "id": "target-parent",
+      "kind": "tf",
+      "promptMd": "A click on the inner button makes `event.target` the parent with the listener.",
+      "answer": "false",
+      "explainMd": "target is the node that was clicked. currentTarget is the node whose listener is running."
     },
     {
       "type": "code",
@@ -65,7 +73,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "outer.addEventListener(\"click\", (e) => { ... e.target.id ... e.currentTarget.id })"
+          "md": "Listen on `#outer`, not on the inner button alone."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Inside the listener, read `e.target.id` and `e.currentTarget.id`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Join them with `>` and write that into `#out`."
         },
         {
           "level": 4,

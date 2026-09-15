@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 15,
   "skillIds": [
     "js.http"
@@ -14,7 +14,71 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Method, URL, status\n\nA request is a **method** (`GET`, `POST`…) plus a **URL**. A response is a **status** (200, 404, 500) plus a body.\n\n`GET /beacons.json` asking for a list is a message, not a magic tunnel. This pack never opens the real network."
+      "md": "## Method, URL, status\n\nA request is a **method** (`GET`, `POST`…) plus a **URL**. A response is a **status** (200, 404, 500) plus a body. The desk sends a slip. The other side sends a slip back.\n\n`GET /beacons.json` asking for a list is a message, not a magic tunnel. This pack never opens the real network. A 404 is still an answer: this URL was not found."
+    },
+    {
+      "type": "predict",
+      "id": "request-parts",
+      "promptMd": "A request is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "tunnel",
+          "md": "A live tunnel that throws if the URL is missing"
+        },
+        {
+          "id": "message",
+          "md": "A method plus a URL (a message you send)"
+        }
+      ],
+      "answer": "message"
+    },
+    {
+      "type": "check",
+      "id": "http-bits",
+      "kind": "cloze",
+      "promptMd": "A request has a {{a}} and a URL. HTTP 404 means {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "method",
+              "md": "method"
+            },
+            {
+              "id": "promise",
+              "md": "promise"
+            },
+            {
+              "id": "stack",
+              "md": "stack"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "the URL was not found",
+              "md": "the URL was not found"
+            },
+            {
+              "id": "JavaScript always throws",
+              "md": "JavaScript always throws"
+            },
+            {
+              "id": "the network never answered",
+              "md": "the network never answered"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "method",
+        "b": "the URL was not found"
+      },
+      "explainMd": "404 is a normal response. fetch throws on network failure, not on a found-but-missing URL."
     },
     {
       "type": "check",

@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.async",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `await` a rejection inside `try`\n\n`await Promise.reject(new Error(\"lost\"))` throws into the async function. `try/catch` works the same as sync throw.\n\nPrint `lost` from the catch."
+      "md": "## `await` a rejection inside `try`\n\n`await Promise.reject(new Error(\"lost\"))` throws into the async function. `try/catch` works the same as a sync throw. The rejection becomes an exception at the `await` line.\n\nPrint `lost` from the catch. On the desk, a lost key is a failed slip — you still handle it in the same function. It does not become `undefined` just because you skipped `try`."
     },
     {
       "type": "predict",
@@ -33,6 +33,14 @@
         }
       ],
       "answer": "throw"
+    },
+    {
+      "type": "check",
+      "id": "reject-undef",
+      "kind": "tf",
+      "promptMd": "A rejected `await` without `try` becomes `undefined`.",
+      "answer": "false",
+      "explainMd": "The await throws into that async function. The function’s promise rejects unless you catch it."
     },
     {
       "type": "code",
@@ -67,7 +75,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "try { await Promise.reject(new Error(\"lost\")) } catch (e) { return e.message }"
+          "md": "Await a rejected promise inside `try`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "In `catch`, return `e.message`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The desk stamp is the string `lost`. Export `readKey` and print it."
         },
         {
           "level": 4,

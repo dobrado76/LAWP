@@ -34,6 +34,7 @@ type Props = {
   highlightLine?: number
   readOnly?: boolean
   api?: EditorApi
+  selectors?: string[]
 }
 
 const playLine = new Compartment()
@@ -46,7 +47,7 @@ function playLineExt(line?: number) {
   })
 }
 
-export function CodeEditor({ value, onChange, language, engine, path, highlightLine, readOnly, api }: Props) {
+export function CodeEditor({ value, onChange, language, engine, path, highlightLine, readOnly, api, selectors }: Props) {
   const host = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const onChangeRef = useRef(onChange)
@@ -93,7 +94,7 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
           bracketMatching(),
           closeBrackets(),
           keymap.of([...closeBracketsKeymap, ...completionKeymap, ...defaultKeymap, ...historyKeymap, indentWithTab]),
-          languageExtension(lang, api),
+          languageExtension(lang, api, { selectors }),
           lawpEditorTheme,
           lintGutter(),
           syntaxLinter(lintCtx),
@@ -115,9 +116,9 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
       view.destroy()
       viewRef.current = null
     }
-    // language / readOnly recreate; value is synced below
+    // language / readOnly / api recreate; value is synced below
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, readOnly, api])
+  }, [lang, readOnly, api, selectors?.join('\0')])
 
   useEffect(() => {
     const view = viewRef.current
@@ -156,8 +157,10 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
         onClick={() => first && goTo(first)}
         disabled={!first}
       >
-        <span className="code-lang">{languageLabel(lang)}</span>
-        {first ? (
+        <span className="code-lang">{languageLabel(lang, api)}</span>
+        {readOnly ? (
+          <span>Read only — page source</span>
+        ) : first ? (
           <span>
             Line {first.line}:{first.column} · {first.message}
             {issues.length > 1 ? ` · ${issues.length} issues` : ''}
@@ -170,4 +173,4 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
   )
 }
 
-const EDITOR_LANG_SET = new Set<EditorLanguage>(['javascript', 'python', 'json', 'plaintext'])
+const EDITOR_LANG_SET = new Set<EditorLanguage>(['javascript', 'python', 'json', 'html', 'css', 'plaintext'])

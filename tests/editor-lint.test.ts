@@ -3,8 +3,9 @@ import { javascript, javascriptLanguage } from '@codemirror/lang-javascript'
 import { python } from '@codemirror/lang-python'
 import { EditorState } from '@codemirror/state'
 import { describe, expect, it } from 'vitest'
-import { playerCompletionSource } from '../src/renderer/editor/completions'
-import { languageFromEngine } from '../src/renderer/editor/languages'
+import { domCompletionSource, playerCompletionSource } from '../src/renderer/editor/completions'
+import { languageFromEngine, languageLabel } from '../src/renderer/editor/languages'
+import { inspectPage, pageSelectors } from '../src/renderer/editor/pageSource'
 import { collectIssues, collectSyntaxIssues, teachParseMessage } from '../src/renderer/editor/lint'
 
 function js(doc: string) {
@@ -26,6 +27,10 @@ describe('editor language registry', () => {
     expect(languageFromEngine('react', 'App.js')).toBe('javascript')
     expect(languageFromEngine(undefined, 'pack.json')).toBe('json')
     expect(languageFromEngine(undefined, 'notes.txt')).toBe('plaintext')
+    expect(languageFromEngine('javascript', 'index.html')).toBe('html')
+    expect(languageFromEngine(undefined, 'page.css')).toBe('css')
+    expect(languageLabel('javascript', 'dom-v1')).toBe('JavaScript · DOM')
+    expect(languageLabel('javascript', 'player-v1')).toBe('JavaScript · Player')
   })
 })
 
@@ -111,5 +116,62 @@ describe('player-v1 completions', () => {
     const east = result?.options.find((o) => o.label === '"east"')
     expect(east?.detail).toBe('direction')
     expect(String(east?.info)).toMatch(/x increases/)
+  })
+})
+
+function domComplete(doc: string, selectors: string[] = [], explicit = true) {
+  const state = EditorState.create({
+    doc,
+    extensions: [javascript(), javascriptLanguage.data.of({ autocomplete: (ctx) => domCompletionSource(ctx, selectors) })]
+  })
+  return domCompletionSource(new CompletionContext(state, doc.length, explicit), selectors)
+}
+
+describe('dom-v1 completions', () => {
+  it('suggests document and querySelector at the root', () => {
+    const result = domComplete('doc', [], false)
+    const labels = result?.options.map((o) => o.label) ?? []
+    expect(labels).toEqual(expect.arrayContaining(['document', 'document.querySelector']))
+  })
+
+  it('suggests document members after document.', () => {
+    const result = domComplete('document.')
+    const labels = result?.options.map((o) => o.label) ?? []
+    expect(labels).toEqual(expect.arrayContaining(['querySelector', 'getElementById', 'createElement', 'body']))
+  })
+
+  it('suggests element members after querySelector(...).', () => {
+    const result = domComplete('document.querySelector("h1").')
+    const labels = result?.options.map((o) => o.label) ?? []
+    expect(labels).toEqual(expect.arrayContaining(['textContent', 'innerHTML', 'classList', 'addEventListener']))
+  })
+
+  it('suggests element members on a bound querySelector result', () => {
+    const result = domComplete('const heading = document.querySelector("h1")\nheading.')
+    const labels = result?.options.map((o) => o.label) ?? []
+    expect(labels).toEqual(expect.arrayContaining(['textContent', 'setAttribute']))
+  })
+
+  it('suggests page selectors inside querySelector(', () => {
+    const result = domComplete('document.querySelector(', ['#beacon-name', '.desk'])
+    const labels = result?.options.map((o) => o.label) ?? []
+    expect(labels).toEqual(expect.arrayContaining(['"#beacon-name"', '".desk"']))
+  })
+})
+
+describe('page source inspect', () => {
+  const raw =
+    '<!doctype html><html><head><style>h1{font-size:22px}.desk{padding:16px}</style></head><body><div class="desk"><p id="beacon-name">?</p></div></body></html>'
+
+  it('pretty-prints markup and extracts CSS', () => {
+    const page = inspectPage(raw)
+    expect(page.html).toMatch(/<div class="desk">/)
+    expect(page.html).toMatch(/\n/)
+    expect(page.css).toMatch(/h1 \{/)
+    expect(page.css).toMatch(/font-size/)
+  })
+
+  it('lists ids, classes, and tags for completions', () => {
+    expect(pageSelectors(raw)).toEqual(expect.arrayContaining(['#beacon-name', '.desk', 'p', 'div']))
   })
 })

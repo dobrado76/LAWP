@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.security"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Do not merge untrusted keys onto Object.prototype\n\n`obj.__proto__` or a merge of `{ \"__proto__\": { polluted: true } }` can change **every** object.\n\nSafe dictionaries: `Object.create(null)` or `Object.assign` onto a new object **without** copying `__proto__`. `Object.freeze(Object.prototype)` is a belt.\n\n`safeMerge(target, src)` copies only own keys that are not `__proto__` or `constructor`."
+      "md": "## Do not merge untrusted keys onto Object.prototype\n\n`obj.__proto__` or a merge of `{ \"__proto__\": { polluted: true } }` can change **every** object. A JSON body from outside the desk is not a safe field list.\n\nSafe dictionaries: `Object.create(null)`, or copy **own** keys and skip `__proto__`, `constructor`, and `prototype`. `Object.freeze(Object.prototype)` is a belt.\n\n`safeMerge(target, src)` copies only those safe own keys. A fake heading `__proto__` in a fox log must not rewrite every object on the desk."
     },
     {
       "type": "predict",
@@ -33,6 +33,53 @@
         }
       ],
       "answer": "danger"
+    },
+    {
+      "type": "check",
+      "id": "skip-keys",
+      "kind": "cloze",
+      "promptMd": "When merging untrusted objects, skip {{a}} and {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "__proto__",
+              "md": "__proto__"
+            },
+            {
+              "id": "name",
+              "md": "name"
+            },
+            {
+              "id": "dirs",
+              "md": "dirs"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "constructor",
+              "md": "constructor"
+            },
+            {
+              "id": "east",
+              "md": "east"
+            },
+            {
+              "id": "utf8",
+              "md": "utf8"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "__proto__",
+        "b": "constructor"
+      },
+      "explainMd": "Also skip prototype. Copy only ordinary own keys such as name onto a fresh object."
     },
     {
       "type": "code",
@@ -62,6 +109,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Start from a fresh object. Copy own keys from `src` one at a time."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Skip `__proto__`, `constructor`, and `prototype`. Keep `name`."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "Skip keys __proto__, constructor, prototype."
         },

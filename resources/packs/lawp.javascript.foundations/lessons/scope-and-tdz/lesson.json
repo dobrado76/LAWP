@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.closures"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A name before it is ready\n\n`let` and `const` exist in a temporal dead zone from the start of the block until the line that initializes them. Reading `label` above `let label = \"east\"` throws `ReferenceError`.\n\n`var` is older and hoists as `undefined`. Prefer `let`/`const` so the crash teaches you."
+      "md": "## A name before it is ready\n\n`let` and `const` exist from the start of the block, but you cannot read them until the line that sets them. That empty stretch is the temporal dead zone. `console.log(label)` above `let label = \"east\"` throws `ReferenceError`.\n\n`var` is older: it hoists as `undefined`, so a read before the assign is quiet and wrong. Prefer `let` and `const` so the crash teaches you.\n\nOn the desk, the fox cannot read a heading sticker that is still blank. Write the heading first, then walk."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "throw"
+    },
+    {
+      "type": "check",
+      "id": "tdz-name",
+      "kind": "cloze",
+      "promptMd": "Reading a `let` before it is set throws {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "undefined",
+              "md": "undefined"
+            },
+            {
+              "id": "ReferenceError",
+              "md": "ReferenceError"
+            },
+            {
+              "id": "TypeError",
+              "md": "TypeError"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "ReferenceError"
+      },
+      "explainMd": "The name is reserved in the block, but it is not ready. The language throws ReferenceError, not a quiet undefined."
     },
     {
       "type": "code",
@@ -66,7 +95,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Declare, then assign or initialize, then return."
+          "md": "A `let` is safe to read only after the line that sets it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Declare the name, give it `\"east\"`, then return that name."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "function readyLabel() { let dir = \"east\"; return dir }"
         },
         {
           "level": 4,

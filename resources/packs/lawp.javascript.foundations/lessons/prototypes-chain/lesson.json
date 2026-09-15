@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.proto"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Shared methods live on the prototype\n\n`Object.getPrototypeOf(obj)` is the next place JS looks for a field. Many objects share one method object. That is `[[Prototype]]`, not a copy of the function on every instance."
+      "md": "## Shared methods live on the prototype\n\n`Object.getPrototypeOf(obj)` is the next place JS looks for a field. Many objects share one method object. That is `[[Prototype]]`, not a copy of the function on every instance.\n\nTwo foxes from the same prototype share one `go` function.\n\nThe desk does not copy `move` onto every route card. Each card looks up `go` on the shared prototype when you call it."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "one"
+    },
+    {
+      "type": "check",
+      "id": "proto-share",
+      "kind": "cloze",
+      "promptMd": "Two objects from one prototype share {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "one method function",
+              "md": "one method function"
+            },
+            {
+              "id": "a private copy each",
+              "md": "a private copy each"
+            },
+            {
+              "id": "no methods",
+              "md": "no methods"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "one method function"
+      },
+      "explainMd": "The method lives once on the prototype. Instances look it up; they do not each get a copy."
     },
     {
       "type": "code",
@@ -66,7 +95,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Object.getPrototypeOf({}) is Object.prototype."
+          "md": "A plain `{}` has `Object.prototype` behind it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Read `Object.getPrototypeOf({})`, then `.constructor.name`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "That name is the string `Object`."
         },
         {
           "level": 4,

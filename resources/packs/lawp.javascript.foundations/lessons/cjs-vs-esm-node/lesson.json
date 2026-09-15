@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 20,
+  "taskRev": 2,
+  "estimatedMinutes": 22,
   "skillIds": [
     "js.modules"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Two module systems\n\n`require` / `module.exports` is CommonJS. `import` / `export` is ESM. Node picks ESM for `.mjs` or `\"type\": \"module\"`.\n\nThis lesson is ESM: export `ping` and print `pong`."
+      "md": "## Two module systems\n\n`require` and `module.exports` are CommonJS. `import` and `export` are ESM. Node treats a file as ESM when it ends in `.mjs` or when `package.json` says `\"type\": \"module\"`.\n\nThis lesson is ESM. Export `ping` and print `pong`. Do not write `module.exports` here — the hidden test imports from `main.mjs`.\n\nThe desk’s walk helper ships as `.mjs` so the scrubber can `import { ping }` without a `require` dance."
     },
     {
       "type": "predict",
@@ -32,6 +32,53 @@
         }
       ],
       "answer": "esm"
+    },
+    {
+      "type": "check",
+      "id": "esm-when",
+      "kind": "cloze",
+      "promptMd": "A {{a}} file is ESM. This lesson should {{b}} `ping`, not use `module.exports`.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": ".mjs",
+              "md": ".mjs"
+            },
+            {
+              "id": ".json",
+              "md": ".json"
+            },
+            {
+              "id": ".txt",
+              "md": ".txt"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "export",
+              "md": "export"
+            },
+            {
+              "id": "require",
+              "md": "require"
+            },
+            {
+              "id": "argv",
+              "md": "argv"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": ".mjs",
+        "b": "export"
+      },
+      "explainMd": "Node picks ESM for .mjs. The hidden test is import { ping } from ./main.mjs."
     },
     {
       "type": "code",
@@ -61,6 +108,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "This file is ESM. Use `export`, not `module.exports`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`ping` should return the string `pong`. Then print that result."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "export function ping() { return \"pong\" }"
         },

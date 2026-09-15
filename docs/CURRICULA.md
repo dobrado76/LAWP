@@ -123,7 +123,7 @@ The grid teaches sequence, reuse, and transformation of **write-only** `player-v
 
 ### Course 1 — Values you can see (~4 h)
 
-`values-and-typeof`, `names-let-const`, `strings-and-templates`, `numbers-and-nan`, `triple-equals`, `truth-and-if`, `transfer-classify-signal`.
+`values-and-typeof`, `names-let-const`, `strings-and-templates`, `numbers-and-nan`, `triple-equals`, `truth-and-if`, `short-circuit`, `transfer-classify-signal`.
 
 Predict-heavy; tiny stdout; one “say the type” closer. Misconceptions: `null-is-object-ok`, `const-means-immutable`, `double-equals-is-fine`.
 
@@ -135,7 +135,7 @@ Grid first. Course id stays `signals`. Misconceptions: `print-is-return`, `off-b
 
 ### Course 3 — Data that becomes a path (~6 h)
 
-`arrays-index`, `arrays-map`, `arrays-filter-find`, `arrays-reduce-once`, `objects-props`, `reference-vs-copy`, `destructure-spread`, `json-roundtrip`, `signal-log`.
+`arrays-index`, `arrays-map`, `arrays-filter-find`, `arrays-reduce-once`, `objects-props`, `set-and-map`, `reference-vs-copy`, `destructure-spread`, `json-roundtrip`, `signal-log`.
 
 Grid + stdout. One justified `reduce`. Creation: signal log. Misconceptions: `arrays-are-copied-by-assign`, `map-mutates`.
 
@@ -165,13 +165,13 @@ Dispatch-desk `world-v1` first; timed fox walks use `Player.wait(ticks)` (D43). 
 
 ### Course 8 — The page is a tree (~8 h)
 
-`tree-not-string`, `query-and-update`, `create-and-remove`, `events-bubble`, `delegation`, `forms-and-input`, `a11y-name-and-role`, `xss-text-vs-html`, `transfer-filter-list-ui`, `creation-signal-board`.
+`tree-not-string`, `query-and-update`, `create-and-remove`, `events-bubble`, `delegation`, `forms-and-input`, `prevent-default`, `a11y-name-and-role`, `xss-text-vs-html`, `transfer-filter-list-ui`, `creation-signal-board`.
 
 Sandboxed fixture HTML + learner JS. Grade in main (happy-dom). Visual iframe is display-only.
 
 ### Course 9 — Talking to servers (~5 h)
 
-`http-as-messages`, `fetch-ok-and-fail`, `json-body`, `abort-and-timeout`, `cors-mental-model`, `transfer-library-search`.
+`http-as-messages`, `method-and-headers`, `fetch-ok-and-fail`, `json-body`, `abort-and-timeout`, `cors-mental-model`, `transfer-library-search`.
 
 App `fetch` stub + fixture JSON. `capabilities.network: false` stays honest — no real network.
 

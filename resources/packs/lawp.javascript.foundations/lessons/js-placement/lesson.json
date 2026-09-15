@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.values",
@@ -21,7 +21,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## No fox yet\n\nEight short questions. Wrong answers do not lock you out — they mark which later lessons to take slowly. Pick the result you expect JavaScript to produce, not the result you wish it produced."
+      "md": "## No fox yet\n\nEight short questions about what JavaScript actually does. Wrong answers do not lock you out — they mark which later lessons to take slowly.\n\nPick the result you expect the language to produce, not the result you wish it produced. Later, the same ideas show up as a fox on a field and as a signal board on a page."
     },
     {
       "type": "check",

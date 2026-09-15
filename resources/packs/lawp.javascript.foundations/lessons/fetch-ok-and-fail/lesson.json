@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.http"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## 404 does not throw\n\nThe app stub answers `/missing` with status 404. `fetch` still resolves. `res.ok` is false. You throw *if you choose* after you look.\n\nPrint `ok` for `/beacons.json` and teach `read()` to throw when `!res.ok`."
+      "md": "## 404 does not throw\n\nThe app stub answers `/missing` with status 404. `fetch` still resolves. `res.ok` is false. You throw *if you choose* after you look. A missing beacon list is still a response.\n\nPrint `ok` for `/beacons.json` and teach `read()` to throw when `!res.ok`. The desk got a slip back. The stamp says 404. That is not the same as the runner crashing."
     },
     {
       "type": "predict",
@@ -33,6 +33,15 @@
         }
       ],
       "answer": "res"
+    },
+    {
+      "type": "check",
+      "id": "fetch-throws-404",
+      "kind": "tf",
+      "promptMd": "`await fetch(\"/missing\")` throws immediately on this stub.",
+      "answer": "false",
+      "explainMd": "The stub still returns a response. res.ok is false. You throw after you look, if you choose.",
+      "misconceptionId": "res-ok-throws"
     },
     {
       "type": "code",
@@ -71,7 +80,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "if (!res.ok) throw new Error(String(res.status))"
+          "md": "`fetch` resolves even when the status is 404."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "After `await fetch(url)`, throw if `!res.ok`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "On success, return `res.json()` and print `d.ok` for `/beacons.json`."
         },
         {
           "level": 4,

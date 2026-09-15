@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.proto",
@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## An object graph that matches a world part\n\nBuild `{ id, type, props }` like `world-v1`. `makePart(\"fox\", { x: 1, y: 0 })` returns that shape. `movePart(part, \"east\")` increments `props.x`.\n\nPrint `2` after two easts from x=0."
+      "md": "## An object graph that matches a world part\n\nBuild `{ id, type, props }` like `world-v1`. `makePart(\"fox\", { x: 1, y: 0 })` returns that shape. `movePart(part, \"east\")` increments `props.x`.\n\n`part.props` is an object the engine can read (`x`, `y`…), not a string dump.\n\nTwo easts from x=0 put the modeled fox at x=2, the same way the stage fox walks."
     },
     {
       "type": "predict",
@@ -37,6 +37,35 @@
         }
       ],
       "answer": "obj"
+    },
+    {
+      "type": "check",
+      "id": "props-shape",
+      "kind": "cloze",
+      "promptMd": "`part.props` should be {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "an object with x and y",
+              "md": "an object with x and y"
+            },
+            {
+              "id": "a string dump",
+              "md": "a string dump"
+            },
+            {
+              "id": "a function",
+              "md": "a function"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "an object with x and y"
+      },
+      "explainMd": "The stage reads fields on props. A printed string cannot increment x."
     },
     {
       "type": "code",
@@ -66,6 +95,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "`makePart` returns `{ id, type, props }`. Copy `props` so callers cannot share one box by accident."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "For `\"east\"`, add 1 to `part.props.x`."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "part.props.x += 1 for east."
         },

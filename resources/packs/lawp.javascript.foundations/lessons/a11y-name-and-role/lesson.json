@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.dom"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A button should be a button\n\nA `div` with a click is a trap for keyboard and screen readers. Use `<button>`. The **accessible name** is often the text content, or `aria-label`.\n\nSet the button’s label to `Call north` using `textContent` — not `innerHTML` for this plain phrase."
+      "md": "## A button should be a button\n\nA `div` with a click is a trap for keyboard and screen readers. Use `<button>`. The **accessible name** is often the text content, or `aria-label`.\n\nSet the button’s label to `Call north` using `textContent` — not `innerHTML` for this plain phrase. The call switch on the desk needs a name a reader can speak."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "no"
+    },
+    {
+      "type": "check",
+      "id": "div-ok",
+      "kind": "tf",
+      "promptMd": "A `div` with `onclick` is a good button.",
+      "answer": "false",
+      "explainMd": "A div has no button role, no default keyboard activation, and often no accessible name."
     },
     {
       "type": "code",
@@ -65,7 +73,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "textContent is the name for a button with no aria-label."
+          "md": "`#call` is already a real button. Do not replace it with a div."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The accessible name here is the button’s text."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Set `textContent` to `Call north`."
         },
         {
           "level": 4,

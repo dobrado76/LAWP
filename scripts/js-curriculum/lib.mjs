@@ -7,11 +7,26 @@ export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'r
 
 export const ASSETS = {
   fox: 'fox.png',
+  owl: 'owl.png',
+  robot: 'robot.png',
   beacon: 'beacon.png',
   rock: 'rock.png',
+  wall: 'wall.png',
+  crate: 'crate.png',
+  tree: 'tree.png',
+  bush: 'bush.png',
+  barrel: 'barrel.png',
   coin: 'coin.png',
   key: 'key.png',
-  glint: 'glint.png'
+  glint: 'glint.png',
+  gem: 'gem.png',
+  star: 'star.png',
+  scroll: 'scroll.png',
+  chest: 'chest.png',
+  flag: 'flag.png',
+  spike: 'spike.png',
+  fire: 'fire.png',
+  hole: 'hole.png'
 }
 
 export function fox(x = 0, y = 0, extra = {}) {
@@ -26,18 +41,35 @@ export function rock(id, x, y) {
   return { id, type: 'rock', props: { x, y, solid: true } }
 }
 
+export function wall(id, x, y) {
+  return { id, type: 'wall', props: { x, y, solid: true } }
+}
+
+export function tree(id, x, y) {
+  return { id, type: 'tree', props: { x, y, solid: true } }
+}
+
 export function token(id, type, x, y) {
   return { id, type, props: { x, y, collect: true, taken: false, label: id } }
 }
 
-export function gridWorld(parts, cols = 5, rows = 5) {
+export function piece(id, type, x, y, extra = {}) {
+  return { id, type, props: { x, y, ...extra } }
+}
+
+export function gridWorld(parts, cols = 5, rows = 5, floor = 'floor-stone') {
   return {
     parts,
     connections: [],
     actions: [],
     rules: [],
-    view: { kind: 'grid', grid: { cols, rows }, assetMap: ASSETS }
+    view: { kind: 'grid', grid: { cols, rows, floor }, assetMap: ASSETS }
   }
+}
+
+/** A yard the fox can walk. Extra kit pieces stay off the required path. */
+export function field(parts, opts = {}) {
+  return gridWorld(parts, opts.cols ?? 7, opts.rows ?? 5, opts.floor ?? 'floor-grass')
 }
 
 export function at(id, key, value) {
@@ -49,8 +81,8 @@ export function lesson(partial) {
     kind: 'lesson',
     schemaVersion: 1,
     packId: PACK,
-    taskRev: 1,
-    estimatedMinutes: 15,
+    taskRev: 2,
+    estimatedMinutes: 18,
     skillIds: [],
     ...partial
   }
@@ -88,7 +120,37 @@ export function check(id, promptMd, choices, answer, extra = {}) {
     ...(extra.explainMd ? { explainMd: extra.explainMd } : {}),
     ...(extra.diagnostic ? { diagnostic: true } : {}),
     ...(extra.skillIds ? { skillIds: extra.skillIds } : {}),
-    ...(extra.hintLadder ? { hintLadder: extra.hintLadder } : {})
+    ...(extra.hintLadder ? { hintLadder: extra.hintLadder } : {}),
+    ...(extra.blanks ? { blanks: extra.blanks } : {})
+  }
+}
+
+export function cloze(id, promptMd, blanks, answer, extra = {}) {
+  return {
+    type: 'check',
+    id,
+    kind: 'cloze',
+    promptMd,
+    blanks: blanks.map((b) => ({
+      id: b.id,
+      choices: (b.choices ?? []).map((c) => (typeof c === 'string' ? { id: c, md: c } : c))
+    })),
+    answer,
+    ...(extra.explainMd ? { explainMd: extra.explainMd } : {}),
+    ...(extra.skillIds ? { skillIds: extra.skillIds } : {})
+  }
+}
+
+export function tf(id, promptMd, yes, extra = {}) {
+  return {
+    type: 'check',
+    id,
+    kind: 'tf',
+    promptMd,
+    answer: yes ? 'true' : 'false',
+    ...(extra.explainMd ? { explainMd: extra.explainMd } : {}),
+    ...(extra.skillIds ? { skillIds: extra.skillIds } : {}),
+    ...(extra.misconceptionId ? { misconceptionId: extra.misconceptionId } : {})
   }
 }
 
@@ -97,6 +159,15 @@ export function hints(...rows) {
     if (typeof r === 'string') return { level: Math.min(5, i + 1), kind: i >= 3 ? 'assist' : 'concept', md: r }
     return r
   })
+}
+
+export function ladder(orient, concept, example, assist) {
+  return hints(
+    { level: 1, kind: 'concept', md: orient },
+    { level: 2, kind: 'concept', md: concept },
+    { level: 3, kind: 'concept', md: example },
+    { level: 4, kind: 'assist', md: assist }
+  )
 }
 
 export function stdoutCode(opts) {

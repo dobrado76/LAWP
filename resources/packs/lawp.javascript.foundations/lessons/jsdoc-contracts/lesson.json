@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 16,
+  "taskRev": 2,
+  "estimatedMinutes": 18,
   "skillIds": [
     "js.test"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `@param` / `@returns` are a contract you can read\n\nThis is not TypeScript-as-product. One lesson: write the tags so a later you (or a TS pack) can check them.\n\n`/** @param {string[]} dirs @returns {number} */`\n\nPrint `walkLength` of two dirs (`2`)."
+      "md": "## `@param` / `@returns` are a contract you can read\n\nThis is not TypeScript-as-product. Write the tags so a later you (or a TS pack) can check them. Node does not enforce JSDoc at runtime.\n\n`/** @param {string[]} dirs @returns {number} */` above `walkLength`. Print the length of two dirs (`2`). The hidden test looks for `@param` and `@returns` in the file text.\n\nThe fox helper’s card on the desk lists what goes in and what comes out. A missing `@returns` is a missing promise to the next shift."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "doc"
+    },
+    {
+      "type": "check",
+      "id": "jsdoc-enforced",
+      "kind": "tf",
+      "promptMd": "JSDoc tags are enforced by Node when the function runs.",
+      "answer": "false",
+      "explainMd": "The tags are a contract you can read. This lesson’s grader only checks that the words are in the file."
     },
     {
       "type": "code",
@@ -65,6 +73,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Keep `walkLength` returning `dirs.length`. Add a JSDoc block above it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The block needs `@param` and `@returns`. Node will not check the types for you."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "Put @param and @returns above the function."
         },

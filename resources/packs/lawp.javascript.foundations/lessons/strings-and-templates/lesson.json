@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.values"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Text does not mutate in place\n\n`\"east\".toUpperCase()` returns a **new** string. The original stays `\"east\"`.\n\nA template literal lets you drop a value into a string: `` `beacon:${name}` ``."
+      "md": "## Text does not mutate in place\n\n`\"east\".toUpperCase()` returns a **new** string. The original stays `\"east\"`. A beacon tag is the same idea: you build a new label; you do not scratch the old letters off.\n\nA template literal drops a value into a string: `` `beacon:${name}` ``. The result is still text."
     },
     {
       "type": "predict",

@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.values",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `+` and `==` ask an object for a primitive\n\n`[] + []` is `\"\"`. `[] == false` is `true` because both sides coerce. `{ valueOf() { return 1 } } + 1` is `2`.\n\nPrefer `===` and explicit `Number` / `String`. The Why is: the language has a ToPrimitive walk, not a moral about “empty”."
+      "md": "## `+` and `==` ask an object for a primitive\n\n`[] + []` is `\"\"`. `[] == false` is `true` because both sides coerce. `{ valueOf() { return 1 } } + 1` is `2`.\n\nPrefer `===` and explicit `Number` / `String`. The language has a ToPrimitive walk, not a moral about “empty.”\n\nThe desk asked whether an empty tray `[]` equals `false` (lamp off). Loose `==` says yes. The fox should not treat an empty list as “off.”"
     },
     {
       "type": "predict",
@@ -33,6 +33,35 @@
         }
       ],
       "answer": "true"
+    },
+    {
+      "type": "check",
+      "id": "coerce-empty",
+      "kind": "cloze",
+      "promptMd": "`[] == false` is {{a}} because both sides coerce.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "true",
+              "md": "true"
+            },
+            {
+              "id": "false",
+              "md": "false"
+            },
+            {
+              "id": "TypeError",
+              "md": "TypeError"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "true"
+      },
+      "explainMd": "Loose == walks both sides toward numbers. An empty array becomes 0, and false becomes 0."
     },
     {
       "type": "code",
@@ -62,6 +91,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "`Number(object)` asks the object for a primitive."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Give `box` a `valueOf` that returns `2`."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "const box = { valueOf() { return 2 } }"
         },

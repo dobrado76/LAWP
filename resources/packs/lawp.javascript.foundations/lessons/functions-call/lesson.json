@@ -68,7 +68,7 @@
         {
           "level": 4,
           "kind": "assist",
-          "md": "console.log(ping())"
+          "md": "function ping() {\n  return \"pong\"\n}\nconsole.log(ping())\nmodule.exports = { ping }"
         }
       ]
     }

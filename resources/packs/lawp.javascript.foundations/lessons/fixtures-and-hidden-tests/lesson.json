@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 20,
+  "taskRev": 2,
+  "estimatedMinutes": 22,
   "skillIds": [
     "js.test"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## You write a test the hidden runner also runs\n\n`cases.json` is a fixture: `[{ \"dirs\": [\"east\"], \"n\": 1 }]`. `testWalk` reads it and asserts `walkLength`.\n\nPrint `ok` when all fixture cases pass."
+      "md": "## You write a test the hidden runner also runs\n\n`cases.json` is a fixture: a list of `{ dirs, n }` records. Read that file and assert `walkLength` for each row. You do not type the cases into the test by hand if the file already holds them.\n\nPrint `ok` when every fixture case passes. A hidden test is a file you cannot edit. The grader runs it after your program.\n\nThe desk keeps walk lengths in `cases.json`. The fox route `[\"east\"]` must be length `1` even when no one is watching the stage."
     },
     {
       "type": "predict",
@@ -32,6 +32,53 @@
         }
       ],
       "answer": "grade"
+    },
+    {
+      "type": "check",
+      "id": "fixture-role",
+      "kind": "cloze",
+      "promptMd": "A fixture is a {{a}} the test reads. A hidden test is a file the {{b}} runs.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "data file",
+              "md": "data file"
+            },
+            {
+              "id": "editor theme",
+              "md": "editor theme"
+            },
+            {
+              "id": "bundler",
+              "md": "bundler"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "grader",
+              "md": "grader"
+            },
+            {
+              "id": "browser only",
+              "md": "browser only"
+            },
+            {
+              "id": "fox",
+              "md": "fox"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "data file",
+        "b": "grader"
+      },
+      "explainMd": "cases.json holds the rows. The hidden test is extra proof you cannot rewrite."
     },
     {
       "type": "code",
@@ -65,6 +112,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Parse `cases.json`. Each row has `dirs` and `n`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Assert `walkLength(c.dirs)` equals `c.n` for every row."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "JSON.parse the fixture, assert each n."
         },

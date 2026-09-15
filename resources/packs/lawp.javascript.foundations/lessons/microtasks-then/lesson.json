@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `then` is not a timeout\n\nAfter the stack clears, JavaScript empties the **microtask** queue (`promise.then`, `queueMicrotask`) *before* the next timer.\n\nOrder: sync → `then` → `setTimeout`."
+      "md": "## `then` is not a timeout\n\nAfter the stack clears, JavaScript empties the **microtask** queue (`promise.then`, `queueMicrotask`) *before* the next timer. A `then` is a note on a faster tray than `setTimeout`.\n\nOrder on the desk: sync → `then` → `setTimeout`. The fox files a promise, then asks the desk to wait zero ticks. The promise lamp still lights first."
     },
     {
       "type": "activity",
@@ -354,6 +354,53 @@
           "misconceptionId": "then-and-timeout-same-queue"
         }
       ]
+    },
+    {
+      "type": "check",
+      "id": "queue-order",
+      "kind": "cloze",
+      "promptMd": "After sync work, JavaScript runs {{a}} before the next {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "promise.then",
+              "md": "promise.then"
+            },
+            {
+              "id": "setTimeout",
+              "md": "setTimeout"
+            },
+            {
+              "id": "the operating system",
+              "md": "the operating system"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "promise.then",
+              "md": "promise.then"
+            },
+            {
+              "id": "setTimeout",
+              "md": "setTimeout"
+            },
+            {
+              "id": "stack frame",
+              "md": "stack frame"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "promise.then",
+        "b": "setTimeout"
+      },
+      "explainMd": "Microtasks (then) drain before the next macrotask (timeout). They are not the same tray."
     }
   ],
   "description": "A then callback runs before the next timeout. They are not the same tray."

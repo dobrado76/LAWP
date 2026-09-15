@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.errors"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The top line is the throw\n\nA stack lists calls from newest to oldest. The first `at step` line is where `throw` ran. Fix `step` so `\"east\"` moves and `\"up\"` still throws.\n\nPrint `ok` after a good step."
+      "md": "## The top line is the throw\n\nA stack lists calls from newest to oldest. The first `at step` line is where `throw` ran. Fix `step` so `\"east\"` is legal and `\"up\"` still throws.\n\nPrint `ok` after a good step. Do not throw on a compass heading.\n\nThe fox was told `\"east\"` and still crashed. The stack’s first `at` line points at `step`, not at the first function in the file."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "throw"
+    },
+    {
+      "type": "check",
+      "id": "stack-first",
+      "kind": "cloze",
+      "promptMd": "The first `at` line is usually {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "the function that threw",
+              "md": "the function that threw"
+            },
+            {
+              "id": "the first function in the file",
+              "md": "the first function in the file"
+            },
+            {
+              "id": "the catch block",
+              "md": "the catch block"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "the function that threw"
+      },
+      "explainMd": "Newest call is on top. That is where throw ran, not where the file began."
     },
     {
       "type": "debug",
@@ -62,7 +91,17 @@
         {
           "level": 1,
           "kind": "concept",
+          "md": "The crash is inside `step`. Read the first `at` line."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
           "md": "Only throw when the dir is unknown."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Return a legal dir such as `\"east\"` instead of throwing."
         },
         {
           "level": 4,

@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.objects"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Trap `get`, do not build a framework\n\n`new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` intercepts reads. Use it once to default missing dirs to `\"east\"`.\n\nPrint the fallback dir."
+      "md": "## Trap `get`, do not build a framework\n\n`new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` intercepts reads. A `get` trap runs when you read a field, not when you write one.\n\nUse it once to default missing dirs to `\"east\"`.\n\nThe desk wraps a blank route card. Asking for `unknown` still returns `\"east\"`, so the fox has a fallback heading."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "read"
+    },
+    {
+      "type": "check",
+      "id": "trap-when",
+      "kind": "cloze",
+      "promptMd": "A `get` trap runs when you {{a}} a field.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "read",
+              "md": "read"
+            },
+            {
+              "id": "write",
+              "md": "write"
+            },
+            {
+              "id": "delete",
+              "md": "delete"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "read"
+      },
+      "explainMd": "get is the read trap. set would run on a write. deleteProperty would run on delete."
     },
     {
       "type": "code",
@@ -65,6 +94,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Wrap the object in `new Proxy`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "In `get`, return the real field when it exists, otherwise `\"east\"`."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "get(t, key) { return key in t ? t[key] : \"east\" }"
         },

@@ -3,7 +3,10 @@ import {
   explain,
   predict,
   check,
+  cloze,
+  tf,
   hints,
+  ladder,
   stdoutCode,
   playCode,
   domCode,
@@ -12,11 +15,13 @@ import {
   fox,
   beacon,
   token,
-  gridWorld,
+  tree,
+  piece,
+  wall,
+  field,
   at,
   playLogOk,
   exportAssert,
-  srcIncludes,
   deskWorld,
   deskGoal,
   pageHtml
@@ -35,7 +40,7 @@ export function lessonsC7C9() {
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Where values live\n\nThe **stack** is the list of function calls that are running now. The **heap** is the bag of objects those frames point at.\n\nA closure keeps a heap object alive after the stack frame that created it is gone. `await` *pauses that function* — it does not freeze the operating system.'
+          '## Where values live\n\nThe **stack** is the list of function calls that are running now. The **heap** is the bag of objects those frames point at. A stack frame is short-lived. A heap object stays as long as something still points at it.\n\nA closure keeps a heap object alive after the stack frame that created it is gone. `await` *pauses that function* — it does not freeze the operating system.\n\nOn the desk: the fox calls `outer()`, which calls `inner()`. While `inner` runs, it sits on top of the stack. The beacon record it points at lives on the heap. A later `then` can still read that record after `inner` has returned.'
         ),
         predict(
           'await-os',
@@ -45,6 +50,15 @@ export function lessonsC7C9() {
             { id: 'fn', md: 'Pauses that function and lets other JS run' }
           ],
           'fn'
+        ),
+        tf(
+          'await-not-os',
+          '`await` freezes the whole computer until the promise finishes.',
+          false,
+          {
+            explainMd: 'Only that async function pauses. Other JavaScript on the page can still run. The operating system is not frozen.',
+            misconceptionId: 'await-blocks-the-os'
+          }
         ),
         check(
           'stack-frame',
@@ -81,7 +95,7 @@ export function lessonsC7C9() {
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Sync, then the timeout tray\n\n`setTimeout(fn, 0)` does **not** mean “run now.” It means “put `fn` on the macrotask queue.” Sync work finishes first.\n\nOn the desk: light **1 Sync**, then later **3 timeout**. (The `then` lamp waits for the next lesson.)'
+          '## Sync, then the timeout tray\n\n`setTimeout(fn, 0)` does **not** mean “run now.” It means “put `fn` on the macrotask queue.” Sync work on the stack finishes first. Only then does the desk look at the timeout tray.\n\nOn the desk: light **1 Sync**, then later **3 timeout**. The `then` lamp is a different tray (next lesson). If you fire the timeout while sync is still running, the desk records a fault.'
         ),
         activityBlock({
           id: 'desk-sync-timeout',
@@ -107,7 +121,13 @@ export function lessonsC7C9() {
             { level: 4, kind: 'assist', md: 'Sync, then Flush promise.then, then Fire the timeout.' }
           ),
           misconceptionMap: [{ when: at('desk', 'fault', 1), misconceptionId: 'then-and-timeout-same-queue' }]
-        })
+        }),
+        tf(
+          'timeout-zero-now',
+          '`setTimeout(fn, 0)` runs `fn` before the current call stack finishes.',
+          false,
+          { explainMd: 'Zero means “as soon as this macrotask tray is served,” not “now, on top of the running function.”' }
+        )
       ]
     }),
     files: {}
@@ -123,7 +143,7 @@ export function lessonsC7C9() {
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## `then` is not a timeout\n\nAfter the stack clears, JavaScript empties the **microtask** queue (`promise.then`, `queueMicrotask`) *before* the next timer.\n\nOrder: sync → `then` → `setTimeout`.'
+          '## `then` is not a timeout\n\nAfter the stack clears, JavaScript empties the **microtask** queue (`promise.then`, `queueMicrotask`) *before* the next timer. A `then` is a note on a faster tray than `setTimeout`.\n\nOrder on the desk: sync → `then` → `setTimeout`. The fox files a promise, then asks the desk to wait zero ticks. The promise lamp still lights first.'
         ),
         activityBlock({
           id: 'desk-full',
@@ -140,7 +160,17 @@ export function lessonsC7C9() {
             { level: 4, kind: 'assist', md: 'Click the three buttons in numbered order.' }
           ),
           misconceptionMap: [{ when: at('desk', 'fault', 1), misconceptionId: 'then-and-timeout-same-queue' }]
-        })
+        }),
+        cloze(
+          'queue-order',
+          'After sync work, JavaScript runs {{a}} before the next {{b}}.',
+          [
+            { id: 'a', choices: ['promise.then', 'setTimeout', 'the operating system'] },
+            { id: 'b', choices: ['promise.then', 'setTimeout', 'stack frame'] }
+          ],
+          { a: 'promise.then', b: 'setTimeout' },
+          { explainMd: 'Microtasks (then) drain before the next macrotask (timeout). They are not the same tray.' }
+        )
       ]
     }),
     files: {}
@@ -156,7 +186,7 @@ export function lessonsC7C9() {
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Pending, fulfilled, rejected\n\nA Promise starts **pending**. It becomes **fulfilled** with a value or **rejected** with a reason. It does not go back.\n\n`Promise.resolve("locked")` is already fulfilled. Print that value with `then` or `await` in the next lesson — here, return it from an async setup using `.then` and print `locked`.'
+          '## Pending, fulfilled, rejected\n\nA Promise starts **pending**. It becomes **fulfilled** with a value or **rejected** with a reason. After that, the state sticks. You cannot send it back to pending.\n\n`Promise.resolve("locked")` is already fulfilled. The desk already stamped the slip. Print that value with `.then` here — `await` comes next.\n\nOn the board: a beacon key that is already locked is still a promise. You just do not wait for a later tick to settle it.'
         ),
         predict(
           'no-unfulfill',
@@ -167,15 +197,23 @@ export function lessonsC7C9() {
           ],
           'no'
         ),
+        tf(
+          'promise-reset',
+          'A fulfilled promise can become pending again.',
+          false,
+          { explainMd: 'Pending, then fulfilled or rejected. The state does not go backward.' }
+        ),
         stdoutCode({
           id: 'resolve-then',
           prompt: '> `label()` returns `Promise.resolve("locked")`. Print the fulfilled value.',
           equals: 'locked',
           hidden: true,
           timeoutMs: 4000,
-          hints: hints(
-            'label().then(v => console.log(v))',
-            { level: 4, kind: 'assist', md: 'function label() { return Promise.resolve("locked") }\nlabel().then((v) => console.log(v))\nmodule.exports = { label }' }
+          hints: ladder(
+            '`label` should return an already-fulfilled promise.',
+            'Use `Promise.resolve("locked")`, then print the value from `then`.',
+            'The desk already stamped locked. You only need to read the slip.',
+            'function label() { return Promise.resolve("locked") }\nlabel().then((v) => console.log(v))\nmodule.exports = { label }'
           )
         })
       ]
@@ -203,7 +241,7 @@ module.exports = { label }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Sugar over promises\n\n`async function` always returns a Promise. `await` pauses **that** function until the promise settles. Other JavaScript on the page can still run. The OS is not frozen.'
+          '## Sugar over promises\n\nAn `async function` always returns a Promise. `await` pauses **that** function until the promise settles. Other JavaScript on the page can still run. The operating system is not frozen.\n\nThe fox can `await` a wait on the field while the desk still lights other lamps. Only the fox’s function is paused. When the promise settles, that function continues with the value.'
         ),
         predict(
           'await-scope',
@@ -214,15 +252,26 @@ module.exports = { label }
           ],
           'fn'
         ),
+        tf(
+          'await-os-again',
+          '`await` blocks the operating system.',
+          false,
+          {
+            explainMd: 'Only the async function waits. Other work on the page can still run.',
+            misconceptionId: 'await-blocks-the-os'
+          }
+        ),
         stdoutCode({
           id: 'await-label',
           prompt: '> `async function label()` returns `"keyed"` after `await Promise.resolve()`. Print it.',
           equals: 'keyed',
           ast: 'await',
           hidden: true,
-          hints: hints(
-            'async function label() { await Promise.resolve(); return "keyed" }',
-            { level: 4, kind: 'assist', md: 'async function label() {\n  await Promise.resolve()\n  return "keyed"\n}\nlabel().then((v) => console.log(v))\nmodule.exports = { label }' }
+          hints: ladder(
+            '`label` must be `async` so you can `await` inside it.',
+            'Await a resolved promise, then return the word `keyed`.',
+            'Print the returned value from `then`, and export `label`.',
+            'async function label() {\n  await Promise.resolve()\n  return "keyed"\n}\nlabel().then((v) => console.log(v))\nmodule.exports = { label }'
           )
         })
       ]
@@ -250,7 +299,7 @@ module.exports = { label }
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## `await` a rejection inside `try`\n\n`await Promise.reject(new Error("lost"))` throws into the async function. `try/catch` works the same as sync throw.\n\nPrint `lost` from the catch.'
+          '## `await` a rejection inside `try`\n\n`await Promise.reject(new Error("lost"))` throws into the async function. `try/catch` works the same as a sync throw. The rejection becomes an exception at the `await` line.\n\nPrint `lost` from the catch. On the desk, a lost key is a failed slip — you still handle it in the same function. It does not become `undefined` just because you skipped `try`.'
         ),
         predict(
           'await-reject',
@@ -261,15 +310,23 @@ module.exports = { label }
           ],
           'throw'
         ),
+        tf(
+          'reject-undef',
+          'A rejected `await` without `try` becomes `undefined`.',
+          false,
+          { explainMd: 'The await throws into that async function. The function’s promise rejects unless you catch it.' }
+        ),
         stdoutCode({
           id: 'catch-lost',
           prompt: '> `readKey()` awaits a rejection `"lost"` and returns that message from `catch`. Print it.',
           equals: 'lost',
           ast: 'await',
           hidden: true,
-          hints: hints(
-            'try { await Promise.reject(new Error("lost")) } catch (e) { return e.message }',
-            { level: 4, kind: 'assist', md: 'async function readKey() {\n  try { await Promise.reject(new Error("lost")) }\n  catch (e) { return e.message }\n}\nreadKey().then((v) => console.log(v))\nmodule.exports = { readKey }' }
+          hints: ladder(
+            'Await a rejected promise inside `try`.',
+            'In `catch`, return `e.message`.',
+            'The desk stamp is the string `lost`. Export `readKey` and print it.',
+            'async function readKey() {\n  try { await Promise.reject(new Error("lost")) }\n  catch (e) { return e.message }\n}\nreadKey().then((v) => console.log(v))\nmodule.exports = { readKey }'
           )
         })
       ]
@@ -297,7 +354,7 @@ module.exports = { readKey }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Three waits, two stories\n\n`await Player.wait(1)` three times in a row is **sequence**. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together.\n\nThe fox still only moves after you say so. Use `wait` then walk east to (3, 0). Sequence is fine here — the lesson is that `all` would overlap the pauses.'
+          '## Three waits, two stories\n\n`await Player.wait(1)` three times in a row is **sequence**. Each pause starts after the last one finishes. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together. They overlap. The whole group finishes when the slowest one finishes.\n\nThe fox still only moves after you say so. Use `wait` then walk east to (3, 0). Sequence is fine here — the lesson is that `all` would overlap the pauses. Trees and a wall sit off the path so the yard looks like a field, not a blank strip.'
         ),
         predict(
           'all-overlap',
@@ -308,15 +365,30 @@ module.exports = { readKey }
           ],
           'max'
         ),
+        tf(
+          'all-adds',
+          '`Promise.all` of three equal waits always adds the three times.',
+          false,
+          { explainMd: 'The waits overlap. The group finishes when the slowest one finishes, not when the sum of the times has passed.' }
+        ),
         playCode({
           id: 'three-waits',
           prompt: '> `await Player.wait(1)` three times (or `Promise.all`), then walk east to (3, 0).',
-          world: gridWorld([fox(0, 0), beacon(3, 0)]),
+          world: field([
+            fox(0, 0),
+            beacon(3, 0),
+            tree('t1', 5, 2),
+            tree('t2', 6, 4),
+            wall('w1', 1, 3),
+            piece('owl', 'owl', 6, 1)
+          ]),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
-          hints: hints(
-            'async function go() { await Player.wait(1); await Player.wait(1); await Player.wait(1); for (let i = 0; i < 3; i++) Player.move("east") }\ngo()',
-            { level: 4, kind: 'assist', md: 'async function go() {\n  await Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])\n  Player.move("east")\n  Player.move("east")\n  Player.move("east")\n}\ngo()' }
+          hints: ladder(
+            'Wait first, then walk. The beacon is three cells east.',
+            'Three `Player.wait(1)` calls in a row, or one `Promise.all` of three waits, then three east moves.',
+            'Trees and the wall are off the east path. Stay on y = 0.',
+            'async function go() {\n  await Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])\n  Player.move("east")\n  Player.move("east")\n  Player.move("east")\n}\ngo()'
           )
         })
       ]
@@ -342,7 +414,7 @@ go()
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A stream of steps\n\n`async function* steps() { yield "east"; yield "south" }`.\n\n`for await (const d of steps())` waits for each yield. Print `east-south` joined from the stream.'
+          '## A stream of steps\n\n`async function* steps() { yield "east"; yield "south" }` is a function that hands you one direction at a time. Each `yield` can wait. You do not get the whole list up front.\n\n`for await (const d of steps())` waits for each yield. Print `east-south` joined from the stream.\n\nOn the desk, each slip arrives when it is ready, then you file the next one. The fox reads east, then south, then joins the two words.'
         ),
         predict(
           'for-await',
@@ -353,15 +425,23 @@ go()
           ],
           'async'
         ),
+        tf(
+          'for-await-arrays-only',
+          '`for await` is only for ordinary arrays.',
+          false,
+          { explainMd: 'It is for async iterables. It can also walk a sync iterable. It is not limited to arrays.' }
+        ),
         stdoutCode({
           id: 'await-of',
           prompt: '> `async function* steps` yields `east` then `south`. Join with `-` and print `east-south`.',
           equals: 'east-south',
           ast: 'for await',
           hidden: true,
-          hints: hints(
-            'for await (const d of steps()) out.push(d)',
-            { level: 4, kind: 'assist', md: 'async function* steps() {\n  yield "east"\n  yield "south"\n}\nasync function join() {\n  const out = []\n  for await (const d of steps()) out.push(d)\n  return out.join("-")\n}\njoin().then((v) => console.log(v))\nmodule.exports = { steps, join }' }
+          hints: ladder(
+            'Make `steps` an async generator that yields two words.',
+            'In `join`, `for await` each yield into an array, then `join("-")`.',
+            'Export both `steps` and `join`, and print the joined string.',
+            'async function* steps() {\n  yield "east"\n  yield "south"\n}\nasync function join() {\n  const out = []\n  for await (const d of steps()) out.push(d)\n  return out.join("-")\n}\njoin().then((v) => console.log(v))\nmodule.exports = { steps, join }'
           )
         })
       ]
@@ -393,7 +473,7 @@ module.exports = { steps, join }
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Wait, then walk\n\n`Player.wait(ticks)` logs a pause. Studio replay honors it. The world does not move during `wait`.\n\nAwait two ticks, then walk to (2, 1): east, east, south.'
+          '## Wait, then walk\n\n`Player.wait(ticks)` logs a pause. Studio replay honors it. The world does not move during `wait`. Time passes. The fox stays in the same cell.\n\nAwait two ticks, then walk to (2, 1): east, east, south. The beacon is already there. The wait is not a step toward it. A flag and a tree sit off that path so the yard is a field, not an empty box.'
         ),
         predict(
           'wait-world',
@@ -404,15 +484,29 @@ module.exports = { steps, join }
           ],
           'stays'
         ),
+        tf(
+          'wait-slides',
+          '`Player.wait(2)` slides the fox toward the beacon.',
+          false,
+          { explainMd: 'Wait logs time. It does not change x or y. You still write the moves after the await.' }
+        ),
         playCode({
           id: 'timed-walk',
           prompt: '> `await Player.wait(2)` then walk east, east, south onto the beacon.',
-          world: gridWorld([fox(0, 0), beacon(2, 1)]),
+          world: field([
+            fox(0, 0),
+            beacon(2, 1),
+            tree('t1', 5, 0),
+            wall('w1', 0, 3),
+            piece('flag', 'flag', 6, 4)
+          ]),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 1)] },
           hidden: true,
-          hints: hints(
-            'async function go() { await Player.wait(2); ...moves }\ngo()',
-            { level: 4, kind: 'assist', md: 'async function go() {\n  await Player.wait(2)\n  Player.move("east")\n  Player.move("east")\n  Player.move("south")\n}\ngo()' }
+          hints: ladder(
+            'Await two ticks first. The fox does not move during the wait.',
+            'Then walk east, east, south onto (2, 1).',
+            'The tree and wall are off that path. Stay on the two east cells, then one south.',
+            'async function go() {\n  await Player.wait(2)\n  Player.move("east")\n  Player.move("east")\n  Player.move("south")\n}\ngo()'
           )
         })
       ]
@@ -438,7 +532,7 @@ go()
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## The key is “collected” too late\n\n`Player.wait` **logs when the timer finishes**, not when you call it. If you forget `await`, the next `move` is written first. The story says: say `keyed` only after the wait, *then* walk onto the key.\n\nFix the starter so the log is wait → say → move.'
+          '## The key is “collected” too late\n\n`Player.wait` **logs when the timer finishes**, not when you call it. If you forget `await`, the next `move` is written first. The story says: say `keyed` only after the wait, *then* walk onto the key.\n\nFix the starter so the log is wait → say → move. The fox stands just north of the key. A missing `await` makes the walk happen before the desk stamps the wait.'
         ),
         predict(
           'order',
@@ -449,16 +543,32 @@ go()
           ],
           'before'
         ),
+        tf(
+          'forgot-after',
+          'If you forget `await` on `wait`, `move` still appears after `wait` in the log.',
+          false,
+          { explainMd: 'Without await, move is written at once. Wait logs later, when the timer finishes.' }
+        ),
         playCode({
           id: 'await-key',
           debug: true,
           prompt: '> Await the wait, `Player.say("keyed")`, then move south onto the key at (2, 4).',
-          world: gridWorld([fox(2, 3), token('key', 'key', 2, 4), beacon(2, 4)]),
+          world: field([
+            fox(2, 3),
+            token('key', 'key', 2, 4),
+            beacon(2, 4),
+            tree('t1', 0, 0),
+            tree('t2', 6, 0),
+            wall('w1', 5, 2),
+            piece('owl', 'owl', 0, 4)
+          ]),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 4), at('fox', 'say', 'keyed'), at('key', 'taken', true)] },
           hidden: true,
-          hints: hints(
-            'await Player.wait(1) before say and move.',
-            { level: 4, kind: 'assist', md: 'async function collect() {\n  await Player.wait(1)\n  Player.say("keyed")\n  Player.move("south")\n}\ncollect()' }
+          hints: ladder(
+            'The starter calls `wait` but does not await it.',
+            'Await the wait, then say `keyed`, then move south.',
+            'The key and beacon share (2, 4). One south step is enough.',
+            'async function collect() {\n  await Player.wait(1)\n  Player.say("keyed")\n  Player.move("south")\n}\ncollect()'
           )
         })
       ]
@@ -491,7 +601,7 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Nodes, not one long string\n\nThe page is a tree of nodes. `document.body` is an element. Changing `textContent` changes a node. You do not rebuild the whole HTML string to rename a heading.'
+          '## Nodes, not one long string\n\nThe page is a tree of nodes. `document.body` is an element. Changing `textContent` changes a node. You do not rebuild the whole HTML string to rename a heading.\n\n`document.querySelector("h1")` returns that heading node, or `null` if it is missing. On this board, the channel plate still says “Old radio.” Change the `h1#title` node to `Signal desk`.'
         ),
         predict(
           'query-type',
@@ -502,19 +612,30 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
           ],
           'node'
         ),
+        tf(
+          'query-string',
+          '`document.querySelector("h1")` returns the tag as a string.',
+          false,
+          { explainMd: 'It returns an element node, or null if nothing matches. The HTML string is not the return value.' }
+        ),
         domCode({
           id: 'see-tree',
           prompt: '> Set the `h1#title` text to `Signal desk`.',
           hidden: true,
-          hints: hints(
-            'document.querySelector("#title").textContent = "Signal desk"',
-            { level: 4, kind: 'assist', md: 'document.querySelector("#title").textContent = "Signal desk"' }
+          hints: ladder(
+            'Find the heading node. Do not rewrite the HTML file as a string.',
+            'Use `querySelector("#title")`, then set `textContent`.',
+            'The plate should read Signal desk after you change the node.',
+            'document.querySelector("#title").textContent = "Signal desk"'
           )
         })
       ]
     }),
     files: {
-      'index.html': pageHtml('<h1 id="title">Old radio</h1>', 'Heading'),
+      'index.html': pageHtml(
+        '<p>Plate 1 · rename the channel. The heading is a node on this board.</p><h1 id="title">Old radio</h1><p>Change its text. Do not rebuild the page as one string.</p>',
+        'Channel plate'
+      ),
       'main.js': `// Change the heading node. Do not rewrite the HTML file as a string.\n`,
       'hidden.test.js': `assert.strictEqual(document.querySelector('#title').textContent, 'Signal desk')\n`
     }
@@ -530,7 +651,7 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Find, then write text\n\n`querySelector` takes a CSS selector. `#id`, `.class`, `li`.\n\nPut the name `North` into `#beacon-name`. Use `textContent`, not `innerHTML`, for plain text.'
+          '## Find, then write text\n\n`querySelector` takes a CSS selector. `#id`, `.class`, `li`. It returns one node or `null`. It does not return the HTML as a string.\n\nPut the name `North` into `#beacon-name`. Use `textContent`, not `innerHTML`, for plain text. The tag on the desk is a node. You find it, then you write the word.'
         ),
         predict(
           'missing',
@@ -541,19 +662,30 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
           ],
           'null'
         ),
+        tf(
+          'missing-empty',
+          '`querySelector("#nope")` is the empty string.',
+          false,
+          { explainMd: 'A miss is null, not "". You must check before you set textContent.' }
+        ),
         domCode({
           id: 'set-name',
           prompt: '> `#beacon-name` should read `North`.',
           hidden: true,
-          hints: hints(
-            'textContent on the node you queried.',
-            { level: 4, kind: 'assist', md: 'document.querySelector("#beacon-name").textContent = "North"' }
+          hints: ladder(
+            'Find `#beacon-name` with a selector.',
+            'Set `textContent` to `North`. Do not use `innerHTML` for this word.',
+            'The beacon tag is already a node on the plate.',
+            'document.querySelector("#beacon-name").textContent = "North"'
           )
         })
       ]
     }),
     files: {
-      'index.html': pageHtml('<label for="beacon-name">Beacon</label><p id="beacon-name">?</p>', 'Name'),
+      'index.html': pageHtml(
+        '<p>Tag the live beacon. The name field is already a node.</p><label for="beacon-name">Beacon</label><p id="beacon-name">?</p>',
+        'Beacon tag'
+      ),
       'main.js': `// Find #beacon-name, then set textContent.\n`,
       'hidden.test.js': `assert.strictEqual(document.querySelector('#beacon-name').textContent, 'North')\n`
     }
@@ -569,7 +701,7 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Grow the tree\n\n`document.createElement("li")`, set `textContent`, `ul.append(li)`.\n\n`li.remove()` takes a node off. Do not concatenate HTML strings to add one item.'
+          '## Grow the tree\n\n`document.createElement("li")` makes a node that is not on the page yet. Set `textContent`, then `ul.append(li)` to hang it on the list. `li.remove()` takes a node off.\n\nDo not concatenate HTML strings to add one item. On this tray, the beacon log starts empty. Create an `li` that says `East` and append it to `#list`.'
         ),
         predict(
           'append-parent',
@@ -580,19 +712,30 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
           ],
           'ul'
         ),
+        tf(
+          'append-doc',
+          'After `ul.append(li)`, `li.parentNode` is `document`.',
+          false,
+          { explainMd: 'append hangs the node on that ul. The parent is the list, not the whole document.' }
+        ),
         domCode({
           id: 'add-li',
           prompt: '> Create an `li` with text `East` and append it to `#list`.',
           hidden: true,
-          hints: hints(
-            'const li = document.createElement("li"); li.textContent = "East"; list.append(li)',
-            { level: 4, kind: 'assist', md: 'const li = document.createElement("li")\nli.textContent = "East"\ndocument.querySelector("#list").append(li)' }
+          hints: ladder(
+            'Create an `li` node first. It is not on the page yet.',
+            'Set `textContent` to `East`, then append it to `#list`.',
+            'The log tray starts empty. One node is enough.',
+            'const li = document.createElement("li")\nli.textContent = "East"\ndocument.querySelector("#list").append(li)'
           )
         })
       ]
     }),
     files: {
-      'index.html': pageHtml('<ul id="list"></ul>', 'Beacons'),
+      'index.html': pageHtml(
+        '<p>Empty log. Grow it with nodes, not a pasted HTML string.</p><label>Beacon log</label><ul id="list"></ul>',
+        'Log tray'
+      ),
       'main.js': `// Create an li, set its text, append it to #list.\n`,
       'hidden.test.js': `const items = [...document.querySelectorAll('#list li')].map((n) => n.textContent)
 assert.ok(items.includes('East'))
@@ -610,7 +753,7 @@ assert.ok(items.includes('East'))
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using target id then currentTarget id.'
+          '## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running. One listener on a parent can hear a click on a child.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using the target id, then the currentTarget id. The inner ping is the target. The outer nest is the listener.'
         ),
         predict(
           'target',
@@ -621,21 +764,29 @@ assert.ok(items.includes('East'))
           ],
           'inner'
         ),
+        tf(
+          'target-parent',
+          'A click on the inner button makes `event.target` the parent with the listener.',
+          false,
+          { explainMd: 'target is the node that was clicked. currentTarget is the node whose listener is running.' }
+        ),
         domCode({
           id: 'bubble-ids',
           prompt: '> On click of `#outer`, write `targetId>currentId` into `#out`. Hidden test clicks `#inner`.',
           hidden: true,
-          hints: hints(
-            'outer.addEventListener("click", (e) => { ... e.target.id ... e.currentTarget.id })',
-            { level: 4, kind: 'assist', md: 'document.querySelector("#outer").addEventListener("click", (e) => {\n  document.querySelector("#out").textContent = e.target.id + ">" + e.currentTarget.id\n})' }
+          hints: ladder(
+            'Listen on `#outer`, not on the inner button alone.',
+            'Inside the listener, read `e.target.id` and `e.currentTarget.id`.',
+            'Join them with `>` and write that into `#out`.',
+            'document.querySelector("#outer").addEventListener("click", (e) => {\n  document.querySelector("#out").textContent = e.target.id + ">" + e.currentTarget.id\n})'
           )
         })
       ]
     }),
     files: {
       'index.html': pageHtml(
-        '<div id="outer"><button type="button" id="inner">Ping</button></div><p id="out"></p>',
-        'Click'
+        '<p>Click the inner ping. The nest listener should still hear it.</p><div id="outer"><button type="button" id="inner">Ping</button></div><p id="out"></p>',
+        'Relay nest'
       ),
       'main.js': `// Listen on #outer. Write targetId>currentId into #out.\n`,
       'hidden.test.js': `document.querySelector('#inner').dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -654,7 +805,7 @@ assert.strictEqual(document.querySelector('#out').textContent, 'inner>outer')
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Delegation\n\nOne listener on `ul#list` can handle clicks on any `button` inside, including buttons you add later. Check `event.target.matches("button")`.'
+          '## Delegation\n\nOne listener on `ul#list` can handle clicks on any `button` inside, including buttons you add later. Check `event.target.matches("button")` or use `closest("button")`.\n\nYou do not bind each button by hand. On this pick board, North and East are already listed. Clicking East should write `East` into `#picked` from `data-name`.'
         ),
         predict(
           'later-child',
@@ -665,21 +816,29 @@ assert.strictEqual(document.querySelector('#out').textContent, 'inner>outer')
           ],
           'yes'
         ),
+        tf(
+          'later-no',
+          'A parent bubble listener misses buttons appended after you bound it.',
+          false,
+          { explainMd: 'The click still bubbles to the parent. New children are covered without a new listener.' }
+        ),
         domCode({
           id: 'delegate',
           prompt: '> Clicking a button in `#list` should set `#picked` to that button’s `data-name`.',
           hidden: true,
-          hints: hints(
-            'list.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) ... })',
-            { level: 4, kind: 'assist', md: 'document.querySelector("#list").addEventListener("click", (e) => {\n  const b = e.target.closest("button")\n  if (!b) return\n  document.querySelector("#picked").textContent = b.getAttribute("data-name")\n})' }
+          hints: ladder(
+            'One listener on `#list` is enough.',
+            'Use `closest("button")` so a click on the button text still counts.',
+            'Write that button’s `data-name` into `#picked`.',
+            'document.querySelector("#list").addEventListener("click", (e) => {\n  const b = e.target.closest("button")\n  if (!b) return\n  document.querySelector("#picked").textContent = b.getAttribute("data-name")\n})'
           )
         })
       ]
     }),
     files: {
       'index.html': pageHtml(
-        '<ul id="list"><li><button type="button" data-name="North">N</button></li><li><button type="button" data-name="East">E</button></li></ul><p id="picked"></p>',
-        'Pick a beacon'
+        '<p>One listener on the list. Read the channel from the button that was clicked.</p><ul id="list"><li><button type="button" data-name="North">N</button></li><li><button type="button" data-name="East">E</button></li></ul><p id="picked"></p>',
+        'Channel pick'
       ),
       'main.js': `// One listener on #list. Set #picked from the button's data-name.\n`,
       'hidden.test.js': `document.querySelector('[data-name="East"]').dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -698,7 +857,7 @@ assert.strictEqual(document.querySelector('#picked').textContent, 'East')
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## The live value\n\n`input` fires as the person types. Read `event.target.value` (or the input’s `.value`). Copy it into `#echo`.'
+          '## The live value\n\nThe `input` event fires as the person types. Read `event.target.value` (or the input’s `.value`). That string is the live field, not `innerHTML`.\n\nCopy it into `#echo`. On the echo plate, each letter the fox types should appear on the line below as it is typed.'
         ),
         predict(
           'value-field',
@@ -709,24 +868,101 @@ assert.strictEqual(document.querySelector('#picked').textContent, 'East')
           ],
           'value'
         ),
+        tf(
+          'value-html',
+          'The text in a text field lives on `innerHTML`.',
+          false,
+          { explainMd: 'A text input holds its string on .value. innerHTML is the wrong place to read it.' }
+        ),
         domCode({
           id: 'echo-input',
           prompt: '> Mirror `#name` into `#echo` on `input`.',
           hidden: true,
-          hints: hints(
-            'name.addEventListener("input", (e) => { echo.textContent = e.target.value })',
-            { level: 4, kind: 'assist', md: 'document.querySelector("#name").addEventListener("input", (e) => {\n  document.querySelector("#echo").textContent = e.target.value\n})' }
+          hints: ladder(
+            'Listen for `input` on `#name`.',
+            'Read `e.target.value` each time.',
+            'Write that string into `#echo` with `textContent`.',
+            'document.querySelector("#name").addEventListener("input", (e) => {\n  document.querySelector("#echo").textContent = e.target.value\n})'
           )
         })
       ]
     }),
     files: {
-      'index.html': pageHtml('<label for="name">Name</label><input id="name" /><p id="echo"></p>', 'Echo'),
+      'index.html': pageHtml(
+        '<p>Type a call sign. The echo line should follow each key.</p><label for="name">Call sign</label><input id="name" /><p id="echo"></p>',
+        'Live echo'
+      ),
       'main.js': `// On input of #name, copy .value into #echo.\n`,
       'hidden.test.js': `const el = document.querySelector('#name')
 el.value = 'Beacon'
 el.dispatchEvent(new Event('input', { bubbles: true }))
 assert.strictEqual(document.querySelector('#echo').textContent, 'Beacon')
+`
+    }
+  })
+
+  out.push({
+    doc: lesson({
+      id: 'prevent-default',
+      courseId: 'the-page',
+      moduleId: 'live',
+      title: 'preventDefault on submit',
+      skillIds: ['js.events', 'js.dom'],
+      estimatedMinutes: 18,
+      blocks: [
+        explain(
+          '## Submit does not have to leave\n\nA form’s default submit reloads or leaves the page. `event.preventDefault()` stops that default. The listener still runs. You keep the typed words on this desk.\n\nListen for `submit` on `#desk`. Prevent the default. Copy `#q` into `#out` with `textContent`. The fox files a query without the board going blank.'
+        ),
+        predict(
+          'why-prevent',
+          'Why call `preventDefault` on this form submit?',
+          [
+            { id: 'copy', md: 'It copies the value by itself' },
+            { id: 'stay', md: 'It stops the default leave/reload so your listener can keep the words on the board' }
+          ],
+          'stay'
+        ),
+        tf(
+          'prevent-is-copy',
+          '`preventDefault` copies the input into `#out` for you.',
+          false,
+          { explainMd: 'preventDefault only stops the default leave. You still read #q and write #out yourself.' }
+        ),
+        cloze(
+          'submit-steps',
+          'On `submit`, call {{a}}, then copy `#q` into `#out` with {{b}}.',
+          [
+            { id: 'a', choices: ['preventDefault', 'stopImmediatePropagation', 'blur'] },
+            { id: 'b', choices: ['textContent', 'innerHTML', 'outerHTML'] }
+          ],
+          { a: 'preventDefault', b: 'textContent' },
+          { explainMd: 'Stop the default leave, then write the typed words as text, not as markup.' }
+        ),
+        domCode({
+          id: 'hold-submit',
+          prompt: '> Listen for `submit` on `#desk`. Prevent the default. Copy `#q` into `#out` with `textContent`.',
+          hidden: true,
+          hints: ladder(
+            'The form id is `#desk`. Listen for `submit`, not `click`.',
+            'Call `e.preventDefault()` first so the board does not leave.',
+            'Then set `#out` text to `#q`’s `.value`.',
+            'document.querySelector("#desk").addEventListener("submit", (e) => {\n  e.preventDefault()\n  document.querySelector("#out").textContent = document.querySelector("#q").value\n})'
+          )
+        })
+      ]
+    }),
+    files: {
+      'index.html': pageHtml(
+        '<p>File the query on this desk. Do not let submit leave the board.</p><form id="desk"><label for="q">Query</label><input id="q" /><button type="submit">File</button></form><p id="out"></p>',
+        'Submit desk'
+      ),
+      'main.js': `// Listen for submit on #desk. Prevent the default, then copy #q into #out.\n`,
+      'hidden.test.js': `const q = document.querySelector('#q')
+q.value = 'North'
+const ev = new Event('submit', { bubbles: true, cancelable: true })
+document.querySelector('#desk').dispatchEvent(ev)
+assert.ok(ev.defaultPrevented)
+assert.strictEqual(document.querySelector('#out').textContent, 'North')
 `
     }
   })
@@ -741,7 +977,7 @@ assert.strictEqual(document.querySelector('#echo').textContent, 'Beacon')
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A button should be a button\n\nA `div` with a click is a trap for keyboard and screen readers. Use `<button>`. The **accessible name** is often the text content, or `aria-label`.\n\nSet the button’s label to `Call north` using `textContent` — not `innerHTML` for this plain phrase.'
+          '## A button should be a button\n\nA `div` with a click is a trap for keyboard and screen readers. Use `<button>`. The **accessible name** is often the text content, or `aria-label`.\n\nSet the button’s label to `Call north` using `textContent` — not `innerHTML` for this plain phrase. The call switch on the desk needs a name a reader can speak.'
         ),
         predict(
           'div-click',
@@ -752,19 +988,30 @@ assert.strictEqual(document.querySelector('#echo').textContent, 'Beacon')
           ],
           'no'
         ),
+        tf(
+          'div-ok',
+          'A `div` with `onclick` is a good button.',
+          false,
+          { explainMd: 'A div has no button role, no default keyboard activation, and often no accessible name.' }
+        ),
         domCode({
           id: 'name-button',
           prompt: '> `#call` is a button. Set its accessible name (text) to `Call north`.',
           hidden: true,
-          hints: hints(
-            'textContent is the name for a button with no aria-label.',
-            { level: 4, kind: 'assist', md: 'document.querySelector("#call").textContent = "Call north"' }
+          hints: ladder(
+            '`#call` is already a real button. Do not replace it with a div.',
+            'The accessible name here is the button’s text.',
+            'Set `textContent` to `Call north`.',
+            'document.querySelector("#call").textContent = "Call north"'
           )
         })
       ]
     }),
     files: {
-      'index.html': pageHtml('<button type="button" id="call">Call</button>', 'Control'),
+      'index.html': pageHtml(
+        '<p>This control must be a real button with a spoken name.</p><button type="button" id="call">Call</button>',
+        'Call switch'
+      ),
       'main.js': `// Set the button's textContent to Call north.\n`,
       'hidden.test.js': `const b = document.querySelector('#call')
 assert.strictEqual(b.tagName, 'BUTTON')
@@ -783,7 +1030,7 @@ assert.strictEqual(b.textContent, 'Call north')
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## The fixture tries a payload\n\n`#raw` starts with a fake script payload in a data attribute. Put that string into `#safe` with **`textContent`**. If you use `innerHTML`, you are practicing the bug.\n\nThe page should show the characters, not run them.'
+          '## The fixture tries a payload\n\n`#raw` starts with a fake script payload in a data attribute. Put that string into `#safe` with **`textContent`**. If you use `innerHTML`, you are practicing the bug.\n\nThe page should show the characters, not run them. On the safe-copy plate, the fox files the raw string as text so it cannot become a new node.'
         ),
         predict(
           'innerhtml',
@@ -794,20 +1041,31 @@ assert.strictEqual(b.textContent, 'Call north')
           ],
           'xss'
         ),
+        tf(
+          'innerhtml-fine',
+          'Putting untrusted text into `innerHTML` is fine in a lesson.',
+          false,
+          {
+            explainMd: 'innerHTML parses markup. Untrusted text can become elements. Use textContent for words.',
+            misconceptionId: 'innerhtml-for-text'
+          }
+        ),
         domCode({
           id: 'safe-copy',
           prompt: '> Copy `#raw`’s `data-payload` into `#safe` using `textContent`.',
           hidden: true,
-          hints: hints(
-            'safe.textContent = raw.getAttribute("data-payload")',
-            { level: 4, kind: 'assist', md: 'const raw = document.querySelector("#raw")\ndocument.querySelector("#safe").textContent = raw.getAttribute("data-payload")' }
+          hints: ladder(
+            'Read the payload from the `data-payload` attribute on `#raw`.',
+            'Write it onto `#safe` with `textContent`, not `innerHTML`.',
+            'The characters should show. No `img` node should appear.',
+            'const raw = document.querySelector("#raw")\ndocument.querySelector("#safe").textContent = raw.getAttribute("data-payload")'
           )
         })
       ]
     }),
     files: {
       'index.html': pageHtml(
-        '<p id="raw" data-payload="&lt;img src=x onerror=alert(1)&gt;">Payload is on data-payload</p><p id="safe"></p>',
+        '<p>Copy the payload as text. Do not parse it as markup.</p><p id="raw" data-payload="&lt;img src=x onerror=alert(1)&gt;">Payload is on data-payload</p><p id="safe"></p>',
         'Safe copy'
       ),
       'main.js': `// Copy data-payload onto #safe with textContent, not innerHTML.\n`,
@@ -829,7 +1087,7 @@ assert.strictEqual(safe.querySelector('img'), null)
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Filter in the page\n\nThe list is already in the tree. On `input` of `#q`, hide `li` nodes whose text does not include the query (case-insensitive). Use a class or `hidden` — do not rebuild innerHTML from a string of names.'
+          '## Filter in the page\n\nThe list is already in the tree. On `input` of `#q`, hide `li` nodes whose text does not include the query (case-insensitive). Use a class or `hidden` — do not rebuild innerHTML from a string of names.\n\nTyping `ea` should hide `North` and leave `East` visible. The filter tray already holds the names. You only show or hide them.'
         ),
         predict(
           'hide-not-rebuild',
@@ -840,21 +1098,29 @@ assert.strictEqual(safe.querySelector('img'), null)
           ],
           'nodes'
         ),
+        tf(
+          'filter-html',
+          'The honest filter writes a new innerHTML string of the matches.',
+          false,
+          { explainMd: 'Keep the nodes. Hide the ones that do not match. Rebuilding innerHTML throws the tree away.' }
+        ),
         domCode({
           id: 'filter-li',
           prompt: '> Typing `ea` in `#q` should hide `North` and leave `East` visible.',
           hidden: true,
-          hints: hints(
-            'for (const li of list.querySelectorAll("li")) li.hidden = !li.textContent.toLowerCase().includes(q)',
-            { level: 4, kind: 'assist', md: 'const q = document.querySelector("#q")\nq.addEventListener("input", () => {\n  const needle = q.value.toLowerCase()\n  for (const li of document.querySelectorAll("#list li")) {\n    li.hidden = !li.textContent.toLowerCase().includes(needle)\n  }\n})' }
+          hints: ladder(
+            'Listen for `input` on `#q`.',
+            'For each `li` in `#list`, set `hidden` if its text does not include the query.',
+            'Compare in lower case so `ea` matches `East`.',
+            'const q = document.querySelector("#q")\nq.addEventListener("input", () => {\n  const needle = q.value.toLowerCase()\n  for (const li of document.querySelectorAll("#list li")) {\n    li.hidden = !li.textContent.toLowerCase().includes(needle)\n  }\n})'
           )
         })
       ]
     }),
     files: {
       'index.html': pageHtml(
-        '<label for="q">Filter</label><input id="q" /><ul id="list"><li>North</li><li>East</li><li>West</li></ul>',
-        'Beacons'
+        '<p>Hide rows that do not match. Keep the nodes.</p><label for="q">Filter</label><input id="q" /><ul id="list"><li>North</li><li>East</li><li>West</li></ul>',
+        'Filter tray'
       ),
       'main.js': `// On input of #q, hide li nodes that do not include the query.\n`,
       'hidden.test.js': `const q = document.querySelector('#q')
@@ -877,7 +1143,7 @@ assert.deepStrictEqual(vis, ['East'])
       creation: { id: 'signal-board', step: 1, briefMd: 'A live list you can filter and keep.' },
       blocks: [
         explain(
-          '## A board you keep\n\nAdd one `li` for each starter name already in `#seeds` (comma-separated), then keep the filter from the last lesson: `#q` hides non-matches.\n\nThe board is yours — export later from Studio.'
+          '## A board you keep\n\nAdd one `li` for each starter name already in `#seeds` (comma-separated), then keep the filter from the last lesson: `#q` hides non-matches.\n\nThe board is yours — export later from Studio. Split the seed line, grow the list as nodes, then let the filter hide what does not match. Do not paste the names as one innerHTML string.'
         ),
         predict(
           'seeds',
@@ -888,21 +1154,29 @@ assert.deepStrictEqual(vis, ['East'])
           ],
           'lis'
         ),
+        tf(
+          'seeds-p',
+          'Starter names should become one paragraph of comma text.',
+          false,
+          { explainMd: 'Split the seed line. Create one li per name. Then filter those nodes.' }
+        ),
         domCode({
           id: 'board',
           prompt: '> Build `#list` from `#seeds` text, and filter with `#q`.',
           hidden: true,
-          hints: hints(
-            'Split seeds, createElement li, append, then bind input filter.',
-            { level: 4, kind: 'assist', md: 'const list = document.querySelector("#list")\nconst names = document.querySelector("#seeds").textContent.split(",").map((s) => s.trim())\nfor (const name of names) {\n  const li = document.createElement("li")\n  li.textContent = name\n  list.append(li)\n}\nconst q = document.querySelector("#q")\nq.addEventListener("input", () => {\n  const needle = q.value.toLowerCase()\n  for (const li of list.querySelectorAll("li")) li.hidden = !li.textContent.toLowerCase().includes(needle)\n})' }
+          hints: ladder(
+            'Read `#seeds`, split on commas, and trim each name.',
+            'Create an `li` for each name and append it to `#list`.',
+            'Then bind the same hide-on-input filter you used on the last board.',
+            'const list = document.querySelector("#list")\nconst names = document.querySelector("#seeds").textContent.split(",").map((s) => s.trim())\nfor (const name of names) {\n  const li = document.createElement("li")\n  li.textContent = name\n  list.append(li)\n}\nconst q = document.querySelector("#q")\nq.addEventListener("input", () => {\n  const needle = q.value.toLowerCase()\n  for (const li of list.querySelectorAll("li")) li.hidden = !li.textContent.toLowerCase().includes(needle)\n})'
           )
         })
       ]
     }),
     files: {
       'index.html': pageHtml(
-        '<p id="seeds">North,East,West</p><label for="q">Filter</label><input id="q" /><ul id="list"></ul>',
-        'Board'
+        '<p>Grow the list from the seed line, then filter it.</p><p id="seeds">North,East,West</p><label for="q">Filter</label><input id="q" /><ul id="list"></ul>',
+        'Signal board'
       ),
       'main.js': `// Build #list from #seeds, then filter with #q.\n`,
       'hidden.test.js': `assert.strictEqual(document.querySelectorAll('#list li').length, 3)
@@ -926,7 +1200,26 @@ assert.deepStrictEqual(vis, ['West'])
       estimatedMinutes: 15,
       blocks: [
         explain(
-          '## Method, URL, status\n\nA request is a **method** (`GET`, `POST`…) plus a **URL**. A response is a **status** (200, 404, 500) plus a body.\n\n`GET /beacons.json` asking for a list is a message, not a magic tunnel. This pack never opens the real network.'
+          '## Method, URL, status\n\nA request is a **method** (`GET`, `POST`…) plus a **URL**. A response is a **status** (200, 404, 500) plus a body. The desk sends a slip. The other side sends a slip back.\n\n`GET /beacons.json` asking for a list is a message, not a magic tunnel. This pack never opens the real network. A 404 is still an answer: this URL was not found.'
+        ),
+        predict(
+          'request-parts',
+          'A request is…',
+          [
+            { id: 'tunnel', md: 'A live tunnel that throws if the URL is missing' },
+            { id: 'message', md: 'A method plus a URL (a message you send)' }
+          ],
+          'message'
+        ),
+        cloze(
+          'http-bits',
+          'A request has a {{a}} and a URL. HTTP 404 means {{b}}.',
+          [
+            { id: 'a', choices: ['method', 'promise', 'stack'] },
+            { id: 'b', choices: ['the URL was not found', 'JavaScript always throws', 'the network never answered'] }
+          ],
+          { a: 'method', b: 'the URL was not found' },
+          { explainMd: '404 is a normal response. fetch throws on network failure, not on a found-but-missing URL.' }
         ),
         check(
           'status-404',
@@ -945,6 +1238,65 @@ assert.deepStrictEqual(vis, ['West'])
 
   out.push({
     doc: lesson({
+      id: 'method-and-headers',
+      courseId: 'talking-servers',
+      moduleId: 'messages',
+      title: 'Method and headers',
+      skillIds: ['js.http'],
+      estimatedMinutes: 18,
+      blocks: [
+        explain(
+          '## Method and labels\n\n`GET` asks to read. `POST` sends a body. The method is the verb on the slip. Headers are labels on that slip. `Content-Type` tells the other side how to read the body.\n\nThis lesson does not open the network. You only describe a request object. `describe({ method: \'POST\', headers: { \'content-type\': \'application/json\' } })` should print `POST application/json`. A GET with no content-type label prints `GET none`.'
+        ),
+        predict(
+          'get-vs-post',
+          '`GET` is for…',
+          [
+            { id: 'body', md: 'Sending a body the other side must store' },
+            { id: 'read', md: 'Asking to read — a body is not required' }
+          ],
+          'read'
+        ),
+        cloze(
+          'header-label',
+          '`Content-Type` is a {{a}} on the message. If that header is missing, write {{b}}.',
+          [
+            { id: 'a', choices: ['label', 'status', 'URL'] },
+            { id: 'b', choices: ['none', 'POST', '404'] }
+          ],
+          { a: 'label', b: 'none' },
+          { explainMd: 'Headers are labels. Missing content-type is not an error here — describe it as none.' }
+        ),
+        stdoutCode({
+          id: 'describe-req',
+          prompt:
+            '> `describe(req)` returns `` `${req.method} ${req.headers[\'content-type\'] || \'none\'}` ``. Print `describe` of a POST with `application/json`.',
+          equals: 'POST application/json',
+          hidden: true,
+          hints: ladder(
+            '`describe` reads `req.method` and the `content-type` header.',
+            'If that header is missing, use the word `none`.',
+            'Print a POST whose content-type is `application/json`.',
+            "function describe(req) {\n  return `${req.method} ${req.headers['content-type'] || 'none'}`\n}\nconsole.log(describe({ method: 'POST', headers: { 'content-type': 'application/json' } }))\nmodule.exports = { describe }"
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `function describe(req) {
+  return req.method
+}
+console.log(describe({ method: "POST", headers: { "content-type": "application/json" } }))
+module.exports = { describe }
+`,
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.describe({ method: 'GET', headers: {} }), 'GET none')
+assert.strictEqual(m.describe({ method: 'POST', headers: { 'content-type': 'application/json' } }), 'POST application/json')
+`)
+    }
+  })
+
+  out.push({
+    doc: lesson({
       id: 'fetch-ok-and-fail',
       courseId: 'talking-servers',
       moduleId: 'messages',
@@ -953,7 +1305,7 @@ assert.deepStrictEqual(vis, ['West'])
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## 404 does not throw\n\nThe app stub answers `/missing` with status 404. `fetch` still resolves. `res.ok` is false. You throw *if you choose* after you look.\n\nPrint `ok` for `/beacons.json` and teach `read()` to throw when `!res.ok`.'
+          '## 404 does not throw\n\nThe app stub answers `/missing` with status 404. `fetch` still resolves. `res.ok` is false. You throw *if you choose* after you look. A missing beacon list is still a response.\n\nPrint `ok` for `/beacons.json` and teach `read()` to throw when `!res.ok`. The desk got a slip back. The stamp says 404. That is not the same as the runner crashing.'
         ),
         predict(
           'fetch-404',
@@ -964,6 +1316,15 @@ assert.deepStrictEqual(vis, ['West'])
           ],
           'res'
         ),
+        tf(
+          'fetch-throws-404',
+          '`await fetch("/missing")` throws immediately on this stub.',
+          false,
+          {
+            explainMd: 'The stub still returns a response. res.ok is false. You throw after you look, if you choose.',
+            misconceptionId: 'res-ok-throws'
+          }
+        ),
         stdoutCode({
           id: 'fetch-ok',
           prompt: '> `read("/beacons.json")` returns parsed JSON and prints `true` (`ok` field). Hidden: `/missing` throws.',
@@ -973,9 +1334,11 @@ assert.deepStrictEqual(vis, ['West'])
             { path: 'files/beacons.json', role: 'fixture' },
             { path: 'files/routes.json', role: 'fixture' }
           ],
-          hints: hints(
-            'if (!res.ok) throw new Error(String(res.status))',
-            { level: 4, kind: 'assist', md: 'async function read(url) {\n  const res = await fetch(url)\n  if (!res.ok) throw new Error(String(res.status))\n  return res.json()\n}\nread("/beacons.json").then((d) => console.log(d.ok))\nmodule.exports = { read }' }
+          hints: ladder(
+            '`fetch` resolves even when the status is 404.',
+            'After `await fetch(url)`, throw if `!res.ok`.',
+            'On success, return `res.json()` and print `d.ok` for `/beacons.json`.',
+            'async function read(url) {\n  const res = await fetch(url)\n  if (!res.ok) throw new Error(String(res.status))\n  return res.json()\n}\nread("/beacons.json").then((d) => console.log(d.ok))\nmodule.exports = { read }'
           )
         })
       ]
@@ -1010,7 +1373,7 @@ module.exports = { read }
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. Catch that and return `"bad-json"`.\n\nGood `/beacons.json` still parses.'
+          '## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `"bad-json"`.\n\nGood `/beacons.json` still parses. The fox asked for a record and got a torn slip. Handle the tear. Do not pretend the body was `{}`.'
         ),
         predict(
           'json-throw',
@@ -1021,6 +1384,12 @@ module.exports = { read }
           ],
           'throw'
         ),
+        tf(
+          'json-empty',
+          '`res.json()` on `{` returns `{}`.',
+          false,
+          { explainMd: 'A torn body is a parse error. Catch it. Do not invent an empty object.' }
+        ),
         stdoutCode({
           id: 'parse-safe',
           prompt: '> `safeRead("/broken")` returns `"bad-json"`. Print it.',
@@ -1030,9 +1399,11 @@ module.exports = { read }
             { path: 'files/beacons.json', role: 'fixture' },
             { path: 'files/routes.json', role: 'fixture' }
           ],
-          hints: hints(
-            'try { return await res.json() } catch { return "bad-json" }',
-            { level: 4, kind: 'assist', md: 'async function safeRead(url) {\n  const res = await fetch(url)\n  try { return await res.json() }\n  catch { return "bad-json" }\n}\nsafeRead("/broken").then((v) => console.log(v))\nmodule.exports = { safeRead }' }
+          hints: ladder(
+            'Fetch the URL, then try to parse the body.',
+            'Wrap `res.json()` in `try/catch`.',
+            'On parse failure, return the string `bad-json`.',
+            'async function safeRead(url) {\n  const res = await fetch(url)\n  try { return await res.json() }\n  catch { return "bad-json" }\n}\nsafeRead("/broken").then((v) => console.log(v))\nmodule.exports = { safeRead }'
           )
         })
       ]
@@ -1063,7 +1434,7 @@ module.exports = { safeRead }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Cancel the wait\n\n`/slow` is delayed. `AbortController` + `fetch(url, { signal })` rejects with `AbortError` when you `abort()`.\n\nAbort immediately and print `aborted`.'
+          '## Cancel the wait\n\n`/slow` is delayed. `AbortController` + `fetch(url, { signal })` rejects with `AbortError` when you `abort()`. The wait ends because you said so, not because the body arrived.\n\nAbort immediately and print `aborted`. On the desk, you pull the slip back before the slow tray answers.'
         ),
         predict(
           'abort-name',
@@ -1074,6 +1445,12 @@ module.exports = { safeRead }
           ],
           'abort'
         ),
+        tf(
+          'abort-404',
+          'A fetch aborted via `signal` rejects as a 404 response.',
+          false,
+          { explainMd: 'Abort rejects the fetch with an error named AbortError. It is not a 404 slip.' }
+        ),
         stdoutCode({
           id: 'abort-now',
           prompt: '> Start `/slow`, abort, print `aborted`.',
@@ -1083,9 +1460,11 @@ module.exports = { safeRead }
             { path: 'files/beacons.json', role: 'fixture' },
             { path: 'files/routes.json', role: 'fixture' }
           ],
-          hints: hints(
-            'const c = new AbortController(); const p = fetch("/slow", { signal: c.signal }); c.abort()',
-            { level: 4, kind: 'assist', md: 'async function race() {\n  const c = new AbortController()\n  const p = fetch("/slow", { signal: c.signal })\n  c.abort()\n  try { await p; return "ok" }\n  catch (e) { return e.name === "AbortError" ? "aborted" : "other" }\n}\nrace().then((v) => console.log(v))\nmodule.exports = { race }' }
+          hints: ladder(
+            'Make an `AbortController` and pass `{ signal: c.signal }` to `fetch`.',
+            'Call `c.abort()` right after you start `/slow`.',
+            'In `catch`, return `aborted` when `e.name` is `AbortError`.',
+            'async function race() {\n  const c = new AbortController()\n  const p = fetch("/slow", { signal: c.signal })\n  c.abort()\n  try { await p; return "ok" }\n  catch (e) { return e.name === "AbortError" ? "aborted" : "other" }\n}\nrace().then((v) => console.log(v))\nmodule.exports = { race }'
           )
         })
       ]
@@ -1115,7 +1494,22 @@ module.exports = { race }
       estimatedMinutes: 12,
       blocks: [
         explain(
-          '## Not Node, not this sandbox\n\nThe **browser** asks: may this page’s origin read that response? CORS is an HTTP header conversation the *browser* enforces.\n\nNode `fetch` and this lesson stub do **not** simulate CORS. `capabilities.network: false` also does not claim to be an OS firewall. The idea still matters when you later ship a page.'
+          '## Not Node, not this sandbox\n\nThe **browser** asks: may this page’s origin read that response? CORS is an HTTP header conversation the *browser* enforces. A server can send `Access-Control-Allow-Origin`. The browser decides whether page JS may read the body.\n\nNode `fetch` and this lesson stub do **not** simulate CORS. `capabilities.network: false` also does not claim to be an OS firewall. The idea still matters when you later ship a page. The fox’s board in a browser is not the same as a Node script on the desk.'
+        ),
+        predict(
+          'cors-who',
+          'Who decides whether page code may read another origin’s body?',
+          [
+            { id: 'node', md: 'Node.js, on every `fetch`' },
+            { id: 'browser', md: 'The browser, for that page’s origin' }
+          ],
+          'browser'
+        ),
+        tf(
+          'cors-node',
+          'Node.js enforces CORS on every `fetch`.',
+          false,
+          { explainMd: 'CORS is a browser rule for front-end origins. Node and this stub do not simulate it.' }
         ),
         check(
           'who-enforces',
@@ -1143,7 +1537,7 @@ module.exports = { race }
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Search, then render\n\n`GET /catalog.json` returns `{ items: [{ name, kind }] }`. On submit (or button click), fetch, filter names that include the query, and put matching names into `#results` as `li` nodes using `textContent`.'
+          '## Search, then render\n\n`GET /catalog.json` returns `{ items: [{ name, kind }] }`. On button click, fetch, filter names that include the query, and put matching names into `#results` as `li` nodes using `textContent`.\n\nClick `#go` with query `bea` should list `Beacon`, not `Rock`. Build each row as a node. Do not write a raw HTML string of names. The catalog desk already holds the query `bea`.'
         ),
         predict(
           'no-innerhtml',
@@ -1154,14 +1548,25 @@ module.exports = { race }
           ],
           'text'
         ),
+        tf(
+          'results-html',
+          'Each result name should be set with `innerHTML` of the ul.',
+          false,
+          {
+            explainMd: 'Create an li per match and set textContent. innerHTML would parse names as markup.',
+            misconceptionId: 'innerhtml-for-text'
+          }
+        ),
         domCode({
           id: 'search-ui',
           prompt: '> Click `#go` with query `bea` should list `Beacon` (from the fixture), not `Rock`.',
           hidden: true,
           extraFiles: [{ path: 'files/catalog.json', role: 'fixture' }],
-          hints: hints(
-            'fetch("/catalog.json") then filter, createElement li.',
-            { level: 4, kind: 'assist', md: 'document.querySelector("#go").addEventListener("click", async () => {\n  const q = document.querySelector("#q").value.toLowerCase()\n  const res = await fetch("/catalog.json")\n  const data = await res.json()\n  const ul = document.querySelector("#results")\n  ul.replaceChildren()\n  for (const item of data.items) {\n    if (!item.name.toLowerCase().includes(q)) continue\n    const li = document.createElement("li")\n    li.textContent = item.name\n    ul.append(li)\n  }\n})' }
+          hints: ladder(
+            'On click of `#go`, read `#q` and fetch `/catalog.json`.',
+            'Filter `data.items` whose names include the query.',
+            'Clear `#results`, then append one `li` per match with `textContent`.',
+            'document.querySelector("#go").addEventListener("click", async () => {\n  const q = document.querySelector("#q").value.toLowerCase()\n  const res = await fetch("/catalog.json")\n  const data = await res.json()\n  const ul = document.querySelector("#results")\n  ul.replaceChildren()\n  for (const item of data.items) {\n    if (!item.name.toLowerCase().includes(q)) continue\n    const li = document.createElement("li")\n    li.textContent = item.name\n    ul.append(li)\n  }\n})'
           )
         })
       ]
@@ -1169,8 +1574,8 @@ module.exports = { race }
     files: {
       'catalog.json': `{ "items": [{ "name": "Beacon", "kind": "light" }, { "name": "Rock", "kind": "block" }] }\n`,
       'index.html': pageHtml(
-        '<label for="q">Query</label><input id="q" value="bea" /> <button type="button" id="go">Search</button><ul id="results"></ul>',
-        'Catalog'
+        '<p>Search the fixture. Render matches as list nodes.</p><label for="q">Query</label><input id="q" value="bea" /> <button type="button" id="go">Search</button><ul id="results"></ul>',
+        'Catalog desk'
       ),
       'main.js': `// Click #go: fetch /catalog.json, put matching names into #results as li nodes.\n`,
       'hidden.test.js': `document.querySelector('#go').dispatchEvent(new MouseEvent('click', { bubbles: true }))

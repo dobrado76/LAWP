@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.values"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot *rebinding* — the sticker on the box stays. If the value is an object, the stuff *inside* can still change.\n\n`const signal = { on: false }; signal.on = true` is legal. `signal = {}` is not."
+      "md": "## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot *rebind* — the sticker on the box stays. If the value is an object, the stuff *inside* can still change.\n\nOn the desk: `const signal = { on: false }; signal.on = true` is legal. `signal = {}` is not. The name still points at the same record. The lamp field flipped."
     },
     {
       "type": "predict",
@@ -33,6 +33,15 @@
         }
       ],
       "answer": "south"
+    },
+    {
+      "type": "check",
+      "id": "const-rebind",
+      "kind": "tf",
+      "promptMd": "`const` stops you from changing a field on an object.",
+      "answer": "false",
+      "explainMd": "const stops a new assignment to that name. Fields on the object can still change.",
+      "misconceptionId": "const-means-immutable"
     },
     {
       "type": "code",

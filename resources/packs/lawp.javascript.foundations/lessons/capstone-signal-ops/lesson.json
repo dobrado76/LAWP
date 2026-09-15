@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 40,
   "skillIds": [
     "js.modules",
@@ -25,7 +25,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Three files, one kit\n\n1. `walk.mjs` exports `walk(dirs)` → `{ x, y }` from the origin.\n2. `scrub.mjs` exports `scrubLog(text)` → unique trimmed sorted names.\n3. `main.mjs` imports both, prints `walk` of east×3+south×2 as `3,2`, then a space, then `scrubLog` of `b\\na\\nb` (`a\\nb`).\n\nWrite a short Why below: why `walk` is testable without the stage."
+      "md": "## Three files, one kit\n\n`walk.mjs` exports `walk(dirs)` → `{ x, y }` from the origin. `scrub.mjs` exports `scrubLog(text)` → unique trimmed sorted names. `main.mjs` imports both.\n\nPrint `walk` of east×3 + south×2 as `3,2`, then a newline, then `scrubLog` of `b\\na\\nb` (`a` then `b`). Hidden tests import those two modules. They do not parse your console art.\n\nThe desk ships a fox walker and a log scrubber as two files. Write a short Why below: why `walk` is testable without the stage."
     },
     {
       "type": "predict",
@@ -43,6 +43,14 @@
         }
       ],
       "answer": "return"
+    },
+    {
+      "type": "check",
+      "id": "walk-stdout-only",
+      "kind": "tf",
+      "promptMd": "Hidden tests can check `walk` only by parsing stdout, not by reading the returned object.",
+      "answer": "false",
+      "explainMd": "walk returns { x, y }. The hidden test imports it. stdout is just what main prints for you."
     },
     {
       "type": "code",
@@ -81,7 +89,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "walk increments x/y. scrubLog uses Set + sort."
+          "md": "Three edit files: `walk.mjs`, `scrub.mjs`, `main.mjs`. Hidden tests import `walk` and `scrubLog`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`walk` increments x/y. `scrubLog` uses Set + sort. `main` prints walk, then scrubLog."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "east +x, west -x, south +y, north -y. Names: trim, drop blanks, unique, sort, join newlines."
         },
         {
           "level": 4,

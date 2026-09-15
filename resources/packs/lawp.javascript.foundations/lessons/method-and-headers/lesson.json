@@ -1,0 +1,133 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.http"
+  ],
+  "id": "method-and-headers",
+  "courseId": "talking-servers",
+  "moduleId": "messages",
+  "title": "Method and headers",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Method and labels\n\n`GET` asks to read. `POST` sends a body. The method is the verb on the slip. Headers are labels on that slip. `Content-Type` tells the other side how to read the body.\n\nThis lesson does not open the network. You only describe a request object. `describe({ method: 'POST', headers: { 'content-type': 'application/json' } })` should print `POST application/json`. A GET with no content-type label prints `GET none`."
+    },
+    {
+      "type": "predict",
+      "id": "get-vs-post",
+      "promptMd": "`GET` is for…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "body",
+          "md": "Sending a body the other side must store"
+        },
+        {
+          "id": "read",
+          "md": "Asking to read — a body is not required"
+        }
+      ],
+      "answer": "read"
+    },
+    {
+      "type": "check",
+      "id": "header-label",
+      "kind": "cloze",
+      "promptMd": "`Content-Type` is a {{a}} on the message. If that header is missing, write {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "label",
+              "md": "label"
+            },
+            {
+              "id": "status",
+              "md": "status"
+            },
+            {
+              "id": "URL",
+              "md": "URL"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "none",
+              "md": "none"
+            },
+            {
+              "id": "POST",
+              "md": "POST"
+            },
+            {
+              "id": "404",
+              "md": "404"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "label",
+        "b": "none"
+      },
+      "explainMd": "Headers are labels. Missing content-type is not an error here — describe it as none."
+    },
+    {
+      "type": "code",
+      "id": "describe-req",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `describe(req)` returns `` `${req.method} ${req.headers['content-type'] || 'none'}` ``. Print `describe` of a POST with `application/json`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "POST application/json"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "`describe` reads `req.method` and the `content-type` header."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "If that header is missing, use the word `none`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Print a POST whose content-type is `application/json`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function describe(req) {\n  return `${req.method} ${req.headers['content-type'] || 'none'}`\n}\nconsole.log(describe({ method: 'POST', headers: { 'content-type': 'application/json' } }))\nmodule.exports = { describe }"
+        }
+      ]
+    }
+  ],
+  "description": "A request has a method and labels. Those labels tell the other side how to read the body."
+}

@@ -92,6 +92,16 @@ function stubsDir(): string {
   return playStubsRoot()
 }
 
+function readPlayLog(cwd: string): unknown {
+  const logPath = join(cwd, 'play-log.json')
+  if (!existsSync(logPath)) return []
+  try {
+    return JSON.parse(readFileSync(logPath, 'utf8'))
+  } catch {
+    return []
+  }
+}
+
 function sandboxName(rel: string): string {
   return rel.replace(/^files\//, '').replace(/\\/g, '/')
 }
@@ -130,6 +140,7 @@ export async function executeCodeBlock(
   const extraEnv = { ...(block.env ?? {}) }
   const argv = block.argv ?? []
   let result: SpawnResult
+  let playLogAfterRun: unknown | undefined
 
   if (block.engine === 'javascript' && isDomBlock(block, files)) {
     result = await runDomHarness(block, files)
@@ -149,6 +160,7 @@ export async function executeCodeBlock(
     }
     const launched = pythonBinArgs(bin, [boot, ...argv])
     result = await runProcess(launched.bin, launched.args, cwd, timeout, extraEnv)
+    if (play) playLogAfterRun = readPlayLog(cwd)
     if (hidden && block.checks.some((c) => c.type === 'python-assert')) {
       const hiddenName = sandboxName(hidden.path)
       const assertLaunch = pythonBinArgs(bin, [hiddenName, ...argv])
@@ -191,18 +203,28 @@ export async function executeCodeBlock(
       boot = '_boot.mjs'
     }
     result = await runProcess(bin, [boot, ...argv], cwd, timeout, extraEnv)
+    if (play) playLogAfterRun = readPlayLog(cwd)
     if (hidden && block.checks.some((c) => c.type === 'js-assert')) {
       const hiddenName = sandboxName(hidden.path)
       const hiddenEsm = hiddenName.endsWith('.mjs') || esm
       const assertBoot = hiddenEsm ? '_assert_boot.mjs' : '_assert_boot.js'
+      const playerLine = play
+        ? hiddenEsm
+          ? `import { Player } from './_lawp_player.mjs'\nglobalThis.Player = Player\n`
+          : `global.Player = require('./_lawp_player.js').Player\n`
+        : ''
       if (hiddenEsm) {
         writeSandboxFile(
           cwd,
           assertBoot,
-          `import { createRequire } from 'node:module'\nconst require = createRequire(import.meta.url)\nrequire('./_lawp_fetch.js')\nawait import(${JSON.stringify('./' + hiddenName)})\n`
+          `import { createRequire } from 'node:module'\nconst require = createRequire(import.meta.url)\nrequire('./_lawp_fetch.js')\n${playerLine}await import(${JSON.stringify('./' + hiddenName)})\n`
         )
       } else {
-        writeSandboxFile(cwd, assertBoot, `require('./_lawp_fetch.js')\nrequire(${JSON.stringify('./' + hiddenName)})\n`)
+        writeSandboxFile(
+          cwd,
+          assertBoot,
+          `require('./_lawp_fetch.js')\n${playerLine}require(${JSON.stringify('./' + hiddenName)})\n`
+        )
       }
       const assertRun = await runProcess(bin, [assertBoot, ...argv], cwd, timeout, extraEnv)
       result = mergeAssertRun(result, assertRun)
@@ -214,15 +236,16 @@ export async function executeCodeBlock(
   const checks = gradeChecks(block, files, result)
   let playOut: PlayApplyResult | undefined
   if (play) {
-    let raw: unknown = []
+    let raw: unknown = playLogAfterRun
     const logPath = join(cwd, 'play-log.json')
-    if (existsSync(logPath)) {
+    if (raw === undefined && existsSync(logPath)) {
       try {
         raw = JSON.parse(readFileSync(logPath, 'utf8'))
       } catch {
         raw = []
       }
     }
+    if (raw === undefined) raw = []
     playOut = applyPlayLog(play.world, parsePlayLog(raw), {
       playerId: play.playerId,
       goal: play.goal,

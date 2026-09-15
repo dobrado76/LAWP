@@ -424,6 +424,12 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     color: green,
     tags: ['if', 'boolean', 'truth']
   },
+  'short-circuit': {
+    description: 'And, or, and nullish stop as soon as they know the answer. Zero is a real reading. Empty text is not. Pick the operator that matches that difference.',
+    icon: 'GitMerge',
+    color: cyan,
+    tags: ['boolean', 'or', 'nullish']
+  },
   'transfer-classify-signal': {
     description: 'Use kinds of values to label a signal in a new story. The names change. The question is the same: what kind is this, and what can I do with it.',
     icon: 'Tags',
@@ -507,6 +513,12 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     icon: 'Box',
     color: teal,
     tags: ['object', 'field', 'value']
+  },
+  'set-and-map': {
+    description: 'A set keeps each value once. A map stores a value under a key you choose. Use them when a list of duplicates or a plain record is the wrong shape.',
+    icon: 'Boxes',
+    color: purple,
+    tags: ['set', 'map', 'unique']
   },
   'reference-vs-copy': {
     description: 'Two names can point at the same object. Change it through one name and the other sees it. A copy is a new object with the same shape.',
@@ -766,6 +778,12 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     color: amber,
     tags: ['input', 'string', 'event']
   },
+  'prevent-default': {
+    description: 'Stop the form from leaving the page, then copy the typed words onto the board. The default submit is a leave. You cancel it on purpose.',
+    icon: 'Shield',
+    color: teal,
+    tags: ['form', 'submit', 'event']
+  },
   'a11y-name-and-role': {
     description: 'A control needs a name and a role a screen reader can use. A pretty button with no name is silent. The visible label should be that name.',
     icon: 'Accessibility',
@@ -795,6 +813,12 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     icon: 'Mail',
     color: orange,
     tags: ['http', 'request', 'response']
+  },
+  'method-and-headers': {
+    description: 'A request has a method and labels. Those labels tell the other side how to read the body. GET asks to read. POST sends a body.',
+    icon: 'Tag',
+    color: blue,
+    tags: ['http', 'header', 'method']
   },
   'fetch-ok-and-fail': {
     description: 'A missing page is still a response. The server answered. Only a broken network throws. Check the ok flag before you trust the body.',

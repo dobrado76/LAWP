@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.closures"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The function keeps the box\n\n`makeMover(dir)` returns a function. That inner function still sees `dir` later — that is a closure. The fox can call the returned function after you have left `makeMover`.\n\nThe closure does not copy the value onto a sticky note unless you create a new binding each time."
+      "md": "## The function keeps the box\n\n`makeMover(dir)` returns a function. That inner function still sees `dir` later — that is a closure. The fox can call the returned function after you have left `makeMover`.\n\nThe closure keeps a live binding, not a sticky-note copy, unless you create a new binding each time.\n\nAt the signal desk, you hand the fox a radio tuned to `\"east\"`. Three later calls still walk east, even though `makeMover` has finished."
     },
     {
       "type": "predict",
@@ -33,6 +33,38 @@
         }
       ],
       "answer": "east"
+    },
+    {
+      "type": "check",
+      "id": "closure-binding",
+      "kind": "cloze",
+      "promptMd": "After `makeMover` returns, the inner function still sees {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "dir",
+              "md": "dir"
+            },
+            {
+              "id": "undefined",
+              "md": "undefined"
+            },
+            {
+              "id": "a printed copy",
+              "md": "a printed copy"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "dir"
+      },
+      "explainMd": "The inner function keeps the binding named dir. It does not lose the heading when makeMover ends.",
+      "skillIds": [
+        "js.closures"
+      ]
     },
     {
       "type": "code",
@@ -59,7 +91,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "return function () { Player.move(dir) }"
+          "md": "Return a function that still sees the `dir` parameter."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Inside that function, call `Player.move(dir)`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Call the returned function three times after `makeMover(\"east\")`."
         },
         {
           "level": 4,
@@ -90,6 +132,60 @@
                 "y": 0,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 5,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "t2",
+              "type": "tree",
+              "props": {
+                "x": 6,
+                "y": 4,
+                "solid": true
+              }
+            },
+            {
+              "id": "r1",
+              "type": "rock",
+              "props": {
+                "x": 5,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "owl",
+              "type": "owl",
+              "props": {
+                "x": 6,
+                "y": 1
+              }
+            },
+            {
+              "id": "coin",
+              "type": "coin",
+              "props": {
+                "x": 0,
+                "y": 3,
+                "collect": true,
+                "taken": false,
+                "label": "coin"
+              }
+            },
+            {
+              "id": "chest",
+              "type": "chest",
+              "props": {
+                "x": 6,
+                "y": 3
+              }
             }
           ],
           "connections": [],
@@ -98,16 +194,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-grass"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

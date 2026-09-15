@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.objects"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Private-ish notes on objects you do not own\n\n`WeakMap` keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point.\n\nTiny code: remember a note on a route object."
+      "md": "## Notes you do not own\n\n`WeakMap` keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point.\n\nA string like `\"fox\"` cannot be a key.\n\nThe desk remembers `\"keep\"` on a route object it does not own. When that route is gone, the note can vanish with it."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "no"
+    },
+    {
+      "type": "check",
+      "id": "weak-must",
+      "kind": "tf",
+      "promptMd": "A WeakMap key can be the string `\"fox\"`.",
+      "answer": "false",
+      "explainMd": "Keys must be objects (or symbols in a WeakMap of objects). A string is not allowed."
     },
     {
       "type": "code",
@@ -65,6 +73,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Use `WeakMap`, not `Map`, so the hidden check can see the type."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`notes.set(route, \"keep\")` stores the string on that object key."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "const notes = new WeakMap(); notes.set(route, \"keep\")"
         },

@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.test",
@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Do not look at stdout\n\n`walk(dirs)` returns the end `{ x, y }` starting from `{ x: 0, y: 0 }` without calling `Player`. Tests check the object.\n\nPrint `3,2` for three east and two south."
+      "md": "## Do not look at stdout\n\n`walk(dirs)` returns the end `{ x, y }` starting from `{ x: 0, y: 0 }`. It must not call `Player`. Tests check the object. The stage is for seeing a fox, not for proving the math.\n\n`east` adds 1 to `x`. `west` subtracts 1 from `x`. `south` adds 1 to `y`. `north` subtracts 1 from `y`.\n\nPrint `3,2` for three east and two south. A hidden test will send `west` then `north` and expect `{ x: -1, y: -1 }`."
     },
     {
       "type": "predict",
@@ -37,6 +37,53 @@
         }
       ],
       "answer": "return"
+    },
+    {
+      "type": "check",
+      "id": "walk-axes",
+      "kind": "cloze",
+      "promptMd": "`east` adds 1 to {{a}}. `south` adds 1 to {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "x",
+              "md": "x"
+            },
+            {
+              "id": "y",
+              "md": "y"
+            },
+            {
+              "id": "dirs.length",
+              "md": "dirs.length"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "x",
+              "md": "x"
+            },
+            {
+              "id": "y",
+              "md": "y"
+            },
+            {
+              "id": "argv",
+              "md": "argv"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "x",
+        "b": "y"
+      },
+      "explainMd": "Origin is 0,0. Three east and two south end at 3,2. west and north go negative."
     },
     {
       "type": "code",
@@ -66,6 +113,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Start at `{ x: 0, y: 0 }`. Change `x` or `y` for each heading."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Return the object. Print `x + \",\" + y` for the sample path."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "east +x, west -x, south +y, north -y."
         },

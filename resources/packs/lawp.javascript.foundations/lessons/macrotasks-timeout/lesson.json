@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Sync, then the timeout tray\n\n`setTimeout(fn, 0)` does **not** mean “run now.” It means “put `fn` on the macrotask queue.” Sync work finishes first.\n\nOn the desk: light **1 Sync**, then later **3 timeout**. (The `then` lamp waits for the next lesson.)"
+      "md": "## Sync, then the timeout tray\n\n`setTimeout(fn, 0)` does **not** mean “run now.” It means “put `fn` on the macrotask queue.” Sync work on the stack finishes first. Only then does the desk look at the timeout tray.\n\nOn the desk: light **1 Sync**, then later **3 timeout**. The `then` lamp is a different tray (next lesson). If you fire the timeout while sync is still running, the desk records a fault."
     },
     {
       "type": "activity",
@@ -353,6 +353,14 @@
           "misconceptionId": "then-and-timeout-same-queue"
         }
       ]
+    },
+    {
+      "type": "check",
+      "id": "timeout-zero-now",
+      "kind": "tf",
+      "promptMd": "`setTimeout(fn, 0)` runs `fn` before the current call stack finishes.",
+      "answer": "false",
+      "explainMd": "Zero means “as soon as this macrotask tray is served,” not “now, on top of the running function.”"
     }
   ],
   "description": "A timeout waits until the current work is done, then it runs."

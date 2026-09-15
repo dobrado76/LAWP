@@ -1,0 +1,145 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.events",
+    "js.dom"
+  ],
+  "id": "prevent-default",
+  "courseId": "the-page",
+  "moduleId": "live",
+  "title": "preventDefault on submit",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Submit does not have to leave\n\nA form’s default submit reloads or leaves the page. `event.preventDefault()` stops that default. The listener still runs. You keep the typed words on this desk.\n\nListen for `submit` on `#desk`. Prevent the default. Copy `#q` into `#out` with `textContent`. The fox files a query without the board going blank."
+    },
+    {
+      "type": "predict",
+      "id": "why-prevent",
+      "promptMd": "Why call `preventDefault` on this form submit?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "copy",
+          "md": "It copies the value by itself"
+        },
+        {
+          "id": "stay",
+          "md": "It stops the default leave/reload so your listener can keep the words on the board"
+        }
+      ],
+      "answer": "stay"
+    },
+    {
+      "type": "check",
+      "id": "prevent-is-copy",
+      "kind": "tf",
+      "promptMd": "`preventDefault` copies the input into `#out` for you.",
+      "answer": "false",
+      "explainMd": "preventDefault only stops the default leave. You still read #q and write #out yourself."
+    },
+    {
+      "type": "check",
+      "id": "submit-steps",
+      "kind": "cloze",
+      "promptMd": "On `submit`, call {{a}}, then copy `#q` into `#out` with {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "preventDefault",
+              "md": "preventDefault"
+            },
+            {
+              "id": "stopImmediatePropagation",
+              "md": "stopImmediatePropagation"
+            },
+            {
+              "id": "blur",
+              "md": "blur"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "textContent",
+              "md": "textContent"
+            },
+            {
+              "id": "innerHTML",
+              "md": "innerHTML"
+            },
+            {
+              "id": "outerHTML",
+              "md": "outerHTML"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "preventDefault",
+        "b": "textContent"
+      },
+      "explainMd": "Stop the default leave, then write the typed words as text, not as markup."
+    },
+    {
+      "type": "code",
+      "id": "hold-submit",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Listen for `submit` on `#desk`. Prevent the default. Copy `#q` into `#out` with `textContent`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The form id is `#desk`. Listen for `submit`, not `click`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Call `e.preventDefault()` first so the board does not leave."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Then set `#out` text to `#q`’s `.value`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "document.querySelector(\"#desk\").addEventListener(\"submit\", (e) => {\n  e.preventDefault()\n  document.querySelector(\"#out\").textContent = document.querySelector(\"#q\").value\n})"
+        }
+      ]
+    }
+  ],
+  "description": "Stop the form from leaving the page, then copy the typed words onto the board."
+}

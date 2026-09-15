@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.this"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Shorter is not the whole story\n\n`const add = (a, b) => a + b` is shorter. An arrow also **does not get its own `this`**. It keeps the `this` from outside.\n\nA method that needs `this.dir` should stay a `function`, or you bind it later. This lesson is syntax plus that preview — no DOM yet."
+      "md": "## Shorter is not the whole story\n\n`const add = (a, b) => a + b` is shorter. An arrow also **does not get its own `this`**. It keeps the `this` from the scope where it was created.\n\nA method that needs `this.dir` should stay a `function`, or you bind it later. This lesson is syntax plus that preview — no page tree yet.\n\nIf the fox writes an arrow as `go` on a route object, `this.dir` is not the route. A plain `function go()` would see the object that called it."
     },
     {
       "type": "predict",
@@ -33,6 +33,38 @@
         }
       ],
       "answer": "outer"
+    },
+    {
+      "type": "check",
+      "id": "arrow-keeps",
+      "kind": "cloze",
+      "promptMd": "An arrow's `this` is {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "from the outer scope",
+              "md": "from the outer scope"
+            },
+            {
+              "id": "whatever called it",
+              "md": "whatever called it"
+            },
+            {
+              "id": "always the global",
+              "md": "always the global"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "from the outer scope"
+      },
+      "explainMd": "Arrows do not get a new this at the call site. They keep the this from where they were written.",
+      "skillIds": [
+        "js.this"
+      ]
     },
     {
       "type": "code",
@@ -66,6 +98,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Use `=>` so the hidden check can see an arrow."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Two parameters, then the sum. No `function` keyword."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "const add = (a, b) => a + b"
         },

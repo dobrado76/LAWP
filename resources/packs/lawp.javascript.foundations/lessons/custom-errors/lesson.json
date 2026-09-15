@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.errors"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Name the failure\n\n`class RouteError extends Error {}` lets `catch (e)` ask `e instanceof RouteError`. A generic `Error` is a shrug. A named class is a signal."
+      "md": "## Name the failure\n\n`class RouteError extends Error {}` lets `catch (e)` ask `e instanceof RouteError`. A generic `Error` is a shrug. A named class is a signal.\n\nA `RouteError` is still an `Error`. `e instanceof Error` stays true.\n\nWhen the path is blocked, the fox throws `RouteError(\"blocked\")`. The desk can tell a blocked route from a missing file."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "true"
+    },
+    {
+      "type": "check",
+      "id": "still-error",
+      "kind": "cloze",
+      "promptMd": "`new RouteError` is {{a}} an Error.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "still",
+              "md": "still"
+            },
+            {
+              "id": "never",
+              "md": "never"
+            },
+            {
+              "id": "only if you wrap it",
+              "md": "only if you wrap it"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "still"
+      },
+      "explainMd": "extends Error keeps the subclass in the Error family. instanceof Error is true."
     },
     {
       "type": "code",
@@ -66,7 +95,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "class RouteError extends Error {}"
+          "md": "Make a class that extends `Error`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`fail` should `throw new RouteError(\"blocked\")`, not a plain Error."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Catch it and print `e.message`."
         },
         {
           "level": 4,

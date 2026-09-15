@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Three waits, two stories\n\n`await Player.wait(1)` three times in a row is **sequence**. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together.\n\nThe fox still only moves after you say so. Use `wait` then walk east to (3, 0). Sequence is fine here — the lesson is that `all` would overlap the pauses."
+      "md": "## Three waits, two stories\n\n`await Player.wait(1)` three times in a row is **sequence**. Each pause starts after the last one finishes. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together. They overlap. The whole group finishes when the slowest one finishes.\n\nThe fox still only moves after you say so. Use `wait` then walk east to (3, 0). Sequence is fine here — the lesson is that `all` would overlap the pauses. Trees and a wall sit off the path so the yard looks like a field, not a blank strip."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "max"
+    },
+    {
+      "type": "check",
+      "id": "all-adds",
+      "kind": "tf",
+      "promptMd": "`Promise.all` of three equal waits always adds the three times.",
+      "answer": "false",
+      "explainMd": "The waits overlap. The group finishes when the slowest one finishes, not when the sum of the times has passed."
     },
     {
       "type": "code",
@@ -58,7 +66,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "async function go() { await Player.wait(1); await Player.wait(1); await Player.wait(1); for (let i = 0; i < 3; i++) Player.move(\"east\") }\ngo()"
+          "md": "Wait first, then walk. The beacon is three cells east."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Three `Player.wait(1)` calls in a row, or one `Promise.all` of three waits, then three east moves."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Trees and the wall are off the east path. Stay on y = 0."
         },
         {
           "level": 4,
@@ -89,6 +107,41 @@
                 "y": 0,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 5,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "t2",
+              "type": "tree",
+              "props": {
+                "x": 6,
+                "y": 4,
+                "solid": true
+              }
+            },
+            {
+              "id": "w1",
+              "type": "wall",
+              "props": {
+                "x": 1,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "owl",
+              "type": "owl",
+              "props": {
+                "x": 6,
+                "y": 1
+              }
             }
           ],
           "connections": [],
@@ -97,16 +150,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-grass"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

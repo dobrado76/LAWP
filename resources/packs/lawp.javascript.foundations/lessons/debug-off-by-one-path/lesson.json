@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.flow"
@@ -66,6 +66,11 @@
           "md": "Count on your fingers: i = 0, 1, 2 is three moves if the test is i < 3."
         },
         {
+          "level": 2,
+          "kind": "concept",
+          "md": "The walls sit on the row below. Stay on y=0 and walk east."
+        },
+        {
           "level": 4,
           "kind": "assist",
           "md": "for (let i = 0; i < 3; i++) Player.move(\"east\")"
@@ -94,6 +99,41 @@
                 "y": 0,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "w1",
+              "type": "wall",
+              "props": {
+                "x": 1,
+                "y": 1,
+                "solid": true
+              }
+            },
+            {
+              "id": "w2",
+              "type": "wall",
+              "props": {
+                "x": 2,
+                "y": 1,
+                "solid": true
+              }
+            },
+            {
+              "id": "w3",
+              "type": "wall",
+              "props": {
+                "x": 3,
+                "y": 1,
+                "solid": true
+              }
+            },
+            {
+              "id": "flag",
+              "type": "flag",
+              "props": {
+                "x": 6,
+                "y": 0
+              }
             }
           ],
           "connections": [],
@@ -102,16 +142,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 3,
+              "floor": "floor-path"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

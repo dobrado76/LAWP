@@ -3,12 +3,21 @@ import {
   explain,
   predict,
   check,
+  cloze,
+  tf,
   hints,
+  ladder,
   stdoutCode,
   playCode,
   fox,
   beacon,
+  rock,
+  tree,
+  wall,
+  token,
+  piece,
   gridWorld,
+  field,
   at,
   srcIncludes,
   playLogOk,
@@ -28,7 +37,7 @@ export function lessonsC0C3() {
       estimatedMinutes: 25,
       blocks: [
         explain(
-          '## No fox yet\n\nEight short questions. Wrong answers do not lock you out — they mark which later lessons to take slowly. Pick the result you expect JavaScript to produce, not the result you wish it produced.'
+          '## No fox yet\n\nEight short questions about what JavaScript actually does. Wrong answers do not lock you out — they mark which later lessons to take slowly.\n\nPick the result you expect the language to produce, not the result you wish it produced. Later, the same ideas show up as a fox on a field and as a signal board on a page.'
         ),
         check(
           'typeof-null',
@@ -128,7 +137,7 @@ export function lessonsC0C3() {
       taskRev: 2,
       blocks: [
         explain(
-          '## Kinds you can print\n\nEvery value has a kind. `typeof 3` is `"number"`. `typeof "3"` is `"string"`. `typeof null` is `"object"` — that answer is a leftover bug. Do not treat `null` as a bag of fields.\n\nExport `kindOf` so a hidden test can call it. Print the kind of the number 3.'
+          '## Kinds you can print\n\nEvery value has a kind. `typeof 3` is `"number"`. `typeof "3"` is `"string"`. A later desk will ask “what kind of signal is this?” before it files the record.\n\n`typeof null` is `"object"` — that answer is a leftover bug. Do not treat `null` as a bag of fields. Export `kindOf` so a hidden test can call it. Print the kind of the number 3.'
         ),
         predict(
           'typeof-null',
@@ -139,6 +148,16 @@ export function lessonsC0C3() {
             { id: 'undefined', md: '`undefined`' }
           ],
           'object'
+        ),
+        cloze(
+          'kind-words',
+          '`typeof 3` is {{a}}. `typeof "3"` is {{b}}.',
+          [
+            { id: 'a', choices: ['number', 'string', 'object'] },
+            { id: 'b', choices: ['number', 'string', 'object'] }
+          ],
+          { a: 'number', b: 'string' },
+          { explainMd: 'A numeral is a number. Quotes make text, even when the text looks like a digit.' }
         ),
         stdoutCode({
           id: 'typeof-number',
@@ -177,7 +196,7 @@ assert.strictEqual(m.kindOf('3'), 'string')
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot *rebinding* — the sticker on the box stays. If the value is an object, the stuff *inside* can still change.\n\n`const signal = { on: false }; signal.on = true` is legal. `signal = {}` is not.'
+          '## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot *rebind* — the sticker on the box stays. If the value is an object, the stuff *inside* can still change.\n\nOn the desk: `const signal = { on: false }; signal.on = true` is legal. `signal = {}` is not. The name still points at the same record. The lamp field flipped.'
         ),
         predict(
           'const-object',
@@ -187,6 +206,12 @@ assert.strictEqual(m.kindOf('3'), 'string')
             { id: 'south', md: '`"south"` — the binding stayed, the field changed' }
           ],
           'south'
+        ),
+        tf(
+          'const-rebind',
+          '`const` stops you from changing a field on an object.',
+          false,
+          { explainMd: 'const stops a new assignment to that name. Fields on the object can still change.', misconceptionId: 'const-means-immutable' }
         ),
         stdoutCode({
           id: 'bind-then-print',
@@ -225,7 +250,7 @@ assert.ok(src.includes('const'))
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Text does not mutate in place\n\n`"east".toUpperCase()` returns a **new** string. The original stays `"east"`.\n\nA template literal lets you drop a value into a string: `` `beacon:${name}` ``.'
+          '## Text does not mutate in place\n\n`"east".toUpperCase()` returns a **new** string. The original stays `"east"`. A beacon tag is the same idea: you build a new label; you do not scratch the old letters off.\n\nA template literal drops a value into a string: `` `beacon:${name}` ``. The result is still text.'
         ),
         predict(
           'string-immutable',
@@ -272,7 +297,7 @@ assert.strictEqual(m.tagBeacon('north'), 'beacon:north')
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Not a Number is still a number kind\n\n`Number("fox")` is `NaN`. `typeof NaN` is `"number"`. `NaN === NaN` is **false**. Use `Number.isNaN(x)` when you mean “this failed to become a number.”'
+          '## Not a Number is still a number kind\n\n`Number("fox")` is `NaN`. `typeof NaN` is `"number"`. `NaN === NaN` is **false**. A desk that stores lamp current as a number must catch that — otherwise it files a broken reading as if it were zero.\n\nUse `Number.isNaN(x)` when you mean “this failed to become a number.”'
         ),
         predict(
           'nan-equals',
@@ -320,7 +345,7 @@ assert.strictEqual(m.failedNumber('3'), false)
       taskRev: 2,
       blocks: [
         explain(
-          '## `===` does not convert\n\n`0 == ""` is true because `==` coerces. `0 === ""` is false. Prefer `===` and `!==` unless you can name the coercion you want.\n\nPrint whether `0` and `""` are **not** strictly equal (`true`).'
+          '## `===` does not convert\n\n`0 == ""` is true because `==` coerces. `0 === ""` is false. A signal of `0` (off) is not the same as a missing name `""`.\n\nPrefer `===` and `!==` unless you can name the coercion you want. Print whether `0` and `""` are **not** strictly equal (`true`).'
         ),
         predict(
           'double-trap',
@@ -340,7 +365,7 @@ assert.strictEqual(m.failedNumber('3'), false)
           hidden: true,
           hints: hints(
             { level: 1, kind: 'concept', md: 'Use === or !==. Do not use ==.' },
-            { level: 4, kind: 'assist', md: 'function notStrictSame(a, b) { return a !== b }\nconsole.log(notStrictSame(0, ""))\nmodule.exports = { notStrictSame }' }
+            { level: 4, kind: 'assist', md: 'function notStrictSame(a, b) { return !(a === b) }\nconsole.log(notStrictSame(0, ""))\nmodule.exports = { notStrictSame }' }
           )
         })
       ]
@@ -372,7 +397,7 @@ assert.ok(!/[^!=]==[^=]/.test(src), 'do not use ==')
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Some values act as “no”\n\nIn an `if`, these are falsy: `0`, `""`, `null`, `undefined`, `NaN`, `false`.\n\n`[]` and `"0"` are truthy. An empty list is still a list. The string zero is still text.'
+          '## Some values act as “no”\n\nIn an `if`, these are falsy: `0`, `""`, `null`, `undefined`, `NaN`, `false`. A lamp at brightness `0` is off. An empty name `""` is missing.\n\n`[]` and `"0"` are truthy. An empty list is still a list. The string zero is still text. Do not treat them as “no.”'
         ),
         predict(
           'empty-array',
@@ -382,6 +407,16 @@ assert.ok(!/[^!=]==[^=]/.test(src), 'do not use ==')
             { id: 'go', md: '`go` — an array object is truthy' }
           ],
           'go'
+        ),
+        cloze(
+          'falsy-set',
+          'In an `if`, {{a}} is falsy and {{b}} is truthy.',
+          [
+            { id: 'a', choices: ['0', '[]', '"0"'] },
+            { id: 'b', choices: ['0', '[]', 'null'] }
+          ],
+          { a: '0', b: '[]' },
+          { explainMd: 'Zero is falsy. An empty array is still an object, so it is truthy.' }
         ),
         stdoutCode({
           id: 'label-truth',
@@ -407,6 +442,66 @@ assert.strictEqual(m.gate(''), 'shut')
 assert.strictEqual(m.gate('0'), 'open')
 assert.strictEqual(m.gate([]), 'open')
 assert.strictEqual(m.gate(1), 'open')
+`)
+    }
+  })
+
+  out.push({
+    doc: lesson({
+      id: 'short-circuit',
+      courseId: 'values',
+      moduleId: 'compare',
+      title: 'Stop at the first yes or no',
+      skillIds: ['js.flow', 'js.values'],
+      estimatedMinutes: 20,
+      blocks: [
+        explain(
+          '## `&&`, `||`, and `??`\n\n`a && b` returns `a` if `a` is falsy, otherwise `b`. `a || b` returns `a` if `a` is truthy, otherwise `b`. They stop as soon as they know the answer.\n\n`??` is narrower: it only skips `null` or `undefined`. `0 || "north"` becomes `"north"`. `0 ?? "north"` stays `0`. A lamp at brightness zero is still a reading — do not replace it with a default name.'
+        ),
+        predict(
+          'or-zero',
+          '`0 || "north"` is…',
+          [
+            { id: 'zero', md: '`0` — zero is a real value' },
+            { id: 'north', md: '`"north"` — `||` treats 0 as no' },
+            { id: 'true', md: '`true`' }
+          ],
+          'north'
+        ),
+        cloze(
+          'nullish',
+          '`0 ?? "north"` is {{a}}. `null ?? "north"` is {{b}}.',
+          [
+            { id: 'a', choices: ['0', '"north"', 'null'] },
+            { id: 'b', choices: ['0', '"north"', 'null'] }
+          ],
+          { a: '0', b: '"north"' },
+          { explainMd: '?? only replaces null or undefined. Zero is kept. || would have thrown zero away.' }
+        ),
+        stdoutCode({
+          id: 'label-or',
+          prompt: '> `label(name)` returns `name` if it is a non-empty string, otherwise `"anon"`. Print `label("")`.',
+          equals: 'anon',
+          hidden: true,
+          hints: ladder(
+            'Empty string is falsy. || can supply a default.',
+            'Do not use ?? here — "" is not null.',
+            'function label(name) { return name || "anon" }',
+            'function label(name) {\n  return name || "anon"\n}\nconsole.log(label(""))\nmodule.exports = { label }'
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `function label(name) {
+  return name
+}
+console.log(label(""))
+module.exports = { label }
+`,
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.label(''), 'anon')
+assert.strictEqual(m.label('east'), 'east')
+assert.strictEqual(m.label(0), 'anon')
 `)
     }
   })
@@ -493,7 +588,7 @@ assert.strictEqual(m.classify(3), 'other')
           hidden: true,
           hints: hints(
             { level: 1, kind: 'concept', md: 'Parentheses run the function: ping()' },
-            { level: 4, kind: 'assist', md: 'console.log(ping())' }
+            { level: 4, kind: 'assist', md: 'function ping() {\n  return "pong"\n}\nconsole.log(ping())\nmodule.exports = { ping }' }
           )
         })
       ]
@@ -536,13 +631,25 @@ module.exports = { ping }
           id: 'reach-beacon',
           prompt: '> Walk the fox onto the beacon at `(3, 2)`.',
           guided: true,
-          world: gridWorld([fox(0, 0), beacon(3, 2)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(3, 2),
+              token('coin', 'coin', 1, 0),
+              tree('t1', 5, 0),
+              tree('t2', 6, 4),
+              piece('owl', 'owl', 6, 1),
+              rock('r1', 5, 3)
+            ],
+            { floor: 'floor-grass' }
+          ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 2)] },
           hidden: true,
           hints: hints(
-            { level: 1, kind: 'concept', md: 'Beacon is at x=3, y=2. One move changes one coordinate by 1.' },
-            { level: 2, kind: 'concept', md: 'You need three east calls and two south calls. Order does not matter.' },
-            { level: 4, kind: 'assist', md: 'Player.move("east") three times, then Player.move("south") twice.' }
+            { level: 1, kind: 'concept', md: 'Beacon is at x=3, y=2. One move changes one coordinate by 1. Trees and rocks block; walk around them.' },
+            { level: 2, kind: 'concept', md: 'You need three east calls and two south calls. Order does not matter. The coin on the way is optional.' },
+            { level: 3, kind: 'concept', md: 'east increases x. south increases y. The owl is scenery.' },
+            { level: 4, kind: 'assist', md: 'Player.move("east")\nPlayer.move("east")\nPlayer.move("east")\nPlayer.move("south")\nPlayer.move("south")' }
           )
         })
       ]
@@ -795,7 +902,7 @@ while (false) {
           id: 'solve-keyed-beacon',
           prompt: 'The stage is the map. Discover the route — Hint if you need a compass.',
           scaleValues: [1, 2],
-          world: gridWorld(keyedParts),
+          world: gridWorld(keyedParts, 5, 5, 'floor-stone'),
           goal: {
             all: [
               at('fox', 'x', 2),
@@ -813,7 +920,7 @@ while (false) {
             { level: 1, kind: 'concept', md: 'Rocks stop a step. Tokens vanish when you walk onto them. Read x and y on the stage.' },
             { level: 2, kind: 'concept', md: 'Coin is south of the fox. After that, go north to the open row. Glint is far west. Key is far east. Beacon is one step north of the middle of that row.' },
             { level: 3, kind: 'concept', md: 'On the beacon you still need Player.rotate(90), Player.scale(2), and Player.say("ready"). scale(3) is rejected.' },
-            { level: 4, kind: 'assist', md: 'south; north north north; west west (glint); east east east east (key); west west; north; rotate(90); scale(2); say("ready").' }
+            { level: 4, kind: 'assist', md: 'Player.move("south")\nPlayer.move("north")\nPlayer.move("north")\nPlayer.move("north")\nPlayer.move("west")\nPlayer.move("west")\nPlayer.move("east")\nPlayer.move("east")\nPlayer.move("east")\nPlayer.move("east")\nPlayer.move("west")\nPlayer.move("west")\nPlayer.move("north")\nPlayer.rotate(90)\nPlayer.scale(2)\nPlayer.say("ready")' }
           )
         })
       ]
@@ -853,12 +960,23 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
           id: 'fix-loop',
           debug: true,
           prompt: '> The starter walks only to x=2. Fix the bound so the fox reaches x=3.',
-          world: gridWorld([fox(0, 0), beacon(3, 0)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(3, 0),
+              wall('w1', 1, 1),
+              wall('w2', 2, 1),
+              wall('w3', 3, 1),
+              piece('flag', 'flag', 6, 0)
+            ],
+            { cols: 7, rows: 3, floor: 'floor-path' }
+          ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
           ast: 'for',
           hints: hints(
             'Count on your fingers: i = 0, 1, 2 is three moves if the test is i < 3.',
+            { level: 2, kind: 'concept', md: 'The walls sit on the row below. Stay on y=0 and walk east.' },
             { level: 4, kind: 'assist', md: 'for (let i = 0; i < 3; i++) Player.move("east")' }
           )
         })
@@ -1086,7 +1204,16 @@ assert.strictEqual(m.pathOf(['west']), 'west')
         playCode({
           id: 'walk-record',
           prompt: '> Walk `east` then `south` using the numbers on `route`. Beacon is at (3, 2).',
-          world: gridWorld([fox(0, 0), beacon(3, 2)]),
+          world: field(
+            [
+              fox(0, 0),
+              beacon(3, 2),
+              token('gem', 'gem', 3, 0),
+              tree('t1', 5, 1),
+              piece('chest', 'chest', 6, 4)
+            ],
+            { floor: 'floor-dirt' }
+          ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 2)] },
           hidden: true,
           hints: hints(
@@ -1104,6 +1231,62 @@ module.exports = { route }
       'hidden.test.js': exportAssert(`assert.strictEqual(m.route.east, 3)
 assert.strictEqual(m.route.south, 2)
 `) + playLogOk()
+    }
+  })
+
+  out.push({
+    doc: lesson({
+      id: 'set-and-map',
+      courseId: 'data',
+      moduleId: 'records',
+      title: 'Set and Map',
+      skillIds: ['js.arrays', 'js.objects'],
+      estimatedMinutes: 22,
+      blocks: [
+        explain(
+          '## Unique names, keyed lookup\n\nA `Set` keeps each value once. `new Set(["east", "east", "south"])` has size `2`. A `Map` stores a value under a key you choose — not only a string field on an object.\n\nThe desk uses a set to scrub a log (`east` twice is still one heading) and a map to look up a beacon by name. `map.get("north")` is missing when the key was never set — that is `undefined`, not a throw.'
+        ),
+        predict(
+          'set-size',
+          '`new Set(["east", "east", "south"]).size` is…',
+          [
+            { id: '3', md: '`3` — it kept every push' },
+            { id: '2', md: '`2` — the second east was already there' },
+            { id: '1', md: '`1`' }
+          ],
+          '2'
+        ),
+        tf(
+          'map-missing',
+          '`map.get("ghost")` throws if the key is missing.',
+          false,
+          { explainMd: 'get returns undefined. has tells you whether the key exists.' }
+        ),
+        stdoutCode({
+          id: 'unique-join',
+          prompt: '> `unique(dirs)` returns the unique headings joined with `-`. Print `unique(["east","east","south"])` (`east-south`).',
+          equals: 'east-south',
+          hidden: true,
+          hints: ladder(
+            'new Set(array) drops duplicates and keeps first-seen order.',
+            '[...set] turns the set back into a list you can join.',
+            'function unique(dirs) { return [...new Set(dirs)].join("-") }',
+            'function unique(dirs) {\n  return [...new Set(dirs)].join("-")\n}\nconsole.log(unique(["east", "east", "south"]))\nmodule.exports = { unique }'
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `function unique(dirs) {
+  return dirs.join("-")
+}
+console.log(unique(["east", "east", "south"]))
+module.exports = { unique }
+`,
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.unique(['east', 'east', 'south']), 'east-south')
+assert.strictEqual(m.unique(['west']), 'west')
+assert.strictEqual(m.unique(['south', 'south', 'south']), 'south')
+`)
     }
   })
 

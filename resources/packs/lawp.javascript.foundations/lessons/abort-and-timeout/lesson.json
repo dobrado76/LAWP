@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.http"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Cancel the wait\n\n`/slow` is delayed. `AbortController` + `fetch(url, { signal })` rejects with `AbortError` when you `abort()`.\n\nAbort immediately and print `aborted`."
+      "md": "## Cancel the wait\n\n`/slow` is delayed. `AbortController` + `fetch(url, { signal })` rejects with `AbortError` when you `abort()`. The wait ends because you said so, not because the body arrived.\n\nAbort immediately and print `aborted`. On the desk, you pull the slip back before the slow tray answers."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "abort"
+    },
+    {
+      "type": "check",
+      "id": "abort-404",
+      "kind": "tf",
+      "promptMd": "A fetch aborted via `signal` rejects as a 404 response.",
+      "answer": "false",
+      "explainMd": "Abort rejects the fetch with an error named AbortError. It is not a 404 slip."
     },
     {
       "type": "code",
@@ -70,7 +78,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "const c = new AbortController(); const p = fetch(\"/slow\", { signal: c.signal }); c.abort()"
+          "md": "Make an `AbortController` and pass `{ signal: c.signal }` to `fetch`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Call `c.abort()` right after you start `/slow`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "In `catch`, return `aborted` when `e.name` is `AbortError`."
         },
         {
           "level": 4,

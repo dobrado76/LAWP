@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.node.fs",
@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Scrub a messy file\n\n`messy.txt` has blank lines, spaces, and duplicate names. `clean(text)` returns unique trimmed names, sorted, one per line.\n\nPrint the cleaned text (ending with `west` on the last line)."
+      "md": "## Scrub a messy file\n\n`messy.txt` has blank lines, extra spaces, and the same name twice. `clean(text)` trims each line, drops empties, keeps each name once, then sorts.\n\nPrint the cleaned text. Unique sorted names: `east`, then `north`, then `west` on the last line. The hidden test will send a shorter list (`b`, `a`, `b`) and expect `a` then `b`.\n\nTwo `north` slips on the desk become one `north` line. The fox heading list should not repeat a name because someone typed it twice."
     },
     {
       "type": "predict",
@@ -37,6 +37,53 @@
         }
       ],
       "answer": "one"
+    },
+    {
+      "type": "check",
+      "id": "clean-steps",
+      "kind": "cloze",
+      "promptMd": "After trim and drop blanks, make names {{a}}, then {{b}} them.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "unique",
+              "md": "unique"
+            },
+            {
+              "id": "uppercase",
+              "md": "uppercase"
+            },
+            {
+              "id": "argv flags",
+              "md": "argv flags"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "sort",
+              "md": "sort"
+            },
+            {
+              "id": "shuffle",
+              "md": "shuffle"
+            },
+            {
+              "id": "buffer",
+              "md": "buffer"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "unique",
+        "b": "sort"
+      },
+      "explainMd": "Set keeps each name once. sort puts east before north before west."
     },
     {
       "type": "code",
@@ -70,6 +117,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Split the file into lines. Trim each line. Drop empty ones."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A `Set` keeps each name once. Then sort and join with newlines."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "trim, filter Boolean, unique with Set, sort, join newlines."
         },

@@ -73,6 +73,25 @@ describe('code run grading', () => {
     expect(out.stderr).toMatch(/boom/)
   })
 
+  it('keeps Player in scope when a hidden test reloads main.js', async () => {
+    const { executeCodeBlock } = await import('@main/runners/code')
+    const block: CodeBlock = {
+      ...playBlock(),
+      files: [
+        { path: 'files/main.js', role: 'edit', contents: '' },
+        {
+          path: 'files/hidden.test.js',
+          role: 'hidden-test',
+          contents: `const assert = require('assert')\nrequire('./main.js')\nconst log = JSON.parse(require('fs').readFileSync('play-log.json', 'utf8'))\nassert.ok(log.some((row) => row.op === 'move'))\n`
+        }
+      ],
+      checks: [{ type: 'js-assert' }]
+    }
+    const out = await executeCodeBlock(root, block, [{ path: 'files/main.js', contents: walk }])
+    expect(out.stderr).not.toMatch(/Player is not defined/)
+    expect(out.passed).toBe(true)
+  })
+
   it('passes a clean walk that exits 0', async () => {
     const { executeCodeBlock } = await import('@main/runners/code')
     const out = await executeCodeBlock(root, playBlock(), [{ path: 'files/main.js', contents: walk }])

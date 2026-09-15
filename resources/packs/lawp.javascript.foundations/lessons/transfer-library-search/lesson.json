@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 30,
   "skillIds": [
     "js.http",
@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Search, then render\n\n`GET /catalog.json` returns `{ items: [{ name, kind }] }`. On submit (or button click), fetch, filter names that include the query, and put matching names into `#results` as `li` nodes using `textContent`."
+      "md": "## Search, then render\n\n`GET /catalog.json` returns `{ items: [{ name, kind }] }`. On button click, fetch, filter names that include the query, and put matching names into `#results` as `li` nodes using `textContent`.\n\nClick `#go` with query `bea` should list `Beacon`, not `Rock`. Build each row as a node. Do not write a raw HTML string of names. The catalog desk already holds the query `bea`."
     },
     {
       "type": "predict",
@@ -38,6 +38,15 @@
         }
       ],
       "answer": "text"
+    },
+    {
+      "type": "check",
+      "id": "results-html",
+      "kind": "tf",
+      "promptMd": "Each result name should be set with `innerHTML` of the ul.",
+      "answer": "false",
+      "explainMd": "Create an li per match and set textContent. innerHTML would parse names as markup.",
+      "misconceptionId": "innerhtml-for-text"
     },
     {
       "type": "code",
@@ -75,7 +84,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "fetch(\"/catalog.json\") then filter, createElement li."
+          "md": "On click of `#go`, read `#q` and fetch `/catalog.json`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Filter `data.items` whose names include the query."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Clear `#results`, then append one `li` per match with `textContent`."
         },
         {
           "level": 4,

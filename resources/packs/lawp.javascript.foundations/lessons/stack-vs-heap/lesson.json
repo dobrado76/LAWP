@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Where values live\n\nThe **stack** is the list of function calls that are running now. The **heap** is the bag of objects those frames point at.\n\nA closure keeps a heap object alive after the stack frame that created it is gone. `await` *pauses that function* — it does not freeze the operating system."
+      "md": "## Where values live\n\nThe **stack** is the list of function calls that are running now. The **heap** is the bag of objects those frames point at. A stack frame is short-lived. A heap object stays as long as something still points at it.\n\nA closure keeps a heap object alive after the stack frame that created it is gone. `await` *pauses that function* — it does not freeze the operating system.\n\nOn the desk: the fox calls `outer()`, which calls `inner()`. While `inner` runs, it sits on top of the stack. The beacon record it points at lives on the heap. A later `then` can still read that record after `inner` has returned."
     },
     {
       "type": "predict",
@@ -33,6 +33,15 @@
         }
       ],
       "answer": "fn"
+    },
+    {
+      "type": "check",
+      "id": "await-not-os",
+      "kind": "tf",
+      "promptMd": "`await` freezes the whole computer until the promise finishes.",
+      "answer": "false",
+      "explainMd": "Only that async function pauses. Other JavaScript on the page can still run. The operating system is not frozen.",
+      "misconceptionId": "await-blocks-the-os"
     },
     {
       "type": "check",

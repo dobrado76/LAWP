@@ -113,6 +113,8 @@ Do not invent a new engine. If you cannot say it as parts + rules, use Explain +
 
 Graphical fox lessons use `player-v1`. On a **Code** or **Debug** block, **Add fox grid** (or edit an existing grid) and pick floors, terrain, items, characters, and hazards from the built-in play kit. Same picker on a **Playable world** when View is Grid.
 
+DOM page lessons set `preview.kind` to `iframe` and ship an `index.html` fixture. Studio shows that page as **Preview / HTML / CSS** tabs and turns on `dom-v1` completions in the JavaScript editor.
+
 ## 4. Save, check, play, share
 
 | Button | What it does |

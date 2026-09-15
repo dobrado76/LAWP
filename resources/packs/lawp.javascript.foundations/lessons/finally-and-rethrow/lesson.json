@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.errors"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Cleanup, then fail\n\n`finally` runs whether `try` threw or not. Use it to `Player.say(\"clear\")` after an attempt.\n\nIf you still want the caller to see the error, `throw e` again after cleanup."
+      "md": "## Cleanup, then fail\n\n`finally` runs whether `try` threw or not. Use it to push a clear note after an attempt.\n\nIf you still want the caller to see the error, throw again after cleanup. `finally` is not a catch that swallows the fault.\n\nThe desk wipes the clipboard (`\"clear\"`) even when the attempt fails. Then it can still rethrow so the night log shows the fault."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "yes"
+    },
+    {
+      "type": "check",
+      "id": "finally-runs",
+      "kind": "cloze",
+      "promptMd": "`finally` {{a}} when `try` throws.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "always runs",
+              "md": "always runs"
+            },
+            {
+              "id": "never runs",
+              "md": "never runs"
+            },
+            {
+              "id": "runs only if catch exists",
+              "md": "runs only if catch exists"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "always runs"
+      },
+      "explainMd": "finally is cleanup. It runs after try, whether or not a throw happened."
     },
     {
       "type": "code",
@@ -66,7 +95,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "try { throw new Error(\"x\") } finally { notes.push(\"clear\") }"
+          "md": "`finally` is the place that always records cleanup."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Push `\"clear\"` in `finally`. Let the throw leave `attempt`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Catch outside `attempt` so you can print `notes[0]`."
         },
         {
           "level": 4,

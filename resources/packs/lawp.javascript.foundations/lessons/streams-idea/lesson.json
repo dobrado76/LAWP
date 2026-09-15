@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 20,
+  "taskRev": 2,
+  "estimatedMinutes": 22,
   "skillIds": [
     "js.node.fs"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Chunks, not one giant string in your head\n\n`fs.createReadStream` emits `data` chunks. For this small fixture you still practice the API: collect chunks, join, print the last non-empty line (`east`)."
+      "md": "## Chunks, not one giant string in your head\n\n`fs.createReadStream` fires `data` as pieces arrive. You collect those pieces, then join them when `end` fires. You do not assume the first chunk is the whole file.\n\nThis fixture is small. You still practice the API: collect, join, take the last non-empty line (`east`). The hidden test also checks that your source mentions `createReadStream`.\n\nThe night log drips in. The first line is `north`. The fox’s last heading is `east` — print that, not the first drip."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "end"
+    },
+    {
+      "type": "check",
+      "id": "first-chunk-all",
+      "kind": "tf",
+      "promptMd": "The first `data` event means the whole file is already in memory.",
+      "answer": "false",
+      "explainMd": "data can fire more than once. end is the signal that no more chunks are coming."
     },
     {
       "type": "code",
@@ -66,7 +74,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Listen for data and end. Or readFile if you must — hidden wants createReadStream in the source."
+          "md": "Open a read stream on `chunk-log.txt`. Collect text as `data` fires."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "On `end`, split into lines and take the last non-empty one."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Listen for data and end. Hidden wants createReadStream in the source."
         },
         {
           "level": 4,

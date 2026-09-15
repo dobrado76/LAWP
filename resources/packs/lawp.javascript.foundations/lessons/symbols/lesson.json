@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.objects"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A key that will not collide\n\n`const meta = Symbol(\"meta\")` is unique. `obj[meta] = \"hidden\"` does not show up in `Object.keys` or JSON by default.\n\nPrint the hidden meta field."
+      "md": "## A key that will not collide\n\n`const meta = Symbol(\"meta\")` is unique. `obj[meta] = \"hidden\"` does not show up in `Object.keys` or JSON by default.\n\n`Object.keys({ [Symbol(\"m\")]: 1 })` is `[]`. Symbols are skipped.\n\nThe desk pins a private note on a route card. The night log lists ordinary keys; the note stays off that list."
     },
     {
       "type": "predict",
@@ -32,6 +32,35 @@
         }
       ],
       "answer": "empty"
+    },
+    {
+      "type": "check",
+      "id": "keys-skip-sym",
+      "kind": "cloze",
+      "promptMd": "`Object.keys` on a symbol-only object is {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "[]",
+              "md": "[]"
+            },
+            {
+              "id": "[\"Symbol(m)\"]",
+              "md": "[\"Symbol(m)\"]"
+            },
+            {
+              "id": "[\"m\"]",
+              "md": "[\"m\"]"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "[]"
+      },
+      "explainMd": "Object.keys lists string keys. Symbol keys stay off that list unless you ask for them."
     },
     {
       "type": "code",
@@ -65,6 +94,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Make a `Symbol`, then use it as a key."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Store `\"note\"` at `obj[k]`. Read it back the same way."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "const k = Symbol(\"meta\"); obj[k] = \"note\""
         },

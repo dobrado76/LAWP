@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.closures"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## One binding, many callbacks\n\nA loop with `var i` (or one `let dir` you overwrite) makes every callback see the **last** value. The fox repeats the last dir.\n\nFix it: `let` in the loop, or `dirs.forEach((dir) => { ... })` so each callback has its own `dir`."
+      "md": "## One binding, many callbacks\n\nA loop with `var i` (or one `let dir` you overwrite) makes every callback see the **last** value. The fox repeats the last heading.\n\nFix it: `let` in the loop, or `dirs.forEach((dir) => { ... })` so each callback has its own `dir`.\n\nThe plan was east, then south. After the loop, every queued mover still reads the last cell of `dirs`, so the fox walks the last heading twice and misses the beacon."
     },
     {
       "type": "predict",
@@ -33,6 +33,35 @@
         }
       ],
       "answer": "last"
+    },
+    {
+      "type": "check",
+      "id": "stale-last",
+      "kind": "cloze",
+      "promptMd": "Callbacks from a `var` loop often all see the {{a}} value.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "last",
+              "md": "last"
+            },
+            {
+              "id": "first",
+              "md": "first"
+            },
+            {
+              "id": "each own",
+              "md": "each own"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "last"
+      },
+      "explainMd": "var is one binding for the whole function. After the loop, i (or the shared dir) is the last value."
     },
     {
       "type": "debug",
@@ -59,7 +88,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "forEach gives each function its own dir parameter."
+          "md": "Each queued function needs its own `dir`, not one shared `var i`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`map` or `forEach` gives each callback its own parameter."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "const movers = dirs.map((dir) => () => Player.move(dir))"
         },
         {
           "level": 4,
@@ -90,6 +129,60 @@
                 "y": 1,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 4,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "r1",
+              "type": "rock",
+              "props": {
+                "x": 5,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "owl",
+              "type": "owl",
+              "props": {
+                "x": 6,
+                "y": 0
+              }
+            },
+            {
+              "id": "coin",
+              "type": "coin",
+              "props": {
+                "x": 0,
+                "y": 3,
+                "collect": true,
+                "taken": false,
+                "label": "coin"
+              }
+            },
+            {
+              "id": "chest",
+              "type": "chest",
+              "props": {
+                "x": 6,
+                "y": 4
+              }
+            },
+            {
+              "id": "w1",
+              "type": "wall",
+              "props": {
+                "x": 3,
+                "y": 3,
+                "solid": true
+              }
             }
           ],
           "connections": [],
@@ -98,16 +191,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-sand"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

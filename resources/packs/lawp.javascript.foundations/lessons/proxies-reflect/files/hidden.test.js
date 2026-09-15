@@ -4,7 +4,9 @@ const w = m.wrapRoute({ south: 'south' })
 assert.strictEqual(w.south, 'south')
 assert.strictEqual(w.nope, 'east')
 
-const fs = require('fs')
-const assert = require('assert')
-const src = fs.readFileSync('main.js', 'utf8')
-assert.ok(src.includes("Proxy"), 'expected source to include ' + "Proxy")
+;(function () {
+  const fs = require('fs')
+  const assert = require('assert')
+  const src = fs.readFileSync('main.js', 'utf8')
+  assert.ok(src.includes("Proxy"), 'expected source to include ' + "Proxy")
+})()

@@ -8,7 +8,7 @@
     {
       "id": "messages",
       "title": "Messages",
-      "lessonIds": ["http-as-messages", "fetch-ok-and-fail", "json-body", "abort-and-timeout", "cors-mental-model"]
+      "lessonIds": ["http-as-messages", "method-and-headers", "fetch-ok-and-fail", "json-body", "abort-and-timeout", "cors-mental-model"]
     },
     {
       "id": "transfer",

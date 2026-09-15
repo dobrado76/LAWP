@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
-  "estimatedMinutes": 18,
+  "taskRev": 2,
+  "estimatedMinutes": 20,
   "skillIds": [
     "js.test"
   ],
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Refuse `==` in the edit file\n\nLAWP’s `ast` check is a **substring** search, not a real parser pass. Treat it as a stand-in for a linter.\n\nWrite `same(a, b)` with `===`. Print `false` for `0` and `\"\"`."
+      "md": "## Refuse `==` in the edit file\n\nLAWP’s `ast` check is a **substring** search, not a real parser pass. Treat it as a stand-in for a linter. The file text must contain `===` and must not use `==`.\n\n`same(a, b)` compares with `===`. Print `false` for `0` and `\"\"` — those are different kinds.\n\nThe desk once filed `0` (lamp off) as the same as a missing name `\"\"` because someone wrote `==`. The fox route test uses `===` so off and missing stay different."
     },
     {
       "type": "predict",
@@ -32,6 +32,14 @@
         }
       ],
       "answer": "substr"
+    },
+    {
+      "type": "check",
+      "id": "ast-is-eslint",
+      "kind": "tf",
+      "promptMd": "This lesson runs a full ESLint pass on your file.",
+      "answer": "false",
+      "explainMd": "The grader looks for === in the file text and rejects ==. That is a stand-in, not ESLint."
     },
     {
       "type": "code",
@@ -65,6 +73,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "`==` would treat `0` and `\"\"` as the same. This lesson refuses that."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Return `a === b`. Print `same(0, \"\")`."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "Use === only."
         },

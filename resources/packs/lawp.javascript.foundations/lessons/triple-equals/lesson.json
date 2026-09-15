@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `===` does not convert\n\n`0 == \"\"` is true because `==` coerces. `0 === \"\"` is false. Prefer `===` and `!==` unless you can name the coercion you want.\n\nPrint whether `0` and `\"\"` are **not** strictly equal (`true`)."
+      "md": "## `===` does not convert\n\n`0 == \"\"` is true because `==` coerces. `0 === \"\"` is false. A signal of `0` (off) is not the same as a missing name `\"\"`.\n\nPrefer `===` and `!==` unless you can name the coercion you want. Print whether `0` and `\"\"` are **not** strictly equal (`true`)."
     },
     {
       "type": "predict",
@@ -73,7 +73,7 @@
         {
           "level": 4,
           "kind": "assist",
-          "md": "function notStrictSame(a, b) { return a !== b }\nconsole.log(notStrictSame(0, \"\"))\nmodule.exports = { notStrictSame }"
+          "md": "function notStrictSame(a, b) { return !(a === b) }\nconsole.log(notStrictSame(0, \"\"))\nmodule.exports = { notStrictSame }"
         }
       ]
     }

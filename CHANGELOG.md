@@ -27,6 +27,8 @@ First product minor. Package/spec numbering was previously `0.3.3`; this release
 - `npm run dist` increments PATCH; `npm run dist:nobump` keeps the version
 - Tag-only GitHub workflow ships the NSIS installer to a Release (no workflow artifacts)
 - JavaScript working-expert curriculum on `lawp.javascript.foundations` (placement through craft/capstone; fox/beacon grid, DOM harness, mock fetch)
+- JavaScript courses 7–9 deepened (event loop, DOM, HTTP): longer explains, follow-up cloze/true-false, field scenery on timed walks; new lessons `prevent-default` and `method-and-headers`
+- JavaScript courses 4–6 (scope, errors, internals): deeper fox/desk explains, cloze or true/false after each predict, grass-field scenery off the required path, and four-rung hint ladders
 - Code runner: ESM boot, hidden `js-assert` after the learner entry, `Player.wait(ticks)`, happy-dom DOM grade in main, fixture `fetch` stub
 
 - Library is a numbered tutorial path: Play next, then values and the fox before lists; later courses stay locked until the one above is done (Skip ahead if you want)
@@ -50,15 +52,20 @@ First product minor. Package/spec numbering was previously `0.3.3`; this release
 - Placement (and other diagnostic courses) is a compact intro row, not an empty card grid
 - Lesson card blurbs keep the words inside `` `code` `` spans
 - **Question types** pack copy is for learners (try every kind of question), not for adding a kind in source
+- JavaScript pack: `short-circuit`, `set-and-map`, `prevent-default`, `method-and-headers`
+- DOM lessons: Preview / HTML / CSS tabs so the page source is inspectable; JavaScript editor labeled **JavaScript · DOM** with completions for `document`, `querySelector`, the element it returns, and selectors from that page
 
 ### Fixed
 
 - JavaScript lessons from **The page is a tree** onward: DOM preview is a styled page (not a raw browser default or a blank white box); `jsdoc-contracts` hidden test no longer redeclares `assert`; capstone hint is real code
+- JavaScript expert pack is deeper: longer explain, a second check after most predicts, play-kit scenery on fox grids, four-rung hints, and a continuing signal-desk story
+- Hidden `js-assert` on a fox lesson now has `Player` in scope, so a correct walk is not failed when the test reloads `main.js`
 - Library no longer lists courses by filename, so Craft no longer appears before Placement
 - A crashing program can no longer pass a play goal (exit code 0 required)
 - Runtime output and errors show on grid lessons
 - Player API lint ignores comments and strings
 - Stale run/grade results cannot update a newly opened lesson
+- DOM preview no longer stays blank until you leave and return: wait for the lesson draft, remount per lesson, and paint the iframe from a blob URL
 
 ### Docs
 

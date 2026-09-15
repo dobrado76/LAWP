@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.functions",
@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Dispatch drives the walk\n\n`run(plan, table)` looks up each string in `table` and calls that function. A new maze is a new plan array — not a new pile of copy-paste moves.\n\nPlan: `\"e\"`, `\"e\"`, `\"s\"` to (2, 1)."
+      "md": "## Dispatch drives the walk\n\n`run(plan, table)` looks up each string in `table` and calls that function. A new maze is a new plan array — not a new pile of copy-paste moves.\n\nIf a key is missing, a careful runner throws or names the unknown key. A silent skip hides a typo forever.\n\nPlan `\"e\"`, `\"e\"`, `\"s\"` should put the fox on the beacon at (2, 1). A stray `\"n\"` should not vanish."
     },
     {
       "type": "predict",
@@ -37,6 +37,35 @@
         }
       ],
       "answer": "throw"
+    },
+    {
+      "type": "check",
+      "id": "missing-plan",
+      "kind": "cloze",
+      "promptMd": "A missing plan key should {{a}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "throw or name it",
+              "md": "throw or name it"
+            },
+            {
+              "id": "skip forever",
+              "md": "skip forever"
+            },
+            {
+              "id": "walk east",
+              "md": "walk east"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "throw or name it"
+      },
+      "explainMd": "Unknown commands are faults. Name them or throw so a typo cannot hide."
     },
     {
       "type": "code",
@@ -62,6 +91,16 @@
       "hintLadder": [
         {
           "level": 1,
+          "kind": "concept",
+          "md": "Walk the plan in order. Each string is a key in `table`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "If `table[key]` is missing, throw. If it exists, call it."
+        },
+        {
+          "level": 3,
           "kind": "concept",
           "md": "for (const key of plan) table[key]()"
         },
@@ -94,6 +133,60 @@
                 "y": 1,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 5,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "r1",
+              "type": "rock",
+              "props": {
+                "x": 4,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "owl",
+              "type": "owl",
+              "props": {
+                "x": 6,
+                "y": 2
+              }
+            },
+            {
+              "id": "coin",
+              "type": "coin",
+              "props": {
+                "x": 0,
+                "y": 4,
+                "collect": true,
+                "taken": false,
+                "label": "coin"
+              }
+            },
+            {
+              "id": "chest",
+              "type": "chest",
+              "props": {
+                "x": 6,
+                "y": 4
+              }
+            },
+            {
+              "id": "w1",
+              "type": "wall",
+              "props": {
+                "x": 3,
+                "y": 4,
+                "solid": true
+              }
             }
           ],
           "connections": [],
@@ -102,16 +195,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-brick"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

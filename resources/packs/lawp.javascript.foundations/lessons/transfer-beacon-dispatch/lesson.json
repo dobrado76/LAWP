@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.async"
@@ -18,7 +18,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Wait, then walk\n\n`Player.wait(ticks)` logs a pause. Studio replay honors it. The world does not move during `wait`.\n\nAwait two ticks, then walk to (2, 1): east, east, south."
+      "md": "## Wait, then walk\n\n`Player.wait(ticks)` logs a pause. Studio replay honors it. The world does not move during `wait`. Time passes. The fox stays in the same cell.\n\nAwait two ticks, then walk to (2, 1): east, east, south. The beacon is already there. The wait is not a step toward it. A flag and a tree sit off that path so the yard is a field, not an empty box."
     },
     {
       "type": "predict",
@@ -36,6 +36,14 @@
         }
       ],
       "answer": "stays"
+    },
+    {
+      "type": "check",
+      "id": "wait-slides",
+      "kind": "tf",
+      "promptMd": "`Player.wait(2)` slides the fox toward the beacon.",
+      "answer": "false",
+      "explainMd": "Wait logs time. It does not change x or y. You still write the moves after the await."
     },
     {
       "type": "code",
@@ -62,7 +70,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "async function go() { await Player.wait(2); ...moves }\ngo()"
+          "md": "Await two ticks first. The fox does not move during the wait."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Then walk east, east, south onto (2, 1)."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The tree and wall are off that path. Stay on the two east cells, then one south."
         },
         {
           "level": 4,
@@ -93,6 +111,32 @@
                 "y": 1,
                 "label": "Beacon"
               }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 5,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "w1",
+              "type": "wall",
+              "props": {
+                "x": 0,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "flag",
+              "type": "flag",
+              "props": {
+                "x": 6,
+                "y": 4
+              }
             }
           ],
           "connections": [],
@@ -101,16 +145,32 @@
           "view": {
             "kind": "grid",
             "grid": {
-              "cols": 5,
-              "rows": 5
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-grass"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg",
-              "rock": "rock.svg",
-              "coin": "coin.svg",
-              "key": "key.svg",
-              "glint": "glint.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },

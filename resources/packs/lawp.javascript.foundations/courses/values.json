@@ -13,7 +13,7 @@
     {
       "id": "compare",
       "title": "Compare and branch",
-      "lessonIds": ["triple-equals", "truth-and-if", "transfer-classify-signal"]
+      "lessonIds": ["triple-equals", "truth-and-if", "short-circuit", "transfer-classify-signal"]
     }
   ]
 }

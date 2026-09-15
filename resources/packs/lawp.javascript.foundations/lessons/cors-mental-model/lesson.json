@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 1,
+  "taskRev": 2,
   "estimatedMinutes": 12,
   "skillIds": [
     "js.http"
@@ -14,7 +14,32 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Not Node, not this sandbox\n\nThe **browser** asks: may this page’s origin read that response? CORS is an HTTP header conversation the *browser* enforces.\n\nNode `fetch` and this lesson stub do **not** simulate CORS. `capabilities.network: false` also does not claim to be an OS firewall. The idea still matters when you later ship a page."
+      "md": "## Not Node, not this sandbox\n\nThe **browser** asks: may this page’s origin read that response? CORS is an HTTP header conversation the *browser* enforces. A server can send `Access-Control-Allow-Origin`. The browser decides whether page JS may read the body.\n\nNode `fetch` and this lesson stub do **not** simulate CORS. `capabilities.network: false` also does not claim to be an OS firewall. The idea still matters when you later ship a page. The fox’s board in a browser is not the same as a Node script on the desk."
+    },
+    {
+      "type": "predict",
+      "id": "cors-who",
+      "promptMd": "Who decides whether page code may read another origin’s body?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "node",
+          "md": "Node.js, on every `fetch`"
+        },
+        {
+          "id": "browser",
+          "md": "The browser, for that page’s origin"
+        }
+      ],
+      "answer": "browser"
+    },
+    {
+      "type": "check",
+      "id": "cors-node",
+      "kind": "tf",
+      "promptMd": "Node.js enforces CORS on every `fetch`.",
+      "answer": "false",
+      "explainMd": "CORS is a browser rule for front-end origins. Node and this stub do not simulate it."
     },
     {
       "type": "check",
