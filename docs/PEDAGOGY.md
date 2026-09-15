@@ -12,35 +12,40 @@ LAWP teaches through **playable practice with mastery evidence**. Fun is a conse
 | Transfer | Second task with new cover story after a pass |
 | Metacognition | Confidence prompt after submit; overconfidence → extra review |
 | Spaced repetition | Review items from misses and aging mastered skills |
-| Productive failure | Run is free; check after a genuine attempt; hints cost a small XP tax |
+| Productive failure | Action/run is free; check after a genuine attempt; conceptual help is free; assist/reveal withholds independent mastery |
+| Diagnosis | Wrong answers map to **misconceptions** when evidence is clear; otherwise ask, don’t guess |
+| Continuing creation | Each session adds a visible capability (or a staged failure that the next concept fixes) |
 | Dual coding | Diagram + short text in `explain`; avoid walls of prose |
 
 ## Mastery, not completion
 
-A lesson may be **checked** (tests green once) and later **mastered** (checked + transfer variant or mixed quiz + no hint on the last attempt, configurable per lesson).
+A lesson may be **checked** (goal met once, even if assisted) and later **mastered** (checked + transfer where required + **independent** pass: no assist hint, no reveal).
 
 Track “complete” requires mastery on required lessons. Optional side-quests exist.
 
 ## Hint ladder (required for `code` and hard `check`)
 
-1. **Orient** — which skill, what to look at  
-2. **Concept** — the rule in one paragraph  
-3. **Example** — a *different* tiny example  
-4. **Scaffold** — almost-answer (partial code / eliminated MCQ options)  
-5. **Solution** — full reveal, marks the attempt as `revealed` (still can retry later for mastery)
+1. **Orient** — which skill, what to look at (`concept`, free)  
+2. **Concept** — the rule in one paragraph (`concept`, free)  
+3. **Example** — a *different* tiny example (`concept`, free)  
+4. **Scaffold** — almost-answer (`assist` — attempt is assisted)  
+5. **Solution** — full reveal (`assist` + `revealed`; retry later for independent mastery)
 
-Never jump to 5 on first click.
+Never jump to 5 on first click. The Why panel may offer the next **concept** hint without opening assist.
 
 ## Play grammar
 
-Map Codefinity-style “ninja on a grid” to a **general** pattern:
+The subject is the game. Family of activities (`experiment`, `diagnose`, `construct`, `decide`) on one `world-v1` engine:
 
-- The learner issues actions (code, answers, moves)
-- The world has visible state
-- Win conditions are **properties** (“all sushi in inventory”, “component shows the filtered list”)
-- Failure is visible state, then a concept pointer
+- **Predict** before acting
+- The learner issues actions (knobs, parts, choices, code)
+- The world has **visible** state
+- Win/fail are **properties** (brightness, constraint, “the lamp is on”)
+- Failure opens the **Why** panel (misconception or diagnostic), not only “wrong”
 
-Quest map on Home: nodes are lessons; edges are prerequisites (soft by default).
+Grid fox/beacons is the same engine with a grid view — not a second product.
+
+Quest map on Home: nodes are lessons; edges are prerequisites (soft by default). A course creation is visible on the map as “your thing.”
 
 ### XP (anti-farm)
 
@@ -50,7 +55,8 @@ Quest map on Home: nodes are lessons; edges are prerequisites (soft by default).
 | Mastery pass | high |
 | Review success | small–medium |
 | Repeat same lesson | tiny, daily cap |
-| Hint level 4–5 | XP tax |
+| Concept hint (1–3) | zero |
+| Assist / reveal (4–5) | no first-mastery XP until an independent pass |
 | Opened the app | zero |
 
 Streak: at least one **check or review success** that calendar day (local timezone).
@@ -67,10 +73,11 @@ Fast-track setting: more diagnostics, fewer worked examples.
 
 ## Feedback copy rules
 
-- Quote the failing property (“Expected a list of unique names, got duplicates”)
-- Name the skill id
-- Offer the next hint level
-- Never only `AssertionError`
+- Quote the failing **property** (“Lamp brightness stayed dim; current already at the cap”)
+- Name the skill id **and** misconception id when evidence is clear
+- If two misconceptions fit, ask the diagnostic item — do not pick one
+- Offer the next **concept** hint
+- Never only `AssertionError` or “incorrect”
 
 ## Restart without shame
 

@@ -12,8 +12,8 @@ This folder is a **specification bootstrap**. Open it as its own Cursor workspac
 | [docs/PRODUCT_SPEC.md](docs/PRODUCT_SPEC.md) | Product, screens, non-goals |
 | [docs/CODEFINITY_BLUEPRINT.md](docs/CODEFINITY_BLUEPRINT.md) | What Codefinity does; what LAWP keeps, drops, and beats |
 | [docs/PEDAGOGY.md](docs/PEDAGOGY.md) | How learning actually happens (play + mastery) |
-| [docs/CONTENT_MODEL.md](docs/CONTENT_MODEL.md) | JSON cartridges: folder-per-lesson, zip install/export, learner progress |
-| [docs/CURRICULA.md](docs/CURRICULA.md) | Demo tracks: Python, JavaScript, React |
+| [docs/CONTENT_MODEL.md](docs/CONTENT_MODEL.md) | JSON cartridges: `world-v1`, AI-generable schema, zip, progress/evidence |
+| [docs/CURRICULA.md](docs/CURRICULA.md) | Demo tracks: circuits first, then Python, JavaScript, React |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Process model, folders, settings, window restore |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Locked decisions (D1–) |
 | [docs/IPC_CONTRACT.md](docs/IPC_CONTRACT.md) | Typed IPC |
@@ -29,7 +29,7 @@ Codefinity-class **interactive lessons and exercises**, but:
 - **Learn anything** (generalized LMS), not a coding-only catalog behind a paywall
 - **Play** is the loop (quests, runs, feedback), not a marketing wrapper
 - **Understanding** over “submit until green”
-- Three shipped demonstrations: **Python**, **JavaScript**, **React**
+- Shipped demonstrations: **circuits** (playable non-code first), then **Python**, **JavaScript**, **React**
 
 ## Commands (after you scaffold — see BUILD.md)
 

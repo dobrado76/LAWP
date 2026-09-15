@@ -14,7 +14,7 @@
 }
 ```
 
-Put installers and unpackaged output in **`release/`** (gitignored). `npm run dist` must not require a different settings folder than `npm run dev`.
+Put installers and unpackaged output in **`release/`** (gitignored). `npm run dist` **must** use the same `%APPDATA%\LAWP` as `npm run dev`. The installer must **not** write into AppData, seed or overwrite `packs/`, or reset `settings.json`.
 
 ## Shared AppData (required)
 
@@ -41,8 +41,22 @@ configureUserData()
 - `appId: com.lawp.app` (stable; do not change casually)
 - `directories.output: release`
 - `win.icon: build/icon.ico`
+- Demo cartridges as **`extraResources`** (or `files`) under the **app install directory** (`resources/packs`), never as a target under `%APPDATA%`
+- NSIS: **do not** delete AppData on uninstall by default (`deleteAppDataOnUninstall: false`). No installer custom script that copies packs into AppData
+- `npm run dist` replaces binaries under Program Files (or the chosen install dir). It is not a content migration
 
-Settings → About must show the resolved `userData` path so you can confirm dev and dist match.
+Settings → About must show the resolved `userData` path so you can confirm **dev and the installed exe print the same path**.
+
+### Installer vs library (D37)
+
+| Location | Role | On `npm run dist` / upgrade |
+| --- | --- | --- |
+| App `resources/packs/` | Optional bundled demos, read-only | May change with the app version |
+| `%APPDATA%\LAWP\packs\` | User-installed / authored cartridges | **Untouched** |
+| `%APPDATA%\LAWP\settings.json` | Prefs | **Untouched** |
+| `%APPDATA%\LAWP\learners\` | Progress | **Untouched** |
+
+The Library is `union(bundled, userData/packs)` at process start. Never freeze a pack id list into the renderer bundle.
 
 ## Window state
 

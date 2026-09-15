@@ -2,29 +2,30 @@
 
 **App:** LAWP (Learn Anything While Playing)  
 **Platform:** Windows-first Electron desktop  
-**Version of this spec:** 0.2.0 (cartridges + local learners)
+**Version of this spec:** 0.3.1 (runtime library + shared AppData + setup export)
 
 ## Problem
 
 Interactive platforms like Codefinity prove that **short explanation + in-place exercise + instant feedback** works. They also show the failure mode: catalog-as-product, subscription gates, repetition without diagnosis, certificates as the goal, and weak transfer to work you invent yourself.
 
-LAWP is a **local learning studio**: any subject can be a pack; play is how you rehearse; mastery is how you proceed.
+LAWP is a **local learning studio**: any subject can be a pack; the **subject itself is playable** (predict → act → see → explain); mastery is how you proceed.
 
 ## Audience
 
 - One or more **local learners** on the same PC (no account). They share installed cartridges; each has a private progress folder
-- Authors who write **JSON cartridges**: one folder per subject-matter, one folder per lesson (code, tests, images, video, everything related). Install and share as `.zip`
-- First curricula authors: Python, JavaScript, React (proof that the LMS is not coding-only in *model*, even if the first runtimes are code)
+- Authors who write **JSON cartridges** (or use the in-app workbench / optional AI draft): one folder per subject-matter, one folder per lesson. Install and share as `.zip`. Schema is small enough to generate, strict enough to validate
+- First proof of “anything”: a **basic circuits** cartridge (`world-v1`, no code runtime). Then Python, JavaScript, React
 
 ## Core loop
 
-1. Pick a **quest** (a track slice: one skill you can demonstrate).
-2. Meet a **challenge** (lesson + exercise) in the studio: teach pane + work pane.
-3. **Run** (safe local runtime for that pack’s engine).
-4. Get **feedback that teaches** (what failed, why, what concept to revisit — not only “wrong”).
-5. Optionally spend a **hint token** (progressive: nudge → concept → example → never the full answer on first tap).
-6. Pass a **mastery gate** (not a single lucky submit): mixed items, a transfer variant, spaced follow-up.
-7. Unlock the next quest. Play HUD (streaks, XP, titles) reflects **real skill**, not grind.
+1. Pick a **quest** (a skill you can demonstrate, often on a creation you already have).
+2. **Predict** what will happen.
+3. **Act** in an activity world, editor, or quiz.
+4. See a **visible consequence** (lamp brightness, test output, scene branch).
+5. **Explain** / read the Why panel (misconception if evidence is clear; otherwise a short diagnostic).
+6. Use **free conceptual help** if needed; assist hints cost mastery credit, not curiosity.
+7. Pass a **mastery gate** (independent pass + transfer where authored).
+8. The **creation** can do something new; optionally export it out of LAWP.
 
 ## Primary surfaces
 
@@ -32,11 +33,11 @@ LAWP is a **local learning studio**: any subject can be a pack; play is how you 
 | --- | --- |
 | **Home / Continue** | Resume last lesson, daily quest, streak, “weak skills” recap |
 | **Library** | Installed subject-matters and lessons; **Install from ZIP** / **Export ZIP**; filters (subject, level, runtime) |
-| **Studio** | Split: concept + task | editor / quiz / sandbox | run/submit | console |
+| **Studio** | Teach + **playable work** (activity / editor / quiz) + Why. Predict → act → see → explain |
 | **Play** | Quest map, run history, optional low-pressure challenge mode |
-| **Practice** | Spaced review queue generated from misses and decaying skills |
-| **Projects** | Capstone workspaces (multi-file) that leave artifacts under userData or a chosen folder |
-| **Author** | Inspect a cartridge on disk; install/export zip (v1: edit JSON/files in the folder; GUI authoring later) |
+| **Practice** | Queue from **misconceptions** first, then weak skills / spacing |
+| **Projects / Creations** | One artifact that grows across a course; export out of LAWP |
+| **Author** | Template → visual edit → live preview → validate → export zip. Optional AI draft + source/review metadata |
 | **Settings** | Theme, editor, runtimes (Python path), **local learners**, privacy, export/import prefs |
 | **Progress** | Skills graph, **attempt timeline** (this vs last vs best), certificates; **restart** (keep history) or **clear history** at exercise / chapter / lesson / course / subject |
 
@@ -58,16 +59,17 @@ Every lesson is a sequence of **blocks**. Coding is one block family.
 | Block | Use |
 | --- | --- |
 | `explain` | Markdown (figures, callouts). Optional short video file in the pack |
-| `check` | Multiple choice, multi-select, short text, numeric, cloze, matching, ordering |
-| `code` | Editor + run + tests (Python / JS / React as engines) |
-| `predict` | Show code or a situation; ask for output/result **before** running |
-| `debug` | Broken artifact; learner fixes; tests prove the fix |
+| `predict` | Lock in a forecast **before** the world or code runs |
+| `activity` | Playable subject: `experiment` / `diagnose` / `construct` / `decide` on **`world-v1`** |
+| `check` | MCQ, multi, short, numeric, cloze, match, order — distractors may name a misconception |
+| `code` | Editor + run + tests (Python / JS / React) |
+| `debug` | Broken artifact; learner fixes; tests (and misconceptions) prove the fix |
 | `trace` | Step/mental-model: “what is `x` after this line?” |
-| `project` | Multi-file workspace, rubric + automated checks + manual checklist |
-| `play` | Lightweight game overlay (e.g. collect stars by satisfying properties) — still mapped to skills |
-| `reflect` | Free-text journal; optional self-rate confidence (feeds spacing) |
+| `project` | One-off workspace **or** a step on a continuing creation |
+| `play` | `world-v1` grid skin (fox/beacons) — not a second platform |
+| `reflect` | “Explain why that happened”; stored in the learner profile |
 
-Non-code subjects (future packs: languages, maths, music theory, history) reuse `explain` / `check` / `trace` / `play` / `project` without a code engine.
+Non-code subjects use `explain` / `predict` / `activity` / `check` / `reflect` with `engines: ["none"]`. The first demo pack is **circuits**, not a code hello-world.
 
 ### Code studio (Python, JS, React)
 
@@ -79,7 +81,9 @@ Parity with Codefinity’s useful bits:
 - Starter code, fixtures, read-only files vs editable files
 - Console / preview (React: sandboxed iframe preview)
 - Restart exercise (restore starter, **keep** prior runs); restart lesson / chapter from the TOC
-- After Check: show this attempt vs the previous one vs best (score, time, hints)
+- After Check: show this attempt vs the previous one vs **best** (correctness, then independence — not speed unless the lesson says so)
+- Open the **snapshot** of a previous graded submit
+- Conceptual hints are free; assist hints mark assisted success
 - Diff vs starter; optional “show failing test name” immediately, implementation details after a struggle threshold
 
 Better than Codefinity:
@@ -88,8 +92,8 @@ Better than Codefinity:
 - **Fast-track** toggle per course
 - **Transfer tasks**: same skill, new story/data (stops memorizing the sample)
 - **Property tests** and **AST/semantic checks** where exact print matching is brittle
-- **Why panel**: failing tests map to concept cards, not a paywalled AI dump
-- Hints are **authored ladders**, not a single spoiler
+- **Why panel** (central): failing checks / world properties map to **misconceptions** or a diagnostic question — not a paywalled AI dump
+- Hints are **authored ladders**; concept vs assist (D17)
 - You can **always** open the next lesson; mastery gates affect *track completion* and practice queue, not a hard lock that humiliates (optional “strict campaign” mode)
 
 ### Progress
@@ -97,28 +101,32 @@ Better than Codefinity:
 - Stored only under `userData/learners/<learnerId>/` (JSON). Cartridges stay read-only
 - Per-lesson: not started / in progress / passed check / **mastered** / retrying
 - Per-skill tags on every item (`python.loops.for`, `react.state.updater`, …)
-- **Attempt log (default: keep everything):** every Run and every Check is appended with timestamp, passed, checks, duration, hint level. Rollups: **current**, **previous**, **best** so a redo can answer “did I do better this time?”
-- Optional **replace last** (overwrite the previous run instead of appending) and **delete last**
-- **Restart / redo** (default reset): restore starters, keep the log, append a restart marker
-- **Clear / clean history**: wipe attempts in that scope (stronger confirm). Same scopes: exercise, chapter, lesson, course, subject. Does not uninstall the material
+- **Activity log** (last 200 / lesson) plus **durable evidence** (mastery, historical best, misconception counts) that is not dropped when the log truncates
+- Optional **replace last**, **delete last**, **clear history**
+- **Restart / redo** (default): restore starters, keep log and evidence
+- Graded **snapshots** so “what I submitted” can be compared
+- Each run is bound to the **initiating learner** (`runId`)
+- Practice prefers a misconception follow-up over another generic skill drill
 - Spaced review: FSRS-like or SM-2 subset — v1 can be a simple ease + interval table
 - Local “certificate” PNG/PDF generated from mastery, not a vendor LinkedIn product — written in the learner folder
 
 ### Play layer
 
 - Daily quest: 10–20 minutes of review + one new lesson
-- XP for **first mastery** and **review success**, tiny XP for repeats (anti-farm)
+- XP for **first independent mastery** and **review success**, tiny XP for repeats (anti-farm). No tax on conceptual hints
 - Streak = calendar day with a **real check** (not app open)
 - Titles/badges from skill milestones (“Loop fluent”, “Hook-safe”) not paid skins
 - Optional sound/particle on pass — off by default in Settings
 
 ### Settings and data
 
-- All app state under Electron `userData` (`%APPDATA%\LAWP` by default)
-- Settings schema is the export document (strip window geometry on export)
-- Learner progress in JSON under `userData/learners/<id>/` (never inside a pack)
-- Packs: bundled (`resources/packs/`) + user-installed zips (`userData/packs/`), both folder-per-lesson
+- All app state under Electron `userData` (`%APPDATA%\LAWP` for **both** `npm run dev` and the installed build)
+- Library is **runtime-union**: app-bundled demos + `%APPDATA%\LAWP\packs`. Not a catalog frozen at `npm run dist`. Installer/upgrade never overwrites settings or user cartridges
+- **Export / import settings** (prefs) and optional **setup bundle** (prefs + user-installed cartridge zips) for the same setup on another PC. Merge on import; confirm before replace. No window geometry, no learner progress
+- Every new preference lives on `settingsSchema` so export round-trips it. Strip secrets by default
+- Learner progress in JSON under `userData/learners/<id>/` (never inside a pack or a settings export)
 - Local learners: add / rename / switch in Settings; default learner created on first launch
+- Per-pack **execution trust** for imported code cartridges (default deny)
 
 ## Non-goals (v1)
 
@@ -126,7 +134,8 @@ Better than Codefinity:
 - Marketplace / payments / subscriptions
 - Hosting learner code in the cloud
 - Replacing VS Code / a full IDE
-- Training or shipping a local LLM (optional later: user-provided OpenAI-compatible endpoint, keys in `safeStorage`, **never required**)
+- Training or shipping a local LLM (optional Author draft / later tutor: user-provided OpenAI-compatible endpoint, keys in `safeStorage`, **never required to learn**)
+- A general physics engine or treating imported executable packs as safe without an explicit trust step
 - Scrape or reproduce Codefinity course text, videos, or tasks (original curricula)
 
 ## Success criteria (v1 demo)
@@ -134,9 +143,12 @@ Better than Codefinity:
 A new user can, without an account:
 
 1. Launch, see the last window size/position/maximized state
-2. Continue a Python lesson, run code, fail a test, use one hint, then pass
-3. Skip a JS chapter via diagnostic
-4. Preview a React component in the studio
-5. Close, reopen via `npm run dev` **or** the installed build, and find the **same** progress and window
-6. Install a lesson or subject from a `.zip`, export one back out, and restart a lesson without the zip changing
-7. Fail a check, pass later, and see that the new result beat the previous one; clear history only when they ask
+2. Finish the **~20 minute circuits** session: experiment, Why after a miss, transfer, keep/export a creation
+3. Author (or load) that lesson from a template, validate, export zip, play the zip
+4. Continue a Python lesson, fail, see a misconception or diagnostic, pass independently
+5. Skip a JS chapter via diagnostic; play a `world-v1` grid level
+6. Grow a React creation across lessons and export it
+7. Close, reopen via `npm run dev` **or** the installed build, same `%APPDATA%\LAWP` (settings, packs, progress, window)
+8. Run `npm run dist` / reinstall: settings and previously installed cartridges still there
+9. Export setup, import on a second machine (or after confirm-merge): same prefs and user library
+10. Two learners, same pack, independent evidence; restart keeps history; best survives a truncated log

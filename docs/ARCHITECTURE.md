@@ -13,15 +13,17 @@ Main (settings, session, packs, progress, runners, window state)
         │
    Electron userData (learners + imported packs)  +  bundled resources/packs
         │
-   Child processes: Python / Node test harness (sandboxed cwd + env)
+   world-v1 (in-process, data only)  +  Child processes only if pack is trusted to execute
 ```
 
 | Concern | Owner |
 | --- | --- |
 | Navigation, editor buffers, UI chrome | Renderer Zustand |
-| Pack / lesson load, zip install/export, validate | Main `packs` |
-| Grade / run code | Main `runners` |
-| Progress, SRS, XP, reset (per learner) | Main `progress` |
+| Pack / lesson load, zip install/export, validate, trust | Main `packs` |
+| `world-v1` activity step | Main `activities` (no spawn) |
+| Grade / run code | Main `runners` (trusted packs only) |
+| Progress, evidence, snapshots, reset | Main `progress` |
+| Author templates / validate / AI draft | Main `author` |
 | Local learner profiles | Main `learners` |
 | Settings / theme | Main `settings` |
 | Window bounds | Main `windowState` |
@@ -39,15 +41,17 @@ src/
 │  ├─ settings/
 │  ├─ session/
 │  ├─ packs/                zip install/export + folder-per-lesson loader
+│  ├─ activities/           world-v1 interpreter
+│  ├─ author/               templates, validate, optional draft
 │  ├─ learners/
-│  ├─ progress/             reads/writes only under learners/<id>/
+│  ├─ progress/             log + evidence + snapshots under learners/<id>/
 │  ├─ runners/              python.ts, javascript.ts, react.ts
 │  ├─ security/             path + spawn guards
 │  └─ logging/
 ├─ preload/                 window.lawp
 ├─ renderer/
 │  ├─ components/
-│  ├─ screens/              Home, Library, Studio, Practice, Settings
+│  ├─ screens/              Home, Library, Studio, Practice, Author, Settings
 │  ├─ store/
 │  └─ styles/
 ├─ shared/
@@ -71,7 +75,7 @@ type Err = { ok: false, error: { code: string, message: string, remediation?: st
 type Result<T> = Ok<T> | Err
 ```
 
-Codes: `validation`, `not-found`, `timeout`, `runtime-missing`, `sandbox`, `cancelled`, `io`, `pack-invalid`, `zip-invalid`, `zip-unsafe`, `cartridge-conflict`.
+Codes: `validation`, `not-found`, `timeout`, `runtime-missing`, `sandbox`, `cancelled`, `io`, `pack-invalid`, `zip-invalid`, `zip-unsafe`, `cartridge-conflict`, `not-configured`.
 
 ## User data (dev ≡ installed)
 
@@ -97,11 +101,15 @@ Files under userData (v1):
 | `window-state.json` | bounds + maximized |
 | `session.json` | last route, splits, open lesson (not learner progress) |
 | `packs/` | **imported cartridges only** (same folder shape as `resources/packs`) |
-| `learners/<learnerId>/` | `profile.json` + `progress/` (rollups + `attempts/*.json`), `notes/`, `drafts/`, `workspaces/` |
+| `learners/<learnerId>/` | `profile.json` + `progress/` (evidence + attempts), `snapshots/`, `notes/`, `drafts/`, `workspaces/`, `creations/` |
 | `sandboxes/` | ephemeral runner cwd |
 | `logs/` | runner logs (no pack secrets beyond learner code) |
 
 Cartridges are shared across local learners. Progress is never stored next to `pack.json` or `lesson.json`. Project working copies belong under that learner’s `workspaces/`, not `userData/workspaces/` at the root (legacy path: do not use).
+
+**Runtime library (not a build-time catalog):** on each launch, main lists bundled `resources/packs` **plus** `userData/packs`. User `packId` wins. Launch, `npm run dist`, and the installer never copy bundled trees into `userData/packs` and never rewrite `settings.json` if it already exists (create defaults only when the file is missing).
+
+**Dev ≡ installed:** `npm run dev` and the installed exe resolve the same `%APPDATA%\LAWP`. About must show that path. Do not use Electron’s default unpackaged `userData` (`%APPDATA%\Electron`).
 
 ## Window state
 
@@ -116,14 +124,18 @@ Persist `{ x, y, width, height, isMaximized }`.
 
 ## Session vs settings
 
-- **Settings:** theme, font, runtime paths, play HUD on/off, strict campaign, `currentLearnerId` — exportable (learner **progress** is not in this file)
+- **Settings:** theme, font, runtime paths, play HUD on/off, strict campaign, `currentLearnerId`, trusted pack ids — exportable (learner **progress** is not in this file)
 - **Session:** where you were in the studio — not part of settings export
 - **Window geometry:** `window-state.json` only; strip from settings export
-- **Learner progress:** `learners/<id>/` only; settings export must not embed it
+- **Learner progress:** `learners/<id>/` only; settings/setup export must not embed it
+- **Setup bundle (optional):** settings + zip copies of `userData/packs` only — see D38
 
-## Runners
+## Activities vs runners
 
-- Spawn with `shell: false`, absolute interpreter, `cwd` = temp sandbox dir unique per run
+- `world-v1`: apply actions + rules in main; never `eval` pack strings; never spawn
+- Code runners: only if the pack is bundled or **trusted**; see [SECURITY.md](SECURITY.md)
+- Bind `runId` + `learnerId` at start; write results only there
+- Spawn with `shell: false`, absolute interpreter, `cwd` = temp sandbox dir unique per `runId`
 - Copy only declared files from **that lesson folder** into cwd
 - Kill on timeout / cancel
 - Capture stdout/stderr (cap bytes)

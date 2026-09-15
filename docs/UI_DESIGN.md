@@ -14,7 +14,7 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 
 ```
 ┌─ titlebar (native Windows) ─────────────────────────────────────┐
-│ Home   Library   Practice    [search]     XP/streak    Settings │
+│ Home   Library   Practice   Author    [search]     XP/streak    Settings │
 ├──────────────┬──────────────────────────────────────────────────┤
 │ Quest / TOC  │  Studio (teach | work)                           │
 │              │                                                  │
@@ -29,9 +29,9 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 
 ## Home
 
-- Continue card (pack, lesson title, progress bar)
+- Continue card (pack, lesson title, progress bar, **creation** thumbnail if any)
 - Daily quest (time estimate)
-- Weak skills (practice)
+- Weak skills **and open misconceptions** (practice)
 - Quest map thumbnail of current course
 
 ## Library
@@ -45,19 +45,28 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 
 ## Studio
 
-- Left: Markdown explain + task prompt
-- Right: Monaco or CodeMirror (pick one; **Monaco** preferred for Python/JS)
+- Left: Markdown explain + predict prompt
+- Right: **activity view** (`world-v1` graph/list/grid) **or** Monaco (code) **or** check UI
 - React: tabs for files + Preview pane
-- Footer: Run, Check, Restart exercise, Hint
-- After Check (and optionally after Run): one line **This · Last · Best** (score / time / hints). Not a leaderboard — just you vs you
-- Check overflow or a toggle: **Replace last run** (next submit overwrites instead of appending)
-- TOC overflow: Restart lesson, Restart chapter, Clear history…
-- Why panel slides up on failed check
-- Do not auto-open Hint 5
+- Footer: Act/Run, Check, Restart exercise, Hint (concept vs assist labelled)
+- After Check: **This · Last · Best** (score + independent/assisted). Time is secondary. Link to **snapshot**
+- Check overflow: **Replace last run**
+- TOC overflow: Restart lesson, Restart chapter, Clear history…, Export creation
+- **Why** is a first-class pane (not a one-line toast): misconception or diagnostic question
+- Do not auto-open Hint 5 (assist)
+
+## Author
+
+- Template picker
+- Form fields + asset drop + live preview (same block renderer as Studio)
+- Validate issues list (paths, ids, rules)
+- Export ZIP
+- Optional “Draft with AI” (disabled until an endpoint is configured)
 
 ## Practice
 
 - One item at a time, timer optional
+- Prefer misconception follow-up copy (“You treated assignment as comparison”) over generic skill names
 - After grade, short explain + Next
 
 ## Settings
@@ -67,8 +76,10 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 - Runtimes (Python path, show detected version)
 - Play (sounds, HUD)
 - Learners: current name, add, rename, switch (shared cartridges, separate progress)
+- Trusted packs (imported code execution)
+- Data: **Export settings**, **Import settings**, **Export setup** (settings + installed cartridges). Copy explains: another PC, same prefs/library; progress is not in this file; import will not silently overwrite
 - Privacy (empty)
-- About: version, **userData path**, Open userData folder, Open current learner folder
+- About: version, **userData path** (must match for `npm run dev` and the installed exe), Open userData folder, Open current learner folder
 
 ## Empty / error
 

@@ -1,8 +1,39 @@
 # Demonstration curricula
 
-v1 ships **three original tracks**. They prove the LMS is general (same shells) and that code engines work. Depth over breadth. Do **not** clone Codefinity chapter titles or exercises.
+v1 ships **four original tracks**. The first is **not** programming: it proves the teaching loop and `world-v1` before Python/JS/React exist. Depth over breadth. Do **not** clone Codefinity chapter titles or exercises.
 
 Estimated hours are learner-facing ranges, not marketing.
+
+---
+
+## Track 0 — Circuits: Cause and effect (~20–40 min)
+
+**Pack id:** `lawp.circuits.basics`  
+**Engines:** `none` (`world-v1` only — no Python/Node)  
+**Level:** beginner  
+
+### Goals
+
+Predict how a simple series circuit behaves. Change it, **see** the lamp, explain why. Keep a circuit as a creation and export it.
+
+### The 20-minute spike (implement first)
+
+| Beat | Block | Notes |
+| --- | --- | --- |
+| Orient | `explain` | Battery, lamp, one knob (resistance or extra cell) |
+| Predict | `predict` | “What happens to brightness if…?” |
+| Experiment | `activity` `experiment` | Make the lamp brighter **without** exceeding a current constraint |
+| Why | misconception or diagnostic | e.g. “more cells always means brighter” / “ignores the constraint” |
+| Transfer | `activity` `experiment` or `construct` | New cover story, same properties |
+| Keep | `creation` step | Export JSON + diagram snapshot |
+
+Misconceptions (indicative): `more-cells-always-brighter`, `ignores-current-limit`, `open-loop-still-lit`.
+
+Optional later in this pack (not required for the spike): `diagnose` a dead lamp; `decide` a fuse rating; `construct` a working series loop.
+
+### Runtime notes
+
+- No spawn. If `world-v1` cannot express a rule, author a lookup table — do not add a physics engine for v1.
 
 ---
 
@@ -162,15 +193,17 @@ Multi-file project: search + detail panel from fixture data. Mastery checklist +
 Each course has:
 
 - Diagnostic or explicit “skip to module”
-- ≥1 debug lesson
+- ≥1 `activity` or `debug` (playable failure)
 - ≥1 transfer lesson
-- ≥1 project
-- Hint ladders on every `code` block
+- ≥1 creation step or project
+- Hint ladders on interactive blocks (concept vs assist)
+- Authored misconceptions on common wrong answers
 - Original prose at ~grade-8 clarity, no slang walls, no hustle-bro copy
 
 ## Authoring order when implementing
 
-1. Python Course 1 fully playable (prove engine)
-2. JS Course 1 + grid-js play
-3. React Course 1 preview
-4. Fill remaining courses behind the same shells
+1. **Circuits 20-minute spike** + Author template/export round-trip (prove “anything” + playable subject)
+2. Python Course 1 (prove a code engine on the same Why / progress / creation shells)
+3. JS Course 1 + `world-v1` grid view
+4. React Course 1 as a continuing creation
+5. Fill remaining courses behind the same shells

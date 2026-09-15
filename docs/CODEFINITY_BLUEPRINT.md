@@ -85,7 +85,7 @@ From product copy and reviews, the studio is:
 | Personalized 8-question path | Diagnostic **skill** pretest | Skip by evidence |
 | Notes / bookmarks | Yes | Profile |
 | Video lessons | Optional pack assets | Not required |
-| 500-course catalog | No | Three deep demo tracks + zip-able JSON cartridges |
+| 500-course catalog | No | Circuits spike first, then three code tracks; zip-able JSON cartridges |
 | Subscription | Never | |
 | Browser zero-install | Desktop app | Local Python/Node; document PATH setup |
 | Multi-language site | English v1 | |
@@ -96,6 +96,6 @@ From product copy and reviews, the studio is:
 1. **Own the loop, not the catalog.** One excellent Python/JS/React path beats 500 thin courses.
 2. **Evidence to skip.** Diagnostics and transfer items, not a questionnaire that still makes you click every nugget.
 3. **Feedback teaches.** Map failures to concepts; show a counterexample.
-4. **Play is pedagogy.** Game courses (Ninja) work because the *state of the world* is the test. LAWP’s `play` blocks should work like that for any subject — the level *is* the exercise.
+4. **Play is pedagogy.** Game courses work because the *state of the world* is the test. LAWP’s `activity` / `world-v1` blocks work like that for any subject — the level *is* the exercise (experiment, diagnose, construct, decide).
 5. **No hostage features.** Hints, practice, and full demo curricula ship in the app.
 6. **Original content.** Rewrite teaching from first principles and public language docs. Zero scraped Codefinity HTML.

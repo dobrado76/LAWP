@@ -2,113 +2,139 @@
 
 Work **only** in this repo. Phase 0 is already partially present (docs + tsconfig stubs + icon).
 
-Content rules that apply from Phase 1 onward (see [CONTENT_MODEL.md](../CONTENT_MODEL.md), D25–D29):
+Rules from Phase 1 onward ([CONTENT_MODEL.md](../CONTENT_MODEL.md), D25–D38):
 
-- Learning materials are **JSON cartridges** (pack + per-lesson folders). No progress inside a pack.
-- Library can **install a `.zip`** (subject or lesson) and **export a `.zip`**.
-- Progress lives under `userData/learners/<learnerId>/`. Every run/check is **appended** (compare this vs last vs best). Restart/redo keeps history; overwrite and clear-history are explicit (D28–D29).
+- JSON cartridges, folder-per-lesson, zip install/export. Progress only under `learners/<id>/`.
+- Library is a **runtime union** (app `resources/packs` + `%APPDATA%\LAWP\packs`). `npm run dist` / the installer never overwrite settings or user cartridges (D3, D37).
+- Settings export/import (optional setup bundle with user packs) for the same setup on another PC (D13, D38).
+- **Activity log** (bounded) vs **evidence** (durable bests / mastery). Restart keeps history.
+- First learning milestone is **one 20-minute playable experience**, not a finished three-track catalog.
+- Cartridge JSON stays a small closed vocabulary so a human or a model can generate it from a template.
 
-## Phase 0 — Bootstrap (first coding session)
+## Phase 0 — Bootstrap
 
 - `package.json`: name `lawp`, productName `LAWP`, private
 - electron-vite, electron, electron-builder, react, react-dom, zustand, zod
-- Monaco or CodeMirror
+- Monaco or CodeMirror (needed later; not required to finish Phase 2 circuits)
 - `electron-builder.yml` → `release/`
-- Implement `configureUserData`, `windowState`, empty `BrowserWindow` loading renderer
-- Custom icon on the window
-- Settings schema + get/update
-- About line with `userDataPath`
-- Confirm: run `npm run dev`, move/maximize, quit, relaunch → same window; then `npm run dist`, run the built exe → **same** `%APPDATA%\LAWP`
+- `configureUserData`, window state, empty `BrowserWindow`, custom icon
+- Settings schema + get/update + **export/import** (prefs file)
+- `electron-builder.yml`: extraResources for demo packs **inside the app**; `deleteAppDataOnUninstall: false`; no AppData seeding
+- About shows `userDataPath`
+- Confirm: `npm run dev` and the installed exe print the **same** `%APPDATA%\LAWP`; a second `npm run dist` leaves existing `settings.json` and `packs/` bytes unchanged
 
-**Exit:** two launch modes, one profile, icon not Electron’s.
+**Exit:** two launch modes, one profile, icon not Electron’s, installer is not a wipe.
 
 ## Phase 1 — Shell + cartridge Library
 
-- Routes: Home, Library, Studio (placeholder), Settings
-- Create **default local learner** on first launch (`userData/learners/<id>/profile.json`)
-- Load `resources/packs` + `userData/packs` with the folder-per-lesson layout; Zod-validate `pack.json` / `lesson.json`
-- Library: pack cards → courses → chapters → lessons
-- **Install from ZIP** (file picker): subject zip *or* standalone lesson zip → validate → copy into `userData/packs`
-- **Export ZIP** on a pack and on a lesson (save dialog; cartridge files only)
-- Invalid zip / zip-slip → error card, existing library intact
-- Session: last pack/lesson id + current `learnerId`
+- Routes: Home, Library, Studio, Author (stub), Settings
+- Default local learner
+- Load `resources/packs` + `userData/packs` **at runtime** (no baked catalog); user `packId` wins
+- Library tree; **Install from ZIP** / **Export ZIP** (subject and lesson)
+- Settings: export prefs; export **setup bundle** (prefs + user packs); import merges with confirm
+- Trust dialog if an imported pack requests a code `capability` (default deny execution)
+- Session: last pack/lesson + `learnerId`
 
-**Exit:** install a sample lesson zip, see it in Library, export it back out, click a lesson title into Studio (static JSON `explain` md). Bundled demo pack uses the same folder shape.
+**Exit:** install and re-export a zip; open a lesson’s `explain` in Studio.
 
-## Phase 2 — Python engine + Course 1 + progress isolation
+## Phase 2 — First 20-minute experience (do this before filling code tracks)
 
-- `run:code` / `grade:block`
-- Sandbox cwd, timeout; lesson files resolved from **that lesson’s folder**
-- First lessons of Python Course 1 including one play or code check
-- Hint ladder IPC
-- Persist **rollup + attempt log** as JSON under `learners/<id>/progress/<packId>/` (never beside `lesson.json`)
-- Append every Run and Check; expose current / previous / best
-- **Restart exercise** and **Restart lesson** (default: keep history, restore starter)
-- Optional **replace last** on the next check; **clear history** behind a second confirm
+Ship **one excellent session** using the same workflow another author will use.
 
-**Exit:** fail, hint, pass, relaunch — attempts are still there (dev and dist). Restart lesson → starter + retrying, previous scores still listed. A second check shows “this vs last”. A second local learner sees the same pack with an empty log. Clear history wipes only that learner’s log.
+Cartridge: `lawp.circuits.basics` — `engines: ["none"]`, **`world-v1` only** (no Python/Node spawn).
 
-## Phase 3 — Studio UX
+Must include, in about 20 minutes:
 
-- Splitters persisted
-- Editor buffers in the **learner** session/drafts tree
-- Why panel
-- Reset starter = restart exercise (`history: keep`)
-- **Restart chapter** (module) from the TOC
-- After Check: compact **this / last / best** line
-- Progress screen: attempt timeline + delete-last / clear-history
-- Practice queue v0 (failed skills for **this** learner)
+1. **Interactive challenge** — `activity` `kind: "experiment"` (make the lamp brighter without exceeding a current constraint): predict → change the circuit → see brightness → explain
+2. **Useful diagnosis** — a wrong action or check maps to a misconception (“more batteries always means brighter” or similar); Why panel names it **or** asks a short diagnostic if ambiguous
+3. **Progressive help** — concept hints free; assist hints mark `assisted`
+4. **Unfamiliar transfer** — same skills, new constraint/story
+5. **A creation they keep** — the circuit (or a tiny variant) lives under `learners/<id>/creations/…` and can be **exported** out of LAWP
+6. **Author + export** — create that lesson from the `activity-experiment` template (or load the bundled one), preview, validate, export zip, install the zip on a clean learner and play it
 
-**Exit:** a full Python Course 1 playable end-to-end. Restart chapter, redo a lesson, see whether the new check beat the previous one.
+Also in this phase:
 
-## Phase 4 — JavaScript + grid-js play
+- `world-v1` interpreter in **main** (data only; no `eval`)
+- Progress: activity log + evidence; this vs last vs best (best = score, then independence)
+- Graded snapshots (answers / world state)
+- Restart keeps history; clear-history is explicit
+- Bind `runId` + `learnerId` at activity start
 
-- Node harness for JS checks
-- `play` block engine (fox/beacons); sprites in the lesson `assets/`
+**Exit:** a new user finishes the circuits session, sees why a failure happened, beats their previous attempt, exports their creation, and an author (or you) round-trips the same material through the workbench zip.
+
+This is the product proof that LAWP is not “a code school with a fox skin.”
+
+## Phase 3 — Author workbench v1
+
+- Templates: `activity-experiment`, `activity-diagnose`, `activity-construct`, `activity-decide`, `explain-check`, `creation-step`
+- Visual forms + live preview (same Studio renderer)
+- Validate references, goals, misconceptions, assets
+- Export zip
+- Optional AI draft (user endpoint, `needs-review`, copy `sources`) — not required for the Phase 2 exit
+
+**Exit:** a person who did not hand-write the circuits JSON can still produce a valid lesson zip.
+
+## Phase 4 — Python engine + Course 1
+
+- `run:code` / `grade:block` with **enforced** spawn policy ([SECURITY.md](../SECURITY.md))
+- Run bound to initiating `learnerId`
+- Python Course 1; `debug` + misconception ids on common failures
+- Why panel is the same component as circuits
+- Hint policy: concept free, assist ≠ mastery
+- Creation thread: greeting-bot (or similar) grows across the course where it fits
+
+**Exit:** fail, diagnose, hint, independent pass, relaunch; progress isolated per learner.
+
+## Phase 5 — Studio UX + practice
+
+- Splitters, drafts, Why as a primary pane
+- Restart chapter; attempt timeline; snapshots “what I submitted”
+- Practice queue: misconception follow-up first
+
+**Exit:** Python Course 1 playable end-to-end with purposeful practice.
+
+## Phase 6 — JavaScript + grid (`world-v1` grid view)
+
+- Node harness; trust gate for imported JS packs
+- Fox/beacons as `view.kind: "grid"` — not a second platform
 - JS Course 1
 
-**Exit:** play level + JS lesson graded.
+**Exit:** playable grid + graded JS lesson.
 
-## Phase 5 — React engine
+## Phase 7 — React engine + continuing creation
 
-- esbuild in main/utility
-- sandboxed preview
-- react-test harness
-- React Course 1
+- esbuild + sandboxed preview + react-test harness
+- React Course 1 as **one creation** that gains filter / edit / persist / errors
+- Export the app folder out of LAWP
 
-**Exit:** component preview + failing then passing test.
+**Exit:** preview + tests + a creation that does something new each module.
 
-## Phase 6 — Fill curricula + diagnostics
+## Phase 8 — Fill curricula + diagnostics
 
-- Remaining courses per [CURRICULA.md](../CURRICULA.md)
+- Remaining Python / JS / React courses per [CURRICULA.md](../CURRICULA.md)
 - Course diagnostic + skip/compress
-- Transfer lessons, projects (project copies under the learner `workspaces/` tree)
-- Daily quest + XP/streak (D19)
-- **Restart** and **Clear history** for course and subject from Library / Progress
+- Daily quest + XP (no tax on concept hints)
+- More `world-v1` activities inside code tracks (diagnose a program = activity or `debug`)
 
-**Exit:** three tracks demo-complete at the quality bar. Restart subject keeps the log; clear subject wipes that learner’s pack attempts only.
+**Exit:** four demo packs at the quality bar: circuits + three code tracks.
 
-## Phase 7 — Polish
+## Phase 9 — Polish
 
-- Certificates (local PNG) written under the learner folder
-- Learner switcher UX (add / rename / switch) if not already comfortable in Phase 2
-- Missing runtime UX
-- Accessibility (contrast, keyboard)
-- `typecheck` / `test` / `lint` green
-- Tests: zip slip rejected; export zip has no `learners/` files; restart does not modify pack bytes; default grade appends (does not replace); clear-history removes attempts in scope only
+- Certificates under the learner folder
+- Learner switcher mid-run does not steal the in-flight result
+- Accessibility; `typecheck` / `test` / `lint`
+- Tests: zip slip; cartridge/settings export has no `learners/`; evidence survives log truncation; best ignores duration unless `speedMatters`; untrusted imported code pack cannot spawn until trusted; `world-v1` never calls `eval`; settings import does not write window-state; setup import skips an existing pack without `replace`
 
 ## Definition of done (product v1)
 
-- [ ] D3 shared AppData verified by hand
-- [ ] D4 window restore including maximized
-- [ ] Custom icon on taskbar for dev and installed
-- [ ] tsconfigs not red; `npm run typecheck` passes
-- [ ] Python / JS / React each have at least one full course, not a single hello-world
-- [ ] Demo packs are folder-per-lesson JSON cartridges (no progress files inside)
-- [ ] Install subject zip and lesson zip; export both
-- [ ] Two local learners, same pack, independent progress
-- [ ] Restart exercise, chapter, and lesson; cartridge unchanged; attempt log kept
-- [ ] After a second check, UI shows this vs last (and best)
-- [ ] Replace-last and clear-history work; they are not the default
-- [ ] No network required to learn the demo packs
+- [ ] D3 shared AppData (`npm run dev` and installed exe show the same path); D4 window restore; custom icon; tsconfigs clean
+- [ ] `npm run dist` / reinstall does not overwrite `settings.json` or `userData/packs`
+- [ ] Settings export/import and setup bundle (prefs + user cartridges) merge with confirm
+- [ ] **20-minute circuits experience** (activity, Why/misconception, free concept hints, transfer, kept creation, author/export round-trip)
+- [ ] Python / JS / React each have at least one full course
+- [ ] Folder-per-lesson JSON; zip install/export; two local learners
+- [ ] Activity log vs durable evidence; snapshots on graded submits
+- [ ] Restart keeps history; clear/overwrite are explicit
+- [ ] Imported executable packs default to no spawn until trusted
+- [ ] Learning works offline; AI draft is Author-only and optional
 - [ ] No dependency on any other local project
