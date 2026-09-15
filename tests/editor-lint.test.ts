@@ -5,6 +5,7 @@ import { EditorState } from '@codemirror/state'
 import { describe, expect, it } from 'vitest'
 import { domCompletionSource, playerCompletionSource } from '../src/renderer/editor/completions'
 import { languageFromEngine, languageLabel } from '../src/renderer/editor/languages'
+import { inspectSelectorAt, kindFromSelector } from '../src/renderer/editor/domKind'
 import { inspectPage, pageSelectors } from '../src/renderer/editor/pageSource'
 import { collectIssues, collectSyntaxIssues, teachParseMessage } from '../src/renderer/editor/lint'
 
@@ -119,12 +120,12 @@ describe('player-v1 completions', () => {
   })
 })
 
-function domComplete(doc: string, selectors: string[] = [], explicit = true) {
+function domComplete(doc: string, selectors: string[] = [], explicit = true, html = '') {
   const state = EditorState.create({
     doc,
-    extensions: [javascript(), javascriptLanguage.data.of({ autocomplete: (ctx) => domCompletionSource(ctx, selectors) })]
+    extensions: [javascript(), javascriptLanguage.data.of({ autocomplete: (ctx) => domCompletionSource(ctx, selectors, html) })]
   })
-  return domCompletionSource(new CompletionContext(state, doc.length, explicit), selectors)
+  return domCompletionSource(new CompletionContext(state, doc.length, explicit), selectors, html)
 }
 
 describe('dom-v1 completions', () => {
@@ -144,6 +145,22 @@ describe('dom-v1 completions', () => {
     const result = domComplete('document.querySelector("h1").')
     const labels = result?.options.map((o) => o.label) ?? []
     expect(labels).toEqual(expect.arrayContaining(['textContent', 'innerHTML', 'classList', 'addEventListener']))
+    expect(labels).not.toEqual(expect.arrayContaining(['checked', 'value', 'disabled']))
+  })
+
+  it('keeps form members on an input', () => {
+    const result = domComplete('document.querySelector("input").')
+    const labels = result?.options.map((o) => o.label) ?? []
+    expect(labels).toEqual(expect.arrayContaining(['value', 'checked', 'disabled', 'textContent']))
+  })
+
+  it('resolves #id from the page HTML to a paragraph, not a control', () => {
+    const html = '<p id="beacon-name">?</p><input id="q" />'
+    expect(kindFromSelector('#beacon-name', html)).toBe('generic')
+    const result = domComplete('document.querySelector("#beacon-name").', [], true, html)
+    const labels = result?.options.map((o) => o.label) ?? []
+    expect(labels).not.toContain('checked')
+    expect(labels).toContain('textContent')
   })
 
   it('suggests element members on a bound querySelector result', () => {
@@ -173,5 +190,23 @@ describe('page source inspect', () => {
 
   it('lists ids, classes, and tags for completions', () => {
     expect(pageSelectors(raw)).toEqual(expect.arrayContaining(['#beacon-name', '.desk', 'p', 'div']))
+  })
+})
+
+describe('inspectSelectorAt', () => {
+  it('reads the selector under a querySelector call', () => {
+    const src = 'document.querySelector("h1").textContent = "Signal desk"'
+    const hit = inspectSelectorAt(src, src.indexOf('h1'))
+    expect(hit).toEqual({ selector: 'h1', all: false })
+  })
+
+  it('maps getElementById to an id selector', () => {
+    const src = 'document.getElementById("beacon-name")'
+    expect(inspectSelectorAt(src, 10)).toEqual({ selector: '#beacon-name', all: false })
+  })
+
+  it('follows a bound variable', () => {
+    const src = 'const heading = document.querySelector("h1")\nheading.textContent = "x"'
+    expect(inspectSelectorAt(src, src.indexOf('heading.'))).toEqual({ selector: 'h1', all: false })
   })
 })

@@ -194,7 +194,26 @@ export function stdoutCode(opts) {
   }
 }
 
+function assertPlayGoalStartsOpen(world, goal, id) {
+  if (!world || !goal?.all?.length) return
+  const fox = world.parts.find((p) => p.id === 'fox')
+  const gx = goal.all.find((p) => p.path === 'fox.x' && p.op === 'eq')
+  const gy = goal.all.find((p) => p.path === 'fox.y' && p.op === 'eq')
+  if (fox && gx && gy && fox.props.x === gx.value && fox.props.y === gy.value) {
+    throw new Error(`${id}: fox starts on the goal cell (${gx.value}, ${gy.value})`)
+  }
+  for (const p of goal.all) {
+    if (p.path === 'fox.x' || p.path === 'fox.y') continue
+    const [pid, key] = String(p.path).split('.')
+    const part = world.parts.find((x) => x.id === pid)
+    if (part && part.props[key] === p.value) {
+      throw new Error(`${id}: goal ${p.path} already holds at start`)
+    }
+  }
+}
+
 export function playCode(opts) {
+  assertPlayGoalStartsOpen(opts.world, opts.goal, opts.id)
   const files = [{ path: 'files/main.js', role: 'edit' }]
   if (opts.hidden) files.push({ path: 'files/hidden.test.js', role: 'hidden-test' })
   if (opts.extraFiles) files.push(...opts.extraFiles)

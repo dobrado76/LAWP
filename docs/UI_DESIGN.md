@@ -53,7 +53,8 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 - Left: Markdown explain + predict prompt
 - Right: **activity view** (`world-v1` graph/list/grid) **or** the shared `CodeEditor` (gutter, highlighting, click-to-error) **or** check UI
 - React: tabs for files + Preview pane
-- Top studio bar: icon Back / title / Run · Check · icon Hint · icon Restart / icon Next (tooltips). After a **correct** Submit, that same control becomes Next; an incorrect grade keeps Submit so they can change the answer and try again. On the last lesson the control is **Return to library** (never a dead Next), and the left pane shows Congratulations plus a first-try score (wrong then fixed is not 100%)
+- Top studio bar: icon Back / title / **Run** (code preview) · icon Hint · icon Restart / icon Next (tooltips). **Submit lives only in the right (work) pane.** After a **correct** Submit, that same control becomes Next; an incorrect grade keeps Submit so they can change the answer and try again. On the last lesson the control is **Return to library** (never a dead Next), and the left pane shows Congratulations plus a first-try score (wrong then fixed is not 100%)
+- Code lessons attach a **Console** under the editor (`console.log` / `print` / errors). Opening the lesson runs the starter once so that output is visible; SUCCESS / FAIL only after the learner presses Run or Submit. Cartridge paths (`files/main.js`) are not shown
 - Grade result lives in the **left** teach pane: large green check **Correct!** or red X **Incorrect!** — so the right-hand Submit control can become Next without moving
 - Play grid: stone (or authored) floor on every cell, then kit sprites (fox, items, terrain). **SUCCESS / FAIL** overlay on the stage after Run — do not make the learner read Why to know the result
 - After Check: **This · Last · Best** (score + independent/assisted). Time is secondary. Link to **snapshot**

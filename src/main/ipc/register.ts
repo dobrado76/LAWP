@@ -512,7 +512,7 @@ export function registerIpc(): void {
             misconceptionIds
           }
         }
-        if (block && (block as { type: string }).type === 'check') {
+        if (block && ((block as { type: string }).type === 'check' || (block as { type: string }).type === 'predict')) {
           const { passed, misconceptionIds } = gradeCheckAnswer(block as CheckPrompt, input.answers)
           const ev = recordGrade(
             run.learnerId,

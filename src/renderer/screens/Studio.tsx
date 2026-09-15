@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { defaultCheckValue, type CheckKind, type CheckPrompt } from '@shared/check'
 import { firstTryTally, type FirstTry } from '@shared/schemas/progress'
-import { applyPlayCommands, facingName, GRID_CELL_PX, clampGrid, propertyHolds, type PlayCommand, type PlayProp } from '@shared/play'
+import { applyPlayCommands, facingName, GRID_CELL_PX, clampGrid, playObjectiveItems, type PlayCommand, type PlayProp } from '@shared/play'
 import { DEFAULT_FLOOR, playKitLayerRank, playKitPiece, playKitSrc } from '@shared/playKit'
 import { IPC, invoke } from '../api'
-import { CheckPanel } from '../checks/CheckPanel'
+import { CheckPanel, GradeCta } from '../checks/CheckPanel'
 import { CodeEditor } from '../editor/CodeEditor'
 import { inspectPage } from '../editor/pageSource'
 import { md } from '../md'
@@ -19,6 +19,45 @@ type World = {
   view?: { kind?: string; assetMap?: Record<string, string>; grid?: { cols?: number; rows?: number; floor?: string } }
 }
 type PlayCmd = PlayCommand
+type ConsoleState = { stdout: string; stderr: string; extra: string; ran: boolean }
+
+const emptyConsole: ConsoleState = { stdout: '', stderr: '', extra: '', ran: false }
+
+function takeConsole(r: { stdout?: string; stderr?: string; timedOut?: boolean; exitCode?: number }): ConsoleState {
+  const extra: string[] = []
+  if (r.exitCode !== undefined && r.exitCode !== 0) extra.push(`(exit ${r.exitCode})`)
+  if (r.timedOut) extra.push('(timed out)')
+  return {
+    stdout: r.stdout?.replace(/\s+$/, '') ?? '',
+    stderr: r.stderr?.replace(/\s+$/, '') ?? '',
+    extra: extra.join('\n'),
+    ran: true
+  }
+}
+
+function CodeConsole({ stdout, stderr, extra, ran }: ConsoleState) {
+  const blank = ran && !stdout && !stderr && !extra
+  return (
+    <div className="code-console" role="log" aria-label="Console">
+      <div className="code-console-bar">Console</div>
+      <pre className="code-console-body">
+        {!ran ? (
+          <span className="code-console-empty">Press Run to see console.log and errors.</span>
+        ) : blank ? (
+          <span className="code-console-empty">No output</span>
+        ) : (
+          <>
+            {stdout ? <span className="code-console-out">{stdout}</span> : null}
+            {stdout && (stderr || extra) ? '\n' : null}
+            {stderr ? <span className="code-console-err">{stderr}</span> : null}
+            {stderr && extra ? '\n' : null}
+            {extra ? <span className="code-console-err">{extra}</span> : null}
+          </>
+        )}
+      </pre>
+    </div>
+  )
+}
 
 export function Studio({
   packId,
@@ -55,9 +94,11 @@ export function Studio({
     Record<string, { status: string; best?: { score: number; assisted: boolean }; firstTries?: Record<string, FirstTry> }>
   >({})
   const [files, setFiles] = useState<{ path: string; contents: string }[]>([])
-  const [output, setOutput] = useState('')
+  const [consoleOut, setConsoleOut] = useState<ConsoleState>(emptyConsole)
   const [banner, setBanner] = useState<{ kind: 'success' | 'fail'; title: string } | null>(null)
   const [draftReady, setDraftReady] = useState(false)
+  const [inspectHit, setInspectHit] = useState<{ selector: string; all: boolean } | null>(null)
+  const [taskResult, setTaskResult] = useState<'pass' | 'fail' | null>(null)
   const workGen = useRef(0)
   const runIdRef = useRef<string | undefined>(undefined)
 
@@ -139,7 +180,7 @@ export function Studio({
     }
     if (!stillHere(gen)) return
     setFiles(nextFiles)
-    setOutput('')
+    setConsoleOut(emptyConsole)
     setHint('')
     setHintLevel(0)
     setStatus('')
@@ -150,6 +191,7 @@ export function Studio({
     setFirstTry({})
     setWhy('')
     setBanner(null)
+    setTaskResult(null)
     setDraftReady(true)
   }
 
@@ -158,6 +200,8 @@ export function Studio({
     replayGen.current += 1
     setDraftReady(false)
     setFiles([])
+    setInspectHit(null)
+    setTaskResult(null)
     void load(gen)
     return () => {
       workGen.current += 1
@@ -204,7 +248,7 @@ export function Studio({
   const playerId = code?.play?.playerId ?? 'fox'
   const viewKind = world?.view?.kind ?? activity?.world?.view?.kind
   const isGrid = viewKind === 'grid'
-  const checks: CheckPrompt[] = (lesson?.blocks.filter((b) => b.type === 'check') ?? []).map((b) => ({
+  const checks: CheckPrompt[] = (lesson?.blocks.filter((b) => b.type === 'check' || (b.type === 'predict' && b.id)) ?? []).map((b) => ({
     ...(b as unknown as CheckPrompt),
     id: String(b.id ?? 'check'),
     kind: ((b as { kind?: CheckKind }).kind ?? 'mcq') as CheckKind,
@@ -212,6 +256,17 @@ export function Studio({
   }))
   const checkOnly = checks.length > 0 && !activity && !code
   const playable = Boolean(activity || code || checks.length)
+  const nextLabel = nextId ? 'Next' : 'Return to library'
+  const pendingCheck = checks.find((ch) => checkResult[ch.id] !== 'pass')
+  const taskPending = Boolean((code || activity) && taskResult !== 'pass')
+  const ctaResult = pendingCheck ? (checkResult[pendingCheck.id] ?? null) : taskResult
+  const canAdvance = !pendingCheck && !taskPending
+
+  function submitWork() {
+    if (pendingCheck) void gradeCheck(pendingCheck)
+    else if (code) void gradeCode()
+    else if (activity) void checkActivity()
+  }
 
   async function act(actionId: string, value?: string | number) {
     if (!runId) return
@@ -225,6 +280,7 @@ export function Studio({
     }>(IPC.runActivity, { runId, actionId, payload: value !== undefined ? { value } : undefined })
     if (!stillHere(gen)) return
     setWorld(r.world)
+    setTaskResult(null)
     const names = r.misconceptionIds.map((id) => tree?.misconceptions.find((m) => m.id === id)?.title ?? id).join(', ')
     setWhy(
       r.calcFault
@@ -261,6 +317,11 @@ export function Studio({
     setStatus(r.passed ? 'Passed' : 'Not yet')
     setWhy(r.passed ? activity.explainAfter?.promptMd ?? 'That worked.' : why || 'Try another resistance.')
     setBanner({ kind: r.passed ? 'success' : 'fail', title: r.passed ? 'SUCCESS' : 'FAIL' })
+    setTaskResult(r.passed ? 'pass' : 'fail')
+    if (activity.id) {
+      setFirstTry((prev) => (activity.id! in prev ? prev : { ...prev, [activity.id!]: r.passed ? 'pass' : 'fail' }))
+    }
+    if (r.passed) void refreshProgress(gen)
   }
 
   async function askHint() {
@@ -313,28 +374,21 @@ export function Studio({
     })
   }
 
-  function formatRunOutput(r: { stdout?: string; stderr?: string; timedOut?: boolean; exitCode?: number }) {
-    const parts: string[] = []
-    if (r.stdout?.trim()) parts.push(r.stdout.replace(/\s+$/, ''))
-    if (r.stderr?.trim()) parts.push(r.stderr.replace(/\s+$/, ''))
-    if (r.exitCode !== undefined && r.exitCode !== 0) parts.push(`(exit ${r.exitCode})`)
-    if (r.timedOut) parts.push('(timed out)')
-    return parts.join('\n')
-  }
-
-  async function showPlayResult(r: {
-    world?: World
-    commands?: PlayCmd[]
-    playFault?: string | null
-    stdout?: string
-    stderr?: string
-    timedOut?: boolean
-    exitCode?: number
-    passed?: boolean
-    goalMet?: boolean
-  }) {
-    setBanner(null)
-    setOutput(formatRunOutput(r))
+  async function showPlayResult(
+    r: {
+      world?: World
+      commands?: PlayCmd[]
+      playFault?: string | null
+      stdout?: string
+      stderr?: string
+      timedOut?: boolean
+      exitCode?: number
+      passed?: boolean
+      goalMet?: boolean
+    },
+    silent = false
+  ) {
+    setConsoleOut(takeConsole(r))
     const gen = ++replayGen.current
     const origin = startWorld ?? code?.play?.world ?? null
     if (origin && r.commands?.length) {
@@ -343,11 +397,13 @@ export function Studio({
       })
     }
     if (replayGen.current === gen && r.world) setWorld(r.world)
+    if (silent) return
+    setBanner(null)
     if (r.playFault) {
       setWhy(r.playFault)
       setBanner({ kind: 'fail', title: 'FAIL' })
     } else if (r.exitCode !== undefined && r.exitCode !== 0) {
-      const crash = r.stderr?.trim().split('\n').find((line) => line.trim()) ?? 'The program stopped with an error. Read the output.'
+      const crash = r.stderr?.trim().split('\n').find((line) => line.trim()) ?? 'The program stopped with an error. Read the console.'
       setWhy(crash)
       setBanner({ kind: 'fail', title: 'FAIL' })
     } else if (r.passed) {
@@ -359,7 +415,7 @@ export function Studio({
     }
   }
 
-  async function runCode() {
+  async function runCode(opts?: { silent?: boolean }) {
     if (!runId || !code?.id) return
     const gen = workGen.current
     try {
@@ -381,8 +437,8 @@ export function Studio({
         files
       })
       if (!stillHere(gen)) return
-      await showPlayResult(r)
-      if (!stillHere(gen)) return
+      await showPlayResult(r, opts?.silent)
+      if (!stillHere(gen) || opts?.silent) return
       if (code.play) {
         setStatus(
           r.playFault
@@ -398,7 +454,9 @@ export function Studio({
       }
     } catch (e) {
       if (!stillHere(gen)) return
-      setStatus((e as Error).message)
+      const message = (e as Error).message
+      setConsoleOut({ stdout: '', stderr: message, extra: '', ran: true })
+      if (!opts?.silent) setStatus(message)
     }
   }
 
@@ -420,6 +478,10 @@ export function Studio({
     await showPlayResult(r)
     if (!stillHere(gen)) return
     setStatus(r.passed ? 'Passed' : 'Not yet')
+    setTaskResult(r.passed ? 'pass' : 'fail')
+    const taskId = code.id ?? 'code'
+    setFirstTry((prev) => (taskId in prev ? prev : { ...prev, [taskId]: r.passed ? 'pass' : 'fail' }))
+    if (r.passed) void refreshProgress(gen)
     const c = r.compare
     setCompare(
       c
@@ -433,8 +495,8 @@ export function Studio({
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault()
         if (e.shiftKey) {
-          if (activity) void checkActivity()
-          else if (code) void gradeCode()
+          if (canAdvance) advanceOrDone()
+          else submitWork()
         } else if (code) void runCode()
         else if (activity) void checkActivity()
       }
@@ -443,22 +505,18 @@ export function Studio({
     return () => window.removeEventListener('keydown', onKey)
   })
 
+  useEffect(() => {
+    if (!draftReady || !code?.id || !runId) return
+    void runCode({ silent: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftReady, runId, lessonId])
+
   const actions = (
     <div className="studio-bar-actions">
-      {activity && (
-        <button className="btn primary" onClick={() => void checkActivity()}>
-          Check
-        </button>
-      )}
       {code && (
-        <>
-          <button className="btn primary" onClick={() => void runCode()}>
-            Run
-          </button>
-          <button className="btn" onClick={() => void gradeCode()}>
-            Check
-          </button>
-        </>
+        <button className="btn primary" onClick={() => void runCode()}>
+          Run
+        </button>
       )}
       {playable && (
         <IconBtn label={hintLevel ? `Hint ${hintLevel}/5` : 'Hint'} disabled={hintLevel >= 5} onClick={() => void askHint()}>
@@ -509,9 +567,7 @@ export function Studio({
         <div className="pane teach">
           {lesson?.blocks.map((b, i) => {
             if (b.type === 'explain') return <div key={i} className="prose" dangerouslySetInnerHTML={{ __html: md(String(b.md)) }} />
-            if (b.type === 'predict') {
-              return <Predict key={i} pred={b} value={predict} onChange={setPredict} />
-            }
+            if (b.type === 'predict' && b.id) return null
             if (b.type === 'reflect') {
               return <div key={i} className="prose" dangerouslySetInnerHTML={{ __html: md(String(b.promptMd ?? '')) }} />
             }
@@ -540,9 +596,6 @@ export function Studio({
                 onChange={(next) => setCheckValue(ch.id, next)}
                 packId={packId}
                 lessonId={lessonId}
-                onSubmit={() => void gradeCheck(ch)}
-                onNext={advanceOrDone}
-                nextLabel={nextId ? 'Next' : 'Return to library'}
                 result={checkResult[ch.id] ?? null}
               />
             ))}
@@ -550,7 +603,8 @@ export function Studio({
             const r = checkResult[ch.id]
             return r ? <CheckVerdict key={`${ch.id}-verdict`} result={r} /> : null
           })}
-          {!nextId && checks.some((ch) => checkResult[ch.id] === 'pass') ? (
+          {taskResult ? <CheckVerdict result={taskResult} /> : null}
+          {!nextId && (taskResult === 'pass' || checks.some((ch) => checkResult[ch.id] === 'pass')) ? (
             <LessonComplete progress={progress} lessonId={lessonId} lessonOrder={lessonOrder} firstTry={firstTry} />
           ) : null}
           {hint && <div className="callout hint" dangerouslySetInnerHTML={{ __html: md(hint) }} />}
@@ -603,6 +657,7 @@ export function Studio({
               key={lessonId}
               html={code.files?.find((f) => f.path.endsWith('.html'))?.contents ?? ''}
               js={files.find((f) => f.path.endsWith('.js'))?.contents ?? ''}
+              inspect={inspectHit}
               fixtures={Object.fromEntries(
                 (code.files ?? [])
                   .filter((f) => f.path.endsWith('.json') && f.contents)
@@ -619,26 +674,32 @@ export function Studio({
               )}
             />
           )}
-          {draftReady &&
-            files.map((f) => (
-              <CodeEditor
-                key={f.path}
-                path={f.path}
-                value={f.contents}
-                engine={code?.engine}
-                api={code?.play ? 'player-v1' : code?.preview?.kind === 'iframe' ? 'dom-v1' : undefined}
-                selectors={
-                  code?.preview?.kind === 'iframe'
-                    ? inspectPage(code.files?.find((x) => x.path.endsWith('.html'))?.contents ?? '').selectors
-                    : undefined
-                }
-                onChange={(contents) => {
-                  setBanner(null)
-                  setFiles((prev) => prev.map((x) => (x.path === f.path ? { ...x, contents } : x)))
-                }}
-              />
-            ))}
-          {output ? <pre className="output">{output}</pre> : null}
+          {draftReady && files.length > 0 && (
+            <div className="code-work">
+              {files.map((f) => (
+                <CodeEditor
+                  key={f.path}
+                  path={f.path}
+                  value={f.contents}
+                  engine={code?.engine}
+                  api={code?.play ? 'player-v1' : code?.preview?.kind === 'iframe' ? 'dom-v1' : undefined}
+                  selectors={
+                    code?.preview?.kind === 'iframe'
+                      ? inspectPage(code.files?.find((x) => x.path.endsWith('.html'))?.contents ?? '').selectors
+                      : undefined
+                  }
+                  pageHtml={code?.preview?.kind === 'iframe' ? code.files?.find((x) => x.path.endsWith('.html'))?.contents ?? '' : undefined}
+                  onInspect={code?.preview?.kind === 'iframe' ? setInspectHit : undefined}
+                  onChange={(contents) => {
+                    setBanner(null)
+                    setTaskResult(null)
+                    setFiles((prev) => prev.map((x) => (x.path === f.path ? { ...x, contents } : x)))
+                  }}
+                />
+              ))}
+              <CodeConsole {...consoleOut} />
+            </div>
+          )}
           {checkOnly &&
             checks.map((ch) => (
               <CheckPanel
@@ -648,12 +709,18 @@ export function Studio({
                 onChange={(next) => setCheckValue(ch.id, next)}
                 packId={packId}
                 lessonId={lessonId}
-                onSubmit={() => void gradeCheck(ch)}
-                onNext={advanceOrDone}
-                nextLabel={nextId ? 'Next' : 'Return to library'}
                 result={checkResult[ch.id] ?? null}
               />
             ))}
+          {playable && (
+            <GradeCta
+              result={ctaResult}
+              canAdvance={canAdvance}
+              onSubmit={submitWork}
+              onNext={advanceOrDone}
+              nextLabel={nextLabel}
+            />
+          )}
           {!playable && nextId && (
             <div className="empty-work">
               <p>Read the idea on the left. Then continue.</p>
@@ -733,7 +800,7 @@ function Objectives({
   goal?: { all?: PlayProp[]; any?: PlayProp[]; none?: PlayProp[] }
   world: World | null
 }) {
-  const items = objectiveItems(goal, world)
+  const items = playObjectiveItems(goal, world)
   if (!items.length) return null
   const done = items.filter((i) => i.done).length
   return (
@@ -758,45 +825,6 @@ function Objectives({
   )
 }
 
-function objectiveItems(
-  goal: { all?: PlayProp[] } | undefined,
-  world: World | null
-): { id: string; label: string; done: boolean }[] {
-  const rows = goal?.all ?? []
-  if (!rows.length) return []
-  const used = new Set<string>()
-  const out: { id: string; label: string; done: boolean }[] = []
-  for (const prop of rows) {
-    if (used.has(prop.path)) continue
-    const [id, key] = prop.path.split('.')
-    const pairKey = key === 'x' ? `${id}.y` : key === 'y' ? `${id}.x` : null
-    const pair = pairKey ? rows.find((r) => r.path === pairKey && r.op === 'eq') : undefined
-    if (pair && (key === 'x' || key === 'y')) {
-      used.add(`${id}.x`)
-      used.add(`${id}.y`)
-      const x = key === 'x' ? prop.value : pair.value
-      const y = key === 'y' ? prop.value : pair.value
-      const beacon = world?.parts.find((p) => p.type === 'beacon' && p.props.x === x && p.props.y === y)
-      const label = beacon ? `Stand on the beacon (${x}, ${y})` : `Stand on (${x}, ${y})`
-      const done = world
-        ? propertyHolds(world, { path: `${id}.x`, op: 'eq', value: x }) &&
-          propertyHolds(world, { path: `${id}.y`, op: 'eq', value: y })
-        : false
-      out.push({ id: `${id}.pos`, label, done })
-      continue
-    }
-    used.add(prop.path)
-    const part = world?.parts.find((p) => p.id === id)
-    const name = String(part?.props.label ?? id ?? 'it')
-    let label = `${name} ${key} = ${String(prop.value)}`
-    if (key === 'taken') label = `Collect the ${name.toLowerCase()}`
-    if (key === 'rot') label = `Face ${prop.value}°`
-    if (key === 'scale') label = `Scale to ${prop.value}`
-    if (key === 'say') label = `Say “${prop.value}”`
-    out.push({ id: prop.path, label, done: world ? propertyHolds(world, prop) : false })
-  }
-  return out
-}
 
 function Predict({
   pred,
@@ -879,19 +907,31 @@ function replayPlay(
 function PageBoard({
   html,
   js,
-  fixtures
+  fixtures,
+  inspect
 }: {
   html: string
   js: string
   fixtures: Record<string, string>
+  inspect: { selector: string; all: boolean } | null
 }) {
   const [tab, setTab] = useState<'preview' | 'html' | 'css'>('preview')
+  const [hits, setHits] = useState(0)
   const page = useMemo(() => inspectPage(html), [html])
   const tabs: Array<{ id: 'preview' | 'html' | 'css'; label: string }> = [
     { id: 'preview', label: 'Preview' },
     { id: 'html', label: 'HTML' }
   ]
   if (page.css) tabs.push({ id: 'css', label: 'CSS' })
+  const hitLabel = inspect
+    ? hits === 0
+      ? `${inspect.selector} · no match`
+      : inspect.all
+        ? `${inspect.selector} · ${hits} ${hits === 1 ? 'node' : 'nodes'}`
+        : hits === 1
+          ? `${inspect.selector} · 1 node`
+          : `${inspect.selector} · first of ${hits}`
+    : null
   return (
     <div className="page-board">
       <div className="page-board-tabs" role="tablist" aria-label="Page">
@@ -907,16 +947,23 @@ function PageBoard({
             {t.label}
           </button>
         ))}
+        {hitLabel ? (
+          <button type="button" className="page-board-hit" onClick={() => setTab('preview')}>
+            {hitLabel}
+          </button>
+        ) : null}
       </div>
-      {tab === 'preview' ? (
-        <DomFrame html={html} js={js} fixtures={fixtures} />
-      ) : null}
-      {tab === 'html' ? (
-        <CodeEditor language="html" path="files/index.html" value={page.html || html} readOnly onChange={() => undefined} />
-      ) : null}
-      {tab === 'css' ? (
-        <CodeEditor language="css" path="page.css" value={page.css} readOnly onChange={() => undefined} />
-      ) : null}
+      <div className={`page-board-stage${tab === 'preview' ? ' is-preview' : ' is-source'}`}>
+        <div className={tab === 'preview' ? 'is-shown' : 'is-kept'}>
+          <DomFrame html={html} js={js} fixtures={fixtures} inspect={inspect} onHits={setHits} />
+        </div>
+        {tab === 'html' ? (
+          <CodeEditor language="html" path="files/index.html" value={page.html || html} readOnly onChange={() => undefined} />
+        ) : null}
+        {tab === 'css' ? (
+          <CodeEditor language="css" path="page.css" value={page.css} readOnly onChange={() => undefined} />
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -934,6 +981,8 @@ ul:empty::after{content:"No items yet"}
 input,button,select,textarea{font:inherit}
 input,textarea{padding:6px 8px;border:1px solid #c9c2b4;border-radius:6px;background:#fff}
 button{padding:6px 12px;border:1px solid #2a6b63;border-radius:6px;background:#1a3d38;color:#e8fff8}
+.lawp-hit{outline:2px solid #2a6b63;outline-offset:3px;box-shadow:0 0 0 6px rgba(42,107,99,.22);border-radius:4px}
+.lawp-hit-first{outline-color:#0f3d36}
 </style>`
   const boot = `${chrome}<script>
 const FIX = ${JSON.stringify(fixtures)};
@@ -953,6 +1002,30 @@ window.fetch = function(url) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
 })();
+window.addEventListener('message', function (ev) {
+  if (!ev.data || ev.data.lawp !== 'select') return;
+  document.querySelectorAll('.lawp-hit').forEach(function (n) {
+    n.classList.remove('lawp-hit', 'lawp-hit-first');
+  });
+  var selector = ev.data.selector;
+  var all = ev.data.all === true;
+  var count = 0;
+  if (selector) {
+    try {
+      var nodes = document.querySelectorAll(selector);
+      count = nodes.length;
+      if (all) {
+        nodes.forEach(function (n, i) {
+          n.classList.add('lawp-hit');
+          if (i === 0) n.classList.add('lawp-hit-first');
+        });
+      } else if (nodes[0]) {
+        nodes[0].classList.add('lawp-hit', 'lawp-hit-first');
+      }
+    } catch (e) { count = 0; }
+  }
+  window.parent.postMessage({ lawp: 'hits', selector: selector || '', count: count }, '*');
+});
 </script>`
   return /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${boot}</body>`) : `${html}${boot}`
 }
@@ -960,20 +1033,35 @@ window.fetch = function(url) {
 function DomFrame({
   html,
   js,
-  fixtures
+  fixtures,
+  inspect,
+  onHits
 }: {
   html: string
   js: string
   fixtures: Record<string, string>
+  inspect: { selector: string; all: boolean } | null
+  onHits: (count: number) => void
 }) {
   const ref = useRef<HTMLIFrameElement>(null)
   const urlRef = useRef<string | null>(null)
   const [liveJs, setLiveJs] = useState(js)
+  const inspectRef = useRef(inspect)
+  inspectRef.current = inspect
   useEffect(() => {
     const t = window.setTimeout(() => setLiveJs(js), 140)
     return () => window.clearTimeout(t)
   }, [js])
   const src = useMemo(() => composePageSrc(html, liveJs, fixtures), [html, liveJs, fixtures])
+
+  function tellSelect() {
+    const win = ref.current?.contentWindow
+    if (!win) return
+    win.postMessage(
+      { lawp: 'select', selector: inspectRef.current?.selector ?? '', all: inspectRef.current?.all === true },
+      '*'
+    )
+  }
 
   useEffect(() => {
     const iframe = ref.current
@@ -999,7 +1087,27 @@ function DomFrame({
     }
   }, [src])
 
-  return <iframe ref={ref} className="dom-preview" title="Page preview" sandbox="allow-scripts" />
+  useEffect(() => {
+    tellSelect()
+  }, [inspect?.selector, src])
+
+  useEffect(() => {
+    function onMsg(ev: MessageEvent) {
+      if (ev.data?.lawp === 'hits') onHits(Number(ev.data.count) || 0)
+    }
+    window.addEventListener('message', onMsg)
+    return () => window.removeEventListener('message', onMsg)
+  }, [onHits])
+
+  return (
+    <iframe
+      ref={ref}
+      className="dom-preview"
+      title="Page preview"
+      sandbox="allow-scripts"
+      onLoad={() => tellSelect()}
+    />
+  )
 }
 
 function GridStage({

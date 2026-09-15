@@ -14,6 +14,7 @@ import {
   type DomMember,
   type EditorApi
 } from './apis'
+import { boundFinds, kindFromSelector, memberBoost, memberFits, selectorAtDot, type ElKind } from './domKind'
 
 const DIR_TEACH: Record<(typeof PLAYER_DIRS)[number], string> = {
   north: 'Up the grid. y decreases.',
@@ -123,11 +124,14 @@ export function playerCompletionSource(context: CompletionContext): CompletionRe
   return null
 }
 
-export type DomCompleteOpts = { selectors?: string[] }
+export type DomCompleteOpts = { selectors?: string[]; html?: string }
 
 export function apiCompletionSource(api?: EditorApi, extras?: DomCompleteOpts) {
   if (api === 'player-v1') return playerCompletionSource
-  if (api === 'dom-v1') return (context: CompletionContext) => domCompletionSource(context, extras?.selectors ?? [])
+  if (api === 'dom-v1') {
+    return (context: CompletionContext) =>
+      domCompletionSource(context, extras?.selectors ?? [], extras?.html ?? '')
+  }
   return null
 }
 
@@ -142,8 +146,20 @@ function membersOf(table: Record<string, DomMember>, boost = 96): Completion[] {
   }))
 }
 
+function elementMembersFor(kind: ElKind): Completion[] {
+  return Object.entries(DOM_ELEMENT)
+    .filter(([name]) => memberFits(name, kind))
+    .map(([name, spec]) => ({
+      label: name,
+      type: spec.type === 'function' ? 'function' : spec.type === 'class' ? 'class' : 'property',
+      detail: spec.args ?? spec.type ?? 'DOM',
+      info: `${spec.info} Example: ${spec.sample}`,
+      apply: spec.apply ?? name,
+      boost: memberBoost(name, kind)
+    }))
+}
+
 const documentMembers = membersOf(DOM_DOCUMENT, 98)
-const elementMembers = membersOf(DOM_ELEMENT, 97)
 const classListMembers = membersOf(DOM_CLASSLIST, 98)
 const styleMembers = membersOf(DOM_STYLE, 96)
 const eventMembers = membersOf(DOM_EVENT, 97)
@@ -260,11 +276,19 @@ function callOpen(src: string, pos: number, name: string): boolean {
   return re.test(slice)
 }
 
-export function domCompletionSource(context: CompletionContext, selectors: string[] = []): CompletionResult | null {
+export function domCompletionSource(
+  context: CompletionContext,
+  selectors: string[] = [],
+  html = ''
+): CompletionResult | null {
   const src = context.state.doc.toString()
   const before = src.slice(0, context.pos)
   const bound = boundNames(src)
+  const finds = boundFinds(src)
   const sel = selectorOpts(selectors)
+  const atDot = selectorAtDot(src, context.pos)
+  const identName = before.match(/([A-Za-z_$][\w$]*)\s*\??\s*\.\s*\w*$/)?.[1]
+  const elKind = kindFromSelector(atDot?.selector, html, identName)
 
   if (/\.classList\.\w*$/.test(before)) {
     return { from: memberFrom(context).from, options: classListMembers, validFor: /^\w*$/ }
@@ -304,7 +328,7 @@ export function domCompletionSource(context: CompletionContext, selectors: strin
   }
 
   if (/(?:document\.)?(?:querySelector|getElementById|createElement|closest)\s*\((?:[^)(]|\([^)(]*\))*\)\s*\??\s*\.\w*$/.test(before)) {
-    return { from: memberFrom(context).from, options: elementMembers, validFor: /^\w*$/ }
+    return { from: memberFrom(context).from, options: elementMembersFor(elKind), validFor: /^\w*$/ }
   }
   if (/(?:document\.)?querySelectorAll\s*\((?:[^)(]|\([^)(]*\))*\)\s*\??\s*\.\w*$/.test(before)) {
     return { from: memberFrom(context).from, options: nodeListMembers, validFor: /^\w*$/ }
@@ -322,7 +346,8 @@ export function domCompletionSource(context: CompletionContext, selectors: strin
       return { from: memberFrom(context).from, options: nodeListMembers, validFor: /^\w*$/ }
     }
     if (bound.elements.has(name) || bound.lists.has(name)) {
-      return { from: memberFrom(context).from, options: elementMembers, validFor: /^\w*$/ }
+      const boundKind = kindFromSelector(finds.get(name)?.selector, html, name)
+      return { from: memberFrom(context).from, options: elementMembersFor(boundKind), validFor: /^\w*$/ }
     }
   }
 

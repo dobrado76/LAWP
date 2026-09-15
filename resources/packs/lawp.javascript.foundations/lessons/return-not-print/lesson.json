@@ -39,7 +39,7 @@
       "id": "say-status",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Return `\"locked\"` from `status`, then `Player.say` that string. Stand on the beacon too.",
+      "promptMd": "> Return `\"locked\"` from `status`, then `Player.say` that string. Walk south onto the beacon.",
       "files": [
         {
           "path": "files/main.js",
@@ -59,12 +59,12 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "return the string. Then pass it to Player.say."
+          "md": "return the string. Then pass it to Player.say. The fox starts one cell north of the beacon."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "function status() { return \"locked\" }\nPlayer.say(status())\nmodule.exports = { status }"
+          "md": "function status() { return \"locked\" }\nPlayer.say(status())\nPlayer.move(\"south\")\nmodule.exports = { status }"
         }
       ],
       "play": {
@@ -77,7 +77,7 @@
               "type": "fox",
               "props": {
                 "x": 2,
-                "y": 2,
+                "y": 1,
                 "rot": 0,
                 "label": "Fox"
               }

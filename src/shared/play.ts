@@ -13,6 +13,50 @@ export type PlayWorld = {
   view?: { grid?: { cols?: number; rows?: number } }
 }
 
+export type PlayProp = { path: string; op: string; value: string | number | boolean }
+
+export type PlayGoal = { all?: PlayProp[]; any?: PlayProp[]; none?: PlayProp[] }
+
+export type PlayObjective = { id: string; label: string; done: boolean }
+
+/** Goal rows as Studio lists them. A paired x+y is one “stand on” item. */
+export function playObjectiveItems(goal: PlayGoal | undefined, world: PlayWorld | null): PlayObjective[] {
+  const rows = goal?.all ?? []
+  if (!rows.length) return []
+  const used = new Set<string>()
+  const out: PlayObjective[] = []
+  for (const prop of rows) {
+    if (used.has(prop.path)) continue
+    const [id, key] = prop.path.split('.')
+    const pairKey = key === 'x' ? `${id}.y` : key === 'y' ? `${id}.x` : null
+    const pair = pairKey ? rows.find((r) => r.path === pairKey && r.op === 'eq') : undefined
+    if (pair && (key === 'x' || key === 'y')) {
+      used.add(`${id}.x`)
+      used.add(`${id}.y`)
+      const x = key === 'x' ? prop.value : pair.value
+      const y = key === 'y' ? prop.value : pair.value
+      const beacon = world?.parts.find((p) => p.type === 'beacon' && p.props.x === x && p.props.y === y)
+      const label = beacon ? `Stand on the beacon (${x}, ${y})` : `Stand on (${x}, ${y})`
+      const done = world
+        ? propertyHolds(world, { path: `${id}.x`, op: 'eq', value: x }) &&
+          propertyHolds(world, { path: `${id}.y`, op: 'eq', value: y })
+        : false
+      out.push({ id: `${id}.pos`, label, done })
+      continue
+    }
+    used.add(prop.path)
+    const part = world?.parts.find((p) => p.id === id)
+    const name = String(part?.props.label ?? id ?? 'it')
+    let label = `${name} ${key} = ${String(prop.value)}`
+    if (key === 'taken') label = `Collect the ${name.toLowerCase()}`
+    if (key === 'rot') label = `Face ${prop.value}°`
+    if (key === 'scale') label = `Scale to ${prop.value}`
+    if (key === 'say') label = `Say “${prop.value}”`
+    out.push({ id: prop.path, label, done: world ? propertyHolds(world, prop) : false })
+  }
+  return out
+}
+
 const DIRS: PlayDir[] = ['north', 'south', 'east', 'west']
 
 export function parsePlayLog(raw: unknown): PlayCommand[] {
@@ -78,8 +122,6 @@ function collectAt(world: PlayWorld, x: number, y: number): void {
     }
   }
 }
-
-export type PlayProp = { path: string; op: string; value: string | number | boolean }
 
 export function propertyHolds(world: PlayWorld, prop: PlayProp): boolean {
   const [id, key] = prop.path.split('.')

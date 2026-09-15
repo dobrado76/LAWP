@@ -54,6 +54,10 @@ First product minor. Package/spec numbering was previously `0.3.3`; this release
 - **Question types** pack copy is for learners (try every kind of question), not for adding a kind in source
 - JavaScript pack: `short-circuit`, `set-and-map`, `prevent-default`, `method-and-headers`
 - DOM lessons: Preview / HTML / CSS tabs so the page source is inspectable; JavaScript editor labeled **JavaScript · DOM** with completions for `document`, `querySelector`, the element it returns, and selectors from that page
+- DOM completions follow the selected node (`h1` does not offer `checked`); the cursor’s selector outlines that node in Preview
+- Every graded step (predict, question, fox walk, circuit, DOM) uses the same Submit → Correct! / Incorrect! → Next control on the **right** pane only; the header Check button is gone so you do not have to hunt for the Next arrow after SUCCESS
+- Play goals cannot start already ticked: `return-not-print` no longer places the fox on the beacon; a catalog test fails if any bundled play objective is true at start
+- Code editor includes a **Console** (stdout / stderr). The starter runs once on open so `console.log` is visible without a FAIL overlay. Cartridge paths such as `files/main.js` are hidden from learners
 
 ### Fixed
 

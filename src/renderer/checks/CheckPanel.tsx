@@ -14,6 +14,43 @@ import { DownIcon, IconBtn, UpIcon } from '../ui/IconBtn'
 
 type Choice = { id: string; md: string; image?: string }
 
+export function gradeCtaMode(result: 'pass' | 'fail' | null, canAdvance: boolean): 'submit' | 'next' | 'none' {
+  if (result === 'pass' && canAdvance) return 'next'
+  if (result !== 'pass') return 'submit'
+  return 'none'
+}
+
+export function GradeCta({
+  result,
+  canAdvance,
+  onSubmit,
+  onNext,
+  nextLabel
+}: {
+  result: 'pass' | 'fail' | null
+  canAdvance: boolean
+  onSubmit: () => void
+  onNext: () => void
+  nextLabel: string
+}) {
+  const mode = gradeCtaMode(result, canAdvance)
+  if (mode === 'next') {
+    return (
+      <button type="button" className="btn primary check-cta" onClick={onNext}>
+        {nextLabel}
+      </button>
+    )
+  }
+  if (mode === 'submit') {
+    return (
+      <button type="button" className="btn primary check-cta" onClick={onSubmit}>
+        Submit
+      </button>
+    )
+  }
+  return null
+}
+
 export function CheckPanel({
   check,
   value,
@@ -23,17 +60,21 @@ export function CheckPanel({
   onSubmit,
   onNext,
   nextLabel,
-  result
+  result,
+  canAdvance = true,
+  showCta = false
 }: {
   check: CheckPrompt
   value: unknown
   onChange: (next: unknown) => void
   packId: string
   lessonId: string
-  onSubmit: () => void
-  onNext: () => void
-  nextLabel: string
+  onSubmit?: () => void
+  onNext?: () => void
+  nextLabel?: string
   result: 'pass' | 'fail' | null
+  canAdvance?: boolean
+  showCta?: boolean
 }) {
   const kind = check.kind
   const current = value === undefined ? defaultCheckValue(check) : value
@@ -175,15 +216,9 @@ export function CheckPanel({
       ) : null}
       {kind === 'bins' ? <Bins check={check} value={asMap(current)} onChange={onChange} /> : null}
       {kind === 'venn' ? <Venn check={check} value={asMap(current)} onChange={onChange} /> : null}
-      {result === 'pass' ? (
-        <button type="button" className="btn primary check-cta" onClick={onNext}>
-          {nextLabel}
-        </button>
-      ) : (
-        <button type="button" className="btn primary check-cta" onClick={onSubmit}>
-          Submit
-        </button>
-      )}
+      {showCta && onSubmit && onNext ? (
+        <GradeCta result={result} canAdvance={canAdvance} onSubmit={onSubmit} onNext={onNext} nextLabel={nextLabel ?? 'Next'} />
+      ) : null}
     </div>
   )
 }

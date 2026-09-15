@@ -20,6 +20,7 @@ import {
   type EditorLanguage
 } from './languages'
 import type { EditorApi } from './apis'
+import { inspectSelectorAt, type InspectHit } from './domKind'
 import { collectIssues, LINT_PAUSE_MS, syntaxLinter, type EditorIssue } from './lint'
 import { lawpEditorTheme } from './theme'
 
@@ -35,6 +36,8 @@ type Props = {
   readOnly?: boolean
   api?: EditorApi
   selectors?: string[]
+  pageHtml?: string
+  onInspect?: (hit: InspectHit | null) => void
 }
 
 const playLine = new Compartment()
@@ -47,11 +50,13 @@ function playLineExt(line?: number) {
   })
 }
 
-export function CodeEditor({ value, onChange, language, engine, path, highlightLine, readOnly, api, selectors }: Props) {
+export function CodeEditor({ value, onChange, language, engine, path, highlightLine, readOnly, api, selectors, pageHtml, onInspect }: Props) {
   const host = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
+  const onInspectRef = useRef(onInspect)
+  onInspectRef.current = onInspect
   const [issues, setIssues] = useState<EditorIssue[]>([])
   const lang = (EDITOR_LANG_SET.has(language as EditorLanguage)
     ? language
@@ -94,7 +99,7 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
           bracketMatching(),
           closeBrackets(),
           keymap.of([...closeBracketsKeymap, ...completionKeymap, ...defaultKeymap, ...historyKeymap, indentWithTab]),
-          languageExtension(lang, api, { selectors }),
+          languageExtension(lang, api, { selectors, html: pageHtml }),
           lawpEditorTheme,
           lintGutter(),
           syntaxLinter(lintCtx),
@@ -104,6 +109,10 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
           EditorView.updateListener.of((u: ViewUpdate) => {
             if (u.docChanged) onChangeRef.current(u.state.doc.toString())
             if (u.docChanged) schedulePausedLint(u.state)
+            if ((u.docChanged || u.selectionSet) && api === 'dom-v1') {
+              const pos = u.state.selection.main.head
+              onInspectRef.current?.(inspectSelectorAt(u.state.doc.toString(), pos))
+            }
           })
         ]
       })
@@ -111,6 +120,9 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
     viewRef.current = view
     showHardIssues(view.state)
     schedulePausedLint(view.state)
+    if (api === 'dom-v1') {
+      onInspectRef.current?.(inspectSelectorAt(view.state.doc.toString(), view.state.selection.main.head))
+    }
     return () => {
       if (pauseTimer.current) clearTimeout(pauseTimer.current)
       view.destroy()
@@ -118,7 +130,7 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
     }
     // language / readOnly / api recreate; value is synced below
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, readOnly, api, selectors?.join('\0')])
+  }, [lang, readOnly, api, selectors?.join('\0'), pageHtml])
 
   useEffect(() => {
     const view = viewRef.current
@@ -149,7 +161,6 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
   const tone = !first ? 'is-ok' : first.incomplete ? 'is-hint' : 'is-error'
   return (
     <div className="code-editor">
-      {path ? <label>{path}</label> : null}
       <div className="code-host" ref={host} />
       <button
         type="button"

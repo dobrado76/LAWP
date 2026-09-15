@@ -686,13 +686,13 @@ assert.ok(log.filter((row) => row.op === 'move' && row.dir === 'south').length >
         ),
         playCode({
           id: 'say-status',
-          prompt: '> Return `"locked"` from `status`, then `Player.say` that string. Stand on the beacon too.',
-          world: gridWorld([fox(2, 2), beacon(2, 2)]),
+          prompt: '> Return `"locked"` from `status`, then `Player.say` that string. Walk south onto the beacon.',
+          world: gridWorld([fox(2, 1), beacon(2, 2)]),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 2), at('fox', 'say', 'locked')] },
           hidden: true,
           hints: hints(
-            'return the string. Then pass it to Player.say.',
-            { level: 4, kind: 'assist', md: 'function status() { return "locked" }\nPlayer.say(status())\nmodule.exports = { status }' }
+            'return the string. Then pass it to Player.say. The fox starts one cell north of the beacon.',
+            { level: 4, kind: 'assist', md: 'function status() { return "locked" }\nPlayer.say(status())\nPlayer.move("south")\nmodule.exports = { status }' }
           )
         })
       ]
