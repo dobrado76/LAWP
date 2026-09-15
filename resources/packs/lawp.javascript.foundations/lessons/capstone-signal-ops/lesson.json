@@ -25,7 +25,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Three files, one kit\n\n`walk.mjs` exports `walk(dirs)` → `{ x, y }` from the origin. `scrub.mjs` exports `scrubLog(text)` → unique trimmed sorted names. `main.mjs` imports both.\n\nPrint `walk` of east×3 + south×2 as `3,2`, then a newline, then `scrubLog` of `b\\na\\nb` (`a` then `b`). Hidden tests import those two modules. They do not parse your console art.\n\nThe desk ships a fox walker and a log scrubber as two files. Write a short Why below: why `walk` is testable without the stage."
+      "md": "## Three files, one kit\n\n`walk.mjs` exports `walk(dirs)` → `{ x, y }` from the origin. `scrub.mjs` exports `scrubLog(text)` → unique trimmed sorted names. `main.mjs` imports both. The desk ships a fox walker and a log scrubber as two files. Hidden tests import those two modules. They do not parse your console art.\n\nWhy it bites: putting both functions in `main.mjs` only, or printing pretty labels, fails the imports. `walk` is testable without the stage because it returns data. The stage is still useful when you want to *see* a fox — that is a different job from proving the math.\n\n```javascript\nimport { walk } from \"./walk.mjs\"\nimport { scrubLog } from \"./scrub.mjs\"\nconst p = walk([\"east\", \"east\", \"east\", \"south\", \"south\"])\nconsole.log(p.x + \",\" + p.y)     // 3,2\nconsole.log(scrubLog(\"b\\na\\nb\")) // a then b\n```\n\nThe common mistake is leaving `walk` as `{ x: 0, y: 0 }` and `scrubLog` as the raw text. On Try, print `3,2` then a newline then `a` newline `b`. Write a short Why: why `walk` is testable without the stage."
     },
     {
       "type": "predict",

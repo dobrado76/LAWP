@@ -2,13 +2,13 @@
   "id": "values",
   "title": "Values you can see",
   "level": "beginner",
-  "estimatedMinutes": 240,
+  "estimatedMinutes": 255,
   "skillIds": ["js.values", "js.flow"],
   "modules": [
     {
       "id": "kinds",
       "title": "Kinds of values",
-      "lessonIds": ["values-and-typeof", "names-let-const", "strings-and-templates", "numbers-and-nan"]
+      "lessonIds": ["values-and-typeof", "names-let-const", "strings-immutable", "strings-and-templates", "numbers-and-nan"]
     },
     {
       "id": "compare",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `then` is not a timeout\n\nAfter the stack clears, JavaScript empties the **microtask** queue (`promise.then`, `queueMicrotask`) *before* the next timer. A `then` is a note on a faster tray than `setTimeout`.\n\nOrder on the desk: sync → `then` → `setTimeout`. The fox files a promise, then asks the desk to wait zero ticks. The promise lamp still lights first."
+      "md": "## `then` is not a timeout\n\nAfter the stack clears, JavaScript empties the **microtask** queue — `promise.then`, `queueMicrotask` — *before* the next timer. A `then` is a note on a faster tray than `setTimeout`. They are not two names for the same list. The runtime drains every waiting microtask, then serves one macrotask such as a timeout, then checks microtasks again.\n\nWhy it bites: the fox files a promise and also asks the desk to wait zero ticks. If you treat those as the same tray, you light the timeout lamp first and stamp a heading that the live page would not have written yet. A signal board that paints “ready” from `setTimeout(0)` can flash before the `then` that actually holds the beacon list, and the fox walks on stale names.\n\n```javascript\nconsole.log(\"sync\")\nPromise.resolve().then(() => {\n  console.log(\"then\") // microtask — before the timer\n})\nsetTimeout(() => {\n  console.log(\"timeout\")\n}, 0)\n// prints: sync, then, timeout\n```\n\nThe common mistake is lining `then` up behind `setTimeout` because both “feel later.” On Try, light the desk in real event-loop order: sync, then `then`, then timeout. The predict question asks which queue should light next after the sync call. Do not invent a fourth lamp — three trays, that order."
     },
     {
       "type": "activity",

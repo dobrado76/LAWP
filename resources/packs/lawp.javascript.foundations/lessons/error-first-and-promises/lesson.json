@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.node.fs",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## From callbacks to promises\n\nOld Node: `fs.readFile(path, (err, data) => …)`. The first argument is the error, or `null` when the read worked. New style: `await fs.promises.readFile(path, \"utf8\")` and `try/catch`.\n\nYou still read the same fixture. The promise version returns text instead of stuffing it into a callback. The source must mention `promises` so the habit is visible.\n\nThe desk used to check `err` first. Now the fox walk slip is awaited: read `note.txt`, trim, print `north`."
+      "md": "## From callbacks to promises\n\nOld Node: `fs.readFile(path, (err, data) => …)`. The first callback argument is an error or `null` when the read worked. The bytes or text come second, and only if `err` is null. New style: `await fs.promises.readFile(path, \"utf8\")` and `try/catch`. You still read the same fixture. The promise version returns text instead of stuffing it into a callback.\n\nWhy it bites: the desk used to check `err` first. If you treat the first callback argument as the file text, a failed read looks like a heading and the fox walk slip is an Error object. If you skip `fs.promises` and use the callback form, the hidden test fails because the source must mention `promises`. Morning shift then waits on a callback that never exported a string.\n\n```javascript\nconst fs = require(\"fs\")\nasync function load() {\n  const text = await fs.promises.readFile(\"note.txt\", \"utf8\")\n  return text.trim()\n}\nload() // \"north\"\n```\n\nThe common mistake is `fs.readFile` with a callback, or returning a placeholder. On Try, `async function load()` must use `fs.promises.readFile` to read `note.txt`. Print trimmed `north`. Await the read, then `trim()` the text. The fox walk slip is awaited now. Do not stuff the bytes into a callback."
     },
     {
       "type": "predict",
@@ -47,7 +47,7 @@
       "id": "promises-read",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `async function load()` uses `fs.promises` to read `note.txt`. Print trimmed `north`.",
+      "promptMd": "> `async function load()` must use `fs.promises.readFile` to read `note.txt`. Print trimmed `north`.",
       "files": [
         {
           "path": "files/main.js",

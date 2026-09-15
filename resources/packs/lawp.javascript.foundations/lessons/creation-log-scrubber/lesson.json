@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A tool you keep\n\n`scrub(input, output)` reads UTF-8 from `input`, cleans names the same way as the transfer lesson, and writes that text to `output`. The next program can open the file. Printing names is not enough.\n\nPrint `ok` after writing `clean.txt` from `messy.txt`. Reuse a `clean` helper if you want — the hidden test calls `scrub` and then reads the file it wrote.\n\nNight shift leaves `clean.txt` on the desk. Morning shift opens that file. They do not re-read the messy log."
+      "md": "## A tool you keep\n\n`scrub(input, output)` reads UTF-8 from `input`, cleans names the same way as the transfer lesson, and writes that text to `output`. The next program can open the file. Printing names is not enough. Night shift leaves `clean.txt` on the desk. Morning shift opens that file. They do not re-read the messy log.\n\nWhy it bites: `console.log` of the cleaned list is a notebook, not the kept list. A later program that `readFileSync`s the output path still sees the old mess if you never wrote. The hidden test calls `scrub` and then reads the file it wrote — stdout is ignored for the names.\n\n```javascript\nconst fs = require(\"fs\")\nfunction scrub(input, output) {\n  const text = fs.readFileSync(input, \"utf8\")\n  fs.writeFileSync(output, clean(text))\n}\n// morning shift opens output, not stdout\n```\n\nThe common mistake is only printing. On Try, `scrub(\"messy.txt\", \"clean.txt\")` writes the clean list. Print `ok` after the write. Reuse a `clean` helper if you want — trim, drop blanks, unique, sort."
     },
     {
       "type": "predict",

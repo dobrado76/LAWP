@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.values",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `?.` asks first\n\n`signal.beacon.name` throws the moment `signal.beacon` is `undefined`. `signal?.beacon?.name` stops at the first missing link and hands back `undefined` instead of throwing.\n\n`?.` does **not** supply a default. It only avoids the crash. Pair it with `??` when you want a fallback:\n\n```\nsignal?.beacon?.name ?? \"unknown\"\n```\n\nThere are two more forms: `fn?.()` calls only if `fn` exists, and `list?.[0]` indexes only if `list` exists."
+      "md": "## `?.` asks first\n\n`signal.beacon.name` throws the moment `signal.beacon` is `undefined`. `signal?.beacon?.name` stops at the first missing link and hands back `undefined` instead of throwing. That is all it does.\n\n`?.` does **not** supply a default. An empty name `\"\"` is a real reading, not a missing beacon. Pair the chain with `??` when you want a fallback only for `null` or `undefined`. `||` would hide `\"\"` and `0`.\n\n```javascript\nconst s = {}\ns.beacon.name              // TypeError\ns?.beacon?.name            // undefined\ns?.beacon?.name ?? \"unknown\"  // \"unknown\"\n```\n\nThe common mistake is `signal.beacon.name` and a crash, or using `||` so an empty name becomes `unknown`. On Try, `beaconName(signal)` must use `?.` and `??`. Missing signal or missing beacon gives `\"unknown\"`. An empty name stays empty."
     },
     {
       "type": "predict",
@@ -37,7 +37,8 @@
           "misconceptionId": "optional-chain-defaults"
         }
       ],
-      "answer": "undef"
+      "answer": "undef",
+      "explainMd": "`?.` stops at the first missing link and returns `undefined`. It does not throw, and it does not invent a default string."
     },
     {
       "type": "check",
@@ -68,7 +69,7 @@
       "id": "beacon-name",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `beaconName(signal)` returns the beacon name. Missing signal or missing beacon gives `\"unknown\"`, but an empty name stays empty. Print `beaconName({ beacon: { name: \"north\" } })`.",
+      "promptMd": "> `beaconName(signal)` returns the beacon name using `?.` and `??`. Missing signal or missing beacon gives `\"unknown\"`, but an empty name stays empty. Print `beaconName({ beacon: { name: \"north\" } })`.",
       "files": [
         {
           "path": "files/main.js",

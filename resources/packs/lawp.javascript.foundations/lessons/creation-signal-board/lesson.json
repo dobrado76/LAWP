@@ -20,7 +20,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A board you keep\n\nAdd one `li` for each starter name already in `#seeds` (comma-separated), then keep the filter from the last lesson: `#q` hides non-matches.\n\nThe board is yours — export later from Studio. Split the seed line, grow the list as nodes, then let the filter hide what does not match. Do not paste the names as one innerHTML string."
+      "md": "## A board you keep\n\nAdd one `li` for each starter name already in `#seeds` (comma-separated), then keep the filter from the last lesson: `#q` hides non-matches. Split the seed line, trim each name, grow the list as nodes. The board is yours — export later from Studio. Starter names should become one `li` per name, not one paragraph of comma text.\n\nWhy it bites: if you paste `North,East,West` as one `innerHTML` string, you get a single blob or parsed markup, and the filter cannot hide `West` alone. If you skip the filter, typing `w` still shows every row. Night shift opens the kept board and cannot find the west lamp because the seeds never became rows.\n\n```javascript\nconst list = document.querySelector(\"#list\")\nconst names = document.querySelector(\"#seeds\").textContent\n  .split(\",\")\n  .map((s) => s.trim())\nfor (const name of names) {\n  const li = document.createElement(\"li\")\n  li.textContent = name\n  list.append(li)\n}\n```\n\nThe common mistake is leaving `#list` empty, or dumping the seed line into one element. On Try, build `#list` from `#seeds` text, and filter with `#q`. Create an `li` for each trimmed name and append it. Then bind the same hide-on-input filter: typing `w` should leave `West` visible. Do not paste the names as one innerHTML string."
     },
     {
       "type": "predict",

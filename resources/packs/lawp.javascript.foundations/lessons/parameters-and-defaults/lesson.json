@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.functions"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A function that walks `n` steps\n\n`function walk(n = 1)` uses `1` when you omit `n`. Call `Player.move(\"east\")` that many times. Do not copy-paste five `move` lines if a parameter will do."
+      "md": "## A function that walks `n` steps\n\n`function walk(n = 1)` names a parameter and a default in the same list. When you write `walk(3)`, `n` is `3`. When you write `walk()` with nothing in the parentheses, `n` becomes `1`. The default lives in the signature, not in an `if` inside the body. Then call `Player.move(\"east\")` that many times.\n\nWhy it bites: five pasted `Player.move(\"east\")` lines drift the moment the beacon moves. A `walk` that ignores `n` always takes one step, so `walk(3)` stops short of x=3 and `walk()` with no args is indistinguishable from a hardcoded single move.\n\n```javascript\nfunction walk(n = 1) {\n  for (let i = 0; i < n; i++) {\n    Player.move(\"east\")\n  }\n}\nwalk(3)  // three steps\nwalk()   // one step — the default filled in\n```\n\nOn Try, write `walk(n = 1)` that moves east `n` times, then call `walk(3)` to reach x=3. The hidden test also calls `walk()` with no arguments and expects one move. Put the default in the parameter list — do not copy-paste five `move` lines if a parameter will do."
     },
     {
       "type": "predict",
@@ -38,7 +38,7 @@
       "id": "walk-n",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Write `walk(n = 1)` that moves east `n` times. Call `walk(3)` to reach x=3.",
+      "promptMd": "> Write `walk(n = 1)` that moves east `n` times. Call `walk(3)` to reach x=3. The default must be in the parameter list — `walk()` with no args must move once.",
       "files": [
         {
           "path": "files/main.js",

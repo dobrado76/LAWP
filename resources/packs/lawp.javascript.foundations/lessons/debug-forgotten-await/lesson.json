@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The key is “collected” too late\n\n`Player.wait` **logs when the timer finishes**, not when you call it. If you forget `await`, the next `move` is written first. The story says: say `keyed` only after the wait, *then* walk onto the key.\n\nFix the starter so the log is wait → say → move. The fox stands just north of the key. A missing `await` makes the walk happen before the desk stamps the wait."
+      "md": "## The key is “collected” too late\n\n`Player.wait` **logs when the timer finishes**, not when you call it. If you forget `await`, the next `move` is written at once. The wait line appears later, when the timer resolves. The story says: say `keyed` only after the wait, *then* walk onto the key. The honest log is wait → say → move.\n\nWhy it bites: the fox stands just north of the key at (2, 4). A missing `await` makes the walk happen before the desk stamps the wait. The stage shows the key taken while the pause is still pending, so the replay says the fox grabbed the key during the radio check. Night shift then files “collected” on a slip that was not yet stamped.\n\n```javascript\nasync function collect() {\n  Player.wait(1) // forgot await — move is logged first\n  Player.say(\"keyed\")\n  Player.move(\"south\")\n}\n// broken log: say, move, then wait\n// fixed: await Player.wait(1), then say, then move\n```\n\nThe common mistake is calling `wait` like a sync pause. On Try, fix `collect()` so you await the wait, `Player.say(\"keyed\")`, then move south onto the key at (2, 4). The starter already calls `wait` without awaiting it. One south step is enough — the key and beacon share that cell."
     },
     {
       "type": "predict",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Call, then see\n\n`Player.move` walks the fox one cell. The beacon stays put — you walk onto it.\n\n- `\"east\"` increases **x**\n- `\"south\"` increases **y**"
+      "md": "## Call, then see\n\n`Player.move` is a call that walks the fox one cell. The name without parentheses does nothing on the field. Each call takes a heading string. `\"east\"` increases **x**. `\"south\"` increases **y**. The beacon stays put — you walk onto it.\n\nWhy it bites: one leftover `move` from a previous attempt leaves the fox on a tree or a rock. Those cells block. The coin on the way is optional scenery. A fox that never reaches (3, 2) never lights the beacon, even if the heading list looks right on paper.\n\n```javascript\nPlayer.move(\"east\")   // x goes up by 1\nPlayer.move(\"south\")  // y goes up by 1\n// start (0, 0) → three east, two south → (3, 2)\n```\n\nOn Try, walk the fox onto the beacon at `(3, 2)`. You need three east calls and two south calls. Order does not matter as long as you stay off the trees and rocks. The owl is scenery. The starter already takes one east step — keep calling until the fox stands on the lamp."
     },
     {
       "type": "predict",

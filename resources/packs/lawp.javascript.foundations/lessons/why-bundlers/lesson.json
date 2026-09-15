@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The browser has no `require` of your files\n\nA page can load one script URL (or native ESM URLs you list). `require(\"./walker.js\")` is a Node idea. The browser does not walk a folder of files the way Node does.\n\nA **bundler** follows your `import` graph and emits files the browser can load. This lesson does not run a bundler. It asks you to name the gap.\n\nThe fox walker lives in `walker.mjs`. On the desk, Node can `import` it. A plain page cannot `require` that folder unless you bundle or ship real ESM URLs."
+      "md": "## The browser has no `require` of your files\n\nA page can load one script URL (or native ESM URLs you list). `require(\"./walker.js\")` is a Node idea. The browser does not walk a folder of files the way Node does. The fox walker lives in `walker.mjs`. On the desk, Node can `import` it. A plain page cannot `require` that folder unless you bundle or ship real ESM URLs.\n\nWhy it bites: people think a bundler exists only to minify. Minify is extra. The first problem is the loader. A **bundler** follows your `import` graph and emits files the browser can load. You can also ship native ESM with import maps. The gap is still: the browser is not Node’s module loader.\n\n```javascript\n// Node can do this:\nconst walk = require(\"./walker.js\")\n// a plain page cannot require a folder of files\n// a bundler follows import and emits one (or a few) URLs\n```\n\nThis lesson does not run a bundler. It asks you to name the gap. The common mistake is “minify is the only reason.” On Learn, pick why front-end apps use a bundler (or native ESM URLs)."
     },
     {
       "type": "predict",

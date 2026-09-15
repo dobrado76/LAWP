@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Cleanup, then fail\n\n`finally` runs whether `try` threw or not. Use it to push a clear note after an attempt.\n\nIf you still want the caller to see the error, throw again after cleanup. `finally` is not a catch that swallows the fault.\n\nThe desk wipes the clipboard (`\"clear\"`) even when the attempt fails. Then it can still rethrow so the night log shows the fault."
+      "md": "## Cleanup, then fail\n\n`finally` is the block that always runs after `try`, whether that `try` threw or finished cleanly. Use it for cleanup you cannot skip: wipe the clipboard, close a drawer, push a clear note. It is not a second `catch`. It does not swallow the fault. After cleanup, the error still leaves the function unless you caught it yourself.\n\nIf you still want the caller to see the error, let it rethrow — or throw again after cleanup. The desk wipes the clipboard (`\"clear\"`) even when the attempt fails. Then the fault can still reach the night log. Skip `finally` and a failed attempt leaves the clipboard dirty; swallow the throw inside `attempt` and the caller never learns the walk broke.\n\n```javascript\nconst notes = []\nfunction attempt() {\n  try { throw new Error(\"x\") }\n  finally { notes.push(\"clear\") }  // runs even though try threw\n}\ntry { attempt() } catch (e) {}\nnotes[0]  // \"clear\" — cleanup happened, then the throw left\n```\n\nA common mistake is to throw inside `attempt` with no `finally`, so `notes` stays empty, or to catch inside `attempt` and hide the error. On Try, `attempt` tries a throw, `finally` pushes `\"clear\"` into `notes`, then the throw leaves. Catch outside and print `notes[0]`."
     },
     {
       "type": "predict",

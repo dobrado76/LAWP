@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## You write a test the hidden runner also runs\n\n`cases.json` is a fixture: a list of `{ dirs, n }` records. Read that file and assert `walkLength` for each row. You do not type the cases into the test by hand if the file already holds them.\n\nPrint `ok` when every fixture case passes. A hidden test is a file you cannot edit. The grader runs it after your program.\n\nThe desk keeps walk lengths in `cases.json`. The fox route `[\"east\"]` must be length `1` even when no one is watching the stage."
+      "md": "## You write a test the hidden runner also runs\n\n`cases.json` is a fixture: a list of `{ dirs, n }` records. Read that file and assert `walkLength` for each row. You do not type the cases into the test by hand if the file already holds them. The desk keeps walk lengths in that file. The fox route `[\"east\"]` must be length `1` even when no one is watching the stage.\n\nWhy it bites: a single hardcoded `assert` only proves the sample you typed. A fixture is data the test reads. A hidden test is a file the grader runs that you cannot edit. Both sit after your program. If `walkLength` is still `return 0`, every row fails.\n\n```javascript\nconst rows = JSON.parse(fs.readFileSync(\"cases.json\", \"utf8\"))\nfor (const c of rows) {\n  assert.strictEqual(walkLength(c.dirs), c.n)\n}\n```\n\nThe common mistake is ignoring `cases.json` and asserting one line you made up. On Try, implement `walkLength` and loop the fixture. Print `ok` when every row passes."
     },
     {
       "type": "predict",

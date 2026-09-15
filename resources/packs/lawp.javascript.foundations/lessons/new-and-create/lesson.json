@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Two ways to set the prototype\n\n`new Fn()` runs `Fn` and sets the instance proto to `Fn.prototype`.\n\n`Object.create(proto)` makes an object whose proto is `proto` and does not run a constructor. Use `create` when you want a chain without `new`.\n\n`Object.create(null)` has no prototype — a clean dictionary. The fox can store headings without inheriting `toString` from `Object.prototype`."
+      "md": "## Two ways to set the prototype\n\n`new Fn()` runs `Fn` as a constructor and sets the instance’s prototype to `Fn.prototype`. `Object.create(proto)` makes an object whose prototype is `proto` and does **not** run a constructor. Use `create` when you want a chain without `new`. Both set `[[Prototype]]`. Only `new` also runs setup code.\n\n`Object.create(null)` has no prototype — a clean dictionary. The fox can store headings without inheriting `toString` from `Object.prototype`, so a later `for...in` or a stray `\"toString\"` key does not lie. A child made with `Object.create({ kind: \"beacon\" })` can still read `kind` even though that field is not its own. Own-field copies hide the chain this lesson is teaching.\n\n```javascript\nconst child = Object.create({ kind: \"beacon\" })\nchild.kind              // \"beacon\" — read from the prototype\nObject.hasOwn(child, \"kind\")  // false — not an own field\nObject.create(null)     // no prototype — a clean dictionary\n```\n\nA common mistake is to `return { kind: \"beacon\" }` so `kind` is own and `Object.create` never appears. On Try, `child()` returns `Object.create({ kind: \"beacon\" })`. Print `child().kind`."
     },
     {
       "type": "predict",

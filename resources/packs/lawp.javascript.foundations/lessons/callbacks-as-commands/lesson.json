@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.functions",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A table of functions\n\n`const cmds = { go(dir) { Player.move(dir) }, turn() { Player.rotate(90) } }` stores functions under names. You look up a name and call it. That is how a small language of stage commands stays data.\n\nThe name without `()` is the function value. You still have to call it.\n\nThe desk files `go` and `turn` on a clipboard. The fox only moves when you say `cmds.go(\"east\")`, not when you glance at `cmds.go`."
+      "md": "## A table of functions\n\nA **command table** is an object whose fields are functions. `const cmds = { go(dir) { Player.move(dir) }, turn() { Player.rotate(90) } }` files two verbs under names. You look a name up, then call it. That is how a small language of stage commands stays data instead of a pile of copy-paste moves.\n\nThe name without `()` is the function value. Glancing at `cmds.go` does not walk the fox. Parentheses are what run it. The desk files `go` and `turn` on a clipboard. If a later plan says the word `go`, the runner can look it up. If you never call through the table, the clipboard is decoration and the fox stands still.\n\n```javascript\nconst cmds = {\n  go(dir) { Player.move(dir) },\n  turn() { Player.rotate(90) }\n}\ncmds.go          // the function value — no step yet\ncmds.go(\"east\")  // now the fox walks east\n```\n\nA common mistake is to call `Player.move` and `Player.rotate` at the call site and leave `cmds.go` / `cmds.turn` empty. On Try, drive the walk only through those two table methods: three `cmds.go(\"east\")` calls, then `cmds.turn()`, so the fox reaches (3,0) facing 90°."
     },
     {
       "type": "predict",
@@ -68,7 +68,7 @@
       "id": "cmd-table",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Build `cmds.go` / `cmds.turn`. go east three times, turn, stand on (3,0) facing 90°.",
+      "promptMd": "> Build `cmds.go` / `cmds.turn`. Drive the walk only through `cmds.go(\"east\")` and `cmds.turn()` — not bare `Player.move` / `Player.rotate` at the call site. Reach (3,0) facing 90°.",
       "files": [
         {
           "path": "files/main.js",

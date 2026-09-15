@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## AAA on a route helper\n\n**Arrange** a list of dirs. **Act** by calling `walkLength`. **Assert** with `assert.strictEqual`. A failed assert throws. The process exits non-zero — it does not only print a sad line.\n\n`walkLength([\"east\", \"south\"])` is `2`. Print `pass` after your own assert in `main.js`. The hidden test also calls the function.\n\nThe fox walked two headings. A test that only `console.log`s `2` can lie. `assert` stops the run when the length is wrong."
+      "md": "## AAA on a route helper\n\n**Arrange** a list of dirs. **Act** by calling `walkLength`. **Assert** with `assert.strictEqual`. A failed assert throws. The process exits non-zero — it does not only print a sad line. The fox walked two headings. A test that only `console.log`s `2` can lie. `assert` stops the run when the length is wrong.\n\nWhy it bites: printing `pass` with a broken function still looks green on your screen. The hidden test also calls `walkLength`. If you skip the assert, you have a notebook, not a proof. Arrange a case you know, act, then assert the number.\n\n```javascript\nconst assert = require(\"assert\")\nfunction walkLength(dirs) { return dirs.length }\nassert.strictEqual(walkLength([\"east\", \"south\"]), 2)\n// throws if the length is not 2\n```\n\nThe common mistake is `return 0` and still printing `pass`. On Try, implement `walkLength`. Assert a case you know. Then print `pass`."
     },
     {
       "type": "predict",

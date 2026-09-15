@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Too much current\n\nIf current goes past the cap, wires and the lamp get hot. Brightness is not the only goal — **safe current** is part of the win."
+      "md": "## Too much current\n\nCurrent is not a score you maximize. If current goes past the cap, wires and the lamp heat up. Brightness is one goal; **safe current** is the other. In this one-cell loop, current is about `1 / ohms`. The cap we gave you is **2**, so ohms of `1` gives current `1` (bright enough and under the cap) while ohms of `0.25` gives current `4`.\n\nThis bites when you chase the brightest looking setting and pick `0.25` or `0`. The lamp may look great in a sloppy model, then the constraint fails. Heat is the real-world version of that failure. A brighter bulb that melts its own wire is not a brighter circuit you get to keep.\n\n```text\nbattery → resistor(1 Ω) → lamp → battery\ncurrent ≈ 1 / 1 = 1    (under the cap of 2)\n```\n\nA common mistake is setting resistance to `0` so current is huge, or to `0.25` so current is `4`. The question asks which move is safer when you want a brighter lamp in this one-cell loop. Pick the resistance that raises brightness without crossing `2`.\n"
     },
     {
       "type": "check",

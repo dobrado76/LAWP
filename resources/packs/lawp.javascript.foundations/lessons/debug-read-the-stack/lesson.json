@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The top line is the throw\n\nA stack lists calls from newest to oldest. The first `at step` line is where `throw` ran. Fix `step` so `\"east\"` is legal and `\"up\"` still throws.\n\nPrint `ok` after a good step. Do not throw on a compass heading.\n\nThe fox was told `\"east\"` and still crashed. The stack’s first `at` line points at `step`, not at the first function in the file."
+      "md": "## The top line is the throw\n\nA **stack trace** lists function calls from newest to oldest. The first `at` line after the message is usually where `throw` ran, not the first function in the file. Read that line. Fix that function. The rest of the stack is how you got there — useful, but not the crash site.\n\nThe fox was told `\"east\"` and still crashed. The stack’s first `at` line points at `step`. Someone left a blanket `throw` in that function, so a legal compass word dies the same way `\"up\"` should. The walk never prints `ok`, and the beacon stays dark. A debug desk that chases the file’s first function wastes the night on the wrong room.\n\n```javascript\nfunction step(dir) {\n  if (dir !== \"east\" && dir !== \"west\" && dir !== \"north\" && dir !== \"south\") {\n    throw new Error(\"bad\")\n  }\n  return dir  // \"east\" is legal — do not throw\n}\nstep(\"east\")  // returns \"east\"\n// step(\"up\")  // still throws\n```\n\nA common mistake is to throw on every call, or to remove the throw so `\"up\"` becomes legal too. On Try, fix `step` so `step(\"east\")` does not throw and you print `ok`. `step(\"up\")` must still throw."
     },
     {
       "type": "predict",

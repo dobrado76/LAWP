@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.async",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `await` a rejection inside `try`\n\n`await Promise.reject(new Error(\"lost\"))` throws into the async function. `try/catch` works the same as a sync throw. The rejection becomes an exception at the `await` line.\n\nPrint `lost` from the catch. On the desk, a lost key is a failed slip — you still handle it in the same function. It does not become `undefined` just because you skipped `try`."
+      "md": "## `await` a rejection inside `try`\n\n`await Promise.reject(new Error(\"lost\"))` throws into the async function. `try/catch` works the same as a sync throw. The rejection becomes an exception at the `await` line. If you do not catch it, the function’s own promise rejects — it does not quietly become `undefined`.\n\nWhy it bites: a lost key is a failed slip. If you skip `try` and assume a rejected `await` is `undefined`, the fox walk continues as if the key were in the drawer. Night shift then stamps `ok` on a desk that never held the key, or the rejection leaks out and the whole page shows an unhandled rejection instead of the word `lost`.\n\n```javascript\nasync function readKey() {\n  try {\n    await Promise.reject(new Error(\"lost\"))\n  } catch (e) {\n    return e.message // lost\n  }\n}\n```\n\nThe common mistake is `return \"lost\"` with no reject, or letting the await reject and hoping the value is empty. On Try, `readKey()` must `await Promise.reject(...)` inside `try/catch` and return `e.message`. Do not hard-code `return \"lost\"`. Print that message. Handle the failed slip in the same function."
     },
     {
       "type": "predict",
@@ -47,7 +47,7 @@
       "id": "catch-lost",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `readKey()` awaits a rejection `\"lost\"` and returns that message from `catch`. Print it.",
+      "promptMd": "> `readKey()` must `await Promise.reject(...)` inside `try/catch` and return `e.message`. Do not hard-code `return \"lost\"`. Print it.",
       "files": [
         {
           "path": "files/main.js",

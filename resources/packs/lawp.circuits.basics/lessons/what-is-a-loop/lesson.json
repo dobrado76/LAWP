@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A closed path\n\nA lamp lights only when charge can go **out** of the battery, through the parts, and **back**. That path is a series loop.\n\nResistance in the loop limits how much current flows. Lower resistance → more current → a brighter lamp — until something overheats. We will give you a **current limit of 2**."
+      "md": "## A closed path\n\nA lamp lights only when charge can leave the battery, pass through the parts, and return to the battery. That closed path is a series loop. An open gap anywhere on the loop means no current and a dark lamp. Resistance on the loop limits how much current flows. Lower resistance means more current and a brighter lamp — until something overheats.\n\nThis bites when you add a lamp but leave a gap, or when you drop resistance to zero to make it brightest. The first case never lights. The second case can push current past a safe cap. In these lessons the current limit is **2**. Brightness without that cap is not a win.\n\n```text\nbattery → resistor → lamp → battery\n```\n\nA common mistake is thinking brightness is the only goal. Safe current is part of the win. This page has no editor: read the loop idea, then go on to the experiment that asks you to brighten a lamp without crossing that cap.\n"
     }
   ],
   "description": "See how a closed path lets a lamp light."

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A name is a sticky note\n\n`total = 3 + 4` does the sum, then sticks the result on the name `total`. `print(total)` shows what the name holds. Printing a literal `7` without a name skips the idea."
+      "md": "## A name is a sticky note\n\nA name is a sticky note you press onto a value after you finish a calculation. The note does not do the math. It only remembers the result so you can use that result again without typing the work twice. `total = 3 + 4` computes the sum, then sticks `7` on the name `total`. `print(total)` shows whatever that name holds right now.\n\nThis bites when you print a hardcoded `7` and skip the name. The screen looks correct once, but nothing is storing the answer. Change the sum later and the printed digit stays stale, because you never attached a name to the result.\n\n```python\ntotal = 3 + 4\nprint(total)\n```\n\nA common mistake is treating `print` as the storage. Printing a literal skips the sticky-note idea entirely. The exercise asks you to compute `3 + 4` into the name `total`, then print that name so the output is `7` because of the stored value, not because you typed the digit yourself.\n"
     },
     {
       "type": "code",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Pause, yield, resume\n\n`function* steps() { yield \"east\"; yield \"south\" }` returns a generator. It does not return the first yield immediately.\n\n`for...of` pulls each yield. The fox walks what you yield.\n\n`function* route()` yields east, east, south. The beacon sits at (2, 1) when those three steps run."
+      "md": "## Pause, yield, resume\n\nA **generator** is a function you write with `function*` and `yield`. Calling it does not return the first yielded value. It returns a generator object you iterate. Each `yield` pauses and hands out one value. `for...of` pulls each yield until the generator is done.\n\nThe fox walks what you yield. `function* route()` yields east, east, south. The beacon sits at (2, 1) when those three steps run. If you only yield once, the fox stops short. If you `return` an array instead of yielding, `for...of` on the generator will not see those headings as a sequence of steps — you handed back one value and stopped.\n\n```javascript\nfunction* route() {\n  yield \"east\"\n  yield \"east\"\n  yield \"south\"\n}\n[...route()]  // [\"east\", \"east\", \"south\"]\n// route() itself is the generator, not the first heading\n```\n\nA common mistake is to yield only the first `\"east\"` and leave the other two steps out. On Try, write `function* route()` so it yields east twice and south once, then walk those yields to (2, 1)."
     },
     {
       "type": "predict",

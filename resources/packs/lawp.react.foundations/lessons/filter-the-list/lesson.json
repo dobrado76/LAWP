@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Keep what matches\n\n`filterList(items, q)` returns items that include `q`, joined by commas. For `l` that is `lamp,loop`."
+      "md": "## Keep what matches\n\nFilter means keep only the items that match a query, then show that shorter list. `filterList(items, q)` should return the matching items joined by commas. Matching here means the item includes the query string, so `\"l\"` keeps `\"lamp\"` and `\"loop\"` and drops `\"fuse\"`. The original array can stay as it was; you return a new, thinner result.\n\nThis bites when you return the whole list every time. The screen still shows `fuse`, so the query did no work. It also bites when you write a loop that rebuilds the list by hand and forget `filter` — the check looks for that word because the habit is the point of this step.\n\n```javascript\nfunction filterList(items, q) {\n  return items.filter((item) => item.includes(q)).join(\",\");\n}\n```\n\nA common mistake is joining every item, or hardcoding `\"lamp,loop\"`. Both skip the query. The exercise asks you to filter `[\"lamp\", \"fuse\", \"loop\"]` by `\"l\"` so the printed line is `lamp,loop`, using `filter`.\n"
     },
     {
       "type": "code",

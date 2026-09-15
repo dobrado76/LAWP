@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Text in, object out, text again\n\n`JSON.parse` turns a string into an object. Bad text throws a `SyntaxError` — there is no quiet `{}` fallback. `JSON.stringify` goes the other way.\n\nHere the JSON arrives as a string already, held in `raw`. Reading files comes later, in the Node track; today the only question is what the text becomes.\n\nA round-trip is not always lossless: `undefined`, functions, and `Map` values do not survive `stringify`."
+      "md": "## Text in, object out, text again\n\n`JSON.parse` turns a string into an object. Bad text throws a `SyntaxError` — there is no quiet `{}` fallback. `JSON.stringify` goes the other way. Here the JSON arrives as a string already, held in `raw`. Reading files comes later, in the Node track; today the only question is what the text becomes.\n\nWhy it bites: returning the raw string prints `{ \"name\": \"north\", \"kind\": \"beacon\" }` instead of the name. A later desk that expected `\"north\"` files the whole blob. Swallowing a parse error and returning `undefined` hides a broken payload. A round-trip is also not always lossless: `undefined`, functions, and `Map` values do not survive `stringify`.\n\n```javascript\nconst raw = '{ \"name\": \"north\", \"kind\": \"beacon\" }'\nJSON.parse(raw).name     // \"north\"\nJSON.parse(\"{\")          // throws SyntaxError\nJSON.stringify({ a: undefined })  // \"{}\" — field dropped\n```\n\n`readName(text)` must parse the JSON in `text` and return the `name` field. Print `readName(raw)` (`north`). Hidden tests also send `{\"name\":\"west\"}` and a broken `\"{\"` that must throw, not return undefined."
     },
     {
       "type": "predict",

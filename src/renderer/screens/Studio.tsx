@@ -6,6 +6,7 @@ import { applyPlayCommands, facingName, GRID_CELL_PX, clampGrid, playObjectiveIt
 import { DEFAULT_FLOOR, playKitLayerRank, playKitPiece, playKitSrc } from '@shared/playKit'
 import { IPC, invoke } from '../api'
 import { draftLessonKey, draftMatchesLesson, filesForLesson } from '@shared/draftBind'
+import { inferLessonBeats, type LessonBeat } from '@shared/lessonBeats'
 import { CheckPanel, GradeCta, lessonWorkVerdict, unansweredChecks } from '../checks/CheckPanel'
 import { CodeEditor } from '../editor/CodeEditor'
 import { inspectPage } from '../editor/pageSource'
@@ -94,6 +95,7 @@ export function Studio({
   const draftHold = useRef(false)
   /** State, not a ref: the Submit gate is computed from it during render. */
   const [touched, setTouched] = useState<Set<string>>(new Set())
+  const [beat, setBeat] = useState<LessonBeat>('learn')
   const runIdRef = useRef<string | undefined>(undefined)
 
   const lessonOrder = useMemo(() => {
@@ -265,6 +267,7 @@ export function Studio({
     setSubmitting(false)
     setRunNote('')
     setTouched(new Set())
+    setBeat('learn')
     void load(gen)
     return () => {
       workGen.current += 1
@@ -326,6 +329,10 @@ export function Studio({
     promptMd: String(b.promptMd ?? '')
   }))
   const checkOnly = checks.length > 0 && !activity && !code
+  const beats = useMemo(() => inferLessonBeats(lesson?.blocks ?? []), [lesson])
+  const paged = beats.length === 2
+  const onLearn = !paged || beat === 'learn'
+  const onTry = !paged || beat === 'try'
   const playable = Boolean(activity || code || checks.length)
   const nextLabel = nextId ? 'Next' : 'Return to library'
   const gradedChecks = checks.filter((ch) => (ch as { diagnostic?: boolean }).diagnostic !== true)
@@ -476,7 +483,7 @@ export function Studio({
     // on the button.
     if (unanswered.length) {
       setStatus('Answer first')
-      setWhy(answerFirstNote(unanswered.length, checkOnly))
+      setWhy(answerFirstNote(unanswered.length, checkOnly ? 'above' : paged ? 'learn' : 'left'))
       return
     }
     const gen = workGen.current
@@ -732,6 +739,7 @@ export function Studio({
           <strong>{lesson?.title ?? 'Lesson'}</strong>
           <span className="muted">
             {idx >= 0 ? `${idx + 1} / ${lessonOrder.length}` : ''}
+            {paged ? ` · ${beat === 'learn' ? 'Learn' : 'Try'}` : ''}
             {evidence ? ` · ${evidence}` : ''}
           </span>
         </div>
@@ -758,49 +766,45 @@ export function Studio({
 
       <div className="studio">
         <div className="pane teach">
+          {paged && onTry ? (
+            <button type="button" className="btn studio-back-idea" onClick={() => setBeat('learn')}>
+              Back to the idea
+            </button>
+          ) : null}
           {lesson?.blocks.map((b, i) => {
-            if (b.type === 'explain') return <div key={i} className="prose" dangerouslySetInnerHTML={{ __html: md(String(b.md)) }} />
+            if (b.type === 'explain') {
+              if (!onLearn) return null
+              return <div key={i} className="prose" dangerouslySetInnerHTML={{ __html: md(String(b.md)) }} />
+            }
             if (b.type === 'predict' && b.id) return null
             if (b.type === 'reflect') {
+              if (!onLearn) return null
               return <div key={i} className="prose" dangerouslySetInnerHTML={{ __html: md(String(b.promptMd ?? '')) }} />
             }
             return null
           })}
-          {activity?.predict && <Predict pred={activity.predict} value={predict} onChange={setPredict} />}
-          {activity && (
+          {activity?.predict && onLearn && !paged && <Predict pred={activity.predict} value={predict} onChange={setPredict} />}
+          {activity && onTry && (
             <div className="task prose" dangerouslySetInnerHTML={{ __html: md(activity.promptMd) }} />
           )}
-          {code?.play && <Objectives goal={code.play.goal} world={world ?? startWorld} />}
-          {code?.play?.guided && (
+          {code?.play && onTry && <Objectives goal={code.play.goal} world={world ?? startWorld} />}
+          {code?.play?.guided && onTry && (
             <p className="guide">East increases <strong>x</strong>. South increases <strong>y</strong>. Run to update the list.</p>
           )}
-          {code && !code.play && (
+          {code && !code.play && onTry && (
             <div
               className="task prose"
               dangerouslySetInnerHTML={{ __html: md(String(code.promptMd ?? '> Edit the file, then **Run**.')) }}
             />
           )}
-          {!checkOnly &&
-            checks.map((ch) => (
-              <CheckPanel
-                key={ch.id}
-                check={ch}
-                value={checkAns[ch.id]}
-                onChange={(next) => setCheckValue(ch.id, next)}
-                packId={packId}
-                lessonId={lessonId}
-                result={checkResult[ch.id] ?? null}
-                revealIds={revealAnswers[ch.id] ?? []}
-              />
-            ))}
           {checkOnly && checks.length === 1 && checkResult[checks[0]!.id] ? (
             <CheckVerdict result={checkResult[checks[0]!.id]!} />
           ) : null}
           {checkOnly && checks.length > 1 ? (
             <CheckTally checks={checks} results={checkResult} diagnostic={checks.every((ch) => (ch as { diagnostic?: boolean }).diagnostic)} />
           ) : null}
-          {!checkOnly && ctaResult ? <CheckVerdict result={ctaResult} /> : null}
-          {!nextId && canAdvance ? (
+          {onTry && !checkOnly && ctaResult ? <CheckVerdict result={ctaResult} /> : null}
+          {onTry && !nextId && canAdvance ? (
             <LessonComplete progress={progress} lessonId={lessonId} lessonOrder={lessonOrder} firstTry={firstTry} />
           ) : null}
           {hint && <div className="callout hint" dangerouslySetInnerHTML={{ __html: md(hint) }} />}
@@ -809,15 +813,15 @@ export function Studio({
         </div>
 
         <div className="pane work">
-          {world && isGrid && (
+          {onTry && world && isGrid && (
             <GridStage world={world} packId={packId} lessonId={lessonId} banner={banner} />
           )}
-          {world && activity && !isGrid && banner && (
+          {onTry && world && activity && !isGrid && banner && (
             <div className={`stage-banner ${banner.kind} is-inline`} role="status">
               <span>{banner.title}</span>
             </div>
           )}
-          {world && activity && !isGrid && (
+          {onTry && world && activity && !isGrid && (
             <div className="world">
               {world.parts.map((p) => {
                 const bright = Number(p.props.brightness ?? 0)
@@ -836,7 +840,7 @@ export function Studio({
               })}
             </div>
           )}
-          {activity?.world?.actions.map((a) => (
+          {onTry && activity?.world?.actions.map((a) => (
             <div key={a.id} className="action-group">
               <span className="muted">{a.label}</span>
               <div className="chips">
@@ -848,7 +852,7 @@ export function Studio({
               </div>
             </div>
           ))}
-          {draftReady && boundKey === draftLessonKey(packId, lessonId) && code?.preview?.kind === 'iframe' && (
+          {onTry && draftReady && boundKey === draftLessonKey(packId, lessonId) && code?.preview?.kind === 'iframe' && (
             <PageBoard
               key={lessonId}
               html={code.files?.find((f) => f.path.endsWith('.html'))?.contents ?? ''}
@@ -870,7 +874,7 @@ export function Studio({
               )}
             />
           )}
-          {draftReady && boundKey === draftLessonKey(packId, lessonId) && files.length > 0 && (
+          {onTry && draftReady && boundKey === draftLessonKey(packId, lessonId) && files.length > 0 && (
             <div className="code-work">
               {files.map((f) => (
                 <CodeEditor
@@ -896,7 +900,7 @@ export function Studio({
               <CodeConsole {...consoleOut} />
             </div>
           )}
-          {checkOnly &&
+          {(checkOnly || (paged && onLearn)) &&
             checks.map((ch) => (
               <CheckPanel
                 key={ch.id}
@@ -909,13 +913,28 @@ export function Studio({
                 revealIds={revealAnswers[ch.id] ?? []}
               />
             ))}
-          {runNote && <p className="run-note">{runNote}</p>}
-          {playable && (
+          {activity?.predict && paged && onLearn && <Predict pred={activity.predict} value={predict} onChange={setPredict} />}
+          {runNote && onTry && <p className="run-note">{runNote}</p>}
+          {paged && onLearn && playable ? (
+            <div className="studio-beat-cta">
+              <button
+                type="button"
+                className="btn primary check-cta"
+                disabled={submitBlocked}
+                title={submitBlocked ? answerFirstNote(unanswered.length, 'above') : undefined}
+                onClick={() => setBeat('try')}
+              >
+                Continue to the exercise
+              </button>
+              {submitBlocked ? <p className="check-cta-note">{answerFirstNote(unanswered.length, 'above')}</p> : null}
+            </div>
+          ) : null}
+          {playable && (!paged || onTry) && (
             <GradeCta
               result={ctaResult}
               canAdvance={canAdvance}
               busy={submitting}
-              blockedReason={submitBlocked ? answerFirstNote(unanswered.length, checkOnly) : undefined}
+              blockedReason={submitBlocked ? answerFirstNote(unanswered.length, checkOnly ? 'above' : paged ? 'learn' : 'left') : undefined}
               onSubmit={() => void submitWork()}
               onNext={advanceOrDone}
               nextLabel={nextLabel}
@@ -981,10 +1000,10 @@ function CheckTally({
 }
 
 /** Checks sit in the teach pane unless the lesson is nothing but checks. */
-function answerFirstNote(count: number, inline: boolean): string {
-  const where = inline ? 'above' : 'on the left'
-  if (count === 0) return `Answer the predict question ${where} first.`
-  return count === 1 ? `Answer the question ${where} first.` : `Answer the ${count} questions ${where} first.`
+function answerFirstNote(count: number, where: 'left' | 'above' | 'learn'): string {
+  const place = where === 'above' ? 'above' : where === 'learn' ? 'on Learn' : 'on the left'
+  if (count === 0) return `Answer the predict question ${place} first.`
+  return count === 1 ? `Answer the question ${place} first.` : `Answer the ${count} questions ${place} first.`
 }
 
 function LessonComplete({

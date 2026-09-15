@@ -2,8 +2,8 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
-  "estimatedMinutes": 18,
+  "taskRev": 4,
+  "estimatedMinutes": 16,
   "skillIds": [
     "js.values"
   ],
@@ -14,31 +14,79 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Text does not mutate in place\n\n`\"east\".toUpperCase()` returns a **new** string. The original stays `\"east\"`. A beacon tag is the same idea: you build a new label; you do not scratch the old letters off.\n\nA template literal drops a value into a string: `` `beacon:${name}` ``. The result is still text."
+      "md": "## Backticks insert a value\n\nOrdinary quotes keep `${name}` as letters — the dollar, the braces, and the word name. A **template literal** uses backticks. Only then does `${name}` become the value.\n\nThis is a different idea from last lesson. Immutability said a method returns a new string. Interpolation says *how* you build that new string when a name has to sit inside it. Quotes will not do that job, even if the text looks like a template.\n\n```javascript\nconst name = \"north\"\n\"beacon:${name}\"   // the characters beacon:${name}\n`beacon:${name}`   // beacon:north\n```\n\nA template builds a new label. It does not rewrite `name`. `tagBeacon` must use backticks so `tagBeacon(\"north\")` is `beacon:north`."
     },
     {
       "type": "predict",
-      "id": "string-immutable",
-      "promptMd": "After `let d = \"east\"; d.toUpperCase()`, what is `d`?",
+      "id": "quotes-vs-ticks",
+      "promptMd": "What does `\"beacon:${name}\"` return when `name` is `\"north\"`?",
       "kind": "mcq",
       "choices": [
         {
-          "id": "EAST",
-          "md": "`\"EAST\"`"
+          "id": "lit",
+          "md": "The characters `beacon:${name}` — quotes do not interpolate"
         },
         {
-          "id": "east",
-          "md": "`\"east\"` — the method returned a new string"
+          "id": "val",
+          "md": "`\"beacon:north\"`"
         }
       ],
-      "answer": "east"
+      "answer": "lit",
+      "explainMd": "Double quotes (and single quotes) do not run `${…}`. You get the dollar, the braces, and the word name. Backticks are what insert the value."
+    },
+    {
+      "type": "check",
+      "id": "tick-insert",
+      "kind": "cloze",
+      "promptMd": "Interpolation needs {{a}}. `\"beacon:${name}\"` is {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "backticks",
+              "md": "backticks"
+            },
+            {
+              "id": "double quotes",
+              "md": "double quotes"
+            },
+            {
+              "id": "plus signs",
+              "md": "plus signs"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "literal text",
+              "md": "literal text"
+            },
+            {
+              "id": "beacon:north",
+              "md": "beacon:north"
+            },
+            {
+              "id": "an error",
+              "md": "an error"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "backticks",
+        "b": "literal text"
+      },
+      "explainMd": "Only a template literal (backticks) replaces ${name}. Quotes keep those characters as text."
     },
     {
       "type": "code",
       "id": "tag-name",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `tagBeacon(\"north\")` returns `beacon:north`. Print that.",
+      "promptMd": "> `tagBeacon(name)` must return a template literal: backtick `beacon:` then `${name}` backtick — so `tagBeacon(\"north\")` is `beacon:north`. Quotes will print the letters `${name}`. Do not hard-code `\"beacon:north\"`. Print `tagBeacon(\"north\")`.",
       "files": [
         {
           "path": "files/main.js",
@@ -66,17 +114,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "The starter hands the name back unchanged. You need the name inside a longer label."
+          "md": "If you used double quotes, `${name}` stays letters. Switch the string to backticks."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "A template literal is wrapped in backticks and drops a value in with `${ }`."
+          "md": "A template is wrapped in backticks. `${name}` drops the argument in."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "`` `signal:${kind}` `` with `kind = \"low\"` builds `signal:low`."
+          "md": "With `kind = \"low\"`, backtick `signal:${kind}` backtick builds `signal:low`."
         },
         {
           "level": 4,
@@ -86,5 +134,5 @@
       ]
     }
   ],
-  "description": "Text can be a plain string or a template that fills in values."
+  "description": "Backticks insert a value into a new string. Quotes keep the dollar signs as letters."
 }

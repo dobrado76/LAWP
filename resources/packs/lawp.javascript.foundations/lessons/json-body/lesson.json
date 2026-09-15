@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.http"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `\"bad-json\"`.\n\n**Run the starter first.** It crashes, and the stack trace is the lesson: the rejection came out of `res.json()`, not out of `fetch`. The status was fine; the body was torn.\n\nGood `/beacons.json` still parses. The fox asked for a record and got a torn slip. Handle the tear. Do not pretend the body was `{}`."
+      "md": "## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `\"bad-json\"`. The fetch itself succeeded. The status was fine; the body was torn. **Run the starter first.** It crashes, and the stack trace is the lesson: the rejection came out of `res.json()`, not out of `fetch`. Good `/beacons.json` still parses. Do not invent `{}` for a torn body.\n\nWhy it bites: the fox asked for a record and got a torn slip. If you let the parse throw, the whole page dies. If you always return `\"bad-json\"`, the good list never paints. If you swallow the error and return `{}`, night shift files an empty beacon object and the walk log looks complete. Handle the tear. Do not pretend the body was empty.\n\n```javascript\nasync function safeRead(url) {\n  const res = await fetch(url)\n  try {\n    return await res.json()\n  } catch {\n    return \"bad-json\" // torn body, not a missing URL\n  }\n}\n```\n\nThe common mistake is wrapping `fetch` and not `res.json()`, or always returning `\"bad-json\"`. On Try, the starter throws on a torn body. Make `safeRead(\"/broken\")` return `\"bad-json\"`. Good JSON (for example `/beacons.json`) must still parse. Print the broken case. Guard the parse step — that is the line that crashes."
     },
     {
       "type": "predict",
@@ -46,7 +46,7 @@
       "id": "parse-safe",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> The starter throws on a torn body. Make `safeRead(\"/broken\")` return `\"bad-json\"` instead. Print it.",
+      "promptMd": "> The starter throws on a torn body. Make `safeRead(\"/broken\")` return `\"bad-json\"`. Good JSON (e.g. `/beacons.json`) must still parse — do not always return `\"bad-json\"`. Print the broken case.",
       "files": [
         {
           "path": "files/main.js",

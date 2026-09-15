@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.test"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Count the work before you rewrite it\n\nWall-clock timing with `Date.now()` is noisy: the same loop gives a different answer on every run. A **counted** measurement is reproducible, and it is usually the number you actually wanted — how much work does each approach do?\n\nTwo ways to look for duplicates in a list of `n` items:\n\n- Nested loops compare every pair: `n * (n - 1) / 2` comparisons.\n- A `Set` visits each item once: `n` steps.\n\nDo not take those formulas on faith. Run both, increment a counter inside each, and report what the counters say. For `n = 5` that is `loops:10 set:5`.\n\nThe desk counted before anyone rewrote the walker. Change the path once you have a number."
+      "md": "## Count the work before you rewrite it\n\nWall-clock timing with `Date.now()` is noisy: the same loop gives a different answer on every run. A **counted** measurement is reproducible, and it is usually the number you actually wanted — how much work does each approach do? The desk counted before anyone rewrote the walker. Change the path once you have a number.\n\nTwo ways to look for duplicates in a list of `n` items: nested loops compare every pair; a `Set` visits each item once. Do not take the formulas on faith. Run both, increment a counter inside each, and report what the counters say. For `n = 5` that is `loops:10 set:5`.\n\n```javascript\n// n = 4\n// nested pairs: 6    (count inside the loops)\n// Set steps:    4    (one increment per item)\nreport(4)  // \"loops:6 set:4\"\n```\n\nThe common mistake is returning a hard-coded formula string, or rewriting because it “feels slow.” On Try, `report(n)` builds a list, runs both searches with a counter in each loop, and prints `report(5)` (`loops:10 set:5`)."
     },
     {
       "type": "predict",
@@ -39,14 +39,14 @@
       "kind": "tf",
       "promptMd": "You should rewrite a loop because it feels slow, even with no measurement.",
       "answer": "false",
-      "explainMd": "Measure first. This lesson’s proof is the count 1000 from the loop you actually ran."
+      "explainMd": "Measure first. This lesson’s proof is the count from the loops you actually ran."
     },
     {
       "type": "code",
       "id": "count-loop",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `report(n)` builds a list of `n` items, runs both searches with a counter in each, and returns `loops:<pairs> set:<steps>`. Print `report(5)` (`loops:10 set:5`).",
+      "promptMd": "> `report(n)` builds a list of `n` items, runs both searches with a counter in each loop, and returns `loops:<pairs> set:<steps>`. Count with loops — do not return a hard-coded formula string. Print `report(5)` (`loops:10 set:5`).",
       "files": [
         {
           "path": "files/main.js",

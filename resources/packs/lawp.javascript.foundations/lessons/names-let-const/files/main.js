@@ -1,5 +1,6 @@
-function labelBox() {
-  return "open"
+function flipLamp() {
+  const signal = { on: false }
+  return signal.on
 }
-console.log(labelBox())
-module.exports = { labelBox }
+console.log(flipLamp())
+module.exports = { flipLamp }

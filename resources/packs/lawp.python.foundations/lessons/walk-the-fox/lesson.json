@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A call is a step\n\n`Player.move` walks the fox one cell. Land on the beacon — that is the test.\n\n- `\"east\"` increases **x**\n- `\"south\"` increases **y**"
+      "md": "## A call is a step\n\nA call is a step the fox takes on the grid. `Player.move` walks one cell in the direction you name. `\"east\"` increases **x**. `\"south\"` increases **y**. The beacon does not come to you; you walk onto it. One call changes one coordinate by one, so a far target is several calls, not one magic teleport.\n\nThis bites when you think a single call drops the fox on the beacon, or when you mix up the axes and walk west or north instead. After one east from `(0, 0)` the fox is at `(1, 0)`, not still at the origin and not already at `(3, 2)`.\n\n```python\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"south\")\nPlayer.move(\"south\")\n```\n\nA common mistake is writing the coordinates as numbers in `move`, or stopping after one step. The exercise asks you to walk the fox from `(0, 0)` onto the beacon at `(3, 2)` — three east calls and two south calls. Order does not matter.\n"
     },
     {
       "type": "predict",

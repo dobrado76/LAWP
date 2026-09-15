@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.http"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Cancel the wait\n\n`/slow` is delayed. `AbortController` + `fetch(url, { signal })` rejects with `AbortError` when you `abort()`. The wait ends because you said so, not because the body arrived.\n\nAbort immediately and print `aborted`. On the desk, you pull the slip back before the slow tray answers."
+      "md": "## Cancel the wait\n\n`/slow` is delayed. `AbortController` plus `fetch(url, { signal })` rejects with an error named `AbortError` when you `abort()`. The wait ends because you said so, not because the body arrived. It is not a 404 slip. On the desk, you pull the slip back before the slow tray answers. The fetch never becomes a normal response.\n\nWhy it bites: if you let `/slow` run, the fox sits on the field until the mock delay finishes and a later heading is late. If you `return \"aborted\"` with no controller, the hidden test fails and you never practiced cancel. Night shift then thinks the body arrived, or that abort is a 404, and retries the wrong path.\n\n```javascript\nasync function race() {\n  const c = new AbortController()\n  const p = fetch(\"/slow\", { signal: c.signal })\n  c.abort()\n  try {\n    await p\n    return \"ok\"\n  } catch (e) {\n    return e.name === \"AbortError\" ? \"aborted\" : \"other\"\n  }\n}\n```\n\nThe common mistake is hard-coding `return \"aborted\"` without `AbortController`, or treating abort as a 404 response. On Try, start `/slow` with an `AbortController` `signal`, abort, print `aborted`. Pass `{ signal: c.signal }` to `fetch`. Return `aborted` from the `AbortError` path, not a hardcoded string. Pull the slip back; do not wait for the slow tray."
     },
     {
       "type": "predict",
@@ -46,7 +46,7 @@
       "id": "abort-now",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Start `/slow`, abort, print `aborted`.",
+      "promptMd": "> Start `/slow` with an `AbortController` `signal`, abort, print `aborted`. Do not hard-code `return \"aborted\"` without the controller.",
       "files": [
         {
           "path": "files/main.js",

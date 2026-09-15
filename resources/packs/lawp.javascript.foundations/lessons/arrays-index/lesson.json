@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 4,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.arrays"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A list of directions\n\n`const dirs = [\"east\", \"east\", \"south\"]`. Index `0` is the first item. `dirs.length` is `3`. The last item is at `length - 1`, not `length`."
+      "md": "## A list of directions\n\nAn array is a numbered row. Index `0` is the first item. `dirs.length` is how many items sit in the row. The last item is at `length - 1`, not at `length`. Asking for `dirs[dirs.length]` is asking for a slot that was never written — you get `undefined`, not a wrap-around.\n\nWhy it bites: a fox that reads `dirs[3]` from `[\"east\", \"east\", \"south\"]` tries to `Player.move(undefined)` and stands still, one step short of the beacon at (2, 1). Hard-coding `\"south\"` as the last heading also fails the moment a hidden test hands you `[\"west\"]`.\n\n```javascript\nconst dirs = [\"east\", \"east\", \"south\"]\ndirs[0]                // \"east\"\ndirs.length            // 3\ndirs[dirs.length - 1]  // \"south\"\ndirs[dirs.length]      // undefined\n```\n\n`lastDir(dirs)` must return the last heading with `dirs[dirs.length - 1]` — not a hardcoded `\"south\"`. Then walk every string in `dirs` with a for…of, forEach, or indexed loop. Do not paste three separate `Player.move(\"…\")` calls."
     },
     {
       "type": "predict",
@@ -39,7 +39,7 @@
       "id": "walk-dirs",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Walk every string in `dirs` with `Player.move`. Do not hard-code four moves.",
+      "promptMd": "> `lastDir(dirs)` returns the last heading with `dirs[dirs.length - 1]` — not a hardcoded `\"south\"`. Then walk every string in `dirs` (for…of / forEach / indexed loop). Do not paste three separate `Player.move(\"…\")` calls.",
       "files": [
         {
           "path": "files/main.js",
@@ -59,12 +59,12 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "The list already holds the route. The starter ignores it and moves once by hand."
+          "md": "The last slot is `length - 1`, not `length`. Then walk the list instead of one pasted move."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "Walk the list itself, so adding a direction to `dirs` changes the path with no other edit."
+          "md": "Write `lastDir` first so the hidden test can call it with other lists."
         },
         {
           "level": 3,
@@ -74,7 +74,7 @@
         {
           "level": 4,
           "kind": "assist",
-          "md": "const dirs = [\"east\", \"east\", \"south\"]\nfor (const dir of dirs) Player.move(dir)\nmodule.exports = { dirs }"
+          "md": "const dirs = [\"east\", \"east\", \"south\"]\nfunction lastDir(list) {\n  return list[list.length - 1]\n}\nfor (const dir of dirs) Player.move(dir)\nmodule.exports = { dirs, lastDir }"
         }
       ],
       "play": {

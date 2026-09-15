@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.values",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `+` and `==` ask an object for a primitive\n\n`[] + []` is `\"\"`. `[] == false` is `true` because both sides coerce. `{ valueOf() { return 1 } } + 1` is `2`.\n\nPrefer `===` and explicit `Number` / `String`. The language has a ToPrimitive walk, not a moral about “empty.”\n\nThe desk asked whether an empty tray `[]` equals `false` (lamp off). Loose `==` says yes. The fox should not treat an empty list as “off.”"
+      "md": "## `+` and `==` ask an object for a primitive\n\nWhen `+` or loose `==` meets an object, JavaScript asks that object for a **primitive**. The walk is called ToPrimitive. `valueOf` (and sometimes `toString`) is how the object answers. `{ valueOf() { return 1 } } + 1` is `2`. `[] + []` is `\"\"`. `[] == false` is `true` because both sides coerce toward `0`.\n\nPrefer `===` and explicit `Number` / `String`. The language has a coercion walk, not a moral about “empty.” The desk asked whether an empty tray `[]` equals `false` (lamp off). Loose `==` says yes. The fox should not treat an empty list as “off,” or a later add will treat a tray as a zero current and file a false reading.\n\n```javascript\n[] == false                 // true — both coerce toward 0\nconst box = { valueOf() { return 2 } }\nNumber(box)                 // 2 — Number asked valueOf\n// box + 0                  // also 2\n```\n\nA common mistake is to `return 2` from `asNumber` and skip the object. On Try, `asNumber` builds a `box` with `valueOf` that returns `2`, then returns `Number(box)` and prints `2`."
     },
     {
       "type": "predict",
@@ -68,7 +68,7 @@
       "id": "valueof",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `asNumber` returns `Number(box)` where `box.valueOf` returns `2`. Print `2`.",
+      "promptMd": "> `asNumber` builds a `box` with `valueOf` that returns `2`, then returns `Number(box)`. Print `2`. A bare `return 2` is not enough.",
       "files": [
         {
           "path": "files/main.js",

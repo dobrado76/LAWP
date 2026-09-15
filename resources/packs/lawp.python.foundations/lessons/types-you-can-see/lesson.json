@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Values have kinds\n\n`3` is an `int`. `\"3\"` is a `str`. `type(3).__name__` is a readable name for the kind."
+      "md": "## Values have kinds\n\nEvery value in Python has a kind, even when two values look similar on the page. `3` is an `int`. `\"3\"` is a `str`. They are not interchangeable: adding `1` to the number works; adding `1` to the text does not. `type(3).__name__` is a readable name for that kind, without the extra wrapper text you get from printing `type(3)` itself.\n\nThis bites when you treat `\"3\"` as a number. A later sum can crash or concatenate instead of add, and the bug is hard to see because both look like the digit three. Asking for the type makes the kind visible before you mix values that only look alike.\n\n```python\nprint(type(3).__name__)\n```\n\nA common mistake is printing the word `\"int\"` as a string you typed, or printing `type(3)` which includes extra wrapper text. The exercise asks you to print the type name of `3` so the output is exactly `int`.\n"
     },
     {
       "type": "code",

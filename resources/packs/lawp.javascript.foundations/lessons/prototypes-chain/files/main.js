@@ -1,5 +1,5 @@
-function protoName() {
-  return "?"
+function sharedGo() {
+  return false
 }
-console.log(protoName())
-module.exports = { protoName }
+console.log(sharedGo())
+module.exports = { sharedGo }

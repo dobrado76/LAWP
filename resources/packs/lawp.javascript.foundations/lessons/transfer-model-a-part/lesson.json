@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## An object graph that matches a world part\n\nBuild `{ id, type, props }` like `world-v1`. `makePart(\"fox\", { x: 1, y: 0 })` returns that shape. `movePart(part, \"east\")` increments `props.x`.\n\n`part.props` is an object the engine can read (`x`, `y`…), not a string dump.\n\nTwo easts from x=0 put the modeled fox at x=2, the same way the stage fox walks."
+      "md": "## An object graph that matches a world part\n\nA **world part** is a small object graph the stage already understands: `{ id, type, props }`. `makePart(\"fox\", { x: 1, y: 0 })` returns that shape. `movePart(part, \"east\")` increments `props.x`. `part.props` is an object the engine can read (`x`, `y`…), not a string dump. A printed string cannot take a step.\n\nTwo easts from x=0 put the modeled fox at x=2, the same way the stage fox walks. If `props` is a shared box you did not copy, two parts move as one and a beacon slides when the fox does. If `movePart` stays empty, the model never matches the yard and a later transfer lesson cannot trust the record.\n\n```javascript\nfunction makePart(type, props) {\n  return { id: type, type, props: { ...props } }\n}\nfunction movePart(part, dir) {\n  if (dir === \"east\") part.props.x += 1\n}\nconst fox = makePart(\"fox\", { x: 0, y: 0 })\nmovePart(fox, \"east\")\nfox.props.x  // 1 — the model walked\n```\n\nA common mistake is to return `{ type, props }` and leave `movePart` blank, or to dump fields into a string. On Try, write `makePart` and `movePart`, walk east twice from x=0, and print the new x (`2`)."
     },
     {
       "type": "predict",

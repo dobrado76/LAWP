@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 4,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.arrays"
@@ -14,31 +14,50 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Keep only what you need\n\n`filter` returns every match. `find` returns the first match or `undefined`.\n\nFrom `[\"east\", \"south\", \"east\"]`, keep only `\"east\"`. Find the first beacon name that starts with `\"N\"`."
+      "md": "## Keep matches, or pick the first\n\n`filter` returns **every** match as a new list. `find` returns the **first** match, or `undefined` if none. They look similar because both take a test function, but the results are different kinds: a list versus one item. An empty filter is `[]`. A missed find is `undefined`, not an empty list.\n\nWhy it bites: treating `find` as if it returned a list makes `.join` throw, because `undefined` has no join. Treating `filter` as if it returned one string silently drops the second east, so a log that should read `east,east` files a single heading and a later desk thinks only one beacon fired.\n\n```javascript\nconst dirs = [\"east\", \"south\", \"east\"]\ndirs.filter(d => d === \"east\")  // [\"east\", \"east\"]\ndirs.find(d => d === \"east\")    // \"east\"\n[\"south\"].filter(d => d === \"east\")  // []\n[\"south\"].find(d => d === \"east\")    // undefined\n```\n\nTwo exports. `onlyEast(dirs)` uses `filter` and joins remaining easts as `east,east`. `firstEast(dirs)` uses `find` and returns that string, or `\"\"` if none. Print `onlyEast([\"east\", \"south\", \"east\"])`. The starter joins every direction and reads `dirs[0]` for the first — both habits this lesson removes."
     },
     {
       "type": "predict",
-      "id": "find-missing",
-      "promptMd": "`[\"south\"].find(d => d === \"east\")` is…",
+      "id": "filter-empty",
+      "promptMd": "`[\"south\"].filter(d => d === \"east\")` is…",
       "kind": "mcq",
       "choices": [
         {
           "id": "empty",
-          "md": "`\"\"`"
+          "md": "`[]` — no matches"
         },
         {
           "id": "undef",
           "md": "`undefined`"
         }
       ],
-      "answer": "undef"
+      "answer": "empty",
+      "explainMd": "`filter` always returns a list. No matches means `[]`, not `undefined`. `find` is the one that returns `undefined`."
+    },
+    {
+      "type": "predict",
+      "id": "find-miss",
+      "promptMd": "`[\"south\"].find(d => d === \"east\")` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "empty",
+          "md": "`[]`"
+        },
+        {
+          "id": "undef",
+          "md": "`undefined` — no first match"
+        }
+      ],
+      "answer": "undef",
+      "explainMd": "`find` hands back the item, or `undefined` when nothing matched. It does not hand back an empty list."
     },
     {
       "type": "code",
       "id": "only-east",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `onlyEast(dirs)` returns only `\"east\"` entries, joined as `east,east`. Print that.",
+      "promptMd": "> Two exports. `onlyEast(dirs)` uses `filter` and joins remaining easts as `east,east`. `firstEast(dirs)` uses `find` and returns that string, or `\"\"` if none. Print `onlyEast([\"east\", \"south\", \"east\"])`.",
       "files": [
         {
           "path": "files/main.js",
@@ -66,25 +85,25 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "The starter joins every direction, including the ones you were asked to drop."
+          "md": "The starter joins every direction. `filter` drops the ones that are not east. `find` is a separate function."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "`filter` keeps the entries whose test returns true and returns a new, shorter list."
+          "md": "`filter` keeps every match as a list. `find` keeps only the first match, or `undefined`."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "`dirs.filter((d) => d === \"east\")` keeps only the easts; `join(\",\")` then makes the line."
+          "md": "`dirs.filter((d) => d === \"east\")` then `join(\",\")`. `dirs.find((d) => d === \"east\") ?? \"\"`."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "function onlyEast(dirs) { return dirs.filter(d => d === \"east\").join(\",\") }\nconsole.log(onlyEast([\"east\", \"south\", \"east\"]))\nmodule.exports = { onlyEast }"
+          "md": "function onlyEast(dirs) { return dirs.filter(d => d === \"east\").join(\",\") }\nfunction firstEast(dirs) { return dirs.find(d => d === \"east\") ?? \"\" }\nconsole.log(onlyEast([\"east\", \"south\", \"east\"]))\nmodule.exports = { onlyEast, firstEast }"
         }
       ]
     }
   ],
-  "description": "Keep the items that match, or find the first one that does."
+  "description": "Filter keeps every match. Find keeps the first match."
 }

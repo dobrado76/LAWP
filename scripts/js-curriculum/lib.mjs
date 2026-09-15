@@ -92,6 +92,11 @@ export function explain(md) {
   return { type: 'explain', md }
 }
 
+/** Studio highlights a fenced block. Always tag the language — a bare fence looks like leftover ticks. */
+export function fence(lang, code) {
+  return '```' + lang + '\n' + String(code).replace(/^\n/, '').replace(/\n$/, '') + '\n```'
+}
+
 export function predict(id, promptMd, choices, answer, extra = {}) {
   return {
     type: 'predict',

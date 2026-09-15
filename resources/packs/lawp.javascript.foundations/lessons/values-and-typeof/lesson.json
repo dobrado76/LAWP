@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Kinds you can print\n\nEvery value has a kind. `typeof 3` is `\"number\"`. `typeof \"3\"` is `\"string\"`. A later desk will ask “what kind of signal is this?” before it files the record.\n\n`typeof null` is `\"object\"` — that answer is a leftover bug. Do not treat `null` as a bag of fields. Export `kindOf` so a hidden test can call it. Print the kind of the number 3."
+      "md": "## Kinds you can print\n\nEvery value in JavaScript has a **kind**. The operator that reports it is `typeof`. A later desk will ask “what kind of signal is this?” before it files the record — the same question this lesson asks of a number and a string that look alike.\n\nThat is why `\"3\"` and `3` are not interchangeable. Quotes make text. A bare numeral is a number. Filing the wrong kind is how a lamp current of `\"2\"` sits in a drawer that expected `2` and then fails a later add.\n\n```javascript\ntypeof 3      // \"number\"\ntypeof \"3\"    // \"string\"\ntypeof null   // \"object\"  — leftover language bug\n```\n\n`typeof null` answering `\"object\"` is a leftover bug, not a license to poke fields on `null`. Do not treat `null` as a bag. Write `kindOf` so a hidden test can call it, and print the kind of the number `3`."
     },
     {
       "type": "predict",
@@ -36,7 +36,8 @@
           "md": "`undefined`"
         }
       ],
-      "answer": "object"
+      "answer": "object",
+      "explainMd": "`typeof null` is `\"object\"` — a leftover language bug. Do not treat `null` as a bag of fields."
     },
     {
       "type": "check",

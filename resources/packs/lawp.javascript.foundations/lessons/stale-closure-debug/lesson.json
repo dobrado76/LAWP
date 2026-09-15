@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## One binding, many callbacks\n\nA loop with `var i` (or one `let dir` you overwrite) makes every callback see the **last** value. The fox repeats the last heading.\n\nFix it: `let` in the loop, or `dirs.forEach((dir) => { ... })` so each callback has its own `dir`.\n\nThe plan was east, then south. After the loop, every queued mover still reads the last cell of `dirs`, so the fox walks the last heading twice and misses the beacon."
+      "md": "## One binding, many callbacks\n\nA **stale closure** happens when many callbacks close over one shared binding. A loop with `var i` (or one `let dir` you overwrite) makes every queued function see the **last** value after the loop finishes. The functions do not copy the heading from that iteration. They keep the live name, and that name has moved on.\n\nThe plan was east, then south. After the loop, every queued mover still reads `dirs[i]` with `i` already past the last cell, so the heading is `undefined` or the last word twice. The fox repeats the last heading and misses the beacon. Fix it with `let` in the loop, or `dirs.map((dir) => () => Player.move(dir))`, so each callback has its own `dir`.\n\n```javascript\nconst dirs = [\"east\", \"south\"]\n// broken: every mover reads dirs[i] after i is 2\nconst movers = dirs.map((dir) => () => Player.move(dir))\nmovers[0]()  // east — its own dir\nmovers[1]()  // south\n```\n\nA common mistake is to believe each callback copied its iteration’s value. Closures keep bindings, not sticky notes. On Try, the starter queues movers that all walk the last dir. Fix them so the path is east, then south, and the fox lands at (1, 1)."
     },
     {
       "type": "predict",

@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 25,
   "skillIds": [
     "js.functions",
@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Dispatch drives the walk\n\n`run(plan, table)` looks up each string in `table` and calls that function. A new maze is a new plan array — not a new pile of copy-paste moves.\n\nIf a key is missing, a careful runner throws or names the unknown key. A silent skip hides a typo forever.\n\nPlan `\"e\"`, `\"e\"`, `\"s\"` should put the fox on the beacon at (2, 1). A stray `\"n\"` should not vanish."
+      "md": "## Dispatch drives the walk\n\nA **dispatcher** walks a plan of strings and looks each one up in a table of functions. `run(plan, table)` is that runner. A new maze is a new plan array — not a new pile of copy-paste `Player.move` calls. The table holds the verbs. The plan holds the order.\n\nIf a key is missing, a careful runner throws or names the unknown key. A silent skip hides a typo forever. Plan `\"e\"`, `\"e\"`, `\"s\"` should put the fox on the beacon at (2, 1). A stray `\"n\"` that vanishes leaves the fox on the wrong tile and the night log looking finished. The desk would rather crash on `\"n\"` than pretend the walk succeeded.\n\n```javascript\nfunction run(plan, table) {\n  for (const key of plan) {\n    if (!table[key]) throw new Error(\"unknown \" + key)\n    table[key]()\n  }\n}\nrun([\"e\", \"e\", \"s\"], table)  // two east, one south\n// run([\"n\"], table)         // throws — no n in the table\n```\n\nA common mistake is to ignore missing keys, or to walk the fox with bare moves and leave `run` empty. On Try, implement `run(plan, table)` with table keys `e` / `s`, reach (2, 1), and `throw` when a key is missing so the hidden `assert.throws` can see it."
     },
     {
       "type": "predict",
@@ -72,7 +72,7 @@
       "id": "run-plan",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `run(plan, table)` with table keys `e` / `s`. Reach the beacon at (2, 1).",
+      "promptMd": "> `run(plan, table)` with table keys `e` / `s`. Reach the beacon at (2, 1). A missing key must `throw` (hidden test uses `assert.throws`).",
       "files": [
         {
           "path": "files/main.js",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Nodes, not one long string\n\nThe page is a tree of nodes. `document.body` is an element. Changing `textContent` changes a node. You do not rebuild the whole HTML string to rename a heading.\n\n`document.querySelector(\"h1\")` returns that heading node, or `null` if it is missing. On this board, the channel plate still says “Old radio.” Change the `h1#title` node to `Signal desk`."
+      "md": "## Nodes, not one long string\n\nThe page is a tree of nodes. `document.body` is an element. Changing `textContent` changes a node. You do not rebuild the whole HTML string to rename a heading. `document.querySelector(\"h1\")` returns that heading node, or `null` if it is missing — it does not return the tag as a string you later paste back.\n\nWhy it bites: the channel plate still says “Old radio.” If you treat the document as one long string and rewrite `index.html` in memory, you drop listeners, lose the rest of the tree, and the plate flickers. A later filter or click handler was hanging on a node you threw away. The heading is a node on this board; rename that node.\n\n```javascript\nconst title = document.querySelector(\"#title\")\ntitle.textContent = \"Signal desk\"\n// the h1 node is still the same node\n// only its text changed\n```\n\nThe common mistake is thinking `querySelector` hands you markup text, or rebuilding the page as one string. On Try, set the `h1#title` text to `Signal desk`. Find the heading node and write `textContent`. Do not rewrite the HTML file as a string. The plate should read Signal desk after you change the node."
     },
     {
       "type": "predict",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `=` writes; `==` asks\n\nThe starter will not even run. Fix the `if` so it *asks* whether `flag` is true."
+      "md": "## `=` writes; `==` asks\n\nA single `=` writes a new value onto a name. A double `==` asks whether two values are the same and answers with `True` or `False`. An `if` needs a question, not a write. `if flag == True:` asks. `if flag = True:` tries to assign in a place Python does not allow, so the file never becomes a running program.\n\nThis bites immediately: the starter will not even run. You get a syntax error before any print, so you never see `yes`. The line looks almost right, which makes the error feel mysterious until you notice the missing second equals sign.\n\n```python\nflag = True\nif flag == True:\n    print(\"yes\")\n```\n\nA common mistake is leaving the assignment in the `if`, or deleting the test and printing `yes` with no condition. Either dodge skips the idea. The exercise asks you to fix the `if` so it asks whether `flag` is true. After the fix, the program should print `yes` and the source should contain `==`.\n"
     },
     {
       "type": "debug",

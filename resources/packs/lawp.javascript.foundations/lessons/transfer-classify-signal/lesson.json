@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Name the kind, honestly\n\n`classify(value)` should return:\n\n- `\"empty\"` for `null` or `undefined`\n- `\"zero\"` for `0` or `\"\"`\n- `\"list\"` for arrays\n- `\"text\"` for other strings\n- `\"other\"` for everything else\n\n`typeof null` is `\"object\"` — do not trust it. Use `value == null` or check `null` / `undefined` first."
+      "md": "## Name the kind, honestly\n\nThis transfer uses everything from the chapter. `classify(value)` must label a signal without trusting `typeof` alone. `typeof null` is `\"object\"` — that leftover bug will file an empty reading as a bag of fields if you check kind first.\n\nCheck `null` and `undefined` before anything else. Then `0` and `\"\"` as `\"zero\"`. Then `Array.isArray` for `\"list\"`. Then other strings as `\"text\"`. Everything else is `\"other\"`.\n\n```javascript\ntypeof null          // \"object\" — do not trust this\nclassify(null)       // \"empty\"\nclassify(0)          // \"zero\"\nclassify([])         // \"list\"\nclassify(\"east\")     // \"text\"\n```\n\nThe common mistake is `return typeof value`, which labels `null` as `object` and `[]` as `object` too. On Try, walk the labels in order and print `classify(null)` (`empty`). Hidden tests cover the other labels."
     },
     {
       "type": "predict",

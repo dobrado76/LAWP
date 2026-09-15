@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The stage hears `say`, not `console.log`\n\n`status()` should **return** `\"locked\"`. Then `Player.say(status())` shows that word on the fox. Printing to the console is a notebook, not the result the next function can use."
+      "md": "## The stage hears `say`, not `console.log`\n\n`return` hands a value to the caller. `console.log` writes a notebook line and hands back `undefined`. `status()` should **return** `\"locked\"`. Then `Player.say(status())` shows that word on the fox. The stage never reads the console. Printing is a notebook, not the result the next function can use.\n\nWhy it bites: a fox that only logged `\"locked\"` says `undefined` on the field. The beacon walk can still succeed, so the board looks almost done, but the speech bubble is empty. A hidden test that calls `status()` also gets `undefined` and fails.\n\n```javascript\nfunction status() {\n  return \"locked\"   // the caller receives this\n}\nPlayer.say(status())  // the fox says \"locked\"\n// console.log(\"locked\") would print, then return undefined\n```\n\nThe starter logs inside `status` and then says `\"?\"`. On Try, return `\"locked\"` from `status`, pass that call into `Player.say`, and walk south onto the beacon. Leave the export so the checker can call `status` on its own."
     },
     {
       "type": "predict",

@@ -36,7 +36,7 @@ Typical shapes:
 
 **Reading + questions**
 
-1. **Explain** — the idea (markdown: `##` heading, lists, `` `code` ``).
+1. **Explain** — the idea (markdown: `##` heading, lists, `` `code` `` in a sentence, and **fenced** snippets with a language tag — ` ```javascript `, ` ```python ` — so Studio can highlight them). A bare fence with no language still becomes a block, but tag it. Do not paste code as leftover backticks around loose lines.
 2. **Question** — pick a type (see below). Repeat for more questions.
 3. **Reflect** — optional “say it in your own words” (not auto-graded).
 

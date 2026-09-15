@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `switch` routes a command\n\nA dispatch table reads one value and picks a branch. `switch (cmd)` compares with `===`, runs the matching `case`, and keeps running **into the next case** until it meets `break`.\n\nThat fall-through is a feature when you group spellings:\n\n```\ncase \"east\":\ncase \"e\":\n  Player.move(\"east\")\n  break\n```\n\nBoth labels share one body. Forgetting `break` on a branch that has its own body is the classic bug: the fox does two things for one command. `default` catches anything you did not plan for."
+      "md": "## `switch` routes a command\n\nA dispatch table reads one value and picks a branch. `switch (cmd)` compares with `===`, runs the matching `case`, and keeps running **into the next case** until it meets `break`. That fall-through is a feature when you group spellings. `default` catches anything you did not plan for.\n\nWhy it bites: forgetting `break` on a branch that has its own body is the classic bug. The fox hears `\"east\"` and then also runs the south case, so one command walks two cells. An unknown `\"beep\"` with no `default` is silently ignored, and the speech bubble never says `skip`.\n\n```javascript\nswitch (cmd) {\n  case \"east\":\n  case \"e\":\n    Player.move(\"east\")\n    break\n  case \"south\":\n    Player.move(\"south\")\n    break\n  default:\n    Player.say(\"skip\")\n}\n```\n\nBoth `east` and `e` share one body because the first label has no `break` of its own. On Try, walk the plan with a `switch`. `east` and `e` both go east, `south` goes south, and anything else falls to `default` and says `skip`. The beacon is at (2, 2). The starter already has the plan array."
     },
     {
       "type": "predict",

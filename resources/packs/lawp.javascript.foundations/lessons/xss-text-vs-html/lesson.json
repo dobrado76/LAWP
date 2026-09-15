@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The fixture tries a payload\n\n`#raw` starts with a fake script payload in a data attribute. Put that string into `#safe` with **`textContent`**. If you use `innerHTML`, you are practicing the bug.\n\nThe page should show the characters, not run them. On the safe-copy plate, the fox files the raw string as text so it cannot become a new node."
+      "md": "## The fixture tries a payload\n\n`#raw` starts with a fake script payload in a data attribute. Put that string into `#safe` with **`textContent`**. If you use `innerHTML`, you are practicing the bug: the browser parses the string as markup. Untrusted text can become elements. The page should show the characters, not run them. A lesson is not a license to parse a payload.\n\nWhy it bites: the fox files the raw string as text so it cannot become a new node. If you assign `innerHTML`, an `img` with `onerror` can appear under `#safe`. The safe-copy plate then grows a node the fixture never meant to render. Night shift thinks the payload was “just a string” and the board already executed it.\n\n```javascript\nconst raw = document.querySelector(\"#raw\")\nconst payload = raw.getAttribute(\"data-payload\")\ndocument.querySelector(\"#safe\").textContent = payload\n// characters show; querySelector(\"img\") under #safe is null\n```\n\nThe common mistake is `innerHTML` because “it is only a lesson.” On Try, copy `#raw`’s `data-payload` into `#safe` using `textContent`. The characters should show. No `img` node should appear. Read the attribute, write the text. Do not parse it as markup."
     },
     {
       "type": "predict",

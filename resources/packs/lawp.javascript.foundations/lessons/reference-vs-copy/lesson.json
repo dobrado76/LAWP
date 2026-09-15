@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Two names, one list\n\n`const b = a` does not copy items. Change `b[0]` and `a[0]` changes too. The fox will walk the surprise path if you mutate a shared route.\n\nCopy with `a.slice()` or `[...a]` when you mean a second list."
+      "md": "## Two names, one list\n\n`const b = a` does not copy items. It hangs a second name on the same list. Change `b[0]` and `a[0]` changes too. Copy with `a.slice()` or `[...a]` when you mean a second list. This lesson is about the shared case: you *want* the mutation to show up under both names.\n\nWhy it bites: a fox walks a surprise path when a helper mutates a route you thought you had copied. The opposite mistake, on this desk, is refusing to mutate: `also` stays a second name but nobody `push`es, so `shared` is still `[\"east\", \"east\"]` and the fox never turns south toward (2, 1).\n\n```javascript\nconst shared = [\"east\", \"east\"]\nconst also = shared        // same list, two names\nalso.push(\"south\")\n// shared is now [\"east\", \"east\", \"south\"]\n// const copy = [...shared] would have been a second list\n```\n\n`shared` starts as `[\"east\",\"east\"]`. Another name mutates it to add `\"south\"`. Walk `shared` to (2, 1). The hidden test checks that the list itself gained the south step — do not add a lone `Player.move(\"south\")` by hand."
     },
     {
       "type": "predict",

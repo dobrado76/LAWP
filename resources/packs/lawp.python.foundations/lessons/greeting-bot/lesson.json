@@ -20,7 +20,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Keep the bot\n\n`greet(name)` returns a string. Empty name → `Hello!`. Otherwise `Hello, Ada!`. Passing the two prints below must match exactly."
+      "md": "## Keep the bot\n\nA reusable greeting is a function that returns a string, not a one-off print. `greet(name)` should hand back `Hello, Ada!` when a name is present, and `Hello!` when the name is empty. The two `print` calls below the function are already there. They show what the function returned, so your job is the return value, not a second copy of the output.\n\nThis bites when you only `print` inside `greet` and return nothing. Then `print(greet(\"Ada\"))` prints the greeting and also `None`, so the checked output no longer matches. Empty input is the other trap: treating `\"\"` like a real name produces the broken line `Hello, !`.\n\n```python\ndef greet(name):\n    if not name:\n        return \"Hello!\"\n    return f\"Hello, {name}!\"\n```\n\nA common mistake is hardcoding both lines or forgetting the empty-name branch. The exercise asks you to return the two exact strings so the existing prints show `Hello, Ada!` then `Hello!`.\n"
     },
     {
       "type": "code",

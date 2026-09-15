@@ -18,7 +18,8 @@ import {
   at,
   srcIncludes,
   playLogOk,
-  exportAssert
+  exportAssert,
+  fence
 } from './lib.mjs'
 
 export function lessonsC4C6() {
@@ -35,7 +36,24 @@ export function lessonsC4C6() {
       taskRev: 3,
       blocks: [
         explain(
-          '## A name before it is ready\n\n`let` and `const` exist from the start of the block, but you cannot read them until the line that sets them. That empty stretch is the temporal dead zone. `console.log(label)` above `let label = "east"` throws `ReferenceError`.\n\n`var` is older: it hoists as `undefined`, so a read before the assign is quiet and wrong. Prefer `let` and `const` so the crash teaches you.\n\nOn the desk, the fox cannot read a heading sticker that is still blank. Write the heading first, then walk.'
+          [
+            '## A name before it is ready',
+            '',
+            'The **temporal dead zone** is the stretch of a block where a `let` or `const` name already exists but is not safe to read. The binding is reserved from the opening brace so nothing else can steal the name, yet the value is not ready until the line that sets it. A read in that gap is a crash, not a quiet blank.',
+            '',
+            '`var` is the older spelling: it hoists as `undefined`, so a read before the assign is silent and wrong. The fox then walks a heading that was never written. Prefer `let` and `const` so the language shouts instead of filing a blank sticker as if it were a real direction.',
+            '',
+            fence(
+              'javascript',
+              `function readyLabel() {
+  // console.log(dir)  // ReferenceError — still in the TDZ
+  let dir = "east"
+  return dir          // "east" — safe after init
+}`
+            ),
+            '',
+            'A common mistake is to `return "east"` as a literal and skip the binding, or to declare the name *after* the return so the read still sits in the dead zone. On Try, write `readyLabel` so it declares a `let` for `"east"`, then returns that binding and prints it.'
+          ].join('\n')
         ),
         predict(
           'tdz',
@@ -95,7 +113,26 @@ assert.ok(!/return\\s+[\"']east[\"']/.test(src), 'return the binding, not the st
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## The function keeps the box\n\n`makeMover(dir)` returns a function. That inner function still sees `dir` later — that is a closure. The fox can call the returned function after you have left `makeMover`.\n\nThe closure keeps a live binding, not a sticky-note copy, unless you create a new binding each time.\n\nAt the signal desk, you hand the fox a radio tuned to `"east"`. Three later calls still walk east, even though `makeMover` has finished.'
+          [
+            '## The function keeps the box',
+            '',
+            'A **closure** is an inner function that still sees names from the function that created it, after that outer function has returned. `makeMover(dir)` builds a small mover and hands it back. The returned function still sees `dir` on later calls. You do not have to pass the heading again.',
+            '',
+            'The closure keeps a live binding, not a sticky-note copy of the string, unless you create a new binding each time. That is why a radio tuned once keeps walking the same way, and why a shared loop variable can later poison every queued mover. At the signal desk you hand the fox a radio tuned to `"east"`. Three later presses still walk east, even though `makeMover` has finished and its stack frame is gone.',
+            '',
+            fence(
+              'javascript',
+              `function makeMover(dir) {
+  return function go() {
+    Player.move(dir)  // still sees dir after makeMover returns
+  }
+}
+const go = makeMover("east")
+go()  // east — the radio stayed tuned`
+            ),
+            '',
+            'A common mistake is to treat the inner function as empty, or to hard-code `Player.move("east")` and ignore the parameter. On Try, `makeMover("east")` must return a function. Call that function three times so the fox reaches x=3.'
+          ].join('\n')
         ),
         predict(
           'remembers-dir',
@@ -171,7 +208,25 @@ assert.ok(!/Player\\.move\\(\\s*["']east["']\\s*\\)/.test(src), 'move through th
       taskRev: 3,
       blocks: [
         explain(
-          '## A table of functions\n\n`const cmds = { go(dir) { Player.move(dir) }, turn() { Player.rotate(90) } }` stores functions under names. You look up a name and call it. That is how a small language of stage commands stays data.\n\nThe name without `()` is the function value. You still have to call it.\n\nThe desk files `go` and `turn` on a clipboard. The fox only moves when you say `cmds.go("east")`, not when you glance at `cmds.go`.'
+          [
+            '## A table of functions',
+            '',
+            'A **command table** is an object whose fields are functions. `const cmds = { go(dir) { Player.move(dir) }, turn() { Player.rotate(90) } }` files two verbs under names. You look a name up, then call it. That is how a small language of stage commands stays data instead of a pile of copy-paste moves.',
+            '',
+            'The name without `()` is the function value. Glancing at `cmds.go` does not walk the fox. Parentheses are what run it. The desk files `go` and `turn` on a clipboard. If a later plan says the word `go`, the runner can look it up. If you never call through the table, the clipboard is decoration and the fox stands still.',
+            '',
+            fence(
+              'javascript',
+              `const cmds = {
+  go(dir) { Player.move(dir) },
+  turn() { Player.rotate(90) }
+}
+cmds.go          // the function value — no step yet
+cmds.go("east")  // now the fox walks east`
+            ),
+            '',
+            'A common mistake is to call `Player.move` and `Player.rotate` at the call site and leave `cmds.go` / `cmds.turn` empty. On Try, drive the walk only through those two table methods: three `cmds.go("east")` calls, then `cmds.turn()`, so the fox reaches (3,0) facing 90°.'
+          ].join('\n')
         ),
         predict(
           'lookup-call',
@@ -247,30 +302,42 @@ assert.ok(!/Player\\.rotate\\s*\\(/.test(withoutTable), 'do not call Player.rota
       title: 'Arrow function syntax',
       skillIds: ['js.functions'],
       estimatedMinutes: 20,
-      taskRev: 3,
+      taskRev: 4,
       blocks: [
         explain(
-          '## A shorter function shape\n\n`const add = (a, b) => a + b` is an **arrow function**: parameters on the left of `=>`, expression (or block) on the right. No `function` keyword.\n\nArrows also keep the outer `this` instead of getting a new one at the call site — that matters later when you write methods. This lesson grades the syntax: write `add` as an arrow that returns the sum.'
+          [
+            '## A shorter function shape',
+            '',
+            'An **arrow function** is a function written with `=>` instead of the `function` keyword. Parameters sit on the left. An expression (or a block) sits on the right. `const add = (a, b) => a + b` is a real function: you call it, it runs, it returns the sum. The arrow is not decoration and it is not a delayed string.',
+            '',
+            'This lesson grades that spelling. Arrows also keep the outer `this` instead of getting a new one at the call site — that rule matters later, when you write methods. Here the bite is simpler: a learner writes `function add` and the hidden check never sees `=>`, or they print the function text and think arrows do not run. On the desk, a short adder that never actually adds leaves the night log one step short of a checksum.',
+            '',
+            fence(
+              'javascript',
+              `const add = (a, b) => a + b
+add(2, 3)  // 5 — the arrow ran and returned the sum
+// (a, b) => a + b is the function value until you call it`
+            ),
+            '',
+            'A common mistake is to keep the `function` keyword, or to subtract instead of add, so `add(2, 3)` is wrong. On Try, write `add` as an arrow that returns `a + b`, then print `add(2, 3)` so stdout is `5`.'
+          ].join('\n')
         ),
         predict(
-          'arrow-this',
-          'An arrow function’s `this` is…',
+          'arrow-shape',
+          '`const add = (a, b) => a + b` then `add(2, 3)` is…',
           [
-            { id: 'call', md: 'Whatever called it, like a method', misconceptionId: 'arrow-is-just-shorter' },
-            { id: 'outer', md: 'The `this` from the scope where it was created' }
+            { id: 'five', md: '`5` — the arrow ran and returned the sum' },
+            { id: 'fn', md: 'The function text — arrows do not run' }
           ],
-          'outer',
-          {
-            explainMd:
-              'Arrows do not get a new `this` at the call site. They keep the `this` from where they were written. Methods that need their own `this` stay as `function`.'
-          }
+          'five',
+          { explainMd: 'An arrow is a function. `=>` is the body. `add(2, 3)` calls it and gets `5`.' }
         ),
         cloze(
-          'arrow-keeps',
-          "An arrow's `this` is {{a}}.",
-          [{ id: 'a', choices: ['from the outer scope', 'whatever called it', 'always the global'] }],
-          { a: 'from the outer scope' },
-          { explainMd: 'Arrows do not get a new this at the call site. They keep the this from where they were written.', skillIds: ['js.this'] }
+          'arrow-token',
+          'An arrow uses {{a}} instead of the `function` keyword.',
+          [{ id: 'a', choices: ['=>', 'this', 'class'] }],
+          { a: '=>' },
+          { explainMd: 'Parameters on the left of =>, expression on the right. No function keyword.' }
         ),
         stdoutCode({
           id: 'arrow-sum',
@@ -310,7 +377,24 @@ assert.strictEqual(m.add(0, 1), 1)
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## A function that takes a function\n\n`function walk(steps, fn)` calls `fn` once per step. You pass `function () { Player.move("east") }` or an arrow.\n\nThe higher-order function owns the count. The callback owns the action.\n\nThe desk says “three steps.” The fox decides what a step is. `walk(3, goEast)` walks east three times without hard-coding the loop at the call site.'
+          [
+            '## A function that takes a function',
+            '',
+            'A **higher-order function** is a function that takes another function as an argument (or returns one). `function walk(steps, fn)` owns the count: it calls `fn` once per step. You pass `function () { Player.move("east") }` or an arrow. The callback owns the action. The loop stays inside `walk`.',
+            '',
+            'The desk says “three steps.” The fox decides what a step is. If `walk` calls `fn` only once, the fox takes one step and misses the beacon, even though the plan said three. Hard-coding the loop at the call site also fails the idea: the count belongs to `walk`, not to the site that asked for the walk.',
+            '',
+            fence(
+              'javascript',
+              `function walk(steps, fn) {
+  for (let i = 0; i < steps; i++) fn()
+}
+walk(3, () => Player.move("east"))
+// fn ran three times — the fox is at x=3`
+            ),
+            '',
+            'A common mistake is to call `fn()` once inside `walk` and ignore `steps`. On Try, implement `walk(steps, fn)` and pass a mover that goes east so the fox reaches (3, 0).'
+          ].join('\n')
         ),
         predict(
           'hof-count',
@@ -379,7 +463,24 @@ assert.strictEqual(n, 4)
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## One binding, many callbacks\n\nA loop with `var i` (or one `let dir` you overwrite) makes every callback see the **last** value. The fox repeats the last heading.\n\nFix it: `let` in the loop, or `dirs.forEach((dir) => { ... })` so each callback has its own `dir`.\n\nThe plan was east, then south. After the loop, every queued mover still reads the last cell of `dirs`, so the fox walks the last heading twice and misses the beacon.'
+          [
+            '## One binding, many callbacks',
+            '',
+            'A **stale closure** happens when many callbacks close over one shared binding. A loop with `var i` (or one `let dir` you overwrite) makes every queued function see the **last** value after the loop finishes. The functions do not copy the heading from that iteration. They keep the live name, and that name has moved on.',
+            '',
+            'The plan was east, then south. After the loop, every queued mover still reads `dirs[i]` with `i` already past the last cell, so the heading is `undefined` or the last word twice. The fox repeats the last heading and misses the beacon. Fix it with `let` in the loop, or `dirs.map((dir) => () => Player.move(dir))`, so each callback has its own `dir`.',
+            '',
+            fence(
+              'javascript',
+              `const dirs = ["east", "south"]
+// broken: every mover reads dirs[i] after i is 2
+const movers = dirs.map((dir) => () => Player.move(dir))
+movers[0]()  // east — its own dir
+movers[1]()  // south`
+            ),
+            '',
+            'A common mistake is to believe each callback copied its iteration’s value. Closures keep bindings, not sticky notes. On Try, the starter queues movers that all walk the last dir. Fix them so the path is east, then south, and the fox lands at (1, 1).'
+          ].join('\n')
         ),
         predict(
           'var-loop',
@@ -453,7 +554,27 @@ assert.ok(log.some((row) => row.dir === 'south'))
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Dispatch drives the walk\n\n`run(plan, table)` looks up each string in `table` and calls that function. A new maze is a new plan array — not a new pile of copy-paste moves.\n\nIf a key is missing, a careful runner throws or names the unknown key. A silent skip hides a typo forever.\n\nPlan `"e"`, `"e"`, `"s"` should put the fox on the beacon at (2, 1). A stray `"n"` should not vanish.'
+          [
+            '## Dispatch drives the walk',
+            '',
+            'A **dispatcher** walks a plan of strings and looks each one up in a table of functions. `run(plan, table)` is that runner. A new maze is a new plan array — not a new pile of copy-paste `Player.move` calls. The table holds the verbs. The plan holds the order.',
+            '',
+            'If a key is missing, a careful runner throws or names the unknown key. A silent skip hides a typo forever. Plan `"e"`, `"e"`, `"s"` should put the fox on the beacon at (2, 1). A stray `"n"` that vanishes leaves the fox on the wrong tile and the night log looking finished. The desk would rather crash on `"n"` than pretend the walk succeeded.',
+            '',
+            fence(
+              'javascript',
+              `function run(plan, table) {
+  for (const key of plan) {
+    if (!table[key]) throw new Error("unknown " + key)
+    table[key]()
+  }
+}
+run(["e", "e", "s"], table)  // two east, one south
+// run(["n"], table)         // throws — no n in the table`
+            ),
+            '',
+            'A common mistake is to ignore missing keys, or to walk the fox with bare moves and leave `run` empty. On Try, implement `run(plan, table)` with table keys `e` / `s`, reach (2, 1), and `throw` when a key is missing so the hidden `assert.throws` can see it.'
+          ].join('\n')
         ),
         predict(
           'missing-key',
@@ -526,7 +647,27 @@ assert.throws(() => m.run(['missing'], { x: () => {} }), /./, 'missing plan keys
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A bad dir is not the end\n\n`Player.move` already faults on a bad dir. Here **you** throw `new Error("bad dir")` if the string is not a compass word. `catch` `say`s the fault, then you still finish the walk east to the beacon.\n\nThe program continues after a handled error. The next line after the `try/catch` still runs.\n\nThe fox is told `"up"`. That is not a heading. It says `"fault"`, then walks east twice onto the lamp.'
+          [
+            '## A bad dir is not the end',
+            '',
+            '`throw` stops the current path and hands an error to the nearest `catch`. Here **you** throw `new Error("bad dir")` if the string is not a compass word. `Player.move` already faults on a bad dir, but this lesson wants that check in `step` so you can recover on purpose. `catch` is not the end of the program. It is the place you name the fault and continue.',
+            '',
+            'The fox is told `"up"`. That is not a heading. Without `catch`, the walk dies and the beacon stays dark. With `catch`, the fox says `"fault"`, then the next line after the `try/catch` still runs. Two legal east steps put it on the lamp. A handled error is a recovered desk, not a crashed night.',
+            '',
+            fence(
+              'javascript',
+              `function step(dir) {
+  if (!["north", "south", "east", "west"].includes(dir)) {
+    throw new Error("bad dir")
+  }
+  Player.move(dir)
+}
+try { step("up") } catch (e) { Player.say("fault") }
+step("east")  // still runs — you recovered`
+            ),
+            '',
+            'A common mistake is to call `Player.move` on every string and never throw, or to catch and then stop walking. On Try, `step("up")` must throw. Catch it, `Player.say("fault")`, then walk east to (2, 0).'
+          ].join('\n')
         ),
         predict(
           'catch-continues',
@@ -595,7 +736,26 @@ module.exports = { step }
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Cleanup, then fail\n\n`finally` runs whether `try` threw or not. Use it to push a clear note after an attempt.\n\nIf you still want the caller to see the error, throw again after cleanup. `finally` is not a catch that swallows the fault.\n\nThe desk wipes the clipboard (`"clear"`) even when the attempt fails. Then it can still rethrow so the night log shows the fault.'
+          [
+            '## Cleanup, then fail',
+            '',
+            '`finally` is the block that always runs after `try`, whether that `try` threw or finished cleanly. Use it for cleanup you cannot skip: wipe the clipboard, close a drawer, push a clear note. It is not a second `catch`. It does not swallow the fault. After cleanup, the error still leaves the function unless you caught it yourself.',
+            '',
+            'If you still want the caller to see the error, let it rethrow — or throw again after cleanup. The desk wipes the clipboard (`"clear"`) even when the attempt fails. Then the fault can still reach the night log. Skip `finally` and a failed attempt leaves the clipboard dirty; swallow the throw inside `attempt` and the caller never learns the walk broke.',
+            '',
+            fence(
+              'javascript',
+              `const notes = []
+function attempt() {
+  try { throw new Error("x") }
+  finally { notes.push("clear") }  // runs even though try threw
+}
+try { attempt() } catch (e) {}
+notes[0]  // "clear" — cleanup happened, then the throw left`
+            ),
+            '',
+            'A common mistake is to throw inside `attempt` with no `finally`, so `notes` stays empty, or to catch inside `attempt` and hide the error. On Try, `attempt` tries a throw, `finally` pushes `"clear"` into `notes`, then the throw leaves. Catch outside and print `notes[0]`.'
+          ].join('\n')
         ),
         predict(
           'finally-always',
@@ -654,7 +814,28 @@ assert.strictEqual(m.notes[0], 'clear')
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Name the failure\n\n`class RouteError extends Error {}` lets `catch (e)` ask `e instanceof RouteError`. A generic `Error` is a shrug. A named class is a signal.\n\nA `RouteError` is still an `Error`. `e instanceof Error` stays true.\n\nWhen the path is blocked, the fox throws `RouteError("blocked")`. The desk can tell a blocked route from a missing file.'
+          [
+            '## Name the failure',
+            '',
+            'A **custom error class** names a kind of failure so `catch` can tell it from the rest. `class RouteError extends Error {}` lets you ask `e instanceof RouteError`. A generic `Error` is a shrug: blocked path, missing file, and bad math all look the same. A named class is a signal the desk can branch on.',
+            '',
+            'A `RouteError` is still an `Error`. `e instanceof Error` stays true because `extends` keeps the subclass in that family. When the path is blocked, the fox throws `RouteError("blocked")`. The desk can tell a blocked route from a missing file and file the right night note. Throw a plain `Error` and the hidden check cannot see the kind.',
+            '',
+            fence(
+              'javascript',
+              `class RouteError extends Error {}
+function fail() {
+  throw new RouteError("blocked")
+}
+try { fail() } catch (e) {
+  e instanceof RouteError  // true
+  e instanceof Error       // true — subclasses still are Errors
+  e.message                // "blocked"
+}`
+            ),
+            '',
+            'A common mistake is to keep `throw new Error("blocked")` after defining the class, so `instanceof RouteError` is false. On Try, define `RouteError`. `fail()` throws one with message `blocked`. Catch it and print `blocked`.'
+          ].join('\n')
         ),
         predict(
           'instanceof',
@@ -714,7 +895,27 @@ try { m.fail() } catch (e) {
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## The top line is the throw\n\nA stack lists calls from newest to oldest. The first `at step` line is where `throw` ran. Fix `step` so `"east"` is legal and `"up"` still throws.\n\nPrint `ok` after a good step. Do not throw on a compass heading.\n\nThe fox was told `"east"` and still crashed. The stack’s first `at` line points at `step`, not at the first function in the file.'
+          [
+            '## The top line is the throw',
+            '',
+            'A **stack trace** lists function calls from newest to oldest. The first `at` line after the message is usually where `throw` ran, not the first function in the file. Read that line. Fix that function. The rest of the stack is how you got there — useful, but not the crash site.',
+            '',
+            'The fox was told `"east"` and still crashed. The stack’s first `at` line points at `step`. Someone left a blanket `throw` in that function, so a legal compass word dies the same way `"up"` should. The walk never prints `ok`, and the beacon stays dark. A debug desk that chases the file’s first function wastes the night on the wrong room.',
+            '',
+            fence(
+              'javascript',
+              `function step(dir) {
+  if (dir !== "east" && dir !== "west" && dir !== "north" && dir !== "south") {
+    throw new Error("bad")
+  }
+  return dir  // "east" is legal — do not throw
+}
+step("east")  // returns "east"
+// step("up")  // still throws`
+            ),
+            '',
+            'A common mistake is to throw on every call, or to remove the throw so `"up"` becomes legal too. On Try, fix `step` so `step("east")` does not throw and you print `ok`. `step("up")` must still throw.'
+          ].join('\n')
         ),
         predict(
           'stack-top',
@@ -773,7 +974,23 @@ assert.throws(() => m.step('up'))
       taskRev: 3,
       blocks: [
         explain(
-          '## `+` and `==` ask an object for a primitive\n\n`[] + []` is `""`. `[] == false` is `true` because both sides coerce. `{ valueOf() { return 1 } } + 1` is `2`.\n\nPrefer `===` and explicit `Number` / `String`. The language has a ToPrimitive walk, not a moral about “empty.”\n\nThe desk asked whether an empty tray `[]` equals `false` (lamp off). Loose `==` says yes. The fox should not treat an empty list as “off.”'
+          [
+            '## `+` and `==` ask an object for a primitive',
+            '',
+            'When `+` or loose `==` meets an object, JavaScript asks that object for a **primitive**. The walk is called ToPrimitive. `valueOf` (and sometimes `toString`) is how the object answers. `{ valueOf() { return 1 } } + 1` is `2`. `[] + []` is `""`. `[] == false` is `true` because both sides coerce toward `0`.',
+            '',
+            'Prefer `===` and explicit `Number` / `String`. The language has a coercion walk, not a moral about “empty.” The desk asked whether an empty tray `[]` equals `false` (lamp off). Loose `==` says yes. The fox should not treat an empty list as “off,” or a later add will treat a tray as a zero current and file a false reading.',
+            '',
+            fence(
+              'javascript',
+              `[] == false                 // true — both coerce toward 0
+const box = { valueOf() { return 2 } }
+Number(box)                 // 2 — Number asked valueOf
+// box + 0                  // also 2`
+            ),
+            '',
+            'A common mistake is to `return 2` from `asNumber` and skip the object. On Try, `asNumber` builds a `box` with `valueOf` that returns `2`, then returns `Number(box)` and prints `2`.'
+          ].join('\n')
         ),
         predict(
           'empty-array-eq',
@@ -831,9 +1048,27 @@ assert.ok(!/return\\s+2\\b/.test(stripped), 'return Number(box), not the literal
       title: 'The prototype chain',
       skillIds: ['js.proto'],
       estimatedMinutes: 22,
+      taskRev: 3,
       blocks: [
         explain(
-          '## Shared methods live on the prototype\n\n`Object.getPrototypeOf(obj)` is the next place JS looks for a field. Many objects share one method object. That is `[[Prototype]]`, not a copy of the function on every instance.\n\nTwo foxes from the same prototype share one `go` function.\n\nThe desk does not copy `move` onto every route card. Each card looks up `go` on the shared prototype when you call it.'
+          [
+            '## Shared methods live on the prototype',
+            '',
+            'The **prototype chain** is where JavaScript looks next when an object does not own a field. `Object.getPrototypeOf(obj)` is that next place. Many objects share one method object. That link is `[[Prototype]]`, not a copy of the function on every instance. Two foxes from the same prototype share **one** `go` function: `a.go === b.go` is `true`.',
+            '',
+            'The desk does not copy `move` onto every route card. Each card looks up `go` on the shared prototype when you call it. If you paste `go` onto each object, you waste memory and `a.go === b.go` becomes false — the night log then thinks you have two different walks. `Object.create(proto)` is how you hang two children on one method object without `new`.',
+            '',
+            fence(
+              'javascript',
+              `const proto = { go() { return "east" } }
+const a = Object.create(proto)
+const b = Object.create(proto)
+a.go === b.go  // true — one function on the prototype
+a.go()         // "east" — looked up on proto`
+            ),
+            '',
+            'A common mistake is to `return true` from `sharedGo` without building the share, or to put `go` on each object as an own field. On Try, `sharedGo()` makes two objects that share one `go` via `Object.create`, returns whether `a.go === b.go`, and prints that `true`.'
+          ].join('\n')
         ),
         predict(
           'shared-method',
@@ -852,28 +1087,32 @@ assert.ok(!/return\\s+2\\b/.test(stripped), 'return Number(box), not the literal
           { explainMd: 'The method lives once on the prototype. Instances look it up; they do not each get a copy.' }
         ),
         stdoutCode({
-          id: 'read-proto',
-          prompt: '> `protoName()` returns `Object.getPrototypeOf({}).constructor.name` (`Object`). Print it.',
-          equals: 'Object',
-          ast: 'getPrototypeOf',
+          id: 'shared-go',
+          prompt:
+            '> `sharedGo()` makes two objects that share one `go` on a prototype (`Object.create`). Return whether `a.go === b.go` (`true`). Print it. Do not hard-code `return true`.',
+          equals: 'true',
           hidden: true,
           hints: ladder(
-            'A plain `{}` has `Object.prototype` behind it.',
-            'Read `Object.getPrototypeOf({})`, then `.constructor.name`.',
-            'That name is the string `Object`.',
-            'function protoName() {\n  return Object.getPrototypeOf({}).constructor.name\n}\nconsole.log(protoName())\nmodule.exports = { protoName }'
+            'Put `go` on one prototype object. Make two children with `Object.create`.',
+            'Compare the two method functions: `a.go === b.go`.',
+            'They should be the same function, not two copies.',
+            'function sharedGo() {\n  const proto = { go() { return "east" } }\n  const a = Object.create(proto)\n  const b = Object.create(proto)\n  return a.go === b.go\n}\nconsole.log(sharedGo())\nmodule.exports = { sharedGo }'
           )
         })
       ]
     }),
     files: {
-      'main.js': `function protoName() {
-  return "?"
+      'main.js': `function sharedGo() {
+  return false
 }
-console.log(protoName())
-module.exports = { protoName }
+console.log(sharedGo())
+module.exports = { sharedGo }
 `,
-      'hidden.test.js': exportAssert(`assert.strictEqual(m.protoName(), 'Object')
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.sharedGo(), true)
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/Object\\.create/.test(src), 'share go via Object.create')
+assert.ok(/\\.go\\s*===\\s*|===\\s*\\w+\\.go/.test(src), 'compare the two go functions')
+assert.ok(!/^[^\\n]*return\\s+true\\s*$/m.test(src) || /Object\\.create/.test(src), 'prove the share, do not only return true')
 `)
     }
   })
@@ -888,7 +1127,23 @@ module.exports = { protoName }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Two ways to set the prototype\n\n`new Fn()` runs `Fn` and sets the instance proto to `Fn.prototype`.\n\n`Object.create(proto)` makes an object whose proto is `proto` and does not run a constructor. Use `create` when you want a chain without `new`.\n\n`Object.create(null)` has no prototype — a clean dictionary. The fox can store headings without inheriting `toString` from `Object.prototype`.'
+          [
+            '## Two ways to set the prototype',
+            '',
+            '`new Fn()` runs `Fn` as a constructor and sets the instance’s prototype to `Fn.prototype`. `Object.create(proto)` makes an object whose prototype is `proto` and does **not** run a constructor. Use `create` when you want a chain without `new`. Both set `[[Prototype]]`. Only `new` also runs setup code.',
+            '',
+            '`Object.create(null)` has no prototype — a clean dictionary. The fox can store headings without inheriting `toString` from `Object.prototype`, so a later `for...in` or a stray `"toString"` key does not lie. A child made with `Object.create({ kind: "beacon" })` can still read `kind` even though that field is not its own. Own-field copies hide the chain this lesson is teaching.',
+            '',
+            fence(
+              'javascript',
+              `const child = Object.create({ kind: "beacon" })
+child.kind              // "beacon" — read from the prototype
+Object.hasOwn(child, "kind")  // false — not an own field
+Object.create(null)     // no prototype — a clean dictionary`
+            ),
+            '',
+            'A common mistake is to `return { kind: "beacon" }` so `kind` is own and `Object.create` never appears. On Try, `child()` returns `Object.create({ kind: "beacon" })`. Print `child().kind`.'
+          ].join('\n')
         ),
         predict(
           'create-null',
@@ -945,7 +1200,26 @@ assert.ok(!Object.hasOwn(c, 'kind'))
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods.\n\n`go` lives on `Route.prototype`. Two instances share the same function.\n\nThe fox builds `new Route("east")` and calls `go` three times. The heading lives on the instance; the walk method is shared.'
+          [
+            '## A route blueprint',
+            '',
+            'A **class** is nicer spelling for a constructor plus prototype methods. `class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` still builds objects with `new`. `go` lives on `Route.prototype`. Two instances share the same function: `new Route("east").go === new Route("east").go` is `true`.',
+            '',
+            'The heading lives on the instance; the walk method is shared. The fox builds `new Route("east")` and calls `go` three times. If you put `go` on each instance as an own field, the share breaks. If `go` stays empty, the class is a label with no walk and the beacon stays dark. The desk wants one blueprint, many route cards.',
+            '',
+            fence(
+              'javascript',
+              `class Route {
+  constructor(dir) { this.dir = dir }
+  go() { Player.move(this.dir) }
+}
+const r = new Route("east")
+r.go === Route.prototype.go  // true — method is shared
+r.go()                       // walks this.dir`
+            ),
+            '',
+            'A common mistake is to leave `go` empty after writing the constructor. On Try, write `class Route` with a working `go()`, make one `Route("east")`, and call `go` three times so the fox reaches (3, 0).'
+          ].join('\n')
         ),
         predict(
           'class-proto',
@@ -1014,7 +1288,27 @@ assert.strictEqual(r.go, m.Route.prototype.go)
       estimatedMinutes: 25,
       blocks: [
         explain(
-          '## Four rules (plain functions)\n\n`obj.method()` sets `this` to `obj`. A bare `fn()` loses that receiver. `fn.call(obj)` / `apply` pick `this`. `fn.bind(obj)` returns a new function with `this` locked.\n\nAfter `const go = obj.go; go()`, the call site lost the receiver. Bind a mover so the callback still walks east.\n\nThe desk pulls `go` off the fox’s route card and later calls `go()`. Without `bind`, `this.dir` is gone and the fox stands still.'
+          [
+            '## Four rules (plain functions)',
+            '',
+            'For a plain `function` method, `this` is decided at the **call site**. `obj.method()` sets `this` to `obj`. A bare `fn()` loses that receiver. `fn.call(obj)` and `fn.apply(obj, args)` pick `this` for one call. `fn.bind(obj)` returns a new function with `this` locked. Arrows are the exception: they keep the `this` from where they were written and do not pick up a new receiver.',
+            '',
+            'The desk pulls `go` off the fox’s route card and later calls `go()`. After `const go = mover.go; go()`, a plain method has lost `mover`. `this.dir` is gone and the fox stands still, even though the heading is still on the card. Bind the mover so the callback still walks east when something else calls it.',
+            '',
+            fence(
+              'javascript',
+              `const mover = {
+  dir: "east",
+  go() { Player.move(this.dir) }
+}
+const lost = mover.go
+// lost()                    // this is not mover — no walk
+const go = mover.go.bind(mover)
+go()                         // east — this stays mover`
+            ),
+            '',
+            'A common mistake is to detach `mover.go` and call it bare, or to skip `bind` so the hidden check never sees the lock. On Try, write `const go = mover.go.bind(mover)` and call `go()` three times so the fox reaches (3, 0).'
+          ].join('\n')
         ),
         predict(
           'detached',
@@ -1024,6 +1318,19 @@ assert.strictEqual(r.go, m.Route.prototype.go)
             { id: 'lost', md: 'Not `obj` — the call site lost the receiver' }
           ],
           'lost'
+        ),
+        predict(
+          'arrow-this-keep',
+          'An arrow function’s `this` is…',
+          [
+            { id: 'call', md: 'Whatever called it, like a method — an arrow is only shorter spelling', misconceptionId: 'arrow-is-just-shorter' },
+            { id: 'outer', md: 'The `this` from the scope where it was created' }
+          ],
+          'outer',
+          {
+            explainMd:
+              'Arrows do not get a new `this` at the call site. They keep the `this` from where they were written. That is why an arrow is not “just shorter” than `function`.'
+          }
         ),
         cloze(
           'this-lost',
@@ -1083,7 +1390,26 @@ module.exports = { mover }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A `position` getter\n\n`get position() { return this.x + "," + this.y }` runs on read. You do not get the getter function itself.\n\n`Object.getOwnPropertyDescriptor` shows `get` / `set` / `writable`.\n\nThe fox-like object has `x: 2`, `y: 1`. Reading `fox.position` should print `2,1` as if it were a field.'
+          [
+            '## A `position` getter',
+            '',
+            'A **getter** is a function that runs when you read a field. `get position() { return this.x + "," + this.y }` does not store a string. It computes one on each read. You do not get the getter function itself. `Object.getOwnPropertyDescriptor(obj, "position")` shows `get` / `set` / `writable` so you can see the trap.',
+            '',
+            'The fox-like object has `x: 2`, `y: 1`. Reading `fox.position` should print `2,1` as if it were a field. If you store a stale `"0,0"` string instead, a later move of `x` leaves the printed seat wrong and the desk files the fox on the wrong tile. A getter stays honest because it reads `this.x` and `this.y` now.',
+            '',
+            fence(
+              'javascript',
+              `const fox = {
+  x: 2,
+  y: 1,
+  get position() { return this.x + "," + this.y }
+}
+fox.position  // "2,1" — the getter ran
+// fox.position is not the function; it is the return value`
+            ),
+            '',
+            'A common mistake is to put a plain `position: "0,0"` string on the object, so there is no `get` trap. On Try, build an object with `x: 2`, `y: 1`, and a `position` getter that returns `2,1`, then print it.'
+          ].join('\n')
         ),
         predict(
           'getter-call',
@@ -1137,7 +1463,23 @@ assert.ok(Object.getOwnPropertyDescriptor(m.fox, 'position').get)
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## A key that will not collide\n\n`const meta = Symbol("meta")` is unique. `obj[meta] = "hidden"` does not show up in `Object.keys` or JSON by default.\n\n`Object.keys({ [Symbol("m")]: 1 })` is `[]`. Symbols are skipped.\n\nThe desk pins a private note on a route card. The night log lists ordinary keys; the note stays off that list.'
+          [
+            '## A key that will not collide',
+            '',
+            'A **symbol** is a unique key. `const meta = Symbol("meta")` is never equal to another `Symbol("meta")`. `obj[meta] = "hidden"` stores a field that does not show up in `Object.keys` or in `JSON.stringify` by default. Two libraries can pin notes on the same object without stealing each other’s string key `"meta"`.',
+            '',
+            '`Object.keys({ [Symbol("m")]: 1 })` is `[]`. Symbols are skipped. The desk pins a private note on a route card. The night log lists ordinary keys; the note stays off that list. If you store the note under a string, a later `Object.keys` dump publishes it, and a colliding `"note"` field from another pack overwrites the desk’s own reminder.',
+            '',
+            fence(
+              'javascript',
+              `const k = Symbol("meta")
+const obj = { [k]: "note" }
+Object.keys(obj)  // [] — symbols are skipped
+obj[k]            // "note" — read with the same symbol`
+            ),
+            '',
+            'A common mistake is to return a visible string from `hiddenNote` and never make a `Symbol`. On Try, store `"note"` under a symbol key and print it so stdout is `note`.'
+          ].join('\n')
         ),
         predict(
           'keys-skip',
@@ -1192,7 +1534,24 @@ module.exports = { hiddenNote }
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Notes you do not own\n\n`WeakMap` keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point.\n\nA string like `"fox"` cannot be a key.\n\nThe desk remembers `"keep"` on a route object it does not own. When that route is gone, the note can vanish with it.'
+          [
+            '## Notes you do not own',
+            '',
+            'A **WeakMap** holds notes on objects you do not own. Keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point. A string like `"fox"` cannot be a key. `Map` would keep the pair alive and let you list every key; `WeakMap` refuses both.',
+            '',
+            'The desk remembers `"keep"` on a route object it does not own. When that route is gone, the note can vanish with it. If you use a `Map`, the note pins the route in memory after the stage has forgotten it, and a later dump can list private marks. A string key would also fail: the language throws, and the fox never gets its `"keep"` stamp.',
+            '',
+            fence(
+              'javascript',
+              `const notes = new WeakMap()
+const route = {}
+notes.set(route, "keep")
+notes.get(route)  // "keep"
+// notes.set("fox", "keep")  // TypeError — keys must be objects`
+            ),
+            '',
+            'A common mistake is to keep `new Map()` so the hidden check never sees a WeakMap. On Try, `noteOf(route)` reads a WeakMap. Store `"keep"` on `{}` and print it.'
+          ].join('\n')
         ),
         predict(
           'weak-key',
@@ -1250,7 +1609,26 @@ assert.ok(m.notes instanceof WeakMap)
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## `for...of` calls `[Symbol.iterator]`\n\nAn object is iterable if that method returns `{ next() { return { value, done } } }`. It does not have to be an Array.\n\nBuild a tiny iterable that yields `"east"`, `"east"`, `"south"` so the fox can `for (const d of path) Player.move(d)`.\n\nThe plan lives on a custom `path` object. The fox only cares that `for...of` can pull the next heading.'
+          [
+            '## `for...of` calls `[Symbol.iterator]`',
+            '',
+            'An object is **iterable** if it has `[Symbol.iterator]` and that method returns an iterator: `{ next() { return { value, done } } }`. It does not have to be an Array. `for (const x of obj)` is the loop that asks for that method. No iterator, no loop — you get a TypeError, not a silent skip.',
+            '',
+            'The plan lives on a custom `path` object. The fox only cares that `for...of` can pull the next heading. Build a tiny iterable that yields `"east"`, `"east"`, `"south"` so `for (const d of path) Player.move(d)` walks to the beacon. A plain `{}` with a list field is not enough: `for...of` will not see that field unless you hang `Symbol.iterator` on `path`.',
+            '',
+            fence(
+              'javascript',
+              `const dirs = ["east", "east", "south"]
+const path = {
+  [Symbol.iterator]() { return dirs[Symbol.iterator]() }
+}
+for (const d of path) {
+  // d is "east", then "east", then "south"
+}`
+            ),
+            '',
+            'A common mistake is to export `path` as an empty object, or to walk an array and never make `path` iterable. On Try, make `path` iterable: east, east, south. Walk the fox to (2, 1).'
+          ].join('\n')
         ),
         predict(
           'for-of-needs',
@@ -1313,7 +1691,26 @@ module.exports = { path }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Pause, yield, resume\n\n`function* steps() { yield "east"; yield "south" }` returns a generator. It does not return the first yield immediately.\n\n`for...of` pulls each yield. The fox walks what you yield.\n\n`function* route()` yields east, east, south. The beacon sits at (2, 1) when those three steps run.'
+          [
+            '## Pause, yield, resume',
+            '',
+            'A **generator** is a function you write with `function*` and `yield`. Calling it does not return the first yielded value. It returns a generator object you iterate. Each `yield` pauses and hands out one value. `for...of` pulls each yield until the generator is done.',
+            '',
+            'The fox walks what you yield. `function* route()` yields east, east, south. The beacon sits at (2, 1) when those three steps run. If you only yield once, the fox stops short. If you `return` an array instead of yielding, `for...of` on the generator will not see those headings as a sequence of steps — you handed back one value and stopped.',
+            '',
+            fence(
+              'javascript',
+              `function* route() {
+  yield "east"
+  yield "east"
+  yield "south"
+}
+[...route()]  // ["east", "east", "south"]
+// route() itself is the generator, not the first heading`
+            ),
+            '',
+            'A common mistake is to yield only the first `"east"` and leave the other two steps out. On Try, write `function* route()` so it yields east twice and south once, then walk those yields to (2, 1).'
+          ].join('\n')
         ),
         predict(
           'yield-pause',
@@ -1380,7 +1777,29 @@ module.exports = { route }
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Trap `get`, do not build a framework\n\n`new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` intercepts reads. A `get` trap runs when you read a field, not when you write one.\n\nUse it once to default missing dirs to `"east"`.\n\nThe desk wraps a blank route card. Asking for `unknown` still returns `"east"`, so the fox has a fallback heading.'
+          [
+            '## Trap `get`, do not build a framework',
+            '',
+            'A **proxy** wraps a target and intercepts operations. `new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` runs the `get` trap when you **read** a field, not when you write one. `Reflect.get` forwards a real field. You can also return a default when the key is missing. One trap is enough for this desk — do not build a framework.',
+            '',
+            'The desk wraps a blank route card. Asking for `unknown` still returns `"east"`, so the fox has a fallback heading. Without the trap, `wrap.unknown` is `undefined` and the walk dies. A `set` trap would not help: the failure is a read of a missing dir, not a write. Default only the holes; a real `south` on the card must still read as `"south"`.',
+            '',
+            fence(
+              'javascript',
+              `function wrapRoute(obj) {
+  return new Proxy(obj, {
+    get(t, key) {
+      if (key in t) return Reflect.get(t, key)
+      return "east"  // missing keys only
+    }
+  })
+}
+wrapRoute({}).unknown     // "east"
+wrapRoute({ south: "south" }).south  // "south"`
+            ),
+            '',
+            'A common mistake is to return the bare object from `wrapRoute` and skip `Proxy`. On Try, proxy a `{}` so missing keys return `"east"`, then print `wrap.unknown`.'
+          ].join('\n')
         ),
         predict(
           'proxy-get',
@@ -1438,7 +1857,28 @@ assert.strictEqual(w.nope, 'east')
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## An object graph that matches a world part\n\nBuild `{ id, type, props }` like `world-v1`. `makePart("fox", { x: 1, y: 0 })` returns that shape. `movePart(part, "east")` increments `props.x`.\n\n`part.props` is an object the engine can read (`x`, `y`…), not a string dump.\n\nTwo easts from x=0 put the modeled fox at x=2, the same way the stage fox walks.'
+          [
+            '## An object graph that matches a world part',
+            '',
+            'A **world part** is a small object graph the stage already understands: `{ id, type, props }`. `makePart("fox", { x: 1, y: 0 })` returns that shape. `movePart(part, "east")` increments `props.x`. `part.props` is an object the engine can read (`x`, `y`…), not a string dump. A printed string cannot take a step.',
+            '',
+            'Two easts from x=0 put the modeled fox at x=2, the same way the stage fox walks. If `props` is a shared box you did not copy, two parts move as one and a beacon slides when the fox does. If `movePart` stays empty, the model never matches the yard and a later transfer lesson cannot trust the record.',
+            '',
+            fence(
+              'javascript',
+              `function makePart(type, props) {
+  return { id: type, type, props: { ...props } }
+}
+function movePart(part, dir) {
+  if (dir === "east") part.props.x += 1
+}
+const fox = makePart("fox", { x: 0, y: 0 })
+movePart(fox, "east")
+fox.props.x  // 1 — the model walked`
+            ),
+            '',
+            'A common mistake is to return `{ type, props }` and leave `movePart` blank, or to dump fields into a string. On Try, write `makePart` and `movePart`, walk east twice from x=0, and print the new x (`2`).'
+          ].join('\n')
         ),
         predict(
           'props-box',

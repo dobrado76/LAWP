@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Filter in the page\n\nThe list is already in the tree. On `input` of `#q`, hide `li` nodes whose text does not include the query (case-insensitive). Use a class or `hidden` — do not rebuild innerHTML from a string of names.\n\nTyping `ea` should hide `North` and leave `East` visible. The filter tray already holds the names. You only show or hide them."
+      "md": "## Filter in the page\n\nThe list is already in the tree. On `input` of `#q`, hide `li` nodes whose text does not include the query (case-insensitive). Use a class or `hidden`. Do not rebuild `innerHTML` from a string of names. The honest filter shows or hides existing nodes. Rebuilding the list throws the tree away and drops any state those rows had.\n\nWhy it bites: typing `ea` should hide `North` and leave `East` visible. If you rewrite `innerHTML` each key, a later click listener on a row dies, and a name with a `<` becomes a broken tag. The filter tray already holds the names. Night shift then sees a flicker and a list that forgot which row was picked.\n\n```javascript\nconst q = document.querySelector(\"#q\")\nq.addEventListener(\"input\", () => {\n  const needle = q.value.toLowerCase()\n  for (const li of document.querySelectorAll(\"#list li\")) {\n    li.hidden = !li.textContent.toLowerCase().includes(needle)\n  }\n})\n// \"ea\" hides North, leaves East\n```\n\nThe common mistake is writing a new innerHTML string of the matches, or comparing without lower case so `ea` misses `East`. On Try, typing `ea` in `#q` should hide `North` and leave `East` visible. Listen for `input` on `#q`. For each `li` in `#list`, set `hidden` if its text does not include the query. Keep the nodes."
     },
     {
       "type": "predict",

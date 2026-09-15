@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.events"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Delegation\n\nOne listener on `ul#list` can handle clicks on any `button` inside, including buttons you add later. Check `event.target.matches(\"button\")` or use `closest(\"button\")`.\n\nYou do not bind each button by hand. On this pick board, North and East are already listed. Clicking East should write `East` into `#picked` from `data-name`."
+      "md": "## Delegation\n\nOne listener on `ul#list` can handle clicks on any `button` inside, including buttons you add later. The click still bubbles to the parent. Check `event.target.matches(\"button\")` or use `closest(\"button\")` so a click on the button text still counts. You do not bind each button by hand. New children are covered without a new listener.\n\nWhy it bites: North and East are already listed. If you `querySelectorAll(\"button\")` and bind each one, a West button appended after bind is silent. The pick board then leaves `#picked` blank when night shift adds a channel. The fox files no heading, and the live list looks broken even though the new button is visible.\n\n```javascript\ndocument.querySelector(\"#list\").addEventListener(\"click\", (e) => {\n  const b = e.target.closest(\"button\")\n  if (!b) return\n  document.querySelector(\"#picked\").textContent = b.getAttribute(\"data-name\")\n})\n```\n\nThe common mistake is binding each button, or reading `e.target` when the click landed on text inside the button. On Try, one listener on `#list`: clicking a button sets `#picked` to that button’s `data-name`. The hidden test also clicks a button appended *after* your bind. Clicking East should write `East`. Use `closest(\"button\")` so the text click still counts."
     },
     {
       "type": "predict",
@@ -46,7 +46,7 @@
       "id": "delegate",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Clicking a button in `#list` should set `#picked` to that button’s `data-name`.",
+      "promptMd": "> One listener on `#list`: clicking a button sets `#picked` to that button’s `data-name`. Hidden test also clicks a button appended *after* your bind.",
       "preview": {
         "kind": "iframe"
       },

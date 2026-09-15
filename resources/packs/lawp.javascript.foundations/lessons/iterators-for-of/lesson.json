@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `for...of` calls `[Symbol.iterator]`\n\nAn object is iterable if that method returns `{ next() { return { value, done } } }`. It does not have to be an Array.\n\nBuild a tiny iterable that yields `\"east\"`, `\"east\"`, `\"south\"` so the fox can `for (const d of path) Player.move(d)`.\n\nThe plan lives on a custom `path` object. The fox only cares that `for...of` can pull the next heading."
+      "md": "## `for...of` calls `[Symbol.iterator]`\n\nAn object is **iterable** if it has `[Symbol.iterator]` and that method returns an iterator: `{ next() { return { value, done } } }`. It does not have to be an Array. `for (const x of obj)` is the loop that asks for that method. No iterator, no loop — you get a TypeError, not a silent skip.\n\nThe plan lives on a custom `path` object. The fox only cares that `for...of` can pull the next heading. Build a tiny iterable that yields `\"east\"`, `\"east\"`, `\"south\"` so `for (const d of path) Player.move(d)` walks to the beacon. A plain `{}` with a list field is not enough: `for...of` will not see that field unless you hang `Symbol.iterator` on `path`.\n\n```javascript\nconst dirs = [\"east\", \"east\", \"south\"]\nconst path = {\n  [Symbol.iterator]() { return dirs[Symbol.iterator]() }\n}\nfor (const d of path) {\n  // d is \"east\", then \"east\", then \"south\"\n}\n```\n\nA common mistake is to export `path` as an empty object, or to walk an array and never make `path` iterable. On Try, make `path` iterable: east, east, south. Walk the fox to (2, 1)."
     },
     {
       "type": "predict",

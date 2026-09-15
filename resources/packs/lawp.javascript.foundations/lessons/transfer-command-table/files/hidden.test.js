@@ -3,6 +3,7 @@ const m = require('./main.js')
 let n = 0
 m.run(['x', 'x'], { x: () => { n += 1 } })
 assert.strictEqual(n, 2)
+assert.throws(() => m.run(['missing'], { x: () => {} }), /./, 'missing plan keys must throw')
 
 ;(function () {
   const fs = require('fs')

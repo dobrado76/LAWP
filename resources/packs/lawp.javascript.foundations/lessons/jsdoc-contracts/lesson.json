@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `@param` / `@returns` are a contract you can read\n\nThis is not TypeScript-as-product. Write the tags so a later you (or a TS pack) can check them. Node does not enforce JSDoc at runtime.\n\n`/** @param {string[]} dirs @returns {number} */` above `walkLength`. Print the length of two dirs (`2`). The hidden test looks for `@param` and `@returns` in the file text.\n\nThe fox helper’s card on the desk lists what goes in and what comes out. A missing `@returns` is a missing promise to the next shift."
+      "md": "## `@param` / `@returns` are a contract you can read\n\nThis is not TypeScript-as-product. Write the tags so a later you (or a TS pack) can check them. Node does not enforce JSDoc at runtime. The fox helper’s card on the desk lists what goes in and what comes out. A missing `@returns` is a missing promise to the next shift.\n\nWhy it bites: a function that works today still hides its shape. The next shift guesses whether `dirs` is a string or a list. The tags are a contract you can read. This lesson’s grader only checks that `@param` and `@returns` are in the file text — it does not run a type checker.\n\n```javascript\n/** @param {string[]} dirs @returns {number} */\nfunction walkLength(dirs) {\n  return dirs.length\n}\nwalkLength([\"east\", \"south\"])  // 2\n```\n\nThe common mistake is implementing `walkLength` and skipping the comment. On Try, document and implement it. Print `2`."
     },
     {
       "type": "predict",

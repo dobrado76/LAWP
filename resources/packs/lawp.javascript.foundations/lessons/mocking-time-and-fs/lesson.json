@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Do not wait on the real clock\n\n`report(deps)` should call `deps.clock()` and `deps.read(\"log.txt\")`. In tests you pass `{ clock: () => 1000, read: () => \"north\" }`. You do not call `Date.now()` or `fs` inside `report`.\n\nPrint `1000 north`. The hidden test will pass a different clock and a different `read`. If you touch the real disk, that test cannot control the bytes.\n\nThe desk stamps a log with a fake noon so the fox walk test does not wait for a real midnight file."
+      "md": "## Do not wait on the real clock\n\n`report(deps)` should call `deps.clock()` and `deps.read(\"log.txt\")`. In tests you pass `{ clock: () => 1000, read: () => \"north\" }`. You do not call `Date.now()` or `fs` inside `report`. The desk stamps a log with a fake noon so the fox walk test does not wait for a real midnight file.\n\nWhy it bites: if `report` hits the real disk, the hidden test cannot control the bytes. If it hits `Date.now()`, the stamp changes every run. Injection is how a test supplies noon and `north` without waiting or writing a file.\n\n```javascript\nfunction report(deps) {\n  return deps.clock() + \" \" + deps.read(\"log.txt\")\n}\nreport({ clock: () => 1000, read: () => \"north\" })\n// \"1000 north\"\n```\n\nThe common mistake is `Date.now()` or `fs.readFileSync` inside `report`. On Try, print `1000 north` from the injected clock and read. The hidden test will pass a different clock and a different `read`."
     },
     {
       "type": "predict",

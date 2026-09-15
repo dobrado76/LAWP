@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "js.values"
+  ],
+  "id": "strings-immutable",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Text does not mutate",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Text does not mutate in place\n\nA JavaScript string is a finished strip of letters. You cannot scratch a character off and write another in its place. `\"east\".toUpperCase()` therefore returns a **new** string. The original stays `\"east\"`.\n\nThat surprises people who have watched arrays mutate. `push` rewrites the list you already have. String methods never do that. They build a second strip and hand it back. Forget to keep both, and you either shout over the heading or you return the quiet original.\n\n```javascript\nlet d = \"east\"\nconst shouted = d.toUpperCase()\n// shouted is \"EAST\"\n// d is still \"east\"\n```\n\nThe next lesson builds a new label with a template. This one only asks you to keep both strings: the new shout, and the original heading. `shoutKeep(\"east\")` must be `EAST|east`."
+    },
+    {
+      "type": "predict",
+      "id": "string-immutable",
+      "promptMd": "After `let d = \"east\"; d.toUpperCase()`, what is `d`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "EAST",
+          "md": "`\"EAST\"` — the letters flipped in place"
+        },
+        {
+          "id": "east",
+          "md": "`\"east\"` — the method returned a new string"
+        }
+      ],
+      "answer": "east",
+      "explainMd": "`toUpperCase` builds a new string and hands it back. It never rewrites the one you called it on. `d` stays `\"east\"` unless you assign the result back: `d = d.toUpperCase()`."
+    },
+    {
+      "type": "check",
+      "id": "upper-rewrites",
+      "kind": "tf",
+      "promptMd": "`\"east\".toUpperCase()` rewrites the original string to `\"EAST\"`.",
+      "answer": "false",
+      "explainMd": "Strings are immutable. The method returns a new string. The original stays \"east\"."
+    },
+    {
+      "type": "code",
+      "id": "shout-keep",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `shoutKeep(dir)` must call `toUpperCase` and return both strings as `SHOUT|original` — so `shoutKeep(\"east\")` is `EAST|east`. Do not hard-code `\"EAST|east\"`. Print `shoutKeep(\"east\")`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "EAST|east"
+        },
+        {
+          "type": "ast",
+          "query": "toUpperCase"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Call `toUpperCase` to get the shout. Then glue it to the original with `|`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The original `dir` is unchanged after `toUpperCase`. Use that. Do not assign over `dir` unless you saved a copy first."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`const shouted = dir.toUpperCase()` then `return shouted + \"|\" + dir`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function shoutKeep(dir) {\n  const shouted = dir.toUpperCase()\n  return shouted + \"|\" + dir\n}\nconsole.log(shoutKeep(\"east\"))\nmodule.exports = { shoutKeep }"
+        }
+      ]
+    }
+  ],
+  "description": "A string method returns a new string. The original text stays put."
+}

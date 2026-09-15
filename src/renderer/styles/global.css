@@ -440,8 +440,55 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .prose blockquote p { margin: 0; color: var(--text); }
 /* The goal banner sets 600; mono at that weight reads heavy, so hold it back. */
 .prose blockquote code { background: rgba(6, 26, 22, 0.5); color: #e6f4ef; font-weight: 500; }
+.prose .snippet {
+  margin: 12px 0 16px;
+  border: 1px solid #2a3344;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0b0e14;
+}
+.prose .snippet figcaption {
+  margin: 0;
+  padding: 7px 12px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b9bb4;
+  background: #10161f;
+  border-bottom: 1px solid #2a3344;
+}
+.prose .snippet pre {
+  margin: 0;
+  padding: 12px 14px 14px;
+  background: #0b0e14;
+  border-radius: 0;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #e8edf5;
+}
+.prose .snippet code {
+  display: block;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  overflow-wrap: normal;
+  white-space: pre;
+}
+.tok-kw { color: #2ec4b6; }
+.tok-fn { color: #93c5fd; }
+.tok-str { color: #7dce82; }
+.tok-num { color: #e07a5f; }
+.tok-cm { color: #6d7b91; font-style: italic; }
+.studio-back-idea { margin: 0 0 12px; }
+.studio-beat-cta { margin-top: 18px; }
 .pane.teach .prose:first-child h2 { margin-top: 0; }
 .pane.teach .prose :last-child { margin-bottom: 0; }
+.pane.teach .prose .snippet:last-child { margin-bottom: 0; }
 .task { margin-top: 14px; }
 .predict, .check-block { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
 .choice {

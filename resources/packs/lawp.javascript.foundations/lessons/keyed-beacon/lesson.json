@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The grid is the test\n\nYour file is the controller. **Run** plays the level on the stage.\n\n### Calls\n\n- `Player.move(\"north\"|\"south\"|\"east\"|\"west\")` — one cell. Rocks block.\n- `Player.rotate(90)` — turn\n- `Player.scale(1)` or `Player.scale(2)` — grow\n- `Player.say(\"ready\")` — speak\n\n### Win\n\nCollect every token. Stand on the beacon. Face **90°**, scale **2**, say **ready**."
+      "md": "## The grid is the test\n\nYour file is the controller. **Run** plays the level on the stage. `Player.move` walks one cell; rocks are solid and the step is refused. Tokens vanish when you walk onto them. The win is not only standing on the beacon — you must also face, grow, and speak.\n\nWhy it bites: a fox that reaches (2, 0) but still faces 0°, still at scale 1, or still silent has not finished. `Player.scale(3)` is rejected. Walking east from `(2, 3)` into the rock at `(3, 3)` leaves you in place, so a route that ignores walls looks right on paper and fails on the field.\n\n```javascript\nPlayer.move(\"north\")  // one cell; rocks block\nPlayer.rotate(90)     // face 90°\nPlayer.scale(2)       // grow; scale(3) is rejected\nPlayer.say(\"ready\")   // the win word\n```\n\nCalls you will use: `Player.move(\"north\"|\"south\"|\"east\"|\"west\")`, `Player.rotate(90)`, `Player.scale(1)` or `Player.scale(2)`, and `Player.say(\"ready\")`. On Try, collect every token, stand on the beacon, face **90°**, scale **2**, and say **ready**. The stage is the map — discover the route, and open Hint if you need a compass."
     },
     {
       "type": "predict",

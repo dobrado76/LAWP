@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A `position` getter\n\n`get position() { return this.x + \",\" + this.y }` runs on read. You do not get the getter function itself.\n\n`Object.getOwnPropertyDescriptor` shows `get` / `set` / `writable`.\n\nThe fox-like object has `x: 2`, `y: 1`. Reading `fox.position` should print `2,1` as if it were a field."
+      "md": "## A `position` getter\n\nA **getter** is a function that runs when you read a field. `get position() { return this.x + \",\" + this.y }` does not store a string. It computes one on each read. You do not get the getter function itself. `Object.getOwnPropertyDescriptor(obj, \"position\")` shows `get` / `set` / `writable` so you can see the trap.\n\nThe fox-like object has `x: 2`, `y: 1`. Reading `fox.position` should print `2,1` as if it were a field. If you store a stale `\"0,0\"` string instead, a later move of `x` leaves the printed seat wrong and the desk files the fox on the wrong tile. A getter stays honest because it reads `this.x` and `this.y` now.\n\n```javascript\nconst fox = {\n  x: 2,\n  y: 1,\n  get position() { return this.x + \",\" + this.y }\n}\nfox.position  // \"2,1\" — the getter ran\n// fox.position is not the function; it is the return value\n```\n\nA common mistake is to put a plain `position: \"0,0\"` string on the object, so there is no `get` trap. On Try, build an object with `x: 2`, `y: 1`, and a `position` getter that returns `2,1`, then print it."
     },
     {
       "type": "predict",

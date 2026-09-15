@@ -13,7 +13,7 @@
   { "id": "arrays-are-copied-by-assign", "title": "Thinks array assign copies items", "skillIds": ["js.arrays"], "followUpLessonId": "reference-vs-copy" },
   { "id": "map-mutates", "title": "Thinks map changes the original array", "skillIds": ["js.arrays"], "followUpLessonId": "arrays-map" },
   { "id": "closure-copies-value", "title": "Thinks a closure copies the value at create time", "skillIds": ["js.closures"], "followUpLessonId": "stale-closure-debug" },
-  { "id": "arrow-is-just-shorter", "title": "Thinks arrow is only shorter syntax", "skillIds": ["js.this"], "followUpLessonId": "arrow-vs-function" },
+  { "id": "arrow-is-just-shorter", "title": "Thinks arrow is only shorter syntax", "skillIds": ["js.this"], "followUpLessonId": "this-call-apply-bind" },
   { "id": "await-blocks-the-os", "title": "Thinks await freezes the operating system", "skillIds": ["js.async"], "followUpLessonId": "async-await" },
   { "id": "then-and-timeout-same-queue", "title": "Thinks then and setTimeout share one queue", "skillIds": ["js.async"], "followUpLessonId": "microtasks-then" },
   { "id": "innerhtml-for-text", "title": "Puts plain text through innerHTML", "skillIds": ["js.security"], "followUpLessonId": "xss-text-vs-html" },

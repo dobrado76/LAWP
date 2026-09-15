@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A bad dir is not the end\n\n`Player.move` already faults on a bad dir. Here **you** throw `new Error(\"bad dir\")` if the string is not a compass word. `catch` `say`s the fault, then you still finish the walk east to the beacon.\n\nThe program continues after a handled error. The next line after the `try/catch` still runs.\n\nThe fox is told `\"up\"`. That is not a heading. It says `\"fault\"`, then walks east twice onto the lamp."
+      "md": "## A bad dir is not the end\n\n`throw` stops the current path and hands an error to the nearest `catch`. Here **you** throw `new Error(\"bad dir\")` if the string is not a compass word. `Player.move` already faults on a bad dir, but this lesson wants that check in `step` so you can recover on purpose. `catch` is not the end of the program. It is the place you name the fault and continue.\n\nThe fox is told `\"up\"`. That is not a heading. Without `catch`, the walk dies and the beacon stays dark. With `catch`, the fox says `\"fault\"`, then the next line after the `try/catch` still runs. Two legal east steps put it on the lamp. A handled error is a recovered desk, not a crashed night.\n\n```javascript\nfunction step(dir) {\n  if (![\"north\", \"south\", \"east\", \"west\"].includes(dir)) {\n    throw new Error(\"bad dir\")\n  }\n  Player.move(dir)\n}\ntry { step(\"up\") } catch (e) { Player.say(\"fault\") }\nstep(\"east\")  // still runs — you recovered\n```\n\nA common mistake is to call `Player.move` on every string and never throw, or to catch and then stop walking. On Try, `step(\"up\")` must throw. Catch it, `Player.say(\"fault\")`, then walk east to (2, 0)."
     },
     {
       "type": "predict",

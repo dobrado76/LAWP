@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## UI is a return value\n\n`App` is a function. It **returns** what to show. Make it return `hello`."
+      "md": "## UI is a return value\n\nA component is a function. It returns what should appear. `App` is that function. There is no separate draw step you call later — the return value is the UI for this render. In this lesson the return is a simple string so you can see the idea without markup noise getting in the way of the rule.\n\nThis bites when you `console.log(\"hello\")` inside `App` and return nothing. The log may look like success, but the function's value is `undefined`, so the checked output is wrong. The page, or the harness that prints `App()`, shows what you returned, not what you printed as a side effect.\n\n```javascript\nfunction App() {\n  return \"hello\";\n}\nconsole.log(App());\n```\n\nA common mistake is returning `\"?\"` or printing `hello` without returning it. The exercise asks you to make `App` return `hello` so the print of `App()` is exactly that word.\n"
     },
     {
       "type": "code",

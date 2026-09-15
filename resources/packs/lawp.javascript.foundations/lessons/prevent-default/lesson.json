@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Submit does not have to leave\n\nA form’s default submit reloads or leaves the page. `event.preventDefault()` stops that default. The listener still runs. You keep the typed words on this desk.\n\nListen for `submit` on `#desk`. Prevent the default. Copy `#q` into `#out` with `textContent`. The fox files a query without the board going blank."
+      "md": "## Submit does not have to leave\n\nA form’s default submit reloads or leaves the page. `event.preventDefault()` stops that default. The listener still runs. You keep the typed words on this desk. `preventDefault` does not copy the value for you — it only stops the leave. You still read `#q` and write `#out` yourself, with `textContent` for plain words.\n\nWhy it bites: the fox files a query and the board goes blank because submit navigated away. The echo of `North` vanishes, listeners die, and the desk looks empty. If you skip `preventDefault` and only write `#out`, a real browser still leaves before anyone reads the line. Night shift finds no query on the plate.\n\n```javascript\ndocument.querySelector(\"#desk\").addEventListener(\"submit\", (e) => {\n  e.preventDefault() // stay on this board\n  document.querySelector(\"#out\").textContent =\n    document.querySelector(\"#q\").value\n})\n```\n\nThe common mistake is thinking `preventDefault` copies the field, or listening for `click` on the button instead of `submit` on the form. On Try, listen for `submit` on `#desk`. Prevent the default. Copy `#q` into `#out` with `textContent`. File the query on this desk. Do not let submit leave the board."
     },
     {
       "type": "predict",

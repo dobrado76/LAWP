@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Yours to keep\n\nPassing **Filter the list** saved the creation. Use **Export creation** to take the folder or zip off this machine. That is the point of a continuing app: it can do something it could not at the start."
+      "md": "## Yours to keep\n\nA continuing app is a folder you can take with you, not a throwaway drill. Passing **Filter the list** saved that creation under this learner. **Export creation** writes the folder or zip off this machine. The point of a keep step is that the list can now do something it could not at the start: hide items that do not match the query.\n\nThis bites when you treat the previous lesson as finished-and-gone. If you never export, the work lives only in this app's user data. A reinstall of the lesson pack does not replace your creation, but a new machine will not have it unless you take the files with you.\n\n```javascript\nfilterList([\"lamp\", \"fuse\", \"loop\"], \"l\");\n// -> \"lamp,loop\"  — the list now hides what does not match\n```\n\nA common mistake is thinking export is a pack zip or a settings backup. Those are different objects. The prompt asks you to say, in your own words, what new thing the list can do after the filter lesson.\n"
     },
     {
       "type": "reflect",

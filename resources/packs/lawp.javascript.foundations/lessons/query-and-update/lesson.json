@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Find, then write text\n\n`querySelector` takes a CSS selector. `#id`, `.class`, `li`. It returns one node or `null`. It does not return the HTML as a string.\n\nPut the name `North` into `#beacon-name`. Use `textContent`, not `innerHTML`, for plain text. The tag on the desk is a node. You find it, then you write the word."
+      "md": "## Find, then write text\n\n`querySelector` takes a CSS selector: `#id`, `.class`, `li`. It returns one node or `null`. A miss is `null`, not `\"\"`. It does not return the HTML as a string. You find the node, then you write the word. For plain text, use `textContent`, not `innerHTML` — you are labeling a tag, not parsing markup.\n\nWhy it bites: the beacon tag on the desk is already a node. If you skip the null check and call `textContent` on a miss, the page throws and the live name never updates. If you stuff the word into `innerHTML`, a later typed name can become a node. Filing `North` as markup is how a call sign turns into an unexpected element on the plate.\n\n```javascript\nconst tag = document.querySelector(\"#beacon-name\")\n// querySelector(\"#nope\") would be null — check before you write\ntag.textContent = \"North\"\n// tag now reads North; still the same p node\n```\n\nThe common mistake is treating a miss as an empty string, or using `innerHTML` for a plain name. On Try, `#beacon-name` should read `North`. Find it with a selector, then set `textContent`. Do not use `innerHTML` for this word. The name field is already a node — you only write the label."
     },
     {
       "type": "predict",

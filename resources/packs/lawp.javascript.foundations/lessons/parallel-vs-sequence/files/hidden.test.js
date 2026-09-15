@@ -10,5 +10,7 @@ const ops = log.map((row) => row.op)
 const moves = log.filter((row) => row.op === 'move' && row.dir === 'east')
 assert.ok(moves.length >= 3, 'walk east onto the beacon after the waits')
 assert.ok(ops.lastIndexOf('wait') < ops.indexOf('move'), 'finish the waiting before the walking')
+const src = fs.readFileSync('main.js', 'utf8')
+assert.ok(/Promise\.all\s*\(/.test(src), 'overlap the waits with Promise.all')
 
 })()

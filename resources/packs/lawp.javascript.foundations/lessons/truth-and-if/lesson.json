@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Some values act as “no”\n\nIn an `if`, these are falsy: `0`, `\"\"`, `null`, `undefined`, `NaN`, `false`. A lamp at brightness `0` is off. An empty name `\"\"` is missing.\n\n`[]` and `\"0\"` are truthy. An empty list is still a list. The string zero is still text. Do not treat them as “no.”"
+      "md": "## Some values act as “no”\n\nAn `if` does not ask “is there a value here.” It asks “is this value truthy.” Six values are falsy: `0`, `\"\"`, `null`, `undefined`, `NaN`, and `false`. A lamp at brightness `0` is off. An empty name is missing.\n\n`[]` and `\"0\"` are truthy. An empty list is still a list. The string zero is still text. Treating them as “no” is how a desk skips a real reading.\n\n```javascript\nif (0) { \"go\" } else { \"stop\" }     // \"stop\"\nif ([]) { \"go\" } else { \"stop\" }    // \"go\"\nif (\"0\") { \"go\" } else { \"stop\" }   // \"go\"\n```\n\nThe common mistake is listing the six falsy values by hand, or treating `[]` as shut because it looks empty. On Try, `gate(value)` returns `\"open\"` when the value is truthy, otherwise `\"shut\"`. `gate(0)` must print `shut`. Let the `if` do the work."
     },
     {
       "type": "predict",

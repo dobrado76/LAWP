@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Not a Number is still a number kind\n\n`Number(\"fox\")` is `NaN`. `typeof NaN` is `\"number\"`. `NaN === NaN` is **false**. A desk that stores lamp current as a number must catch that — otherwise it files a broken reading as if it were zero.\n\nUse `Number.isNaN(x)` when you mean “this failed to become a number.”"
+      "md": "## Not a Number is still a number kind\n\n`Number(\"fox\")` is `NaN`. That value is the language saying “this failed to become a number.” It is still a number *kind*: `typeof NaN` is `\"number\"`. A desk that stores lamp current must catch it, or it files a broken reading as if it were a real zero.\n\nYou cannot find it with `===`. `NaN === NaN` is **false**. Comparing against the word `\"fox\"` only catches one bad input. The operator that asks the real question is `Number.isNaN`.\n\n```javascript\nNumber(\"fox\")           // NaN\ntypeof NaN              // \"number\"\nNaN === NaN             // false\nNumber.isNaN(Number(\"fox\"))  // true\n```\n\n`failedNumber(text)` must use `Number.isNaN`. Hard-coding `text === \"fox\"` is the mistake this lesson removes."
     },
     {
       "type": "predict",
@@ -31,7 +31,8 @@
           "md": "false"
         }
       ],
-      "answer": "false"
+      "answer": "false",
+      "explainMd": "NaN is never equal to anything, including itself. Use `Number.isNaN` to detect it."
     },
     {
       "type": "code",

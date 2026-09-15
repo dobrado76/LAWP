@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `===` does not convert\n\n`0 == \"\"` is true because `==` coerces. `0 === \"\"` is false. A signal of `0` (off) is not the same as a missing name `\"\"`.\n\nPrefer `===` and `!==` unless you can name the coercion you want. Print whether `0` and `\"\"` are **not** strictly equal (`true`)."
+      "md": "## `===` does not convert\n\n`==` converts before it compares. That is why `0 == \"\"` is `true`: empty string becomes `0`. `===` refuses that conversion. A signal of `0` (off) is not a missing name `\"\"`. A desk that treats those as the same name files a dark lamp as an unnamed beacon.\n\nPrefer `===` and `!==` unless you can name the coercion you want. The starter on this desk still uses `==`. That is the habit to drop.\n\n```javascript\n0 == \"\"    // true  — == converted the string\n0 === \"\"   // false — different kinds\n0 !== \"\"   // true\n```\n\nThe common mistake is keeping `==` because it “looks like equals.” On Try, print whether `0` and `\"\"` are **not** strictly equal. Use `===` or `!==`. Do not keep `==`."
     },
     {
       "type": "predict",

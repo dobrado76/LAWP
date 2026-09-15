@@ -35,13 +35,21 @@ First product minor. Package/spec numbering was previously `0.3.3`; this release
 - Border colour means **selection only** (Play next / current). Progress and completion no longer paint the card edge — that was why yellow looked like a "transfer" colour. Transfer and debug get an amber/coral left stripe and a type chip instead
 - Status badges say **Passed** or **Mastered**, matching the grading model; the filter that covers both is **Finished**
 - Section time is the sum of lesson minutes (section 1.2 no longer claims 4 h when the lessons add up to ~2 h 50)
-- **names-let-const** prompt now says plainly: declare a `const`, return that binding — a bare `return "locked"` fails. Hidden test rejects a string-literal return. Studio no longer hides the overall **Incorrect** when questions pass but code fails (that was why two Correct banners could sit next to 67% with no lesson verdict); Why then says the questions are right and the code task is still open
+- **names-let-const** code now matches the quiz: flip a field on a `const` object (`signal.on = true`). `const` locks the name, not the fields. Studio no longer hides the overall **Incorrect** when questions pass but code fails (that was why two Correct banners could sit next to 67% with no lesson verdict); Why then says the questions are right and the code task is still open
+- **JS puzzles match the topic.** Heading, quiz, and code now practice the same idea. Split string immutability (`strings-immutable`: `toUpperCase` keeps the original) from templates (`strings-and-templates`: backticks vs quotes — the starter is the quote mistake). Arrow quizzes are syntax; arrow `this` moved to `this-call-apply-bind`. `stack-vs-heap` quizzes stack/heap, not `await`. `prototypes-chain` compares two shared methods. `arrays-index` uses `length - 1`. `arrays-filter-find` grades both. Hardcoded shortcuts still fail. Pack regenerated
 
 - Dropped the **Your path** heading. The pack title is already above it and the filter pills already carry the counts, so the row was restating what the page had just said. The pills moved up beside **Export pack ZIP** in the title row, which removes a second near-empty row and opens the pack page straight onto Play next
 - A chapter now reads as a chapter: **`Chapter 3 — The page` on one 21px line**, the number in accent and the name in full-strength text, with its one-line intro underneath as supporting text. It was the reverse before — the chapter name was the smallest type on the page while its description was the largest. Sections read the same way, `1.2 — Values you can see`
 - Hairline rules and real gaps between chapters and between the numbered sections inside them, so the page breaks into blocks you can scan instead of one continuous wall of cards
 - The placement row is numbered `1.1` like every other section. It is a compact row rather than a card grid, but it is still the first section of the chapter, and leaving it unnumbered made the chapter look like it started at 1.2
 - Dropped the `Tutorial N.` prefix from every chapter intro. It was a leftover from before these were called chapters, and it sat one line under a `Chapter N` kicker giving the same section two different numbers
+
+### Studio pages and snippets (D57)
+
+- A lesson that both teaches and has an exercise is now **Learn, then Try** — theory on the left and questions + Continue on the right (same split as a check-only quiz), then the editor or world on Try. Continue waits until the questions have answers (same gate as Submit). Back to the idea returns to Learn. Check-only quizzes and play-only rooms stay one screen
+- Fenced examples in explanations render as **real code blocks** with a language label and the editor’s syntax colors. The old renderer split ` ``` ` into leftover ticks around uncolored lines — that is gone
+- JavaScript teaching explains now meet the same bar (named idea, why it bites, tagged snippet, common mistake, what Try asks). Placement stays a thin diagnostic
+- Python, React, and Circuits bundled lessons now teach with a tagged snippet (`python` / `javascript` / `text`) and enough prose to name the idea, why it bites, the common mistake, and what the exercise asks. `brighter-lamp` stays play-first (no teach beat) so the first circuit experiment opens on the world
 
 ### JavaScript path
 

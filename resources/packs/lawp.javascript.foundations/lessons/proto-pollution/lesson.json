@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Do not merge untrusted keys onto Object.prototype\n\n`obj.__proto__` or a merge of `{ \"__proto__\": { polluted: true } }` can change **every** object. A JSON body from outside the desk is not a safe field list.\n\nSafe dictionaries: `Object.create(null)`, or copy **own** keys and skip `__proto__`, `constructor`, and `prototype`. `Object.freeze(Object.prototype)` is a belt.\n\n`safeMerge(target, src)` copies only those safe own keys. A fake heading `__proto__` in a fox log must not rewrite every object on the desk."
+      "md": "## Do not merge untrusted keys onto Object.prototype\n\n`obj.__proto__` or a merge of `{ \"__proto__\": { polluted: true } }` can change **every** object. A JSON body from outside the desk is not a safe field list. A fake heading `__proto__` in a fox log must not rewrite every object on the desk.\n\nWhy it bites: `Object.assign(target, src)` copies the dangerous key. After that, `{}.polluted` can become `true` for everyone. Safe dictionaries start from `Object.create(null)`, or copy **own** keys and skip `__proto__`, `constructor`, and `prototype`. `Object.freeze(Object.prototype)` is a belt, not the whole fix.\n\n```javascript\nconst dirty = JSON.parse('{\"__proto__\":{\"x\":1},\"name\":\"n\"}')\nObject.assign({}, dirty)     // can pollute\nsafeMerge({}, dirty).name    // \"n\" — proto skipped\n```\n\nThe common mistake is `return Object.assign(target, src)`. On Try, `safeMerge({}, { __proto__: { x: 1 }, name: \"n\" }).name` prints `n`. Hidden: prototype stays clean, and the target is not edited in place."
     },
     {
       "type": "predict",

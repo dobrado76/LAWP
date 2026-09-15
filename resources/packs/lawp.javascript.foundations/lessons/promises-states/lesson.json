@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Pending, fulfilled, rejected\n\nA Promise starts **pending**. It becomes **fulfilled** with a value or **rejected** with a reason. After that, the state sticks. You cannot send it back to pending.\n\n`Promise.resolve(\"locked\")` is already fulfilled. The desk already stamped the slip. Print that value with `.then` here — `await` comes next.\n\nOn the board: a beacon key that is already locked is still a promise. You just do not wait for a later tick to settle it."
+      "md": "## Pending, fulfilled, rejected\n\nA Promise starts **pending**. It becomes **fulfilled** with a value or **rejected** with a reason. After that, the state sticks. You cannot send it back to pending, and you cannot fulfill it a second time with a different stamp. `Promise.resolve(\"locked\")` is already fulfilled — the desk already stamped the slip before you held it.\n\nWhy it bites: a beacon key that is already locked is still a promise. If you treat “already resolved” as “not a promise,” you return a bare string and a later `.then` explodes, or you wait for a tick that will never come because you expected pending forever. Night shift then files the key as `open` because nobody read the slip that was already on the desk.\n\n```javascript\nconst slip = Promise.resolve(\"locked\")\n// slip is fulfilled now — not pending\nslip.then((v) => {\n  console.log(v) // locked\n})\n```\n\nThe common mistake is returning a plain string from `label` because the value is already known. On Try, `label()` must return a Promise — for example `Promise.resolve(\"locked\")` — not a bare string. Print the fulfilled value with `.then`. `await` comes next; this lesson only reads the already-stamped slip."
     },
     {
       "type": "predict",
@@ -46,7 +46,7 @@
       "id": "resolve-then",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `label()` returns `Promise.resolve(\"locked\")`. Print the fulfilled value.",
+      "promptMd": "> `label()` must return a Promise (e.g. `Promise.resolve(\"locked\")`), not a bare string. Print the fulfilled value.",
       "files": [
         {
           "path": "files/main.js",

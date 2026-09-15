@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A branch is a choice\n\n`if score >= 50:` runs one path. The other path is `else`. Comparison (`>=`) is not assignment (`=`)."
+      "md": "## A branch is a choice\n\nA branch is a choice the program makes after it asks a question. `if score >= 50:` picks one path when the comparison is true. The other path is `else`. The test uses comparison (`>=`), not assignment (`=`). Only one of those paths should run for a given score.\n\nThis bites when you print `\"fail\"` for every score, or when you write `if score = 50` and Python refuses to run. A score of `72` is already a pass, so a one-path script that always fails is lying about the data you were given. The number is sitting right there; the `if` has to look at it.\n\n```python\nscore = 72\nif score >= 50:\n    print(\"pass\")\nelse:\n    print(\"fail\")\n```\n\nA common mistake is mixing `=` into the test, or printing a canned word without looking at `score`. The exercise asks you to print `pass` when `score` is at least `50` (it is `72`), and to use a real `if` so the choice comes from the comparison.\n"
     },
     {
       "type": "code",

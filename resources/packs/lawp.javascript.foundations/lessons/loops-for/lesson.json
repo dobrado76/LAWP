@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## One idea, many steps\n\nA `for` loop is a counter that writes the path. Three east steps should be one loop, not three copy-pasted calls that will drift when the beacon moves."
+      "md": "## One idea, many steps\n\nA `for` loop is a counter that writes the path. The header names a start, a stop test, and a step. `for (let i = 0; i < 3; i++)` runs the body three times, with `i` equal to 0, then 1, then 2. The test `i < 3` is what makes it three, not the number written after the plus-plus.\n\nWhy it bites: three copy-pasted `Player.move(\"east\")` calls look fine until the beacon slides to x=5. One line gets edited and two stay stale. The fox stops short or walks through a wall that was not there last week.\n\n```javascript\nfor (let i = 0; i < 3; i++) {\n  Player.move(\"east\")\n}\n// i is 0, 1, 2 — three east steps, fox at (3, 0)\n```\n\nOn Try, use a `for` loop to walk east onto the beacon at (3, 0). The starter already pastes two moves. Do not grow a third paste — one loop should write the whole path. The hidden test refuses a file that keeps adding `Player.move` lines."
     },
     {
       "type": "predict",

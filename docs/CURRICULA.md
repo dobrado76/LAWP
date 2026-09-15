@@ -125,9 +125,9 @@ The grid teaches sequence, reuse, and transformation of **write-only** `player-v
 
 ### Course 1 — Values you can see (~4 h)
 
-`values-and-typeof`, `names-let-const`, `strings-and-templates`, `numbers-and-nan`, `triple-equals`, `truth-and-if`, `short-circuit`, `optional-chaining`, `transfer-classify-signal`.
+`values-and-typeof`, `names-let-const`, `strings-immutable`, `strings-and-templates`, `numbers-and-nan`, `triple-equals`, `truth-and-if`, `short-circuit`, `optional-chaining`, `transfer-classify-signal`.
 
-Predict-heavy; tiny stdout; one “say the type” closer. Misconceptions: `null-is-object-ok`, `const-means-immutable`, `double-equals-is-fine`, `optional-chain-defaults`, `or-eats-zero`.
+Predict-heavy; tiny stdout; one “say the type” closer. String immutability and template interpolation are **two lessons**. Misconceptions: `null-is-object-ok`, `const-means-immutable`, `double-equals-is-fine`, `optional-chain-defaults`, `or-eats-zero`.
 
 ### Course 2 — Commands on the stage (~5 h)
 
@@ -139,13 +139,13 @@ Grid first. Course id stays `signals`. `functions-call` names `module.exports` a
 
 `arrays-index`, `arrays-map`, `arrays-filter-find`, `arrays-reduce-once`, `objects-props`, `object-key-iteration`, `set-and-map`, `reference-vs-copy`, `destructure-spread`, `json-roundtrip`, `signal-log`.
 
-Grid + stdout. One justified `reduce`. `set-and-map` exercises both a Set and a Map. `json-roundtrip` parses a string held in the lesson — no `fs` before the Node track. Creation: signal log. Misconceptions: `arrays-are-copied-by-assign`, `map-mutates`, `for-in-yields-values`.
+Grid + stdout. One justified `reduce`. `arrays-filter-find` exercises both. `set-and-map` exercises both a Set and a Map. `json-roundtrip` parses a string held in the lesson — no `fs` before the Node track. Creation: signal log. Misconceptions: `arrays-are-copied-by-assign`, `map-mutates`, `for-in-yields-values`.
 
 ### Course 4 — Scope and functions as tools (~6 h)
 
 `scope-and-tdz`, `closures-radio`, `stale-closure-debug`, `callbacks-as-commands`, `arrow-vs-function`, `higher-order-route`, `transfer-command-table`.
 
-Grid for HOFs; predict for `this` / TDZ. Misconceptions: `closure-copies-value`, `arrow-is-just-shorter`.
+Grid for HOFs; predict for TDZ and arrow **syntax**. Arrow `this` is graded later, in `this-call-apply-bind`. Misconceptions: `closure-copies-value`. `arrow-is-just-shorter` follows up on the `this` lesson.
 
 ### Course 5 — Errors you can recover from (~3 h)
 
@@ -210,7 +210,11 @@ Node sandbox already real. Files stay under the run cwd. ESM lessons use the ESM
 - No play lesson opens with every objective already satisfied.
 - Every code block carries a four-rung hint ladder (orient → concept → different example → assist) with no 1→4 jump.
 - Every lesson teaches (`explain`) and asks (`check` / `predict` / `activity`).
+- Every explain (except the thin placement quiz) names the idea, why it bites, a **language-tagged fenced snippet**, the common mistake, and what Try asks — 90+ words of prose excluding the fence. Never a bare ` ``` ` with no language.
 - Every authored misconception is reachable from a wrong answer, and every skill/misconception/creation reference resolves.
+- **Concept-enforced assessment:** the prompt and hidden checks must require the lesson’s target construct (not a bare hardcoded return or a puzzle from another topic). Prefer signature/API contracts and banned shortcuts over opaque hash-only gates when the learner is still building the concept.
+- **Topic-aligned puzzle:** the heading, the questions, and the code task must practice the same idea. If two ideas cannot share one puzzle, they are separate lessons (string immutability vs template interpolation).
+- **Guided prompt:** state the return shape, the exact export name, and one concrete example so the Player can attempt without opening Hint 1.
 
 ---
 

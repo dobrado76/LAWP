@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## reduce when you are building one value\n\n`map` and `filter` already make lists. Use `reduce` here to **join a path string**: `[\"east\", \"south\"]` becomes `\"east-south\"`.\n\nThat is one accumulator, not a loop you hide for style."
+      "md": "## reduce when you are building one value\n\n`map` and `filter` already make lists. `reduce` is for **one** accumulator that walks the row. Here that value is a path string: `[\"east\", \"south\"]` becomes `\"east-south\"`. The second argument to `reduce` is the seed. `[\"east\"].reduce((acc, d) => acc + d, \"\")` starts `acc` as `\"\"`, not as `\"east\"`.\n\nWhy it bites: `join(\",\")` is the easy answer and the starter already does it, so a desk files `east,south` when the signal board expected dashes. Hiding a `for` loop inside `reduce` for style also misses the point — you are building one string, not proving you know the method name.\n\n```javascript\n[\"east\", \"south\"].reduce((acc, d) => {\n  return acc ? acc + \"-\" + d : d\n}, \"\")\n// seed is \"\"\n// after east: \"east\"\n// after south: \"east-south\"\n```\n\n`pathOf([\"east\", \"south\"])` must return `east-south` using `reduce`. Print it. If the list has one heading, the answer is that heading with no dash. The hidden test also calls `pathOf([\"west\"])`."
     },
     {
       "type": "predict",

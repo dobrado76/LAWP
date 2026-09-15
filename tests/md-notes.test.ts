@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { md, notesBody, notesDate } from '../src/renderer/md'
+import { highlightSnippet, md, notesBody, notesDate } from '../src/renderer/md'
 
 describe('release notes display', () => {
   const src = `## 0.2.0 — 15 September 2026\n\nHello.\n\n### Learn\n\nUse \`Player.move\`.\n`
@@ -14,3 +14,29 @@ describe('release notes display', () => {
     expect(html).not.toContain('**')
   })
 })
+
+describe('fenced snippets', () => {
+  it('turns a fence into a labeled highlighted block, not leftover backticks', () => {
+    const html = md('See this:\n\n```javascript\nconst shouted = d.toUpperCase()\n```\n\nKeep both strings.')
+    expect(html).toContain('class="snippet"')
+    expect(html).toContain('JavaScript')
+    expect(html).toContain('tok-kw')
+    expect(html).toContain('tok-fn')
+    expect(html).not.toContain('```')
+    expect(html).toContain('<p>Keep both strings.</p>')
+  })
+
+  it('keeps inline ticks as sentence code, not a second dump of the fence', () => {
+    const html = md('Call `"east".toUpperCase()`.')
+    expect(html).toContain('<code>"east".toUpperCase()</code>')
+    expect(html).not.toContain('class="snippet"')
+  })
+
+  it('highlights Python keywords the same way as the editor palette', () => {
+    const html = highlightSnippet('def kind_of(value):\n    return type(value).__name__', 'python')
+    expect(html).toContain('tok-kw')
+    expect(html).toContain('def')
+    expect(html).toContain('tok-fn')
+  })
+})
+

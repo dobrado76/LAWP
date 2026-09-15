@@ -73,7 +73,7 @@ describe('catalog order', () => {
     const truth = JSON.parse(readFileSync(join(packRoot, 'lessons', 'truth-and-if', 'lesson.json'), 'utf8'))
     expect(lessonBlurb(names.blocks)).toMatch(/let names a box/)
     expect(lessonBlurb(names.blocks)).toMatch(/const names a box/)
-    expect(lessonBlurb(truth.blocks)).toMatch(/In an if/)
+    expect(lessonBlurb(truth.blocks)).toMatch(/An if does not ask/)
     expect(lessonBlurb(truth.blocks)).toMatch(/falsy: 0/)
   })
 

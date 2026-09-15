@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Data comes from outside\n\n`Badge` should return `props.label`. The call already passes `{ label: \"new\" }`."
+      "md": "## Data comes from outside\n\nA component does not invent every word it shows. Props are values that flow in from the caller. `Badge` should return `props.label`. The call already passes `{ label: \"new\" }`. The child reads what it was given. It does not look up a global, and it does not ignore the argument and invent a prettier word.\n\nThis bites when `Badge` returns a hardcoded `\"x\"` or `\"new\"`. Hardcoding `\"new\"` passes the first screenshot and then fails the moment the parent passes a different label. The word on screen must come from `props`, not from a string you typed inside the child and hoped would stay true.\n\n```javascript\nfunction Badge(props) {\n  return props.label;\n}\nconsole.log(Badge({ label: \"new\" }));\n```\n\nA common mistake is returning a fixed string, or reading `label` as a bare variable instead of `props.label`. The exercise asks you to return the label from props so the print is `new`, and the source must mention `props`.\n"
     },
     {
       "type": "code",

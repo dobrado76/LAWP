@@ -1,2 +1,5 @@
 const items = [...document.querySelectorAll('#list li')].map((n) => n.textContent)
 assert.ok(items.includes('East'))
+assert.ok(/createElement\s*\(/.test(__learnerSource), 'use createElement')
+assert.ok(/\.append\s*\(|appendChild\s*\(/.test(__learnerSource), 'append the node')
+assert.ok(!/innerHTML\s*=/.test(__learnerSource), 'do not build the list with innerHTML')

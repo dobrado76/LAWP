@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array of the same length, with each item transformed. The list you started from is untouched — that is the whole point, and the hidden test checks it.\n\nHere you map two lowercase names to uppercase and join them: `ADA,GRACE`."
+      "md": "## map does not rewrite the original\n\n`map` walks a list and builds a **new** array of the same length, one transformed item per slot. `names.map(n => n.toUpperCase())` is a second list. The list you started from is untouched — that is the whole point, and the hidden test checks it by handing you `[\"ada\"]` and asserting the first letter stayed lowercase.\n\nWhy it bites: learners reach for `push` inside a loop, or they assign back into `names[i]`, and a later desk that still needed the quiet originals files shouted labels on the wrong drawer. `map` is the method that refuses that rewrite.\n\n```javascript\nconst names = [\"ada\", \"grace\"]\nconst shouted = names.map(n => n.toUpperCase())\n// shouted is [\"ADA\", \"GRACE\"]\n// names is still [\"ada\", \"grace\"]\nshouted.join(\",\")  // \"ADA,GRACE\"\n```\n\nOn Try, `uppers` must map `ada, grace` to uppercase and join them with a comma: `ADA,GRACE`. Use `map` in the source. Joining the original list without mapping leaves the letters lowercase, which is what the starter does."
     },
     {
       "type": "predict",

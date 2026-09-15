@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Two files\n\n`walker.mjs` exports `walkLength`. `main.mjs` imports that name and prints `2` for `[\"east\", \"south\"]`. A named export is not a global. The other file must import it.\n\nKeep the function in `walker.mjs`. The hidden test imports `walkLength` from there, not from `main.mjs`.\n\nThe desk’s fox helper lives in one file. The night log printer lives in another. Sharing a name is an `export` / `import`, not a hope that both files see the same global."
+      "md": "## Two files\n\n`walker.mjs` exports `walkLength`. `main.mjs` imports that name and prints `2` for `[\"east\", \"south\"]`. A named export is not a global. The other file must import it. The desk’s fox helper lives in one file. The night log printer lives in another. Sharing a name is an `export` / `import`, not a hope that both files see the same global.\n\nWhy it bites: writing `function walkLength` in `main.mjs` only, or printing `2` as a literal, fools your eyes and fails the hidden test. That test imports `walkLength` from `walker.mjs`, not from `main.mjs`. A missing export is a missing name.\n\n```javascript\n// walker.mjs\nexport function walkLength(dirs) { return dirs.length }\n// main.mjs\nimport { walkLength } from \"./walker.mjs\"\nconsole.log(walkLength([\"east\", \"south\"]))  // 2\n```\n\nThe common mistake is treating `export` as a global. On Try, keep the function in `walker.mjs`, import it in `main.mjs`, and print `2`."
     },
     {
       "type": "predict",

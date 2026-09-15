@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A function that takes a function\n\n`function walk(steps, fn)` calls `fn` once per step. You pass `function () { Player.move(\"east\") }` or an arrow.\n\nThe higher-order function owns the count. The callback owns the action.\n\nThe desk says “three steps.” The fox decides what a step is. `walk(3, goEast)` walks east three times without hard-coding the loop at the call site."
+      "md": "## A function that takes a function\n\nA **higher-order function** is a function that takes another function as an argument (or returns one). `function walk(steps, fn)` owns the count: it calls `fn` once per step. You pass `function () { Player.move(\"east\") }` or an arrow. The callback owns the action. The loop stays inside `walk`.\n\nThe desk says “three steps.” The fox decides what a step is. If `walk` calls `fn` only once, the fox takes one step and misses the beacon, even though the plan said three. Hard-coding the loop at the call site also fails the idea: the count belongs to `walk`, not to the site that asked for the walk.\n\n```javascript\nfunction walk(steps, fn) {\n  for (let i = 0; i < steps; i++) fn()\n}\nwalk(3, () => Player.move(\"east\"))\n// fn ran three times — the fox is at x=3\n```\n\nA common mistake is to call `fn()` once inside `walk` and ignore `steps`. On Try, implement `walk(steps, fn)` and pass a mover that goes east so the fox reaches (3, 0)."
     },
     {
       "type": "predict",

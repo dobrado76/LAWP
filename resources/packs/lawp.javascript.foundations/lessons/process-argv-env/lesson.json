@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.node.fs"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Flags the process already has\n\n`process.argv` is the command line as a list of strings. Index `0` is the Node program. Index `1` is the script path. After that come the flags you typed. This lesson already runs with `--scrub` on that list.\n\n`process.env` is a separate bag of names. `process.env.LAWP_FLAG` is set to `scrub` here. A missing name is `undefined`, not a fake heading.\n\nNight desk: the fox walk log is only cleaned when `--scrub` is on the list. Print `scrub` if that flag is present."
+      "md": "## Flags the process already has\n\n`process.argv` is the command line as a list of strings. Index `0` is the Node program. Index `1` is the script path. After that come the flags you typed. This lesson already runs with `--scrub` on that list. `process.env` is a separate bag of names. `process.env.LAWP_FLAG` is set to `scrub` here. A missing name is `undefined`, not a fake heading. argv is the command line; env is not an argv index.\n\nWhy it bites: night desk only cleans the fox walk log when `--scrub` is on the list **and** `LAWP_FLAG` is `scrub`. If you hard-code `return \"scrub\"`, a later run without the flag still rewrites the log. If you read only argv, a process with the flag but the wrong env still scrubs. Morning shift then opens a file that should have been left messy.\n\n```javascript\nfunction flag() {\n  const ok =\n    process.argv.includes(\"--scrub\") &&\n    process.env.LAWP_FLAG === \"scrub\"\n  return ok ? \"scrub\" : \"none\"\n}\n// this run: --scrub on argv, LAWP_FLAG is scrub → \"scrub\"\n```\n\nThe common mistake is returning `\"scrub\"` as a literal, or checking only one of the two sources. On Try, print `scrub` only when `process.argv` includes `--scrub` **and** `process.env.LAWP_FLAG === \"scrub\"`. Otherwise `\"none\"`. Do not hard-code `return \"scrub\"`. `flag()` must read both. The runner passed the flag and set the name — use them."
     },
     {
       "type": "predict",
@@ -85,7 +85,7 @@
       "id": "read-flag",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> If `process.argv` includes `--scrub`, print `scrub`.",
+      "promptMd": "> Print `scrub` only when `process.argv` includes `--scrub` **and** `process.env.LAWP_FLAG === \"scrub\"`. Otherwise `\"none\"`. Do not hard-code `return \"scrub\"`.",
       "files": [
         {
           "path": "files/main.js",
@@ -109,22 +109,22 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "The runner already passed `--scrub`. Look at `process.argv`, not a hardcoded string."
+          "md": "The runner passed `--scrub` and set `LAWP_FLAG`. Read both — not a hardcoded string."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "`includes` tells you whether that flag is on the list."
+          "md": "`process.argv.includes(\"--scrub\")` and `process.env.LAWP_FLAG === \"scrub\"`."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "process.argv.includes(\"--scrub\") ? \"scrub\" : \"none\""
+          "md": "Return `\"scrub\"` only when both are true; otherwise `\"none\"`."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "function flag() {\n  return process.argv.includes(\"--scrub\") ? \"scrub\" : \"none\"\n}\nconsole.log(flag())\nmodule.exports = { flag }"
+          "md": "function flag() {\n  const ok = process.argv.includes(\"--scrub\") && process.env.LAWP_FLAG === \"scrub\"\n  return ok ? \"scrub\" : \"none\"\n}\nconsole.log(flag())\nmodule.exports = { flag }"
         }
       ],
       "argv": [

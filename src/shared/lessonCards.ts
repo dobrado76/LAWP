@@ -400,8 +400,14 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     color: blue,
     tags: ['let', 'const', 'binding']
   },
+  'strings-immutable': {
+    description: 'A string method returns a new string. The original text stays put.',
+    icon: 'Lock',
+    color: pink,
+    tags: ['string', 'immutable']
+  },
   'strings-and-templates': {
-    description: 'Text can be a plain string or a template that fills in values.',
+    description: 'Backticks insert a value into a new string. Quotes keep the dollar signs as letters.',
     icon: 'Quote',
     color: pink,
     tags: ['string', 'template']
@@ -527,7 +533,7 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     tags: ['array', 'map', 'list']
   },
   'arrays-filter-find': {
-    description: 'Keep the items that match, or find the first one that does.',
+    description: 'Filter keeps every match. Find keeps the first match.',
     icon: 'Filter',
     color: cyan,
     tags: ['array', 'filter', 'find']
@@ -593,10 +599,10 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     tags: ['function', 'callback', 'table']
   },
   'arrow-vs-function': {
-    description: 'Two ways to write a function. They are not the same about this.',
+    description: 'Write a short arrow function with =>.',
     icon: 'ArrowRight',
     color: teal,
-    tags: ['function', 'arrow', 'this']
+    tags: ['function', 'arrow']
   },
   'higher-order-route': {
     description: 'Pass a function into another function so the walk can change.',

@@ -18,7 +18,8 @@ import {
   srcIncludes,
   playLogOk,
   exportAssert,
-  asyncAssert
+  asyncAssert,
+  fence
 } from './lib.mjs'
 
 export function lessonsC10C11() {
@@ -32,9 +33,29 @@ export function lessonsC10C11() {
       title: 'argv and env',
       skillIds: ['js.node.fs'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
-          '## Flags the process already has\n\n`process.argv` is the command line as a list of strings. Index `0` is the Node program. Index `1` is the script path. After that come the flags you typed. This lesson already runs with `--scrub` on that list.\n\n`process.env` is a separate bag of names. `process.env.LAWP_FLAG` is set to `scrub` here. A missing name is `undefined`, not a fake heading.\n\nNight desk: the fox walk log is only cleaned when `--scrub` is on the list. Print `scrub` if that flag is present.'
+          [
+            '## Flags the process already has',
+            '',
+            '`process.argv` is the command line as a list of strings. Index `0` is the Node program. Index `1` is the script path. After that come the flags you typed. This lesson already runs with `--scrub` on that list. `process.env` is a separate bag of names. `process.env.LAWP_FLAG` is set to `scrub` here. A missing name is `undefined`, not a fake heading. argv is the command line; env is not an argv index.',
+            '',
+            'Why it bites: night desk only cleans the fox walk log when `--scrub` is on the list **and** `LAWP_FLAG` is `scrub`. If you hard-code `return "scrub"`, a later run without the flag still rewrites the log. If you read only argv, a process with the flag but the wrong env still scrubs. Morning shift then opens a file that should have been left messy.',
+            '',
+            fence(
+              'javascript',
+              `function flag() {
+  const ok =
+    process.argv.includes("--scrub") &&
+    process.env.LAWP_FLAG === "scrub"
+  return ok ? "scrub" : "none"
+}
+// this run: --scrub on argv, LAWP_FLAG is scrub → "scrub"`
+            ),
+            '',
+            'The common mistake is returning `"scrub"` as a literal, or checking only one of the two sources. On Try, print `scrub` only when `process.argv` includes `--scrub` **and** `process.env.LAWP_FLAG === "scrub"`. Otherwise `"none"`. Do not hard-code `return "scrub"`. `flag()` must read both. The runner passed the flag and set the name — use them.'
+          ].join('\n')
         ),
         predict(
           'argv-0',
@@ -57,16 +78,17 @@ export function lessonsC10C11() {
         ),
         stdoutCode({
           id: 'read-flag',
-          prompt: '> If `process.argv` includes `--scrub`, print `scrub`.',
+          prompt:
+            '> Print `scrub` only when `process.argv` includes `--scrub` **and** `process.env.LAWP_FLAG === "scrub"`. Otherwise `"none"`. Do not hard-code `return "scrub"`.',
           equals: 'scrub',
           argv: ['--scrub'],
           env: { LAWP_FLAG: 'scrub' },
           hidden: true,
           hints: ladder(
-            'The runner already passed `--scrub`. Look at `process.argv`, not a hardcoded string.',
-            '`includes` tells you whether that flag is on the list.',
-            'process.argv.includes("--scrub") ? "scrub" : "none"',
-            'function flag() {\n  return process.argv.includes("--scrub") ? "scrub" : "none"\n}\nconsole.log(flag())\nmodule.exports = { flag }'
+            'The runner passed `--scrub` and set `LAWP_FLAG`. Read both — not a hardcoded string.',
+            '`process.argv.includes("--scrub")` and `process.env.LAWP_FLAG === "scrub"`.',
+            'Return `"scrub"` only when both are true; otherwise `"none"`.',
+            'function flag() {\n  const ok = process.argv.includes("--scrub") && process.env.LAWP_FLAG === "scrub"\n  return ok ? "scrub" : "none"\n}\nconsole.log(flag())\nmodule.exports = { flag }'
           )
         })
       ]
@@ -79,6 +101,10 @@ console.log(flag())
 module.exports = { flag }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(m.flag(), 'scrub')
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/process\\.argv/.test(src), 'read process.argv')
+assert.ok(/process\\.env/.test(src) || /LAWP_FLAG/.test(src), 'read process.env.LAWP_FLAG')
+assert.ok(!/return\\s+[\"']scrub[\"']/.test(src), 'do not hard-code return \"scrub\"')
 `)
     }
   })
@@ -93,7 +119,26 @@ module.exports = { flag }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Files stay under the run folder\n\n`fs.readFileSync("note.txt", "utf8")` reads the fixture as text. Without `"utf8"` you get a Buffer of bytes. `fs.writeFileSync("out.txt", text)` writes a sibling file in the same folder.\n\nTrim the extra newline. The note is one heading: `north`. Export `readNote` so a hidden test can call it and then open `out.txt`.\n\nThe desk copies the fox walk slip from `note.txt` into `out.txt` so morning shift can open it without guessing.'
+          [
+            '## Files stay under the run folder',
+            '',
+            '`fs.readFileSync("note.txt", "utf8")` reads the fixture as text. Without `"utf8"` you get a Buffer of bytes. `fs.writeFileSync("out.txt", text)` writes a sibling file in the same folder — next to the fixture, not into a random system path. Both names are relative to the run folder. Trim the extra newline. The note is one heading: `north`.',
+            '',
+            'Why it bites: the desk copies the fox walk slip from `note.txt` into `out.txt` so morning shift can open it without guessing. If you skip the write, the hidden test opens a missing file. If you skip `"utf8"`, you print bytes and the heading looks like garbage. If you forget `trim()`, the print is `north` plus a leftover newline and the grader misses the word.',
+            '',
+            fence(
+              'javascript',
+              `const fs = require("fs")
+function readNote() {
+  const text = fs.readFileSync("note.txt", "utf8").trim()
+  fs.writeFileSync("out.txt", text)
+  return text
+}
+readNote() // "north" — out.txt holds the same text`
+            ),
+            '',
+            'The common mistake is returning a placeholder, or reading without writing the sibling. On Try, `readNote()` must read `note.txt` as UTF-8, trim, print it, and write the same text to `out.txt`. Export `readNote` so a hidden test can call it and then open `out.txt`. Copy the slip; do not guess the heading.'
+          ].join('\n')
         ),
         predict(
           'encoding',
@@ -149,7 +194,26 @@ assert.strictEqual(require('fs').readFileSync('out.txt', 'utf8').trim(), 'north'
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Join names, do not climb out\n\n`path.join("logs", "today.txt")` builds a path for *this* folder. It puts the right slash for the machine. It does not check whether the second name is a trick.\n\n`..` means go up one folder. A careless join of `"logs"` and `"../secret"` can point outside `logs`. `safeJoin("logs", name)` must throw if `name` includes `..`.\n\nThe log scrubber only opens files under `logs/`. A heading named `../secret` is not a log — refuse it.'
+          [
+            '## Join names, do not climb out',
+            '',
+            '`path.join("logs", "today.txt")` builds a path for *this* folder. It puts the right slash for the machine. It does not check whether the second name is a trick. `..` means go up one folder. A careless join of `"logs"` and `"../secret"` can point outside `logs`. `path.join` by itself is not a jail. You must refuse `..` yourself before you open the path.',
+            '',
+            'Why it bites: the log scrubber only opens files under `logs/`. A heading named `../secret` is not a log. If you join it anyway, the process reads a file outside the run folder and a private slip lands on the desk. Night shift thought they opened today’s walk log. They opened a sibling secret instead.',
+            '',
+            fence(
+              'javascript',
+              `const path = require("path")
+function safeJoin(root, name) {
+  if (name.includes("..")) throw new Error("no")
+  return path.join(root, name)
+}
+safeJoin("logs", "a.txt") // logs/a.txt or logs\\\\a.txt
+// safeJoin("logs", "../secret") throws`
+            ),
+            '',
+            'The common mistake is trusting `path.join` to block `..`. On Try, `safeJoin("logs", "a.txt")` prints `logs/a.txt` or `logs\\\\a.txt`. Hidden: `..` throws. Check the name first. If `name` includes `..`, throw. Do not open that path. Join the root and the name only after the name is ordinary.'
+          ].join('\n')
         ),
         predict(
           'dotdot',
@@ -207,7 +271,25 @@ assert.throws(() => m.safeJoin('logs', '../secret'))
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## A Buffer is bytes\n\n`Buffer.from("café", "utf8")` stores the UTF-8 bytes. `.toString("utf8")` turns those bytes back into text. `.length` on a Buffer is the byte count, not the number of letters you see.\n\nThe letter `é` is often two UTF-8 bytes. So `"café"` is 5 bytes: `c`, `a`, `f`, and two for `é`.\n\nA fox tag painted `café` on the desk is four letters on the glass and five bytes in the log file. Print that byte length (`5`).'
+          [
+            '## A Buffer is bytes',
+            '',
+            '`Buffer.from("café", "utf8")` stores the UTF-8 bytes. `.toString("utf8")` turns those bytes back into text. `.length` on a Buffer is the byte count, not the number of letters you see. `Buffer.byteLength(text, "utf8")` is the disk size of the string. The letter `é` is often two UTF-8 bytes. So `"café"` is 5 bytes: `c`, `a`, `f`, and two for `é`. Letters on screen and bytes on disk are not the same count.',
+            '',
+            'Why it bites: a fox tag painted `café` on the desk is four letters on the glass and five bytes in the log file. If you use `text.length`, you report 4 and a later write truncates the file. Night shift opens a clipped heading. `Buffer.byteLength("é", "utf8")` is 2 in typical UTF-8 — treating it as 1 is how an accented lamp name overflows a fixed slot.',
+            '',
+            fence(
+              'javascript',
+              `function bytesOf(text) {
+  return Buffer.byteLength(text, "utf8")
+}
+bytesOf("café") // 5
+bytesOf("a")    // 1
+// "café".length is 4 — letters, not UTF-8 bytes`
+            ),
+            '',
+            'The common mistake is returning `text.length`, which counts UTF-16 code units, not UTF-8 bytes. On Try, print `Buffer.byteLength("café", "utf8")`. `bytesOf(text)` must use `Buffer` so the hidden test gets `5` for `café` and `1` for `a`. Measure the disk size. Do not count the letters on the glass.'
+          ].join('\n')
         ),
         predict(
           'byte-len',
@@ -266,7 +348,27 @@ assert.strictEqual(m.bytesOf('a'), 1)
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Chunks, not one giant string in your head\n\n`fs.createReadStream` fires `data` as pieces arrive. You collect those pieces, then join them when `end` fires. You do not assume the first chunk is the whole file.\n\nThis fixture is small. You still practice the API: collect, join, take the last non-empty line (`east`). The hidden test also checks that your source mentions `createReadStream`.\n\nThe night log drips in. The first line is `north`. The fox’s last heading is `east` — print that, not the first drip.'
+          [
+            '## Chunks, not one giant string in your head',
+            '',
+            '`fs.createReadStream` fires `data` as pieces arrive. You collect those pieces, then join them when `end` fires. You do not assume the first chunk is the whole file. `data` can fire more than once. `end` is the signal that no more chunks are coming. This fixture is small. You still practice the API: collect, join, take the last non-empty line.',
+            '',
+            'Why it bites: the night log drips in. The first line is `north`. The fox’s last heading is `east`. If you return on the first `data` event, you print `north` and morning shift walks the wrong way. If you skip the stream and `readFileSync` the whole file, you miss the habit this lesson grades — the hidden test also checks that your source mentions `createReadStream`.',
+            '',
+            fence(
+              'javascript',
+              `const fs = require("fs")
+let raw = ""
+const s = fs.createReadStream("chunk-log.txt", "utf8")
+s.on("data", (c) => { raw += c })
+s.on("end", () => {
+  const lines = raw.trim().split(/\\r?\\n/)
+  lines[lines.length - 1] // "east"
+})`
+            ),
+            '',
+            'The common mistake is treating the first `data` event as the whole file, or hard-coding `"north"`. On Try, `lastLine()` must stream `chunk-log.txt` and print the last trimmed line (`east`). Collect text as `data` fires. On `end`, split into lines and take the last non-empty one. The night log drips; wait for `end` before you pick the heading.'
+          ].join('\n')
         ),
         predict(
           'stream-end',
@@ -324,7 +426,25 @@ module.exports = { lastLine }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Two module systems\n\n`require` and `module.exports` are CommonJS. `import` and `export` are ESM. Node treats a file as ESM when it ends in `.mjs` or when `package.json` says `"type": "module"`.\n\nStatic `import` is hoisted and resolved before the file runs. When a module is only sometimes needed — a rarely used tool, a heavy dependency — `await import(\"./tool.mjs\")` loads it on demand and resolves to the namespace.\n\nThis lesson is ESM. Export `ping` and print `pong`. Do not write `module.exports` here — the hidden test imports from `main.mjs`.\n\nThe desk’s walk helper ships as `.mjs` so the scrubber can `import { ping }` without a `require` dance.'
+          [
+            '## Two module systems',
+            '',
+            '`require` and `module.exports` are CommonJS. `import` and `export` are ESM. Node treats a file as ESM when it ends in `.mjs` or when `package.json` says `"type": "module"`. Static `import` is hoisted and resolved before the file runs. When a module is only sometimes needed, `await import("./tool.mjs")` loads it on demand. This lesson is ESM. The hidden test imports from `main.mjs`.',
+            '',
+            'Why it bites: the desk’s walk helper ships as `.mjs` so the scrubber can `import { ping }` without a `require` dance. If you write `module.exports` in this file, Node in ESM mode throws and the hidden test never sees `ping`. Night shift then copies a CJS habit into an `.mjs` walker and the whole kit fails to load.',
+            '',
+            fence(
+              'javascript',
+              `export function ping() {
+  return "pong"
+}
+console.log(ping())
+// hidden test: import { ping } from "./main.mjs"
+// do not write module.exports here`
+            ),
+            '',
+            'The common mistake is `module.exports = { ping }` because earlier lessons used CommonJS. On Try, `export function ping()` returns `pong`. Print it. Use `export`, not `module.exports`. A `.mjs` file is treated as ESM. The hidden test is `import { ping } from ./main.mjs`. Name the export; do not hope for a global.'
+          ].join('\n')
         ),
         predict(
           'which-file',
@@ -389,9 +509,28 @@ assert.strictEqual(ping(), 'pong')
       title: 'fs.promises',
       skillIds: ['js.node.fs', 'js.async'],
       estimatedMinutes: 22,
+      taskRev: 3,
       blocks: [
         explain(
-          '## From callbacks to promises\n\nOld Node: `fs.readFile(path, (err, data) => …)`. The first argument is the error, or `null` when the read worked. New style: `await fs.promises.readFile(path, "utf8")` and `try/catch`.\n\nYou still read the same fixture. The promise version returns text instead of stuffing it into a callback. The source must mention `promises` so the habit is visible.\n\nThe desk used to check `err` first. Now the fox walk slip is awaited: read `note.txt`, trim, print `north`.'
+          [
+            '## From callbacks to promises',
+            '',
+            'Old Node: `fs.readFile(path, (err, data) => …)`. The first callback argument is an error or `null` when the read worked. The bytes or text come second, and only if `err` is null. New style: `await fs.promises.readFile(path, "utf8")` and `try/catch`. You still read the same fixture. The promise version returns text instead of stuffing it into a callback.',
+            '',
+            'Why it bites: the desk used to check `err` first. If you treat the first callback argument as the file text, a failed read looks like a heading and the fox walk slip is an Error object. If you skip `fs.promises` and use the callback form, the hidden test fails because the source must mention `promises`. Morning shift then waits on a callback that never exported a string.',
+            '',
+            fence(
+              'javascript',
+              `const fs = require("fs")
+async function load() {
+  const text = await fs.promises.readFile("note.txt", "utf8")
+  return text.trim()
+}
+load() // "north"`
+            ),
+            '',
+            'The common mistake is `fs.readFile` with a callback, or returning a placeholder. On Try, `async function load()` must use `fs.promises.readFile` to read `note.txt`. Print trimmed `north`. Await the read, then `trim()` the text. The fox walk slip is awaited now. Do not stuff the bytes into a callback.'
+          ].join('\n')
         ),
         predict(
           'err-first',
@@ -410,7 +549,8 @@ assert.strictEqual(ping(), 'pong')
         ),
         stdoutCode({
           id: 'promises-read',
-          prompt: '> `async function load()` uses `fs.promises` to read `note.txt`. Print trimmed `north`.',
+          prompt:
+            '> `async function load()` must use `fs.promises.readFile` to read `note.txt`. Print trimmed `north`.',
           equals: 'north',
           ast: 'promises',
           hidden: true,
@@ -434,6 +574,8 @@ module.exports = { load }
 `,
       'hidden.test.js': asyncAssert(`  const v = await m.load()
   assert.strictEqual(v, 'north')
+  const src = require('fs').readFileSync('main.js', 'utf8')
+  assert.ok(/fs\\.promises\\.readFile|promises\\.readFile/.test(src), 'use fs.promises.readFile')
 `)
     }
   })
@@ -448,7 +590,22 @@ module.exports = { load }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## A pattern is a tiny parser\n\nA log line looks like `[WARN]   beacon   down`. You want the level and the message, without the noise.\n\n- `/\\s+/` means one or more whitespace characters.\n- `^` and `$` anchor the pattern to the start and end of the line.\n- Parentheses **capture**: `/^\\[(\\w+)\\]\\s*(.*)$/` keeps the level in group 1 and the rest in group 2.\n- `exec` returns `null` when nothing matched, or an array whose slots 1 and 2 are those groups.\n\n`"a  b  c".replace(/\\s+/, " ")` fixes only the **first** run of spaces. Add the `g` flag — `/\\s+/g` — to fix every run. That missing `g` is the bug people ship most.\n\nRegex is for lines and fields. It is the wrong tool for HTML; you already have a document tree for that.'
+          [
+            '## A pattern is a tiny parser',
+            '',
+            'A log line looks like `[WARN]   beacon   down`. You want the level and the message, without the noise. `/\\s+/` means one or more whitespace characters. `^` and `$` pin the pattern to the start and end of the line. Parentheses **capture**: group 1 is the level, group 2 is the rest.',
+            '',
+            'Why it bites: `"a  b  c".replace(/\\s+/, " ")` fixes only the **first** run of spaces. Add the `g` flag — `/\\s+/g` — to fix every run. That missing `g` is the bug people ship most. `exec` returns `null` when nothing matched, not a throw. Reading group 1 off `null` crashes the desk.',
+            '',
+            fence(
+              'javascript',
+              `"a  b  c".replace(/\\s+/, "-")   // "a-b  c" — first run only
+"a  b  c".replace(/\\s+/g, "-")  // "a-b-c"
+/^\\[(\\w+)\\]/.exec("[WARN] down")  // ["[WARN]", "WARN"]`
+            ),
+            '',
+            'Regex is for lines and fields. It is the wrong tool for HTML; you already have a document tree for that. On Try, `tidy(line)` turns `"[WARN]   beacon   down  "` into `"warn: beacon down"`. A line with no `[LEVEL]` tag gets the level `info`.'
+          ].join('\n')
         ),
         predict(
           'replace-one',
@@ -517,7 +674,21 @@ assert.strictEqual(m.tidy('  [info]  ok  '), 'info: ok')
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Scrub a messy file\n\n`messy.txt` has blank lines, extra spaces, and the same name twice. `clean(text)` trims each line, drops empties, keeps each name once, then sorts.\n\nPrint the cleaned text. Unique sorted names: `east`, then `north`, then `west` on the last line. The hidden test will send a shorter list (`b`, `a`, `b`) and expect `a` then `b`.\n\nTwo `north` slips on the desk become one `north` line. The fox heading list should not repeat a name because someone typed it twice.'
+          [
+            '## Scrub a messy file',
+            '',
+            '`messy.txt` has blank lines, extra spaces, and the same name twice. `clean(text)` trims each line, drops empties, keeps each name once, then sorts. Two `north` slips on the desk become one `north` line. The fox heading list should not repeat a name because someone typed it twice.',
+            '',
+            'Why it bites: printing the raw file looks “almost right” and still fails. A leftover blank line, a trailing space, or a second `north` is a different string. `split` then `trim` then a `Set` is the honest path. Sort last so `east` comes before `north` before `west`.',
+            '',
+            fence(
+              'javascript',
+              `clean("b\\na\\nb\\n")
+// "a\\nb"  — trim, drop blanks, unique, sort`
+            ),
+            '',
+            'The common mistake is `return text` or only `trim()` on the whole file. On Try, print the cleaned text. Unique sorted names: `east`, then `north`, then `west`. The hidden test sends a shorter list (`b`, `a`, `b`) and expects `a` then `b`.'
+          ].join('\n')
         ),
         predict(
           'unique',
@@ -577,7 +748,25 @@ module.exports = { clean }
       creation: { id: 'log-scrubber', step: 1, briefMd: 'scrub(input, output) writes unique trimmed names.' },
       blocks: [
         explain(
-          '## A tool you keep\n\n`scrub(input, output)` reads UTF-8 from `input`, cleans names the same way as the transfer lesson, and writes that text to `output`. The next program can open the file. Printing names is not enough.\n\nPrint `ok` after writing `clean.txt` from `messy.txt`. Reuse a `clean` helper if you want — the hidden test calls `scrub` and then reads the file it wrote.\n\nNight shift leaves `clean.txt` on the desk. Morning shift opens that file. They do not re-read the messy log.'
+          [
+            '## A tool you keep',
+            '',
+            '`scrub(input, output)` reads UTF-8 from `input`, cleans names the same way as the transfer lesson, and writes that text to `output`. The next program can open the file. Printing names is not enough. Night shift leaves `clean.txt` on the desk. Morning shift opens that file. They do not re-read the messy log.',
+            '',
+            'Why it bites: `console.log` of the cleaned list is a notebook, not the kept list. A later program that `readFileSync`s the output path still sees the old mess if you never wrote. The hidden test calls `scrub` and then reads the file it wrote — stdout is ignored for the names.',
+            '',
+            fence(
+              'javascript',
+              `const fs = require("fs")
+function scrub(input, output) {
+  const text = fs.readFileSync(input, "utf8")
+  fs.writeFileSync(output, clean(text))
+}
+// morning shift opens output, not stdout`
+            ),
+            '',
+            'The common mistake is only printing. On Try, `scrub("messy.txt", "clean.txt")` writes the clean list. Print `ok` after the write. Reuse a `clean` helper if you want — trim, drop blanks, unique, sort.'
+          ].join('\n')
         ),
         predict(
           'write-side',
@@ -633,7 +822,23 @@ assert.strictEqual(got, 'east\\nnorth')
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## AAA on a route helper\n\n**Arrange** a list of dirs. **Act** by calling `walkLength`. **Assert** with `assert.strictEqual`. A failed assert throws. The process exits non-zero — it does not only print a sad line.\n\n`walkLength(["east", "south"])` is `2`. Print `pass` after your own assert in `main.js`. The hidden test also calls the function.\n\nThe fox walked two headings. A test that only `console.log`s `2` can lie. `assert` stops the run when the length is wrong.'
+          [
+            '## AAA on a route helper',
+            '',
+            '**Arrange** a list of dirs. **Act** by calling `walkLength`. **Assert** with `assert.strictEqual`. A failed assert throws. The process exits non-zero — it does not only print a sad line. The fox walked two headings. A test that only `console.log`s `2` can lie. `assert` stops the run when the length is wrong.',
+            '',
+            'Why it bites: printing `pass` with a broken function still looks green on your screen. The hidden test also calls `walkLength`. If you skip the assert, you have a notebook, not a proof. Arrange a case you know, act, then assert the number.',
+            '',
+            fence(
+              'javascript',
+              `const assert = require("assert")
+function walkLength(dirs) { return dirs.length }
+assert.strictEqual(walkLength(["east", "south"]), 2)
+// throws if the length is not 2`
+            ),
+            '',
+            'The common mistake is `return 0` and still printing `pass`. On Try, implement `walkLength`. Assert a case you know. Then print `pass`.'
+          ].join('\n')
         ),
         predict(
           'assert-fail',
@@ -687,7 +892,23 @@ module.exports = { walkLength }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## You write a test the hidden runner also runs\n\n`cases.json` is a fixture: a list of `{ dirs, n }` records. Read that file and assert `walkLength` for each row. You do not type the cases into the test by hand if the file already holds them.\n\nPrint `ok` when every fixture case passes. A hidden test is a file you cannot edit. The grader runs it after your program.\n\nThe desk keeps walk lengths in `cases.json`. The fox route `["east"]` must be length `1` even when no one is watching the stage.'
+          [
+            '## You write a test the hidden runner also runs',
+            '',
+            '`cases.json` is a fixture: a list of `{ dirs, n }` records. Read that file and assert `walkLength` for each row. You do not type the cases into the test by hand if the file already holds them. The desk keeps walk lengths in that file. The fox route `["east"]` must be length `1` even when no one is watching the stage.',
+            '',
+            'Why it bites: a single hardcoded `assert` only proves the sample you typed. A fixture is data the test reads. A hidden test is a file the grader runs that you cannot edit. Both sit after your program. If `walkLength` is still `return 0`, every row fails.',
+            '',
+            fence(
+              'javascript',
+              `const rows = JSON.parse(fs.readFileSync("cases.json", "utf8"))
+for (const c of rows) {
+  assert.strictEqual(walkLength(c.dirs), c.n)
+}`
+            ),
+            '',
+            'The common mistake is ignoring `cases.json` and asserting one line you made up. On Try, implement `walkLength` and loop the fixture. Print `ok` when every row passes.'
+          ].join('\n')
         ),
         predict(
           'hidden-role',
@@ -748,7 +969,24 @@ assert.strictEqual(m.walkLength([]), 0)
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Do not wait on the real clock\n\n`report(deps)` should call `deps.clock()` and `deps.read("log.txt")`. In tests you pass `{ clock: () => 1000, read: () => "north" }`. You do not call `Date.now()` or `fs` inside `report`.\n\nPrint `1000 north`. The hidden test will pass a different clock and a different `read`. If you touch the real disk, that test cannot control the bytes.\n\nThe desk stamps a log with a fake noon so the fox walk test does not wait for a real midnight file.'
+          [
+            '## Do not wait on the real clock',
+            '',
+            '`report(deps)` should call `deps.clock()` and `deps.read("log.txt")`. In tests you pass `{ clock: () => 1000, read: () => "north" }`. You do not call `Date.now()` or `fs` inside `report`. The desk stamps a log with a fake noon so the fox walk test does not wait for a real midnight file.',
+            '',
+            'Why it bites: if `report` hits the real disk, the hidden test cannot control the bytes. If it hits `Date.now()`, the stamp changes every run. Injection is how a test supplies noon and `north` without waiting or writing a file.',
+            '',
+            fence(
+              'javascript',
+              `function report(deps) {
+  return deps.clock() + " " + deps.read("log.txt")
+}
+report({ clock: () => 1000, read: () => "north" })
+// "1000 north"`
+            ),
+            '',
+            'The common mistake is `Date.now()` or `fs.readFileSync` inside `report`. On Try, print `1000 north` from the injected clock and read. The hidden test will pass a different clock and a different `read`.'
+          ].join('\n')
         ),
         predict(
           'why-fake',
@@ -801,7 +1039,23 @@ module.exports = { report }
       estimatedMinutes: 16,
       blocks: [
         explain(
-          '## The browser has no `require` of your files\n\nA page can load one script URL (or native ESM URLs you list). `require("./walker.js")` is a Node idea. The browser does not walk a folder of files the way Node does.\n\nA **bundler** follows your `import` graph and emits files the browser can load. This lesson does not run a bundler. It asks you to name the gap.\n\nThe fox walker lives in `walker.mjs`. On the desk, Node can `import` it. A plain page cannot `require` that folder unless you bundle or ship real ESM URLs.'
+          [
+            '## The browser has no `require` of your files',
+            '',
+            'A page can load one script URL (or native ESM URLs you list). `require("./walker.js")` is a Node idea. The browser does not walk a folder of files the way Node does. The fox walker lives in `walker.mjs`. On the desk, Node can `import` it. A plain page cannot `require` that folder unless you bundle or ship real ESM URLs.',
+            '',
+            'Why it bites: people think a bundler exists only to minify. Minify is extra. The first problem is the loader. A **bundler** follows your `import` graph and emits files the browser can load. You can also ship native ESM with import maps. The gap is still: the browser is not Node’s module loader.',
+            '',
+            fence(
+              'javascript',
+              `// Node can do this:
+const walk = require("./walker.js")
+// a plain page cannot require a folder of files
+// a bundler follows import and emits one (or a few) URLs`
+            ),
+            '',
+            'This lesson does not run a bundler. It asks you to name the gap. The common mistake is “minify is the only reason.” On Learn, pick why front-end apps use a bundler (or native ESM URLs).'
+          ].join('\n')
         ),
         predict(
           'bundle-why',
@@ -843,7 +1097,24 @@ module.exports = { report }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Two files\n\n`walker.mjs` exports `walkLength`. `main.mjs` imports that name and prints `2` for `["east", "south"]`. A named export is not a global. The other file must import it.\n\nKeep the function in `walker.mjs`. The hidden test imports `walkLength` from there, not from `main.mjs`.\n\nThe desk’s fox helper lives in one file. The night log printer lives in another. Sharing a name is an `export` / `import`, not a hope that both files see the same global.'
+          [
+            '## Two files',
+            '',
+            '`walker.mjs` exports `walkLength`. `main.mjs` imports that name and prints `2` for `["east", "south"]`. A named export is not a global. The other file must import it. The desk’s fox helper lives in one file. The night log printer lives in another. Sharing a name is an `export` / `import`, not a hope that both files see the same global.',
+            '',
+            'Why it bites: writing `function walkLength` in `main.mjs` only, or printing `2` as a literal, fools your eyes and fails the hidden test. That test imports `walkLength` from `walker.mjs`, not from `main.mjs`. A missing export is a missing name.',
+            '',
+            fence(
+              'javascript',
+              `// walker.mjs
+export function walkLength(dirs) { return dirs.length }
+// main.mjs
+import { walkLength } from "./walker.mjs"
+console.log(walkLength(["east", "south"]))  // 2`
+            ),
+            '',
+            'The common mistake is treating `export` as a global. On Try, keep the function in `walker.mjs`, import it in `main.mjs`, and print `2`.'
+          ].join('\n')
         ),
         predict(
           'export-name',
@@ -908,7 +1179,22 @@ assert.strictEqual(walkLength(['a', 'b', 'c']), 3)
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Refuse `==` in the edit file\n\nLAWP’s `ast` check is a **substring** search, not a real parser pass. Treat it as a stand-in for a linter. The file text must contain `===` and must not use `==`.\n\n`same(a, b)` compares with `===`. Print `false` for `0` and `""` — those are different kinds.\n\nThe desk once filed `0` (lamp off) as the same as a missing name `""` because someone wrote `==`. The fox route test uses `===` so off and missing stay different.'
+          [
+            '## Refuse `==` in the edit file',
+            '',
+            'LAWP’s `ast` check is a **substring** search, not a real parser pass. Treat it as a stand-in for a linter. The file text must contain `===` and must not use `==`. The desk once filed `0` (lamp off) as the same as a missing name `""` because someone wrote `==`. The fox route test uses `===` so off and missing stay different.',
+            '',
+            'Why it bites: this is not ESLint. The grader looks at the file text. `==` converts before it compares, so `0 == ""` is true. `===` keeps the kinds apart. A stand-in linter that bans `==` is how this lesson makes that habit visible.',
+            '',
+            fence(
+              'javascript',
+              `0 == ""    // true  — converted
+0 === ""   // false — different kinds
+same(0, "")  // must be false via ===`
+            ),
+            '',
+            'The common mistake is leaving `==` in the starter. On Try, `same(0, "")` is false via `===`. Print `false`.'
+          ].join('\n')
         ),
         predict(
           'ast-honest',
@@ -965,7 +1251,22 @@ assert.ok(!/[^!=]==[^=]/.test(src), 'do not use ==')
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Do not merge untrusted keys onto Object.prototype\n\n`obj.__proto__` or a merge of `{ "__proto__": { polluted: true } }` can change **every** object. A JSON body from outside the desk is not a safe field list.\n\nSafe dictionaries: `Object.create(null)`, or copy **own** keys and skip `__proto__`, `constructor`, and `prototype`. `Object.freeze(Object.prototype)` is a belt.\n\n`safeMerge(target, src)` copies only those safe own keys. A fake heading `__proto__` in a fox log must not rewrite every object on the desk.'
+          [
+            '## Do not merge untrusted keys onto Object.prototype',
+            '',
+            '`obj.__proto__` or a merge of `{ "__proto__": { polluted: true } }` can change **every** object. A JSON body from outside the desk is not a safe field list. A fake heading `__proto__` in a fox log must not rewrite every object on the desk.',
+            '',
+            'Why it bites: `Object.assign(target, src)` copies the dangerous key. After that, `{}.polluted` can become `true` for everyone. Safe dictionaries start from `Object.create(null)`, or copy **own** keys and skip `__proto__`, `constructor`, and `prototype`. `Object.freeze(Object.prototype)` is a belt, not the whole fix.',
+            '',
+            fence(
+              'javascript',
+              `const dirty = JSON.parse('{"__proto__":{"x":1},"name":"n"}')
+Object.assign({}, dirty)     // can pollute
+safeMerge({}, dirty).name    // "n" — proto skipped`
+            ),
+            '',
+            'The common mistake is `return Object.assign(target, src)`. On Try, `safeMerge({}, { __proto__: { x: 1 }, name: "n" }).name` prints `n`. Hidden: prototype stays clean, and the target is not edited in place.'
+          ].join('\n')
         ),
         predict(
           'proto-key',
@@ -1028,9 +1329,26 @@ assert.strictEqual(target.b, undefined, 'safeMerge must return a fresh object, n
       title: 'Measure, then change',
       skillIds: ['js.test'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
-          '## Count the work before you rewrite it\n\nWall-clock timing with `Date.now()` is noisy: the same loop gives a different answer on every run. A **counted** measurement is reproducible, and it is usually the number you actually wanted — how much work does each approach do?\n\nTwo ways to look for duplicates in a list of `n` items:\n\n- Nested loops compare every pair: `n * (n - 1) / 2` comparisons.\n- A `Set` visits each item once: `n` steps.\n\nDo not take those formulas on faith. Run both, increment a counter inside each, and report what the counters say. For `n = 5` that is `loops:10 set:5`.\n\nThe desk counted before anyone rewrote the walker. Change the path once you have a number.'
+          [
+            '## Count the work before you rewrite it',
+            '',
+            'Wall-clock timing with `Date.now()` is noisy: the same loop gives a different answer on every run. A **counted** measurement is reproducible, and it is usually the number you actually wanted — how much work does each approach do? The desk counted before anyone rewrote the walker. Change the path once you have a number.',
+            '',
+            'Two ways to look for duplicates in a list of `n` items: nested loops compare every pair; a `Set` visits each item once. Do not take the formulas on faith. Run both, increment a counter inside each, and report what the counters say. For `n = 5` that is `loops:10 set:5`.',
+            '',
+            fence(
+              'javascript',
+              `// n = 4
+// nested pairs: 6    (count inside the loops)
+// Set steps:    4    (one increment per item)
+report(4)  // "loops:6 set:4"`
+            ),
+            '',
+            'The common mistake is returning a hard-coded formula string, or rewriting because it “feels slow.” On Try, `report(n)` builds a list, runs both searches with a counter in each loop, and prints `report(5)` (`loops:10 set:5`).'
+          ].join('\n')
         ),
         predict(
           'guess',
@@ -1045,12 +1363,12 @@ assert.strictEqual(target.b, undefined, 'safeMerge must return a fresh object, n
           'rewrite-on-feel',
           'You should rewrite a loop because it feels slow, even with no measurement.',
           false,
-          { explainMd: 'Measure first. This lesson’s proof is the count 1000 from the loop you actually ran.' }
+          { explainMd: 'Measure first. This lesson’s proof is the count from the loops you actually ran.' }
         ),
         stdoutCode({
           id: 'count-loop',
           prompt:
-            '> `report(n)` builds a list of `n` items, runs both searches with a counter in each, and returns `loops:<pairs> set:<steps>`. Print `report(5)` (`loops:10 set:5`).',
+            '> `report(n)` builds a list of `n` items, runs both searches with a counter in each loop, and returns `loops:<pairs> set:<steps>`. Count with loops — do not return a hard-coded formula string. Print `report(5)` (`loops:10 set:5`).',
           equals: 'loops:10 set:5',
           hidden: true,
           hints: ladder(
@@ -1074,6 +1392,11 @@ module.exports = { report }
 assert.strictEqual(m.report(4), 'loops:6 set:4')
 assert.strictEqual(m.report(1), 'loops:0 set:1')
 assert.strictEqual(m.report(0), 'loops:0 set:0')
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/for\\s*\\(|while\\s*\\(/.test(src), 'count with loops')
+assert.ok(/new\\s+Set\\b|\\bSet\\s*\\(/.test(src), 'use a Set for the set path')
+assert.ok(!/n\\s*\\*\\s*\\(\\s*n\\s*-\\s*1\\s*\\)\\s*\\/\\s*2/.test(src), 'do not hard-code the pair formula')
+assert.ok(!/return\\s+[\"'\`]loops:\\d/.test(src), 'build the report from counters, not a hard-coded string')
 `)
     }
   })
@@ -1088,7 +1411,24 @@ assert.strictEqual(m.report(0), 'loops:0 set:0')
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## `@param` / `@returns` are a contract you can read\n\nThis is not TypeScript-as-product. Write the tags so a later you (or a TS pack) can check them. Node does not enforce JSDoc at runtime.\n\n`/** @param {string[]} dirs @returns {number} */` above `walkLength`. Print the length of two dirs (`2`). The hidden test looks for `@param` and `@returns` in the file text.\n\nThe fox helper’s card on the desk lists what goes in and what comes out. A missing `@returns` is a missing promise to the next shift.'
+          [
+            '## `@param` / `@returns` are a contract you can read',
+            '',
+            'This is not TypeScript-as-product. Write the tags so a later you (or a TS pack) can check them. Node does not enforce JSDoc at runtime. The fox helper’s card on the desk lists what goes in and what comes out. A missing `@returns` is a missing promise to the next shift.',
+            '',
+            'Why it bites: a function that works today still hides its shape. The next shift guesses whether `dirs` is a string or a list. The tags are a contract you can read. This lesson’s grader only checks that `@param` and `@returns` are in the file text — it does not run a type checker.',
+            '',
+            fence(
+              'javascript',
+              `/** @param {string[]} dirs @returns {number} */
+function walkLength(dirs) {
+  return dirs.length
+}
+walkLength(["east", "south"])  // 2`
+            ),
+            '',
+            'The common mistake is implementing `walkLength` and skipping the comment. On Try, document and implement it. Print `2`.'
+          ].join('\n')
         ),
         predict(
           'jsdoc-runtime',
@@ -1143,7 +1483,23 @@ module.exports = { walkLength }
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Do not look at stdout\n\n`walk(dirs)` returns the end `{ x, y }` starting from `{ x: 0, y: 0 }`. It must not call `Player`. Tests check the object. The stage is for seeing a fox, not for proving the math.\n\n`east` adds 1 to `x`. `west` subtracts 1 from `x`. `south` adds 1 to `y`. `north` subtracts 1 from `y`.\n\nPrint `3,2` for three east and two south. A hidden test will send `west` then `north` and expect `{ x: -1, y: -1 }`.'
+          [
+            '## Do not look at stdout',
+            '',
+            '`walk(dirs)` returns the end `{ x, y }` starting from `{ x: 0, y: 0 }`. It must not call `Player`. Tests check the object. The stage is for seeing a fox, not for proving the math. `east` adds 1 to `x`. `west` subtracts 1 from `x`. `south` adds 1 to `y`. `north` subtracts 1 from `y`.',
+            '',
+            'Why it bites: a test that parses `console.log` breaks the moment you add a label. Returning data is how a hidden test can send `west` then `north` and expect `{ x: -1, y: -1 }` without watching a stage. Origin is `0,0`. Three east and two south end at `3,2`.',
+            '',
+            fence(
+              'javascript',
+              `walk(["east", "east", "east", "south", "south"])
+// { x: 3, y: 2 }
+walk(["west", "north"])
+// { x: -1, y: -1 }`
+            ),
+            '',
+            'The common mistake is calling `Player.move` or only printing a string. On Try, print `3,2` for that sample path. Return the object so the hidden test can assert it.'
+          ].join('\n')
         ),
         predict(
           'pure-walk',
@@ -1203,7 +1559,24 @@ assert.deepStrictEqual(m.walk([]), { x: 0, y: 0 })
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Three files, one kit\n\n`walk.mjs` exports `walk(dirs)` → `{ x, y }` from the origin. `scrub.mjs` exports `scrubLog(text)` → unique trimmed sorted names. `main.mjs` imports both.\n\nPrint `walk` of east×3 + south×2 as `3,2`, then a newline, then `scrubLog` of `b\\na\\nb` (`a` then `b`). Hidden tests import those two modules. They do not parse your console art.\n\nThe desk ships a fox walker and a log scrubber as two files. Write a short Why below: why `walk` is testable without the stage.'
+          [
+            '## Three files, one kit',
+            '',
+            '`walk.mjs` exports `walk(dirs)` → `{ x, y }` from the origin. `scrub.mjs` exports `scrubLog(text)` → unique trimmed sorted names. `main.mjs` imports both. The desk ships a fox walker and a log scrubber as two files. Hidden tests import those two modules. They do not parse your console art.',
+            '',
+            'Why it bites: putting both functions in `main.mjs` only, or printing pretty labels, fails the imports. `walk` is testable without the stage because it returns data. The stage is still useful when you want to *see* a fox — that is a different job from proving the math.',
+            '',
+            fence(
+              'javascript',
+              `import { walk } from "./walk.mjs"
+import { scrubLog } from "./scrub.mjs"
+const p = walk(["east", "east", "east", "south", "south"])
+console.log(p.x + "," + p.y)     // 3,2
+console.log(scrubLog("b\\na\\nb")) // a then b`
+            ),
+            '',
+            'The common mistake is leaving `walk` as `{ x: 0, y: 0 }` and `scrubLog` as the raw text. On Try, print `3,2` then a newline then `a` newline `b`. Write a short Why: why `walk` is testable without the stage.'
+          ].join('\n')
         ),
         predict(
           'why-pure',

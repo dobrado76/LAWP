@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The fox stops early\n\nThe loop was written as `i <= 2` when the author meant three steps from 0, or `i < 2` when they needed three. Off-by-one is a counting story, not a mystery.\n\nFix the loop so the fox stands on the beacon at (3, 0)."
+      "md": "## The fox stops early\n\nOff-by-one is a counting story, not a mystery. `for (let i = 0; i < 2; i++)` runs the body when `i` is 0 and 1 — two steps. `i < 3` (or `i <= 2`) runs three. The author meant three east steps from x=0 to the beacon at x=3, and wrote the tighter bound by habit.\n\nWhy it bites: the fox stops on (2, 0), one cell short of the lamp. The walls on the row below never get touched, so the board looks open, and it is easy to blame the stage instead of the comparison. Inclusive `<=` and exclusive `<` are both legal; they just count differently.\n\n```javascript\nfor (let i = 0; i < 2; i++) {  // i = 0, 1 — two moves\n  Player.move(\"east\")\n}\n// need i < 3 so i = 0, 1, 2 — fox at (3, 0)\n```\n\nOn Try, the starter walks only to x=2. Fix the bound so the fox reaches x=3. Keep the `for` loop. Stay on y=0; the walls sit on the row below. Count on your fingers: `i` of 0, 1, 2 is three moves when the test is `i < 3`."
     },
     {
       "type": "predict",

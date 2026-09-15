@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.closures"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A name before it is ready\n\n`let` and `const` exist from the start of the block, but you cannot read them until the line that sets them. That empty stretch is the temporal dead zone. `console.log(label)` above `let label = \"east\"` throws `ReferenceError`.\n\n`var` is older: it hoists as `undefined`, so a read before the assign is quiet and wrong. Prefer `let` and `const` so the crash teaches you.\n\nOn the desk, the fox cannot read a heading sticker that is still blank. Write the heading first, then walk."
+      "md": "## A name before it is ready\n\nThe **temporal dead zone** is the stretch of a block where a `let` or `const` name already exists but is not safe to read. The binding is reserved from the opening brace so nothing else can steal the name, yet the value is not ready until the line that sets it. A read in that gap is a crash, not a quiet blank.\n\n`var` is the older spelling: it hoists as `undefined`, so a read before the assign is silent and wrong. The fox then walks a heading that was never written. Prefer `let` and `const` so the language shouts instead of filing a blank sticker as if it were a real direction.\n\n```javascript\nfunction readyLabel() {\n  // console.log(dir)  // ReferenceError — still in the TDZ\n  let dir = \"east\"\n  return dir          // \"east\" — safe after init\n}\n```\n\nA common mistake is to `return \"east\"` as a literal and skip the binding, or to declare the name *after* the return so the read still sits in the dead zone. On Try, write `readyLabel` so it declares a `let` for `\"east\"`, then returns that binding and prints it."
     },
     {
       "type": "predict",
@@ -67,7 +67,7 @@
       "id": "after-init",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `readyLabel()` returns `\"east\"` from a `let` that is initialized before you read it. Print it.",
+      "promptMd": "> Inside `readyLabel`, declare a `let` binding for `\"east\"`, then return that binding. Print it. A bare `return \"east\"` is not enough — the point is reading the binding after init.",
       "files": [
         {
           "path": "files/main.js",

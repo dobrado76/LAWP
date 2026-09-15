@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Sugar over promises\n\nAn `async function` always returns a Promise. `await` pauses **that** function until the promise settles. Other JavaScript on the page can still run. The operating system is not frozen.\n\nThe fox can `await` a wait on the field while the desk still lights other lamps. Only the fox’s function is paused. When the promise settles, that function continues with the value."
+      "md": "## Sugar over promises\n\nAn `async function` always returns a Promise. `await` pauses **that** function until the promise settles, then continues with the value. Other JavaScript on the page can still run. The operating system is not frozen. The spelling is sugar over the same trays you already lined up: the function yields, microtasks drain, and later this function picks up again.\n\nWhy it bites: the fox can `await` a wait on the field while the desk still lights other lamps. If you believe `await` freezes the machine, you stop scheduling anything else — or you skip `await` and treat the return as a string. Then `label` hands back a promise you never opened, and the board prints `[object Promise]` instead of the keyed stamp.\n\n```javascript\nasync function label() {\n  await Promise.resolve() // pauses only this function\n  return \"keyed\"\n}\nlabel().then((v) => {\n  console.log(v) // keyed\n})\n```\n\nThe common mistake is `return \"keyed\"` with no `await`, or thinking the whole page stops. On Try, `async function label()` must `await` a real promise such as `Promise.resolve()`, then return `\"keyed\"`. Do not just `return \"keyed\"`. Print the result. Only the fox’s function is paused; when the promise settles, that function continues with the value."
     },
     {
       "type": "predict",
@@ -48,7 +48,7 @@
       "id": "await-label",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `async function label()` returns `\"keyed\"` after `await Promise.resolve()`. Print it.",
+      "promptMd": "> `async function label()` must `await` a real promise (e.g. `Promise.resolve()`), then return `\"keyed\"`. Do not just `return \"keyed\"`. Print it.",
       "files": [
         {
           "path": "files/main.js",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Name the failure\n\n`class RouteError extends Error {}` lets `catch (e)` ask `e instanceof RouteError`. A generic `Error` is a shrug. A named class is a signal.\n\nA `RouteError` is still an `Error`. `e instanceof Error` stays true.\n\nWhen the path is blocked, the fox throws `RouteError(\"blocked\")`. The desk can tell a blocked route from a missing file."
+      "md": "## Name the failure\n\nA **custom error class** names a kind of failure so `catch` can tell it from the rest. `class RouteError extends Error {}` lets you ask `e instanceof RouteError`. A generic `Error` is a shrug: blocked path, missing file, and bad math all look the same. A named class is a signal the desk can branch on.\n\nA `RouteError` is still an `Error`. `e instanceof Error` stays true because `extends` keeps the subclass in that family. When the path is blocked, the fox throws `RouteError(\"blocked\")`. The desk can tell a blocked route from a missing file and file the right night note. Throw a plain `Error` and the hidden check cannot see the kind.\n\n```javascript\nclass RouteError extends Error {}\nfunction fail() {\n  throw new RouteError(\"blocked\")\n}\ntry { fail() } catch (e) {\n  e instanceof RouteError  // true\n  e instanceof Error       // true — subclasses still are Errors\n  e.message                // \"blocked\"\n}\n```\n\nA common mistake is to keep `throw new Error(\"blocked\")` after defining the class, so `instanceof RouteError` is false. On Try, define `RouteError`. `fail()` throws one with message `blocked`. Catch it and print `blocked`."
     },
     {
       "type": "predict",

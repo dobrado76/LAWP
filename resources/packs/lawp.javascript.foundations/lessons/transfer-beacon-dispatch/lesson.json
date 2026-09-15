@@ -18,7 +18,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Wait, then walk\n\n`Player.wait(ticks)` logs a pause. Studio replay honors it. The world does not move during `wait`. Time passes. The fox stays in the same cell.\n\nAwait two ticks, then walk to (2, 1): east, east, south. The beacon is already there. The wait is not a step toward it. A flag and a tree sit off that path so the yard is a field, not an empty box."
+      "md": "## Wait, then walk\n\n`Player.wait(ticks)` logs a pause. Studio replay honors it. The world does not move during `wait`. Time passes. The fox stays in the same cell. Wait is a clock, not a step: `x` and `y` do not change until you write `Player.move` after the await. The beacon is already at (2, 1). The wait is not a step toward it.\n\nWhy it bites: if you treat wait as a slide toward the lamp, the fox never leaves (0, 0) and the timed walk fails the transfer. If you skip the await, the moves fire at once and the log shows walking during the pause the desk asked for. A flag and a tree sit off that path so the yard is a field, not an empty box — stay on two east cells, then one south.\n\n```javascript\nasync function go() {\n  await Player.wait(2) // still at (0, 0)\n  Player.move(\"east\")\n  Player.move(\"east\")\n  Player.move(\"south\") // now (2, 1)\n}\n```\n\nThe common mistake is walking first, or expecting `wait` to change the cell. On Try, `go()` must `await Player.wait(2)` then walk east, east, south onto the beacon. The hidden test checks that a wait of two ticks is in the log. Write the moves after the await, not instead of it."
     },
     {
       "type": "predict",

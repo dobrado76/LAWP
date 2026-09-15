@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Next state is a new value\n\nReact state is replaced, not edited in place. `click(count)` returns `count + 1`. Prints should be `1` then `2`."
+      "md": "## Next state is a new value\n\nReact state is replaced, not edited in place. A click computes the next value and hands it back. `click(count)` should return `count + 1` without changing the argument. The old number stays what it was. The new number is a different value that will be stored next, then the screen redraws from that replacement.\n\nThis bites when you write `count++` or assign back into `count` and return the same box you were given. Mutation is easy to miss, and later code that still holds the old variable can see a surprise. Returning a fresh number makes the update obvious and keeps the previous count honest.\n\n```javascript\nfunction click(count) {\n  return count + 1;\n}\nconsole.log(click(0)); // 1\nconsole.log(click(1)); // 2\n```\n\nA common mistake is returning the original `count` unchanged, or mutating a shared object. The exercise asks you to return the next count so the prints are `1` then `2`.\n"
     },
     {
       "type": "code",

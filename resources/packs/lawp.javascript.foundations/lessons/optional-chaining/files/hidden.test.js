@@ -6,3 +6,10 @@ assert.strictEqual(m.beaconName(null), 'unknown')
 assert.strictEqual(m.beaconName(undefined), 'unknown')
 assert.strictEqual(m.beaconName({ beacon: { name: '' } }), '')
 
+;(function () {
+  const fs = require('fs')
+  const assert = require('assert')
+  const src = fs.readFileSync('main.js', 'utf8')
+  assert.ok(src.includes("?."), 'expected source to include ' + "?.")
+  assert.ok(src.includes("??"), 'expected source to include ' + "??")
+})()

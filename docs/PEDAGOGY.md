@@ -15,7 +15,7 @@ LAWP teaches through **playable practice with mastery evidence**. Fun is a conse
 | Productive failure | Action/run is free; check after a genuine attempt; conceptual help is free; assist/reveal withholds independent mastery |
 | Diagnosis | Wrong answers map to **misconceptions** when evidence is clear; otherwise ask, don’t guess |
 | Continuing creation | Each session adds a visible capability (or a staged failure that the next concept fixes) |
-| Dual coding | Diagram + short text in `explain`; avoid walls of prose |
+| Dual coding | Named idea, why it bites, a **fenced worked example**, common mistake — then the exercise on a second beat. Avoid walls of prose *and* two-sentence stubs |
 
 ## Mastery, not completion
 

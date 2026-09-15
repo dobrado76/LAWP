@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Transfer\n\nSame physics, new cover: a garden lamp and a fuse that blows above 2. Make it bright **and** keep the fuse."
+      "md": "## Transfer\n\nSame physics, new cover. A garden lamp sits on the same series loop, and a fuse blows if current goes above **2**. You still want the lamp bright (`brightness` 2, which needs current at least 1) and you must keep the fuse. This lesson uses always-on constraints: blowing the fuse even once fails, even if you recover afterward.\n\nThis bites when you visit ohms `0.25` just to see. Current becomes `4`, the fuse blows, and the run is already lost. Curiosity that was safe in the first experiment is fatal here because the fuse remembers the overshoot. The story changed; the math did not.\n\n```text\nbattery → resistor → garden lamp → battery\nfuse blows if current > 2\n```\n\nA common mistake is repeating the first lesson's wander through every knob. The activity asks you to light the garden lamp brightly and never exceed current `2`. Go straight to ohms `1`. Do not visit `0.25`.\n"
     },
     {
       "type": "activity",

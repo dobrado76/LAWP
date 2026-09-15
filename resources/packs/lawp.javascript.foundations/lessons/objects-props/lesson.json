@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 18,
   "skillIds": [
     "js.objects"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Fields, not a mystery bag\n\n`{ east: 3, south: 2 }` is a route record. Read `route.east` and loop that many moves. Objects store named numbers; they do not walk themselves."
+      "md": "## Fields, not a mystery bag\n\nA record stores named numbers. `{ east: 3, south: 2 }` is a route. You read `route.east` and loop that many moves. Objects do not walk themselves. A missing field is `undefined`, not `0` — `({ east: 3 }).south` is `undefined`, so a loop `i < route.south` would not run and you would never notice the south leg was absent.\n\nWhy it bites: one hardcoded `Player.move(\"east\")` ignores both counts. The fox stops at (1, 0) while the beacon sits at (3, 2). Changing the record to `{ east: 4, south: 1 }` would not move the fox, because the file never asked the record what it held.\n\n```javascript\nconst route = { east: 3, south: 2 }\nroute.east    // 3\nroute.south   // 2\nroute.west    // undefined — not 0\n// loop each count; the object does not walk itself\n```\n\nOn Try, walk `east` then `south` using `route.east` and `route.south` in the source — loop each count. The beacon is at (3, 2). Keep the `route` export. The gem on the east edge is optional scenery."
     },
     {
       "type": "predict",
@@ -38,7 +38,7 @@
       "id": "walk-record",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Walk `east` then `south` using the numbers on `route`. Beacon is at (3, 2).",
+      "promptMd": "> Walk `east` then `south` using `route.east` and `route.south` in the source (loop each count). Beacon is at (3, 2).",
       "files": [
         {
           "path": "files/main.js",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A key that will not collide\n\n`const meta = Symbol(\"meta\")` is unique. `obj[meta] = \"hidden\"` does not show up in `Object.keys` or JSON by default.\n\n`Object.keys({ [Symbol(\"m\")]: 1 })` is `[]`. Symbols are skipped.\n\nThe desk pins a private note on a route card. The night log lists ordinary keys; the note stays off that list."
+      "md": "## A key that will not collide\n\nA **symbol** is a unique key. `const meta = Symbol(\"meta\")` is never equal to another `Symbol(\"meta\")`. `obj[meta] = \"hidden\"` stores a field that does not show up in `Object.keys` or in `JSON.stringify` by default. Two libraries can pin notes on the same object without stealing each other’s string key `\"meta\"`.\n\n`Object.keys({ [Symbol(\"m\")]: 1 })` is `[]`. Symbols are skipped. The desk pins a private note on a route card. The night log lists ordinary keys; the note stays off that list. If you store the note under a string, a later `Object.keys` dump publishes it, and a colliding `\"note\"` field from another pack overwrites the desk’s own reminder.\n\n```javascript\nconst k = Symbol(\"meta\")\nconst obj = { [k]: \"note\" }\nObject.keys(obj)  // [] — symbols are skipped\nobj[k]            // \"note\" — read with the same symbol\n```\n\nA common mistake is to return a visible string from `hiddenNote` and never make a `Symbol`. On Try, store `\"note\"` under a symbol key and print it so stdout is `note`."
     },
     {
       "type": "predict",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Notes you do not own\n\n`WeakMap` keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point.\n\nA string like `\"fox\"` cannot be a key.\n\nThe desk remembers `\"keep\"` on a route object it does not own. When that route is gone, the note can vanish with it."
+      "md": "## Notes you do not own\n\nA **WeakMap** holds notes on objects you do not own. Keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point. A string like `\"fox\"` cannot be a key. `Map` would keep the pair alive and let you list every key; `WeakMap` refuses both.\n\nThe desk remembers `\"keep\"` on a route object it does not own. When that route is gone, the note can vanish with it. If you use a `Map`, the note pins the route in memory after the stage has forgotten it, and a later dump can list private marks. A string key would also fail: the language throws, and the fox never gets its `\"keep\"` stamp.\n\n```javascript\nconst notes = new WeakMap()\nconst route = {}\nnotes.set(route, \"keep\")\nnotes.get(route)  // \"keep\"\n// notes.set(\"fox\", \"keep\")  // TypeError — keys must be objects\n```\n\nA common mistake is to keep `new Map()` so the hidden check never sees a WeakMap. On Try, `noteOf(route)` reads a WeakMap. Store `\"keep\"` on `{}` and print it."
     },
     {
       "type": "predict",

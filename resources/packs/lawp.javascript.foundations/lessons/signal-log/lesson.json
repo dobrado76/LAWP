@@ -20,7 +20,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A log you keep\n\n`logBeacon(name)` should return `beacon:name`. Print `beacon:north` then `beacon:east`.\n\nHidden tests call your function with other names. Do not only print two literals."
+      "md": "## A log you keep\n\n`logBeacon(name)` should return `beacon:name` — a tagged line, not a side effect. Print is how you *see* the line. Return is how a later caller *keeps* it. Hidden tests call your function with other names. Two literal `console.log(\"beacon:north\")` lines would paint the notebook and still fail those tests.\n\nWhy it bites: a function that only prints and returns nothing hands `undefined` to the next desk. The creation step that stores the line files an empty slot. A function that returns the bare name files `west` when the board expected `beacon:west`.\n\n```javascript\nfunction logBeacon(name) {\n  return `beacon:${name}`\n}\nlogBeacon(\"north\")  // \"beacon:north\"\nlogBeacon(\"east\")   // \"beacon:east\"\n```\n\nOn Try, `logBeacon(name)` returns `beacon:name`. Print north then east, one per line. Use the argument — do not only print two literals. A template literal does the tag in one expression; quotes would keep the letters `${name}` if you are not careful."
     },
     {
       "type": "predict",

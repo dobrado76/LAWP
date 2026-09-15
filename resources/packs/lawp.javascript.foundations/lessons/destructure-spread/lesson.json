@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Copy, then extend\n\n`const { east, south } = route` pulls fields out. `{ ...route, south: 2 }` copies then overrides. That is how you keep the original record honest."
+      "md": "## Copy, then extend\n\n`const { east, south } = route` pulls fields out into names. `{ ...route, south: 2 }` copies every own field into a **new** object, then overrides `south`. The original record stays honest. That is the opposite of `route.south = 2`, which writes through the same object the caller still holds.\n\nWhy it bites: a desk that mutates the argument files the new south count back onto the live route. The next walk uses `south: 2` when the board still believed the path was `south: 0`. Spread is how you keep both records: the one you were handed, and the one you meant to change.\n\n```javascript\nconst a = { east: 3, south: 0 }\nconst b = { ...a, south: 2 }\n// b.south is 2\n// a.south is still 0\nconst { east } = a  // east is 3\n```\n\n`extendSouth({ east: 3, south: 0 })` must return a new object with `south: 2`. Print that south value. Use `...` in the source. The hidden test keeps the original `src.south` at `0` and asserts the returned record is `2`."
     },
     {
       "type": "predict",

@@ -21,7 +21,8 @@ import {
   at,
   srcIncludes,
   playLogOk,
-  exportAssert
+  exportAssert,
+  fence
 } from './lib.mjs'
 
 export function lessonsC0C3() {
@@ -172,7 +173,22 @@ export function lessonsC0C3() {
       taskRev: 2,
       blocks: [
         explain(
-          '## Kinds you can print\n\nEvery value has a kind. `typeof 3` is `"number"`. `typeof "3"` is `"string"`. A later desk will ask “what kind of signal is this?” before it files the record.\n\n`typeof null` is `"object"` — that answer is a leftover bug. Do not treat `null` as a bag of fields. Export `kindOf` so a hidden test can call it. Print the kind of the number 3.'
+          [
+            '## Kinds you can print',
+            '',
+            'Every value in JavaScript has a **kind**. The operator that reports it is `typeof`. A later desk will ask “what kind of signal is this?” before it files the record — the same question this lesson asks of a number and a string that look alike.',
+            '',
+            'That is why `"3"` and `3` are not interchangeable. Quotes make text. A bare numeral is a number. Filing the wrong kind is how a lamp current of `"2"` sits in a drawer that expected `2` and then fails a later add.',
+            '',
+            fence(
+              'javascript',
+              `typeof 3      // "number"
+typeof "3"    // "string"
+typeof null   // "object"  — leftover language bug`
+            ),
+            '',
+            '`typeof null` answering `"object"` is a leftover bug, not a license to poke fields on `null`. Do not treat `null` as a bag. Write `kindOf` so a hidden test can call it, and print the kind of the number `3`.'
+          ].join('\n')
         ),
         predict(
           'typeof-null',
@@ -234,10 +250,25 @@ assert.strictEqual(m.kindOf('3'), 'string')
       title: 'Names, let, and const',
       skillIds: ['js.values'],
       estimatedMinutes: 20,
-      taskRev: 3,
+      taskRev: 4,
       blocks: [
         explain(
-          '## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot *rebind* — the sticker on the box stays. If the value is an object, the stuff *inside* can still change.\n\nOn the desk: `const signal = { on: false }; signal.on = true` is legal. `signal = {}` is not. The name still points at the same record. The lamp field flipped.'
+          [
+            '## A name is a box',
+            '',
+            '`let` names a box you can refill. `const` names a box you cannot **rebind** — the sticker on the box stays. That is all `const` locks. If the value is an object, the stuff *inside* can still change.',
+            '',
+            'Learners often hear “const means immutable” and then freeze when a desk asks them to flip a lamp. The name must stay. The field can move.',
+            '',
+            fence(
+              'javascript',
+              `const signal = { on: false }
+signal.on = true   // legal — same box, flipped field
+// signal = {}     // TypeError — that would peel the sticker off`
+            ),
+            '',
+            'On this desk, `flipLamp` already has `const signal = { on: false }`. Turn the lamp on by writing the field. Do not write `signal = …`.'
+          ].join('\n')
         ),
         predict(
           'const-object',
@@ -259,32 +290,114 @@ assert.strictEqual(m.kindOf('3'), 'string')
           { explainMd: 'const stops a new assignment to that name. Fields on the object can still change.', misconceptionId: 'const-means-immutable' }
         ),
         stdoutCode({
-          id: 'bind-then-print',
+          id: 'flip-const-field',
           prompt:
-            '> Inside `labelBox`, declare a `const` named binding for the string `"locked"`, then return that binding. Print the result. A bare `return "locked"` is not enough — the point of this lesson is the binding.',
-          equals: 'locked',
+            '> `flipLamp` already has `const signal = { on: false }`. Turn the lamp on by changing the **field** (`signal.on = true`), then return `signal.on`. Do not write `signal = …` — `const` locks the name, not the fields. Print the result (`true`).',
+          equals: 'true',
           ast: 'const',
           hidden: true,
           hints: ladder(
-            'Put `"locked"` in a `const` box first. The function should read that box, not invent the string at the return.',
-            '`const` names a box you cannot rebind. Declaring it above the function, or inside it, both work — as long as the function returns the binding.',
-            '`const word = "locked"` then `return word` (and `console.log(labelBox())`).',
-            'const word = "locked"\nfunction labelBox() { return word }\nconsole.log(labelBox())\nmodule.exports = { labelBox }'
+            'The name `signal` must stay the same box. Flip the field inside that box.',
+            '`const` stops `signal = {}`. It does not stop `signal.on = true`.',
+            '`signal.on = true` then `return signal.on`.',
+            'function flipLamp() {\n  const signal = { on: false }\n  signal.on = true\n  return signal.on\n}\nconsole.log(flipLamp())\nmodule.exports = { flipLamp }'
           )
         })
       ]
     }),
     files: {
-      'main.js': `function labelBox() {
-  return "open"
+      'main.js': `function flipLamp() {
+  const signal = { on: false }
+  return signal.on
 }
-console.log(labelBox())
-module.exports = { labelBox }
+console.log(flipLamp())
+module.exports = { flipLamp }
 `,
-      'hidden.test.js': exportAssert(`assert.strictEqual(m.labelBox(), 'locked')
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.flipLamp(), true)
 const src = require('fs').readFileSync('main.js', 'utf8')
-assert.ok(/\\bconst\\b/.test(src), 'declare a const binding for the word')
-assert.ok(!/return\\s+[\"']locked[\"']/.test(src), 'return the binding, not the string literal')
+assert.ok(/\\bconst\\b/.test(src), 'keep the record in a const binding')
+assert.ok(/signal\\.on\\s*=/.test(src), 'change the field on the existing object')
+assert.ok(!/\\bsignal\\s*=/.test(src.replace(/const\\s+signal\\s*=\\s*\\{\\s*on:\\s*false\\s*\\}/, '')), 'do not rebind signal')
+`)
+    }
+  })
+
+  out.push({
+    doc: lesson({
+      id: 'strings-immutable',
+      courseId: 'values',
+      moduleId: 'kinds',
+      title: 'Text does not mutate',
+      skillIds: ['js.values'],
+      estimatedMinutes: 15,
+      taskRev: 2,
+      blocks: [
+        explain(
+          [
+            '## Text does not mutate in place',
+            '',
+            'A JavaScript string is a finished strip of letters. You cannot scratch a character off and write another in its place. `"east".toUpperCase()` therefore returns a **new** string. The original stays `"east"`.',
+            '',
+            'That surprises people who have watched arrays mutate. `push` rewrites the list you already have. String methods never do that. They build a second strip and hand it back. Forget to keep both, and you either shout over the heading or you return the quiet original.',
+            '',
+            fence(
+              'javascript',
+              `let d = "east"
+const shouted = d.toUpperCase()
+// shouted is "EAST"
+// d is still "east"`
+            ),
+            '',
+            'The next lesson builds a new label with a template. This one only asks you to keep both strings: the new shout, and the original heading. `shoutKeep("east")` must be `EAST|east`.'
+          ].join('\n')
+        ),
+        predict(
+          'string-immutable',
+          'After `let d = "east"; d.toUpperCase()`, what is `d`?',
+          [
+            { id: 'EAST', md: '`"EAST"` — the letters flipped in place' },
+            { id: 'east', md: '`"east"` — the method returned a new string' }
+          ],
+          'east',
+          {
+            explainMd:
+              '`toUpperCase` builds a new string and hands it back. It never rewrites the one you called it on. `d` stays `"east"` unless you assign the result back: `d = d.toUpperCase()`.'
+          }
+        ),
+        tf(
+          'upper-rewrites',
+          '`"east".toUpperCase()` rewrites the original string to `"EAST"`.',
+          false,
+          { explainMd: 'Strings are immutable. The method returns a new string. The original stays "east".' }
+        ),
+        stdoutCode({
+          id: 'shout-keep',
+          prompt:
+            '> `shoutKeep(dir)` must call `toUpperCase` and return both strings as `SHOUT|original` — so `shoutKeep("east")` is `EAST|east`. Do not hard-code `"EAST|east"`. Print `shoutKeep("east")`.',
+          equals: 'EAST|east',
+          ast: 'toUpperCase',
+          hidden: true,
+          hints: ladder(
+            'Call `toUpperCase` to get the shout. Then glue it to the original with `|`.',
+            'The original `dir` is unchanged after `toUpperCase`. Use that. Do not assign over `dir` unless you saved a copy first.',
+            '`const shouted = dir.toUpperCase()` then `return shouted + "|" + dir`.',
+            'function shoutKeep(dir) {\n  const shouted = dir.toUpperCase()\n  return shouted + "|" + dir\n}\nconsole.log(shoutKeep("east"))\nmodule.exports = { shoutKeep }'
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `function shoutKeep(dir) {
+  return dir
+}
+console.log(shoutKeep("east"))
+module.exports = { shoutKeep }
+`,
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.shoutKeep('east'), 'EAST|east')
+assert.strictEqual(m.shoutKeep('north'), 'NORTH|north')
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/toUpperCase/.test(src), 'call toUpperCase to build the new string')
+assert.ok(!/return\\s+[\"']EAST\\|east[\"']/.test(src), 'build both sides from dir, do not hard-code the result')
 `)
     }
   })
@@ -296,32 +409,59 @@ assert.ok(!/return\\s+[\"']locked[\"']/.test(src), 'return the binding, not the 
       moduleId: 'kinds',
       title: 'Strings and templates',
       skillIds: ['js.values'],
-      estimatedMinutes: 18,
-      taskRev: 3,
+      estimatedMinutes: 16,
+      taskRev: 4,
       blocks: [
         explain(
-          '## Text does not mutate in place\n\n`"east".toUpperCase()` returns a **new** string. The original stays `"east"`. A beacon tag is the same idea: you build a new label; you do not scratch the old letters off.\n\nA template literal drops a value into a string: `` `beacon:${name}` ``. The result is still text.'
+          [
+            '## Backticks insert a value',
+            '',
+            'Ordinary quotes keep `${name}` as letters — the dollar, the braces, and the word name. A **template literal** uses backticks. Only then does `${name}` become the value.',
+            '',
+            'This is a different idea from last lesson. Immutability said a method returns a new string. Interpolation says *how* you build that new string when a name has to sit inside it. Quotes will not do that job, even if the text looks like a template.',
+            '',
+            fence(
+              'javascript',
+              'const name = "north"\n"beacon:${name}"   // the characters beacon:${name}\n`beacon:${name}`   // beacon:north'
+            ),
+            '',
+            'A template builds a new label. It does not rewrite `name`. `tagBeacon` must use backticks so `tagBeacon("north")` is `beacon:north`.'
+          ].join('\n')
         ),
         predict(
-          'string-immutable',
-          'After `let d = "east"; d.toUpperCase()`, what is `d`?',
+          'quotes-vs-ticks',
+          'What does `"beacon:${name}"` return when `name` is `"north"`?',
           [
-            { id: 'EAST', md: '`"EAST"`' },
-            { id: 'east', md: '`"east"` — the method returned a new string' }
+            { id: 'lit', md: 'The characters `beacon:${name}` — quotes do not interpolate' },
+            { id: 'val', md: '`"beacon:north"`' }
           ],
-          'east'
+          'lit',
+          {
+            explainMd:
+              'Double quotes (and single quotes) do not run `${…}`. You get the dollar, the braces, and the word name. Backticks are what insert the value.'
+          }
+        ),
+        cloze(
+          'tick-insert',
+          'Interpolation needs {{a}}. `"beacon:${name}"` is {{b}}.',
+          [
+            { id: 'a', choices: ['backticks', 'double quotes', 'plus signs'] },
+            { id: 'b', choices: ['literal text', 'beacon:north', 'an error'] }
+          ],
+          { a: 'backticks', b: 'literal text' },
+          { explainMd: 'Only a template literal (backticks) replaces ${name}. Quotes keep those characters as text.' }
         ),
         stdoutCode({
           id: 'tag-name',
           prompt:
-            '> `tagBeacon(name)` must return a template literal like `` `beacon:${name}` `` — not string concatenation and not a hard-coded `"beacon:north"`. Print `tagBeacon("north")`.',
+            '> `tagBeacon(name)` must return a template literal: backtick `beacon:` then `${name}` backtick — so `tagBeacon("north")` is `beacon:north`. Quotes will print the letters `${name}`. Do not hard-code `"beacon:north"`. Print `tagBeacon("north")`.',
           equals: 'beacon:north',
           ast: '`',
           hidden: true,
           hints: ladder(
-            'The starter hands the name back unchanged. You need the name inside a longer label.',
-            'A template literal is wrapped in backticks and drops a value in with `${ }`.',
-            '`` `signal:${kind}` `` with `kind = "low"` builds `signal:low`.',
+            'If you used double quotes, `${name}` stays letters. Switch the string to backticks.',
+            'A template is wrapped in backticks. `${name}` drops the argument in.',
+            'With `kind = "low"`, backtick `signal:${kind}` backtick builds `signal:low`.',
             'function tagBeacon(name) { return `beacon:${name}` }\nconsole.log(tagBeacon("north"))\nmodule.exports = { tagBeacon }'
           )
         })
@@ -329,7 +469,7 @@ assert.ok(!/return\\s+[\"']locked[\"']/.test(src), 'return the binding, not the 
     }),
     files: {
       'main.js': `function tagBeacon(name) {
-  return name
+  return "beacon:\${name}"
 }
 console.log(tagBeacon("north"))
 module.exports = { tagBeacon }
@@ -353,7 +493,23 @@ assert.ok(!/return\\s+[\"']beacon:/.test(src), 'build the label from name, do no
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Not a Number is still a number kind\n\n`Number("fox")` is `NaN`. `typeof NaN` is `"number"`. `NaN === NaN` is **false**. A desk that stores lamp current as a number must catch that — otherwise it files a broken reading as if it were zero.\n\nUse `Number.isNaN(x)` when you mean “this failed to become a number.”'
+          [
+            '## Not a Number is still a number kind',
+            '',
+            '`Number("fox")` is `NaN`. That value is the language saying “this failed to become a number.” It is still a number *kind*: `typeof NaN` is `"number"`. A desk that stores lamp current must catch it, or it files a broken reading as if it were a real zero.',
+            '',
+            'You cannot find it with `===`. `NaN === NaN` is **false**. Comparing against the word `"fox"` only catches one bad input. The operator that asks the real question is `Number.isNaN`.',
+            '',
+            fence(
+              'javascript',
+              `Number("fox")           // NaN
+typeof NaN              // "number"
+NaN === NaN             // false
+Number.isNaN(Number("fox"))  // true`
+            ),
+            '',
+            '`failedNumber(text)` must use `Number.isNaN`. Hard-coding `text === "fox"` is the mistake this lesson removes.'
+          ].join('\n')
         ),
         predict(
           'nan-equals',
@@ -404,7 +560,22 @@ assert.strictEqual(m.failedNumber('3'), false)
       taskRev: 2,
       blocks: [
         explain(
-          '## `===` does not convert\n\n`0 == ""` is true because `==` coerces. `0 === ""` is false. A signal of `0` (off) is not the same as a missing name `""`.\n\nPrefer `===` and `!==` unless you can name the coercion you want. Print whether `0` and `""` are **not** strictly equal (`true`).'
+          [
+            '## `===` does not convert',
+            '',
+            '`==` converts before it compares. That is why `0 == ""` is `true`: empty string becomes `0`. `===` refuses that conversion. A signal of `0` (off) is not a missing name `""`. A desk that treats those as the same name files a dark lamp as an unnamed beacon.',
+            '',
+            'Prefer `===` and `!==` unless you can name the coercion you want. The starter on this desk still uses `==`. That is the habit to drop.',
+            '',
+            fence(
+              'javascript',
+              `0 == ""    // true  — == converted the string
+0 === ""   // false — different kinds
+0 !== ""   // true`
+            ),
+            '',
+            'The common mistake is keeping `==` because it “looks like equals.” On Try, print whether `0` and `""` are **not** strictly equal. Use `===` or `!==`. Do not keep `==`.'
+          ].join('\n')
         ),
         predict(
           'double-trap',
@@ -458,7 +629,22 @@ assert.ok(!/[^!=]==[^=]/.test(src), 'do not use ==')
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Some values act as “no”\n\nIn an `if`, these are falsy: `0`, `""`, `null`, `undefined`, `NaN`, `false`. A lamp at brightness `0` is off. An empty name `""` is missing.\n\n`[]` and `"0"` are truthy. An empty list is still a list. The string zero is still text. Do not treat them as “no.”'
+          [
+            '## Some values act as “no”',
+            '',
+            'An `if` does not ask “is there a value here.” It asks “is this value truthy.” Six values are falsy: `0`, `""`, `null`, `undefined`, `NaN`, and `false`. A lamp at brightness `0` is off. An empty name is missing.',
+            '',
+            '`[]` and `"0"` are truthy. An empty list is still a list. The string zero is still text. Treating them as “no” is how a desk skips a real reading.',
+            '',
+            fence(
+              'javascript',
+              `if (0) { "go" } else { "stop" }     // "stop"
+if ([]) { "go" } else { "stop" }    // "go"
+if ("0") { "go" } else { "stop" }   // "go"`
+            ),
+            '',
+            'The common mistake is listing the six falsy values by hand, or treating `[]` as shut because it looks empty. On Try, `gate(value)` returns `"open"` when the value is truthy, otherwise `"shut"`. `gate(0)` must print `shut`. Let the `if` do the work.'
+          ].join('\n')
         ),
         predict(
           'empty-array',
@@ -520,7 +706,23 @@ assert.strictEqual(m.gate(1), 'open')
       taskRev: 3,
       blocks: [
         explain(
-          '## `&&`, `||`, and `??`\n\n`a && b` returns `a` if `a` is falsy, otherwise `b`. `a || b` returns `a` if `a` is truthy, otherwise `b`. They stop as soon as they know the answer.\n\n`??` is narrower: it only skips `null` or `undefined`. `0 || "north"` becomes `"north"`. `0 ?? "north"` stays `0`. A lamp at brightness zero is still a reading — do not replace it with a default name.'
+          [
+            '## `&&`, `||`, and `??`',
+            '',
+            '`a && b` returns `a` if `a` is falsy, otherwise `b`. `a || b` returns `a` if `a` is truthy, otherwise `b`. They stop as soon as they know the answer — that is the short circuit.',
+            '',
+            '`??` is narrower: it only skips `null` or `undefined`. A lamp at brightness zero is still a reading. `||` would throw that zero away and write a default name on top of it.',
+            '',
+            fence(
+              'javascript',
+              `0 || "north"   // "north"  — || treats 0 as no
+0 ?? "north"   // 0        — ?? keeps a real zero
+"" || "anon"   // "anon"
+null ?? "anon" // "anon"`
+            ),
+            '',
+            '`label(name)` must return `name` if it is truthy, otherwise `"anon"`. Use `||` in the source. `??` would keep `""`, which this desk treats as missing.'
+          ].join('\n')
         ),
         predict(
           'or-zero',
@@ -584,7 +786,23 @@ assert.ok(/\\|\\||\\?\\?/.test(src), 'use || or ?? for the default')
       taskRev: 3,
       blocks: [
         explain(
-          '## `?.` asks first\n\n`signal.beacon.name` throws the moment `signal.beacon` is `undefined`. `signal?.beacon?.name` stops at the first missing link and hands back `undefined` instead of throwing.\n\n`?.` does **not** supply a default. It only avoids the crash. Pair it with `??` when you want a fallback:\n\n```\nsignal?.beacon?.name ?? "unknown"\n```\n\nThere are two more forms: `fn?.()` calls only if `fn` exists, and `list?.[0]` indexes only if `list` exists.'
+          [
+            '## `?.` asks first',
+            '',
+            '`signal.beacon.name` throws the moment `signal.beacon` is `undefined`. `signal?.beacon?.name` stops at the first missing link and hands back `undefined` instead of throwing. That is all it does.',
+            '',
+            '`?.` does **not** supply a default. An empty name `""` is a real reading, not a missing beacon. Pair the chain with `??` when you want a fallback only for `null` or `undefined`. `||` would hide `""` and `0`.',
+            '',
+            fence(
+              'javascript',
+              `const s = {}
+s.beacon.name              // TypeError
+s?.beacon?.name            // undefined
+s?.beacon?.name ?? "unknown"  // "unknown"`
+            ),
+            '',
+            'The common mistake is `signal.beacon.name` and a crash, or using `||` so an empty name becomes `unknown`. On Try, `beaconName(signal)` must use `?.` and `??`. Missing signal or missing beacon gives `"unknown"`. An empty name stays empty.'
+          ].join('\n')
         ),
         predict(
           'chain-missing',
@@ -656,7 +874,24 @@ assert.strictEqual(m.beaconName({ beacon: { name: '' } }), '')
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
-          '## Name the kind, honestly\n\n`classify(value)` should return:\n\n- `"empty"` for `null` or `undefined`\n- `"zero"` for `0` or `""`\n- `"list"` for arrays\n- `"text"` for other strings\n- `"other"` for everything else\n\n`typeof null` is `"object"` — do not trust it. Use `value == null` or check `null` / `undefined` first.'
+          [
+            '## Name the kind, honestly',
+            '',
+            'This transfer uses everything from the chapter. `classify(value)` must label a signal without trusting `typeof` alone. `typeof null` is `"object"` — that leftover bug will file an empty reading as a bag of fields if you check kind first.',
+            '',
+            'Check `null` and `undefined` before anything else. Then `0` and `""` as `"zero"`. Then `Array.isArray` for `"list"`. Then other strings as `"text"`. Everything else is `"other"`.',
+            '',
+            fence(
+              'javascript',
+              `typeof null          // "object" — do not trust this
+classify(null)       // "empty"
+classify(0)          // "zero"
+classify([])         // "list"
+classify("east")     // "text"`
+            ),
+            '',
+            'The common mistake is `return typeof value`, which labels `null` as `object` and `[]` as `object` too. On Try, walk the labels in order and print `classify(null)` (`empty`). Hidden tests cover the other labels.'
+          ].join('\n')
         ),
         predict(
           'null-first',
@@ -710,7 +945,24 @@ assert.strictEqual(m.classify(3), 'other')
       taskRev: 2,
       blocks: [
         explain(
-          '## A name is not a call\n\n`ping` is the function. `ping()` runs it and gives you `"pong"`. Printing the function itself is not the same as printing its result.\n\nThe last line, `module.exports = { ping }`, is how the checker reaches your function. Leave it there and ignore it for now — it is harness plumbing, not syntax you need yet. Modules get taught properly in the Node track.'
+          [
+            '## A name is not a call',
+            '',
+            'A function is a recipe sitting under a name. Writing `ping` points at that recipe. Writing `ping()` runs it and hands you the result. Those two expressions are different values: one is the function itself, the other is `"pong"`.',
+            '',
+            'Why it bites: a desk that logs the recipe instead of the result files a blob of source where a signal word should be. The fox never hears `pong`. A later checker that calls your export still works, because the function is fine — only the print line never asked it to run.',
+            '',
+            fence(
+              'javascript',
+              `function ping() {
+  return "pong"
+}
+console.log(ping)    // the function text
+console.log(ping())  // "pong"`
+            ),
+            '',
+            'The starter already returns `"pong"` and already exports `ping`. The last line, `module.exports = { ping }`, is harness plumbing so the checker can reach your function — leave it. Modules are taught in the Node track. On Try, call `ping` and print the returned string `pong`.'
+          ].join('\n')
         ),
         predict(
           'call-vs-name',
@@ -758,7 +1010,22 @@ module.exports = { ping }
       taskRev: 3,
       blocks: [
         explain(
-          '## Call, then see\n\n`Player.move` walks the fox one cell. The beacon stays put — you walk onto it.\n\n- `"east"` increases **x**\n- `"south"` increases **y**'
+          [
+            '## Call, then see',
+            '',
+            '`Player.move` is a call that walks the fox one cell. The name without parentheses does nothing on the field. Each call takes a heading string. `"east"` increases **x**. `"south"` increases **y**. The beacon stays put — you walk onto it.',
+            '',
+            'Why it bites: one leftover `move` from a previous attempt leaves the fox on a tree or a rock. Those cells block. The coin on the way is optional scenery. A fox that never reaches (3, 2) never lights the beacon, even if the heading list looks right on paper.',
+            '',
+            fence(
+              'javascript',
+              `Player.move("east")   // x goes up by 1
+Player.move("south")  // y goes up by 1
+// start (0, 0) → three east, two south → (3, 2)`
+            ),
+            '',
+            'On Try, walk the fox onto the beacon at `(3, 2)`. You need three east calls and two south calls. Order does not matter as long as you stay off the trees and rocks. The owl is scenery. The starter already takes one east step — keep calling until the fox stands on the lamp.'
+          ].join('\n')
         ),
         predict(
           'where-after-east',
@@ -815,7 +1082,24 @@ assert.ok(log.filter((row) => row.op === 'move' && row.dir === 'south').length >
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## The stage hears `say`, not `console.log`\n\n`status()` should **return** `"locked"`. Then `Player.say(status())` shows that word on the fox. Printing to the console is a notebook, not the result the next function can use.'
+          [
+            '## The stage hears `say`, not `console.log`',
+            '',
+            '`return` hands a value to the caller. `console.log` writes a notebook line and hands back `undefined`. `status()` should **return** `"locked"`. Then `Player.say(status())` shows that word on the fox. The stage never reads the console. Printing is a notebook, not the result the next function can use.',
+            '',
+            'Why it bites: a fox that only logged `"locked"` says `undefined` on the field. The beacon walk can still succeed, so the board looks almost done, but the speech bubble is empty. A hidden test that calls `status()` also gets `undefined` and fails.',
+            '',
+            fence(
+              'javascript',
+              `function status() {
+  return "locked"   // the caller receives this
+}
+Player.say(status())  // the fox says "locked"
+// console.log("locked") would print, then return undefined`
+            ),
+            '',
+            'The starter logs inside `status` and then says `"?"`. On Try, return `"locked"` from `status`, pass that call into `Player.say`, and walk south onto the beacon. Leave the export so the checker can call `status` on its own.'
+          ].join('\n')
         ),
         predict(
           'say-return',
@@ -866,7 +1150,26 @@ module.exports = { status }
       taskRev: 3,
       blocks: [
         explain(
-          '## A function that walks `n` steps\n\n`function walk(n = 1)` uses `1` when you omit `n`. Call `Player.move("east")` that many times. Do not copy-paste five `move` lines if a parameter will do.'
+          [
+            '## A function that walks `n` steps',
+            '',
+            '`function walk(n = 1)` names a parameter and a default in the same list. When you write `walk(3)`, `n` is `3`. When you write `walk()` with nothing in the parentheses, `n` becomes `1`. The default lives in the signature, not in an `if` inside the body. Then call `Player.move("east")` that many times.',
+            '',
+            'Why it bites: five pasted `Player.move("east")` lines drift the moment the beacon moves. A `walk` that ignores `n` always takes one step, so `walk(3)` stops short of x=3 and `walk()` with no args is indistinguishable from a hardcoded single move.',
+            '',
+            fence(
+              'javascript',
+              `function walk(n = 1) {
+  for (let i = 0; i < n; i++) {
+    Player.move("east")
+  }
+}
+walk(3)  // three steps
+walk()   // one step — the default filled in`
+            ),
+            '',
+            'On Try, write `walk(n = 1)` that moves east `n` times, then call `walk(3)` to reach x=3. The hidden test also calls `walk()` with no arguments and expects one move. Put the default in the parameter list — do not copy-paste five `move` lines if a parameter will do.'
+          ].join('\n')
         ),
         predict(
           'default-n',
@@ -926,7 +1229,23 @@ assert.strictEqual(afterLen - beforeLen, 1, 'walk() with no args must move once'
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## One idea, many steps\n\nA `for` loop is a counter that writes the path. Three east steps should be one loop, not three copy-pasted calls that will drift when the beacon moves.'
+          [
+            '## One idea, many steps',
+            '',
+            'A `for` loop is a counter that writes the path. The header names a start, a stop test, and a step. `for (let i = 0; i < 3; i++)` runs the body three times, with `i` equal to 0, then 1, then 2. The test `i < 3` is what makes it three, not the number written after the plus-plus.',
+            '',
+            'Why it bites: three copy-pasted `Player.move("east")` calls look fine until the beacon slides to x=5. One line gets edited and two stay stale. The fox stops short or walks through a wall that was not there last week.',
+            '',
+            fence(
+              'javascript',
+              `for (let i = 0; i < 3; i++) {
+  Player.move("east")
+}
+// i is 0, 1, 2 — three east steps, fox at (3, 0)`
+            ),
+            '',
+            'On Try, use a `for` loop to walk east onto the beacon at (3, 0). The starter already pastes two moves. Do not grow a third paste — one loop should write the whole path. The hidden test refuses a file that keeps adding `Player.move` lines.'
+          ].join('\n')
         ),
         predict(
           'for-count',
@@ -975,7 +1294,26 @@ Player.move("east")
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Stop when the counter says so\n\n`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon.\n\nA `while (true)` without `break` is a runaway. The runner will time out.\n\nThere is a sibling worth knowing: `do { … } while (cond)` checks the condition **after** the body, so the body always runs at least once. Reach for it when the first attempt is unconditional — read a line, then keep reading while there are more.'
+          [
+            '## Stop when the counter says so',
+            '',
+            '`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon. A `while (true)` without `break` is a runaway. The runner will time out.',
+            '',
+            'Why it bites: `while (false)` never enters the body, so the fox never leaves (1, 0). The opposite bug, a loop with no exit, walks south forever and the desk kills the run. Either way the fox misses the beacon at (1, 2).',
+            '',
+            fence(
+              'javascript',
+              `let steps = 0
+while (true) {
+  Player.move("south")
+  steps += 1
+  if (steps === 2) break
+}
+// two south steps, then leave`
+            ),
+            '',
+            'There is a sibling worth knowing: `do { … } while (cond)` checks the condition **after** the body, so the body always runs at least once. Reach for it when the first attempt is unconditional — read a line, then keep reading while there are more. On Try, walk south with `while` until you have moved twice. Use `break` or a counter.'
+          ].join('\n')
         ),
         predict(
           'break-why',
@@ -1022,7 +1360,30 @@ while (false) {
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## `switch` routes a command\n\nA dispatch table reads one value and picks a branch. `switch (cmd)` compares with `===`, runs the matching `case`, and keeps running **into the next case** until it meets `break`.\n\nThat fall-through is a feature when you group spellings:\n\n```\ncase "east":\ncase "e":\n  Player.move("east")\n  break\n```\n\nBoth labels share one body. Forgetting `break` on a branch that has its own body is the classic bug: the fox does two things for one command. `default` catches anything you did not plan for.'
+          [
+            '## `switch` routes a command',
+            '',
+            'A dispatch table reads one value and picks a branch. `switch (cmd)` compares with `===`, runs the matching `case`, and keeps running **into the next case** until it meets `break`. That fall-through is a feature when you group spellings. `default` catches anything you did not plan for.',
+            '',
+            'Why it bites: forgetting `break` on a branch that has its own body is the classic bug. The fox hears `"east"` and then also runs the south case, so one command walks two cells. An unknown `"beep"` with no `default` is silently ignored, and the speech bubble never says `skip`.',
+            '',
+            fence(
+              'javascript',
+              `switch (cmd) {
+  case "east":
+  case "e":
+    Player.move("east")
+    break
+  case "south":
+    Player.move("south")
+    break
+  default:
+    Player.say("skip")
+}`
+            ),
+            '',
+            'Both `east` and `e` share one body because the first label has no `break` of its own. On Try, walk the plan with a `switch`. `east` and `e` both go east, `south` goes south, and anything else falls to `default` and says `skip`. The beacon is at (2, 2). The starter already has the plan array.'
+          ].join('\n')
         ),
         predict(
           'no-break',
@@ -1109,7 +1470,23 @@ for (const cmd of plan) {
       taskRev: 2,
       blocks: [
         explain(
-          '## The grid is the test\n\nYour file is the controller. **Run** plays the level on the stage.\n\n### Calls\n\n- `Player.move("north"|"south"|"east"|"west")` — one cell. Rocks block.\n- `Player.rotate(90)` — turn\n- `Player.scale(1)` or `Player.scale(2)` — grow\n- `Player.say("ready")` — speak\n\n### Win\n\nCollect every token. Stand on the beacon. Face **90°**, scale **2**, say **ready**.'
+          [
+            '## The grid is the test',
+            '',
+            'Your file is the controller. **Run** plays the level on the stage. `Player.move` walks one cell; rocks are solid and the step is refused. Tokens vanish when you walk onto them. The win is not only standing on the beacon — you must also face, grow, and speak.',
+            '',
+            'Why it bites: a fox that reaches (2, 0) but still faces 0°, still at scale 1, or still silent has not finished. `Player.scale(3)` is rejected. Walking east from `(2, 3)` into the rock at `(3, 3)` leaves you in place, so a route that ignores walls looks right on paper and fails on the field.',
+            '',
+            fence(
+              'javascript',
+              `Player.move("north")  // one cell; rocks block
+Player.rotate(90)     // face 90°
+Player.scale(2)       // grow; scale(3) is rejected
+Player.say("ready")   // the win word`
+            ),
+            '',
+            'Calls you will use: `Player.move("north"|"south"|"east"|"west")`, `Player.rotate(90)`, `Player.scale(1)` or `Player.scale(2)`, and `Player.say("ready")`. On Try, collect every token, stand on the beacon, face **90°**, scale **2**, and say **ready**. The stage is the map — discover the route, and open Hint if you need a compass.'
+          ].join('\n')
         ),
         predict(
           'rock-blocks',
@@ -1168,7 +1545,23 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## The fox stops early\n\nThe loop was written as `i <= 2` when the author meant three steps from 0, or `i < 2` when they needed three. Off-by-one is a counting story, not a mystery.\n\nFix the loop so the fox stands on the beacon at (3, 0).'
+          [
+            '## The fox stops early',
+            '',
+            'Off-by-one is a counting story, not a mystery. `for (let i = 0; i < 2; i++)` runs the body when `i` is 0 and 1 — two steps. `i < 3` (or `i <= 2`) runs three. The author meant three east steps from x=0 to the beacon at x=3, and wrote the tighter bound by habit.',
+            '',
+            'Why it bites: the fox stops on (2, 0), one cell short of the lamp. The walls on the row below never get touched, so the board looks open, and it is easy to blame the stage instead of the comparison. Inclusive `<=` and exclusive `<` are both legal; they just count differently.',
+            '',
+            fence(
+              'javascript',
+              `for (let i = 0; i < 2; i++) {  // i = 0, 1 — two moves
+  Player.move("east")
+}
+// need i < 3 so i = 0, 1, 2 — fox at (3, 0)`
+            ),
+            '',
+            'On Try, the starter walks only to x=2. Fix the bound so the fox reaches x=3. Keep the `for` loop. Stay on y=0; the walls sit on the row below. Count on your fingers: `i` of 0, 1, 2 is three moves when the test is `i < 3`.'
+          ].join('\n')
         ),
         predict(
           'lte-vs-lt',
@@ -1223,10 +1616,27 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
       title: 'Index vs length',
       skillIds: ['js.arrays'],
       estimatedMinutes: 18,
-      taskRev: 3,
+      taskRev: 4,
       blocks: [
         explain(
-          '## A list of directions\n\n`const dirs = ["east", "east", "south"]`. Index `0` is the first item. `dirs.length` is `3`. The last item is at `length - 1`, not `length`.'
+          [
+            '## A list of directions',
+            '',
+            'An array is a numbered row. Index `0` is the first item. `dirs.length` is how many items sit in the row. The last item is at `length - 1`, not at `length`. Asking for `dirs[dirs.length]` is asking for a slot that was never written — you get `undefined`, not a wrap-around.',
+            '',
+            'Why it bites: a fox that reads `dirs[3]` from `["east", "east", "south"]` tries to `Player.move(undefined)` and stands still, one step short of the beacon at (2, 1). Hard-coding `"south"` as the last heading also fails the moment a hidden test hands you `["west"]`.',
+            '',
+            fence(
+              'javascript',
+              `const dirs = ["east", "east", "south"]
+dirs[0]                // "east"
+dirs.length            // 3
+dirs[dirs.length - 1]  // "south"
+dirs[dirs.length]      // undefined`
+            ),
+            '',
+            '`lastDir(dirs)` must return the last heading with `dirs[dirs.length - 1]` — not a hardcoded `"south"`. Then walk every string in `dirs` with a for…of, forEach, or indexed loop. Do not paste three separate `Player.move("…")` calls.'
+          ].join('\n')
         ),
         predict(
           'last-index',
@@ -1240,30 +1650,38 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
         playCode({
           id: 'walk-dirs',
           prompt:
-            '> Walk every string in `dirs` with `Player.move` — loop over `dirs` (for…of / forEach / indexed loop). Do not hard-code three separate `Player.move("…")` calls.',
+            '> `lastDir(dirs)` returns the last heading with `dirs[dirs.length - 1]` — not a hardcoded `"south"`. Then walk every string in `dirs` (for…of / forEach / indexed loop). Do not paste three separate `Player.move("…")` calls.',
           world: gridWorld([fox(0, 0), beacon(2, 1)]),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 1)] },
           hidden: true,
           hints: ladder(
-            'The list already holds the route. The starter ignores it and moves once by hand.',
-            'Walk the list itself, so adding a direction to `dirs` changes the path with no other edit.',
+            'The last slot is `length - 1`, not `length`. Then walk the list instead of one pasted move.',
+            'Write `lastDir` first so the hidden test can call it with other lists.',
             '`for (const dir of dirs) { … }` hands you each string in turn.',
-            'const dirs = ["east", "east", "south"]\nfor (const dir of dirs) Player.move(dir)\nmodule.exports = { dirs }'
+            'const dirs = ["east", "east", "south"]\nfunction lastDir(list) {\n  return list[list.length - 1]\n}\nfor (const dir of dirs) Player.move(dir)\nmodule.exports = { dirs, lastDir }'
           )
         })
       ]
     }),
     files: {
       'main.js': `const dirs = ["east", "east", "south"]
+function lastDir(list) {
+  return list[0]
+}
 Player.move("east")
-module.exports = { dirs }
+module.exports = { dirs, lastDir }
 `,
       'hidden.test.js':
+        exportAssert(`assert.strictEqual(m.lastDir(['east', 'south']), 'south')
+assert.strictEqual(m.lastDir(['west']), 'west')
+assert.strictEqual(m.lastDir(m.dirs), 'south')
+`) +
         playLogOk() +
         `;(function () {
   const fs = require('fs')
   const assert = require('assert')
   const src = fs.readFileSync('main.js', 'utf8')
+  assert.ok(/length\\s*-\\s*1/.test(src), 'last index is length - 1')
   assert.ok(/\\bdirs\\b/.test(src), 'use the dirs list')
   assert.ok(
     /for\\s*\\(.*\\bof\\s+dirs\\b|dirs\\.forEach|for\\s*\\(.*dirs\\.length|dirs\\[/.test(src),
@@ -1287,7 +1705,24 @@ module.exports = { dirs }
       taskRev: 2,
       blocks: [
         explain(
-          '## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array of the same length, with each item transformed. The list you started from is untouched — that is the whole point, and the hidden test checks it.\n\nHere you map two lowercase names to uppercase and join them: `ADA,GRACE`.'
+          [
+            '## map does not rewrite the original',
+            '',
+            '`map` walks a list and builds a **new** array of the same length, one transformed item per slot. `names.map(n => n.toUpperCase())` is a second list. The list you started from is untouched — that is the whole point, and the hidden test checks it by handing you `["ada"]` and asserting the first letter stayed lowercase.',
+            '',
+            'Why it bites: learners reach for `push` inside a loop, or they assign back into `names[i]`, and a later desk that still needed the quiet originals files shouted labels on the wrong drawer. `map` is the method that refuses that rewrite.',
+            '',
+            fence(
+              'javascript',
+              `const names = ["ada", "grace"]
+const shouted = names.map(n => n.toUpperCase())
+// shouted is ["ADA", "GRACE"]
+// names is still ["ada", "grace"]
+shouted.join(",")  // "ADA,GRACE"`
+            ),
+            '',
+            'On Try, `uppers` must map `ada, grace` to uppercase and join them with a comma: `ADA,GRACE`. Use `map` in the source. Joining the original list without mapping leaves the letters lowercase, which is what the starter does.'
+          ].join('\n')
         ),
         predict(
           'map-original',
@@ -1335,13 +1770,30 @@ assert.strictEqual(src[0], 'ada')
       id: 'arrays-filter-find',
       courseId: 'data',
       moduleId: 'lists',
-      title: 'filter keeps matches',
+      title: 'filter and find',
       skillIds: ['js.arrays'],
       estimatedMinutes: 20,
-      taskRev: 3,
+      taskRev: 4,
       blocks: [
         explain(
-          '## Keep only what you need\n\n`filter` returns every match as a new list. From `["east", "south", "east"]`, keep only `"east"` and join them.'
+          [
+            '## Keep matches, or pick the first',
+            '',
+            '`filter` returns **every** match as a new list. `find` returns the **first** match, or `undefined` if none. They look similar because both take a test function, but the results are different kinds: a list versus one item. An empty filter is `[]`. A missed find is `undefined`, not an empty list.',
+            '',
+            'Why it bites: treating `find` as if it returned a list makes `.join` throw, because `undefined` has no join. Treating `filter` as if it returned one string silently drops the second east, so a log that should read `east,east` files a single heading and a later desk thinks only one beacon fired.',
+            '',
+            fence(
+              'javascript',
+              `const dirs = ["east", "south", "east"]
+dirs.filter(d => d === "east")  // ["east", "east"]
+dirs.find(d => d === "east")    // "east"
+["south"].filter(d => d === "east")  // []
+["south"].find(d => d === "east")    // undefined`
+            ),
+            '',
+            'Two exports. `onlyEast(dirs)` uses `filter` and joins remaining easts as `east,east`. `firstEast(dirs)` uses `find` and returns that string, or `""` if none. Print `onlyEast(["east", "south", "east"])`. The starter joins every direction and reads `dirs[0]` for the first — both habits this lesson removes.'
+          ].join('\n')
         ),
         predict(
           'filter-empty',
@@ -1350,19 +1802,31 @@ assert.strictEqual(src[0], 'ada')
             { id: 'empty', md: '`[]` — no matches' },
             { id: 'undef', md: '`undefined`' }
           ],
-          'empty'
+          'empty',
+          { explainMd: '`filter` always returns a list. No matches means `[]`, not `undefined`. `find` is the one that returns `undefined`.' }
+        ),
+        predict(
+          'find-miss',
+          '`["south"].find(d => d === "east")` is…',
+          [
+            { id: 'empty', md: '`[]`' },
+            { id: 'undef', md: '`undefined` — no first match' }
+          ],
+          'undef',
+          { explainMd: '`find` hands back the item, or `undefined` when nothing matched. It does not hand back an empty list.' }
         ),
         stdoutCode({
           id: 'only-east',
-          prompt: '> `onlyEast(dirs)` returns only `"east"` entries, joined as `east,east`. Print that.',
+          prompt:
+            '> Two exports. `onlyEast(dirs)` uses `filter` and joins remaining easts as `east,east`. `firstEast(dirs)` uses `find` and returns that string, or `""` if none. Print `onlyEast(["east", "south", "east"])`.',
           equals: 'east,east',
           ast: 'filter',
           hidden: true,
           hints: ladder(
-            'The starter joins every direction, including the ones you were asked to drop.',
-            '`filter` keeps the entries whose test returns true and returns a new, shorter list.',
-            '`dirs.filter((d) => d === "east")` keeps only the easts; `join(",")` then makes the line.',
-            'function onlyEast(dirs) { return dirs.filter(d => d === "east").join(",") }\nconsole.log(onlyEast(["east", "south", "east"]))\nmodule.exports = { onlyEast }'
+            'The starter joins every direction. `filter` drops the ones that are not east. `find` is a separate function.',
+            '`filter` keeps every match as a list. `find` keeps only the first match, or `undefined`.',
+            '`dirs.filter((d) => d === "east")` then `join(",")`. `dirs.find((d) => d === "east") ?? ""`.',
+            'function onlyEast(dirs) { return dirs.filter(d => d === "east").join(",") }\nfunction firstEast(dirs) { return dirs.find(d => d === "east") ?? "" }\nconsole.log(onlyEast(["east", "south", "east"]))\nmodule.exports = { onlyEast, firstEast }'
           )
         })
       ]
@@ -1371,12 +1835,17 @@ assert.strictEqual(src[0], 'ada')
       'main.js': `function onlyEast(dirs) {
   return dirs.join(",")
 }
+function firstEast(dirs) {
+  return dirs[0]
+}
 console.log(onlyEast(["east", "south", "east"]))
-module.exports = { onlyEast }
+module.exports = { onlyEast, firstEast }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(m.onlyEast(['south', 'east', 'east']), 'east,east')
 assert.strictEqual(m.onlyEast(['south']), '')
-`) + srcIncludes('filter')
+assert.strictEqual(m.firstEast(['south', 'east', 'east']), 'east')
+assert.strictEqual(m.firstEast(['south']), '')
+`) + srcIncludes('filter', 'find')
     }
   })
 
@@ -1390,7 +1859,25 @@ assert.strictEqual(m.onlyEast(['south']), '')
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## reduce when you are building one value\n\n`map` and `filter` already make lists. Use `reduce` here to **join a path string**: `["east", "south"]` becomes `"east-south"`.\n\nThat is one accumulator, not a loop you hide for style.'
+          [
+            '## reduce when you are building one value',
+            '',
+            '`map` and `filter` already make lists. `reduce` is for **one** accumulator that walks the row. Here that value is a path string: `["east", "south"]` becomes `"east-south"`. The second argument to `reduce` is the seed. `["east"].reduce((acc, d) => acc + d, "")` starts `acc` as `""`, not as `"east"`.',
+            '',
+            'Why it bites: `join(",")` is the easy answer and the starter already does it, so a desk files `east,south` when the signal board expected dashes. Hiding a `for` loop inside `reduce` for style also misses the point — you are building one string, not proving you know the method name.',
+            '',
+            fence(
+              'javascript',
+              `["east", "south"].reduce((acc, d) => {
+  return acc ? acc + "-" + d : d
+}, "")
+// seed is ""
+// after east: "east"
+// after south: "east-south"`
+            ),
+            '',
+            '`pathOf(["east", "south"])` must return `east-south` using `reduce`. Print it. If the list has one heading, the answer is that heading with no dash. The hidden test also calls `pathOf(["west"])`.'
+          ].join('\n')
         ),
         predict(
           'reduce-seed',
@@ -1440,7 +1927,24 @@ assert.strictEqual(m.pathOf(['west']), 'west')
       taskRev: 3,
       blocks: [
         explain(
-          '## Fields, not a mystery bag\n\n`{ east: 3, south: 2 }` is a route record. Read `route.east` and loop that many moves. Objects store named numbers; they do not walk themselves.'
+          [
+            '## Fields, not a mystery bag',
+            '',
+            'A record stores named numbers. `{ east: 3, south: 2 }` is a route. You read `route.east` and loop that many moves. Objects do not walk themselves. A missing field is `undefined`, not `0` — `({ east: 3 }).south` is `undefined`, so a loop `i < route.south` would not run and you would never notice the south leg was absent.',
+            '',
+            'Why it bites: one hardcoded `Player.move("east")` ignores both counts. The fox stops at (1, 0) while the beacon sits at (3, 2). Changing the record to `{ east: 4, south: 1 }` would not move the fox, because the file never asked the record what it held.',
+            '',
+            fence(
+              'javascript',
+              `const route = { east: 3, south: 2 }
+route.east    // 3
+route.south   // 2
+route.west    // undefined — not 0
+// loop each count; the object does not walk itself`
+            ),
+            '',
+            'On Try, walk `east` then `south` using `route.east` and `route.south` in the source — loop each count. The beacon is at (3, 2). Keep the `route` export. The gem on the east edge is optional scenery.'
+          ].join('\n')
         ),
         predict(
           'dot-vs-missing',
@@ -1497,7 +2001,24 @@ assert.strictEqual(m.route.south, 2)
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Three ways to walk, one you should reach for\n\n`Object.keys(route)` gives the **own** key names as an array. `Object.values` gives the values, `Object.entries` gives `[key, value]` pairs. All three skip anything inherited from a prototype.\n\n`for (const k in route)` also walks **inherited** keys. That is why a record built with `Object.create(base)` leaks `base`\'s keys into your loop.\n\n`for (const v of list)` is for arrays and other iterables. A plain object is not iterable — `for…of` on one throws.'
+          [
+            '## Three ways to walk, one you should reach for',
+            '',
+            '`Object.keys(route)` gives the **own** key names as an array. `Object.values` gives the values. `Object.entries` gives `[key, value]` pairs. All three skip anything inherited from a prototype. `for (const k in route)` also walks **inherited** keys. That is why a record built with `Object.create(base)` leaks `base`\'s keys into your loop.',
+            '',
+            'Why it bites: a summary that uses `for…in` on a child record files a ghost heading from the prototype, so a desk prints `ghost=9;east=1` when only `east` was written on the child. `for (const v of list)` is for arrays. A plain object is not iterable — `for…of` on one throws.',
+            '',
+            fence(
+              'javascript',
+              `const route = { east: 3, south: 2 }
+Object.keys(route)     // ["east", "south"]
+Object.entries(route)  // [["east", 3], ["south", 2]]
+// for (const k in child) also sees inherited keys
+// for (const v of route) throws — objects are not iterable`
+            ),
+            '',
+            '`summary(route)` must return each own key and value as `key=value`, joined with `;`. Print `summary({ east: 3, south: 2 })` (`east=3;south=2`). Inherited keys must not appear. `Object.entries` is the walk that hands you both sides without the prototype leak.'
+          ].join('\n')
         ),
         predict(
           'for-in-what',
@@ -1563,7 +2084,24 @@ assert.strictEqual(m.summary(child), 'east=1', 'inherited keys must not appear')
       taskRev: 3,
       blocks: [
         explain(
-          '## Unique names, keyed lookup\n\nA `Set` keeps each value once. `new Set(["east", "east", "south"])` has size `2`. A `Map` stores a value under a key you choose — not only a string field on an object.\n\nThe desk uses a set to scrub a log (`east` twice is still one heading) and a map to look up a beacon by name. `map.get("north")` is missing when the key was never set — that is `undefined`, not a throw.'
+          [
+            '## Unique names, keyed lookup',
+            '',
+            'A `Set` keeps each value once. `new Set(["east", "east", "south"])` has size `2`. First-seen order is kept. A `Map` stores a value under a key you choose — not only a string field on an object. `map.get("north")` is `undefined` when the key was never set. It does not throw. `map.has` is the honest test.',
+            '',
+            'Why it bites: joining a raw log files `east-east-south` when the board only fired two headings. Looking up a missing beacon with a throw crashes the desk; treating the missing key as the key string itself (the starter) files `"ghost"` as if it were a real name.',
+            '',
+            fence(
+              'javascript',
+              `new Set(["east", "east", "south"]).size  // 2
+const beacons = new Map([["n", "north"]])
+beacons.get("n")      // "north"
+beacons.get("ghost")  // undefined
+beacons.has("ghost")  // false`
+            ),
+            '',
+            'Two jobs. `unique(dirs)` uses a `Set` and returns unique headings joined with `-`. `nameOf(map, key)` uses `Map` `.get` / `.has` and returns the value, or `"none"` when the key was never set. Print `unique(["east","east","south"])` (`east-south`).'
+          ].join('\n')
         ),
         predict(
           'set-size',
@@ -1630,7 +2168,24 @@ assert.ok(/\\.get\\s*\\(|\\.has\\s*\\(/.test(src), 'nameOf must use Map get/has'
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Two names, one list\n\n`const b = a` does not copy items. Change `b[0]` and `a[0]` changes too. The fox will walk the surprise path if you mutate a shared route.\n\nCopy with `a.slice()` or `[...a]` when you mean a second list.'
+          [
+            '## Two names, one list',
+            '',
+            '`const b = a` does not copy items. It hangs a second name on the same list. Change `b[0]` and `a[0]` changes too. Copy with `a.slice()` or `[...a]` when you mean a second list. This lesson is about the shared case: you *want* the mutation to show up under both names.',
+            '',
+            'Why it bites: a fox walks a surprise path when a helper mutates a route you thought you had copied. The opposite mistake, on this desk, is refusing to mutate: `also` stays a second name but nobody `push`es, so `shared` is still `["east", "east"]` and the fox never turns south toward (2, 1).',
+            '',
+            fence(
+              'javascript',
+              `const shared = ["east", "east"]
+const also = shared        // same list, two names
+also.push("south")
+// shared is now ["east", "east", "south"]
+// const copy = [...shared] would have been a second list`
+            ),
+            '',
+            '`shared` starts as `["east","east"]`. Another name mutates it to add `"south"`. Walk `shared` to (2, 1). The hidden test checks that the list itself gained the south step — do not add a lone `Player.move("south")` by hand.'
+          ].join('\n')
         ),
         predict(
           'assign-copy',
@@ -1683,7 +2238,24 @@ assert.deepStrictEqual(dirs.slice(0, 3), ['east', 'east', 'south'], 'walk the sh
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Copy, then extend\n\n`const { east, south } = route` pulls fields out. `{ ...route, south: 2 }` copies then overrides. That is how you keep the original record honest.'
+          [
+            '## Copy, then extend',
+            '',
+            '`const { east, south } = route` pulls fields out into names. `{ ...route, south: 2 }` copies every own field into a **new** object, then overrides `south`. The original record stays honest. That is the opposite of `route.south = 2`, which writes through the same object the caller still holds.',
+            '',
+            'Why it bites: a desk that mutates the argument files the new south count back onto the live route. The next walk uses `south: 2` when the board still believed the path was `south: 0`. Spread is how you keep both records: the one you were handed, and the one you meant to change.',
+            '',
+            fence(
+              'javascript',
+              `const a = { east: 3, south: 0 }
+const b = { ...a, south: 2 }
+// b.south is 2
+// a.south is still 0
+const { east } = a  // east is 3`
+            ),
+            '',
+            '`extendSouth({ east: 3, south: 0 })` must return a new object with `south: 2`. Print that south value. Use `...` in the source. The hidden test keeps the original `src.south` at `0` and asserts the returned record is `2`.'
+          ].join('\n')
         ),
         predict(
           'spread-copy',
@@ -1735,7 +2307,23 @@ assert.strictEqual(src.south, 0)
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Text in, object out, text again\n\n`JSON.parse` turns a string into an object. Bad text throws a `SyntaxError` — there is no quiet `{}` fallback. `JSON.stringify` goes the other way.\n\nHere the JSON arrives as a string already, held in `raw`. Reading files comes later, in the Node track; today the only question is what the text becomes.\n\nA round-trip is not always lossless: `undefined`, functions, and `Map` values do not survive `stringify`.'
+          [
+            '## Text in, object out, text again',
+            '',
+            '`JSON.parse` turns a string into an object. Bad text throws a `SyntaxError` — there is no quiet `{}` fallback. `JSON.stringify` goes the other way. Here the JSON arrives as a string already, held in `raw`. Reading files comes later, in the Node track; today the only question is what the text becomes.',
+            '',
+            'Why it bites: returning the raw string prints `{ "name": "north", "kind": "beacon" }` instead of the name. A later desk that expected `"north"` files the whole blob. Swallowing a parse error and returning `undefined` hides a broken payload. A round-trip is also not always lossless: `undefined`, functions, and `Map` values do not survive `stringify`.',
+            '',
+            fence(
+              'javascript',
+              `const raw = '{ "name": "north", "kind": "beacon" }'
+JSON.parse(raw).name     // "north"
+JSON.parse("{")          // throws SyntaxError
+JSON.stringify({ a: undefined })  // "{}" — field dropped`
+            ),
+            '',
+            '`readName(text)` must parse the JSON in `text` and return the `name` field. Print `readName(raw)` (`north`). Hidden tests also send `{"name":"west"}` and a broken `"{"` that must throw, not return undefined.'
+          ].join('\n')
         ),
         predict(
           'parse-throw',
@@ -1794,7 +2382,20 @@ assert.throws(() => m.readName('{'), 'broken JSON must throw, not return undefin
       creation: { id: 'signal-log', step: 1, briefMd: 'logBeacon returns a tagged line the hidden tests also run.' },
       blocks: [
         explain(
-          '## A log you keep\n\n`logBeacon(name)` should return `beacon:name`. Print `beacon:north` then `beacon:east`.\n\nHidden tests call your function with other names. Do not only print two literals.'
+          [
+            '## A log you keep',
+            '',
+            '`logBeacon(name)` should return `beacon:name` — a tagged line, not a side effect. Print is how you *see* the line. Return is how a later caller *keeps* it. Hidden tests call your function with other names. Two literal `console.log("beacon:north")` lines would paint the notebook and still fail those tests.',
+            '',
+            'Why it bites: a function that only prints and returns nothing hands `undefined` to the next desk. The creation step that stores the line files an empty slot. A function that returns the bare name files `west` when the board expected `beacon:west`.',
+            '',
+            fence(
+              'javascript',
+              'function logBeacon(name) {\n  return `beacon:${name}`\n}\nlogBeacon("north")  // "beacon:north"\nlogBeacon("east")   // "beacon:east"'
+            ),
+            '',
+            'On Try, `logBeacon(name)` returns `beacon:name`. Print north then east, one per line. Use the argument — do not only print two literals. A template literal does the tag in one expression; quotes would keep the letters `${name}` if you are not careful.'
+          ].join('\n')
         ),
         predict(
           'return-tag',

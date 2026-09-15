@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A button should be a button\n\nA `div` with a click is a trap for keyboard and screen readers. Use `<button>`. The **accessible name** is often the text content, or `aria-label`.\n\nSet the button’s label to `Call north` using `textContent` — not `innerHTML` for this plain phrase. The call switch on the desk needs a name a reader can speak."
+      "md": "## A button should be a button\n\nA `div` with a click is a trap for keyboard and screen readers. It has no button role, no default keyboard activation, and often no accessible name. Use `<button>`. The **accessible name** is often the text content, or `aria-label`. The call switch on the desk needs a name a reader can speak. `#call` is already a real button — do not replace it with a div.\n\nWhy it bites: a fox who tabs the page never reaches a click-only `div`, so Call north never fires and the north lamp stays dark. A reader that speaks the control says “div” or nothing. Filing a nameless switch is how night shift presses the wrong plate. `innerHTML` for this phrase is the other trap: a later edited name can become markup.\n\n```html\n<button type=\"button\" id=\"call\">Call north</button>\n<!-- a real button: role, keyboard, spoken name from its text -->\n<div onclick=\"...\">Call</div>\n<!-- not a button: no role, no Enter/Space, weak name -->\n```\n\nThe common mistake is swapping the button for a `div` with `onclick`, or using `innerHTML` for a plain label. On Try, `#call` is a button. Set its accessible name (text) to `Call north` with `textContent`. Do not replace it with a div. The spoken name here is the button’s text."
     },
     {
       "type": "predict",

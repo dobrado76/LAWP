@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.arrays",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Unique names, keyed lookup\n\nA `Set` keeps each value once. `new Set([\"east\", \"east\", \"south\"])` has size `2`. A `Map` stores a value under a key you choose — not only a string field on an object.\n\nThe desk uses a set to scrub a log (`east` twice is still one heading) and a map to look up a beacon by name. `map.get(\"north\")` is missing when the key was never set — that is `undefined`, not a throw."
+      "md": "## Unique names, keyed lookup\n\nA `Set` keeps each value once. `new Set([\"east\", \"east\", \"south\"])` has size `2`. First-seen order is kept. A `Map` stores a value under a key you choose — not only a string field on an object. `map.get(\"north\")` is `undefined` when the key was never set. It does not throw. `map.has` is the honest test.\n\nWhy it bites: joining a raw log files `east-east-south` when the board only fired two headings. Looking up a missing beacon with a throw crashes the desk; treating the missing key as the key string itself (the starter) files `\"ghost\"` as if it were a real name.\n\n```javascript\nnew Set([\"east\", \"east\", \"south\"]).size  // 2\nconst beacons = new Map([[\"n\", \"north\"]])\nbeacons.get(\"n\")      // \"north\"\nbeacons.get(\"ghost\")  // undefined\nbeacons.has(\"ghost\")  // false\n```\n\nTwo jobs. `unique(dirs)` uses a `Set` and returns unique headings joined with `-`. `nameOf(map, key)` uses `Map` `.get` / `.has` and returns the value, or `\"none\"` when the key was never set. Print `unique([\"east\",\"east\",\"south\"])` (`east-south`)."
     },
     {
       "type": "predict",
@@ -51,7 +51,7 @@
       "id": "unique-join",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Two jobs. `unique(dirs)` returns the unique headings joined with `-`. `nameOf(map, key)` returns `map.get(key)`, or `\"none\"` when the key was never set. Print `unique([\"east\",\"east\",\"south\"])` (`east-south`).",
+      "promptMd": "> Two jobs. `unique(dirs)` uses a `Set` and returns unique headings joined with `-`. `nameOf(map, key)` uses `Map` `.get` / `.has` and returns the value, or `\"none\"` when the key was never set. Print `unique([\"east\",\"east\",\"south\"])` (`east-south`).",
       "files": [
         {
           "path": "files/main.js",

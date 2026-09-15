@@ -11,6 +11,7 @@ export const EXPECTED = [
   'js-placement',
   'values-and-typeof',
   'names-let-const',
+  'strings-immutable',
   'strings-and-templates',
   'numbers-and-nan',
   'triple-equals',

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Trap `get`, do not build a framework\n\n`new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` intercepts reads. A `get` trap runs when you read a field, not when you write one.\n\nUse it once to default missing dirs to `\"east\"`.\n\nThe desk wraps a blank route card. Asking for `unknown` still returns `\"east\"`, so the fox has a fallback heading."
+      "md": "## Trap `get`, do not build a framework\n\nA **proxy** wraps a target and intercepts operations. `new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` runs the `get` trap when you **read** a field, not when you write one. `Reflect.get` forwards a real field. You can also return a default when the key is missing. One trap is enough for this desk — do not build a framework.\n\nThe desk wraps a blank route card. Asking for `unknown` still returns `\"east\"`, so the fox has a fallback heading. Without the trap, `wrap.unknown` is `undefined` and the walk dies. A `set` trap would not help: the failure is a read of a missing dir, not a write. Default only the holes; a real `south` on the card must still read as `\"south\"`.\n\n```javascript\nfunction wrapRoute(obj) {\n  return new Proxy(obj, {\n    get(t, key) {\n      if (key in t) return Reflect.get(t, key)\n      return \"east\"  // missing keys only\n    }\n  })\n}\nwrapRoute({}).unknown     // \"east\"\nwrapRoute({ south: \"south\" }).south  // \"south\"\n```\n\nA common mistake is to return the bare object from `wrapRoute` and skip `Proxy`. On Try, proxy a `{}` so missing keys return `\"east\"`, then print `wrap.unknown`."
     },
     {
       "type": "predict",

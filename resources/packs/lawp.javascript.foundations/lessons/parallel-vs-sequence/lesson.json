@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.async"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Three waits, two stories\n\n`await Player.wait(1)` three times in a row is **sequence**. Each pause starts after the last one finishes. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together. They overlap. The whole group finishes when the slowest one finishes.\n\nThe fox still only moves after you say so. Use `wait` then walk east to (3, 0). Sequence is fine here — the lesson is that `all` would overlap the pauses. Trees and a wall sit off the path so the yard looks like a field, not a blank strip."
+      "md": "## Three waits, one `Promise.all`\n\n`await Player.wait(1)` three times in a row is **sequence**. Each pause starts after the last one finishes, so three one-tick waits cost three ticks. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together. They overlap. The whole group finishes when the slowest one finishes — three equal waits cost about one tick of wall time, not the sum.\n\nWhy it bites: the fox needs three radio checks before it walks east to the beacon at (3, 0). Await-in-a-loop makes the yard sit still three times as long. A signal desk that polls three lamps in sequence misses the window, and the walk starts late. Trees and a wall sit off the path so the yard looks like a field, not a blank strip — staying on y = 0 is the honest path.\n\n```javascript\n// sequence: three ticks, one after another\nawait Player.wait(1)\nawait Player.wait(1)\nawait Player.wait(1)\n// overlap: one Promise.all, then the walk\nawait Promise.all([\n  Player.wait(1),\n  Player.wait(1),\n  Player.wait(1)\n])\n```\n\nThe common mistake is three awaited waits in a row, or walking before the group finishes. On Try, `go()` must use `Promise.all` with three `Player.wait(1)` calls, then walk east to (3, 0). The source must include `Promise.all`. Finish the waiting before the walking."
     },
     {
       "type": "predict",
@@ -46,7 +46,7 @@
       "id": "three-waits",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `await Player.wait(1)` three times (or `Promise.all`), then walk east to (3, 0).",
+      "promptMd": "> Use `Promise.all` with three `Player.wait(1)` calls, then walk east to (3, 0). The source must include `Promise.all`.",
       "files": [
         {
           "path": "files/main.js",
@@ -71,7 +71,7 @@
         {
           "level": 2,
           "kind": "concept",
-          "md": "Three `Player.wait(1)` calls in a row, or one `Promise.all` of three waits, then three east moves."
+          "md": "One `Promise.all` of three waits, then three east moves."
         },
         {
           "level": 3,

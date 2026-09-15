@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Refuse `==` in the edit file\n\nLAWP’s `ast` check is a **substring** search, not a real parser pass. Treat it as a stand-in for a linter. The file text must contain `===` and must not use `==`.\n\n`same(a, b)` compares with `===`. Print `false` for `0` and `\"\"` — those are different kinds.\n\nThe desk once filed `0` (lamp off) as the same as a missing name `\"\"` because someone wrote `==`. The fox route test uses `===` so off and missing stay different."
+      "md": "## Refuse `==` in the edit file\n\nLAWP’s `ast` check is a **substring** search, not a real parser pass. Treat it as a stand-in for a linter. The file text must contain `===` and must not use `==`. The desk once filed `0` (lamp off) as the same as a missing name `\"\"` because someone wrote `==`. The fox route test uses `===` so off and missing stay different.\n\nWhy it bites: this is not ESLint. The grader looks at the file text. `==` converts before it compares, so `0 == \"\"` is true. `===` keeps the kinds apart. A stand-in linter that bans `==` is how this lesson makes that habit visible.\n\n```javascript\n0 == \"\"    // true  — converted\n0 === \"\"   // false — different kinds\nsame(0, \"\")  // must be false via ===\n```\n\nThe common mistake is leaving `==` in the starter. On Try, `same(0, \"\")` is false via `===`. Print `false`."
     },
     {
       "type": "predict",

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Stop when the counter says so\n\n`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon.\n\nA `while (true)` without `break` is a runaway. The runner will time out.\n\nThere is a sibling worth knowing: `do { … } while (cond)` checks the condition **after** the body, so the body always runs at least once. Reach for it when the first attempt is unconditional — read a line, then keep reading while there are more."
+      "md": "## Stop when the counter says so\n\n`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon. A `while (true)` without `break` is a runaway. The runner will time out.\n\nWhy it bites: `while (false)` never enters the body, so the fox never leaves (1, 0). The opposite bug, a loop with no exit, walks south forever and the desk kills the run. Either way the fox misses the beacon at (1, 2).\n\n```javascript\nlet steps = 0\nwhile (true) {\n  Player.move(\"south\")\n  steps += 1\n  if (steps === 2) break\n}\n// two south steps, then leave\n```\n\nThere is a sibling worth knowing: `do { … } while (cond)` checks the condition **after** the body, so the body always runs at least once. Reach for it when the first attempt is unconditional — read a line, then keep reading while there are more. On Try, walk south with `while` until you have moved twice. Use `break` or a counter."
     },
     {
       "type": "predict",

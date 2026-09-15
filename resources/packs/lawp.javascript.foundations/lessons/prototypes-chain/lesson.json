@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 22,
   "skillIds": [
     "js.proto"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Shared methods live on the prototype\n\n`Object.getPrototypeOf(obj)` is the next place JS looks for a field. Many objects share one method object. That is `[[Prototype]]`, not a copy of the function on every instance.\n\nTwo foxes from the same prototype share one `go` function.\n\nThe desk does not copy `move` onto every route card. Each card looks up `go` on the shared prototype when you call it."
+      "md": "## Shared methods live on the prototype\n\nThe **prototype chain** is where JavaScript looks next when an object does not own a field. `Object.getPrototypeOf(obj)` is that next place. Many objects share one method object. That link is `[[Prototype]]`, not a copy of the function on every instance. Two foxes from the same prototype share **one** `go` function: `a.go === b.go` is `true`.\n\nThe desk does not copy `move` onto every route card. Each card looks up `go` on the shared prototype when you call it. If you paste `go` onto each object, you waste memory and `a.go === b.go` becomes false — the night log then thinks you have two different walks. `Object.create(proto)` is how you hang two children on one method object without `new`.\n\n```javascript\nconst proto = { go() { return \"east\" } }\nconst a = Object.create(proto)\nconst b = Object.create(proto)\na.go === b.go  // true — one function on the prototype\na.go()         // \"east\" — looked up on proto\n```\n\nA common mistake is to `return true` from `sharedGo` without building the share, or to put `go` on each object as an own field. On Try, `sharedGo()` makes two objects that share one `go` via `Object.create`, returns whether `a.go === b.go`, and prints that `true`."
     },
     {
       "type": "predict",
@@ -64,10 +64,10 @@
     },
     {
       "type": "code",
-      "id": "read-proto",
+      "id": "shared-go",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `protoName()` returns `Object.getPrototypeOf({}).constructor.name` (`Object`). Print it.",
+      "promptMd": "> `sharedGo()` makes two objects that share one `go` on a prototype (`Object.create`). Return whether `a.go === b.go` (`true`). Print it. Do not hard-code `return true`.",
       "files": [
         {
           "path": "files/main.js",
@@ -81,11 +81,7 @@
       "checks": [
         {
           "type": "stdout",
-          "equals": "Object"
-        },
-        {
-          "type": "ast",
-          "query": "getPrototypeOf"
+          "equals": "true"
         },
         {
           "type": "js-assert"
@@ -95,22 +91,22 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "A plain `{}` has `Object.prototype` behind it."
+          "md": "Put `go` on one prototype object. Make two children with `Object.create`."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "Read `Object.getPrototypeOf({})`, then `.constructor.name`."
+          "md": "Compare the two method functions: `a.go === b.go`."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "That name is the string `Object`."
+          "md": "They should be the same function, not two copies."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "function protoName() {\n  return Object.getPrototypeOf({}).constructor.name\n}\nconsole.log(protoName())\nmodule.exports = { protoName }"
+          "md": "function sharedGo() {\n  const proto = { go() { return \"east\" } }\n  const a = Object.create(proto)\n  const b = Object.create(proto)\n  return a.go === b.go\n}\nconsole.log(sharedGo())\nmodule.exports = { sharedGo }"
         }
       ]
     }

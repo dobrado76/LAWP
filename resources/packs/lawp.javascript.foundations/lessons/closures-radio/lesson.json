@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The function keeps the box\n\n`makeMover(dir)` returns a function. That inner function still sees `dir` later — that is a closure. The fox can call the returned function after you have left `makeMover`.\n\nThe closure keeps a live binding, not a sticky-note copy, unless you create a new binding each time.\n\nAt the signal desk, you hand the fox a radio tuned to `\"east\"`. Three later calls still walk east, even though `makeMover` has finished."
+      "md": "## The function keeps the box\n\nA **closure** is an inner function that still sees names from the function that created it, after that outer function has returned. `makeMover(dir)` builds a small mover and hands it back. The returned function still sees `dir` on later calls. You do not have to pass the heading again.\n\nThe closure keeps a live binding, not a sticky-note copy of the string, unless you create a new binding each time. That is why a radio tuned once keeps walking the same way, and why a shared loop variable can later poison every queued mover. At the signal desk you hand the fox a radio tuned to `\"east\"`. Three later presses still walk east, even though `makeMover` has finished and its stack frame is gone.\n\n```javascript\nfunction makeMover(dir) {\n  return function go() {\n    Player.move(dir)  // still sees dir after makeMover returns\n  }\n}\nconst go = makeMover(\"east\")\ngo()  // east — the radio stayed tuned\n```\n\nA common mistake is to treat the inner function as empty, or to hard-code `Player.move(\"east\")` and ignore the parameter. On Try, `makeMover(\"east\")` must return a function. Call that function three times so the fox reaches x=3."
     },
     {
       "type": "predict",

@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.flow",
@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## `&&`, `||`, and `??`\n\n`a && b` returns `a` if `a` is falsy, otherwise `b`. `a || b` returns `a` if `a` is truthy, otherwise `b`. They stop as soon as they know the answer.\n\n`??` is narrower: it only skips `null` or `undefined`. `0 || \"north\"` becomes `\"north\"`. `0 ?? \"north\"` stays `0`. A lamp at brightness zero is still a reading — do not replace it with a default name."
+      "md": "## `&&`, `||`, and `??`\n\n`a && b` returns `a` if `a` is falsy, otherwise `b`. `a || b` returns `a` if `a` is truthy, otherwise `b`. They stop as soon as they know the answer — that is the short circuit.\n\n`??` is narrower: it only skips `null` or `undefined`. A lamp at brightness zero is still a reading. `||` would throw that zero away and write a default name on top of it.\n\n```javascript\n0 || \"north\"   // \"north\"  — || treats 0 as no\n0 ?? \"north\"   // 0        — ?? keeps a real zero\n\"\" || \"anon\"   // \"anon\"\nnull ?? \"anon\" // \"anon\"\n```\n\n`label(name)` must return `name` if it is truthy, otherwise `\"anon\"`. Use `||` in the source. `??` would keep `\"\"`, which this desk treats as missing."
     },
     {
       "type": "predict",
@@ -90,7 +90,7 @@
       "id": "label-or",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `label(name)` returns `name` if it is a non-empty string, otherwise `\"anon\"`. Print `label(\"\")`.",
+      "promptMd": "> `label(name)` returns `name` if it is truthy, otherwise `\"anon\"`. Use `||` or `??` in the source — do not branch with `if` alone. Print `label(\"\")`.",
       "files": [
         {
           "path": "files/main.js",

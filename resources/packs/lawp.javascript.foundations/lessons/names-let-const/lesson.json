@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 3,
+  "taskRev": 4,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.values"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot *rebind* — the sticker on the box stays. If the value is an object, the stuff *inside* can still change.\n\nOn the desk: `const signal = { on: false }; signal.on = true` is legal. `signal = {}` is not. The name still points at the same record. The lamp field flipped."
+      "md": "## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot **rebind** — the sticker on the box stays. That is all `const` locks. If the value is an object, the stuff *inside* can still change.\n\nLearners often hear “const means immutable” and then freeze when a desk asks them to flip a lamp. The name must stay. The field can move.\n\n```javascript\nconst signal = { on: false }\nsignal.on = true   // legal — same box, flipped field\n// signal = {}     // TypeError — that would peel the sticker off\n```\n\nOn this desk, `flipLamp` already has `const signal = { on: false }`. Turn the lamp on by writing the field. Do not write `signal = …`."
     },
     {
       "type": "predict",
@@ -32,7 +32,8 @@
           "md": "`\"south\"` — the binding stayed, the field changed"
         }
       ],
-      "answer": "south"
+      "answer": "south",
+      "explainMd": "`const` locks the binding, not the object. `route.dir = \"south\"` is fine; `route = {}` is not."
     },
     {
       "type": "check",
@@ -45,10 +46,10 @@
     },
     {
       "type": "code",
-      "id": "bind-then-print",
+      "id": "flip-const-field",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Inside `labelBox`, declare a `const` named binding for the string `\"locked\"`, then return that binding. Print the result. A bare `return \"locked\"` is not enough — the point of this lesson is the binding.",
+      "promptMd": "> `flipLamp` already has `const signal = { on: false }`. Turn the lamp on by changing the **field** (`signal.on = true`), then return `signal.on`. Do not write `signal = …` — `const` locks the name, not the fields. Print the result (`true`).",
       "files": [
         {
           "path": "files/main.js",
@@ -62,7 +63,7 @@
       "checks": [
         {
           "type": "stdout",
-          "equals": "locked"
+          "equals": "true"
         },
         {
           "type": "ast",
@@ -76,22 +77,22 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Put `\"locked\"` in a `const` box first. The function should read that box, not invent the string at the return."
+          "md": "The name `signal` must stay the same box. Flip the field inside that box."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "`const` names a box you cannot rebind. Declaring it above the function, or inside it, both work — as long as the function returns the binding."
+          "md": "`const` stops `signal = {}`. It does not stop `signal.on = true`."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "`const word = \"locked\"` then `return word` (and `console.log(labelBox())`)."
+          "md": "`signal.on = true` then `return signal.on`."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "const word = \"locked\"\nfunction labelBox() { return word }\nconsole.log(labelBox())\nmodule.exports = { labelBox }"
+          "md": "function flipLamp() {\n  const signal = { on: false }\n  signal.on = true\n  return signal.on\n}\nconsole.log(flipLamp())\nmodule.exports = { flipLamp }"
         }
       ]
     }

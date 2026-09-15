@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Scrub a messy file\n\n`messy.txt` has blank lines, extra spaces, and the same name twice. `clean(text)` trims each line, drops empties, keeps each name once, then sorts.\n\nPrint the cleaned text. Unique sorted names: `east`, then `north`, then `west` on the last line. The hidden test will send a shorter list (`b`, `a`, `b`) and expect `a` then `b`.\n\nTwo `north` slips on the desk become one `north` line. The fox heading list should not repeat a name because someone typed it twice."
+      "md": "## Scrub a messy file\n\n`messy.txt` has blank lines, extra spaces, and the same name twice. `clean(text)` trims each line, drops empties, keeps each name once, then sorts. Two `north` slips on the desk become one `north` line. The fox heading list should not repeat a name because someone typed it twice.\n\nWhy it bites: printing the raw file looks “almost right” and still fails. A leftover blank line, a trailing space, or a second `north` is a different string. `split` then `trim` then a `Set` is the honest path. Sort last so `east` comes before `north` before `west`.\n\n```javascript\nclean(\"b\\na\\nb\\n\")\n// \"a\\nb\"  — trim, drop blanks, unique, sort\n```\n\nThe common mistake is `return text` or only `trim()` on the whole file. On Try, print the cleaned text. Unique sorted names: `east`, then `north`, then `west`. The hidden test sends a shorter list (`b`, `a`, `b`) and expects `a` then `b`."
     },
     {
       "type": "predict",

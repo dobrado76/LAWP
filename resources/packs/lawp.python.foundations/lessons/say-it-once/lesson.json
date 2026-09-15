@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Print is a tool\n\nThe program is the greeting. `print` is how you show it. Use the `name` value so changing the name changes the line."
+      "md": "## Print is a tool\n\nPrint is a tool for showing a message, not the message itself. The greeting lives in the values you already have — here a `name` — and `print` only sends that line to the screen. Build the line from the name so changing the name changes the greeting without rewriting the sentence by hand.\n\nThis bites when you type `Hello, Ada!` as a frozen string and ignore `name`. The first run looks right. Rename the person to `Grace` and the line still says Ada, because the program never read the variable. A greeting that cannot follow its own data is just a poster.\n\n```python\nname = \"Ada\"\nprint(f\"Hello, {name}!\")\n```\n\nA common mistake is printing a fixed `\"Hello\"` or a hardcoded full greeting. That treats print as the whole program. The exercise asks you to print `Hello, Ada!` by using the `name` value — an f-string is a good tool — so the output includes Ada because of the variable, not because you copied the letters.\n"
     },
     {
       "type": "code",

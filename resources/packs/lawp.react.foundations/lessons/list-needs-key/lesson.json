@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Identity, not index if you can help it\n\nPretend each item is `{ key, label }`. Return `key:label` pairs joined by commas: `1:a,2:b`. Mention `key` in the source so the habit sticks."
+      "md": "## Identity, not index if you can help it\n\nA list item needs a stable identity so React can tell which row stayed and which row moved. Pretend each item is `{ key, label }`. The key is the id you already know; the label is what you show. Prefer that key over the array index when items can reorder, because an index is only a slot number and that slot number changes when the list changes.\n\nThis bites when two rows swap and you keyed them `0` and `1`. React thinks row 0 is still the same component and can leave stale input or focus on the wrong line. A stable key keeps the identity attached to the item, not to the seat it happened to sit in.\n\n```javascript\nconst data = [\n  { key: 1, label: \"a\" },\n  { key: 2, label: \"b\" }\n];\nreturn data.map((item) => item.key + \":\" + item.label).join(\",\");\n```\n\nA common mistake is mapping the raw strings and never mentioning `key`. The exercise asks you to return `1:a,2:b` from items that carry a key and a label, and to mention `key` in the source so the habit sticks.\n"
     },
     {
       "type": "code",

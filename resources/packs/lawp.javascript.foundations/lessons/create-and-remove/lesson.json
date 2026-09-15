@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.dom"
@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Grow the tree\n\n`document.createElement(\"li\")` makes a node that is not on the page yet. Set `textContent`, then `ul.append(li)` to hang it on the list. `li.remove()` takes a node off.\n\nDo not concatenate HTML strings to add one item. On this tray, the beacon log starts empty. Create an `li` that says `East` and append it to `#list`."
+      "md": "## Grow the tree\n\n`document.createElement(\"li\")` makes a node that is not on the page yet. Set `textContent`, then `ul.append(li)` to hang it on the list. After that, `li.parentNode` is the `ul`, not `document`. `li.remove()` takes a node off. You grow the tree one node at a time. You do not concatenate HTML strings to add one item.\n\nWhy it bites: the beacon log starts empty. If you assign `innerHTML` to paste `<li>East</li>`, you throw away any later listeners on that list and you parse the name as markup. A heading that someone typed with a `<` becomes a broken row. Night shift then cannot remove one slip because there is no `li` node they created — only a rebuilt string.\n\n```javascript\nconst li = document.createElement(\"li\")\nli.textContent = \"East\"\ndocument.querySelector(\"#list\").append(li)\n// li.parentNode is the ul, not document\n```\n\nThe common mistake is building the list with `innerHTML`, or creating the `li` and never appending it. On Try, create an `li` with `createElement`, set text `East`, and `append` it to `#list`. Do not build the list with `innerHTML`. One node is enough. The log tray starts empty; hang the row on it."
     },
     {
       "type": "predict",
@@ -46,7 +46,7 @@
       "id": "add-li",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Create an `li` with text `East` and append it to `#list`.",
+      "promptMd": "> Create an `li` with `createElement`, set text `East`, and `append` it to `#list`. Do not build the list with `innerHTML`.",
       "preview": {
         "kind": "iframe"
       },

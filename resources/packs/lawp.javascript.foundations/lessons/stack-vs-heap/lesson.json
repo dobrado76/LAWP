@@ -14,38 +14,11 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Where values live\n\nThe **stack** is the list of function calls that are running now. The **heap** is the bag of objects those frames point at. A stack frame is short-lived. A heap object stays as long as something still points at it.\n\nA closure keeps a heap object alive after the stack frame that created it is gone. `await` *pauses that function* — it does not freeze the operating system.\n\nOn the desk: the fox calls `outer()`, which calls `inner()`. While `inner` runs, it sits on top of the stack. The beacon record it points at lives on the heap. A later `then` can still read that record after `inner` has returned."
+      "md": "## Where values live\n\nThe **stack** is the list of function calls that are running now. The **heap** is the bag of objects those frames point at. A frame is a short-lived slot: it appears when you enter a function and vanishes when that function returns. The object the frame pointed at is a different thing, and it lives on the heap until nothing still points at it.\n\nWhy it bites: the fox calls `outer()`, which calls `inner()`. While `inner` runs it sits on top of the stack and holds a pointer at a beacon record. If you treat that record as “owned by the frame,” you expect it to vanish the instant `inner` returns. A later closure, or another variable, can still point at the same record — so a walk log the desk thought was gone is still live, and a later stamp rewrites yesterday’s heading.\n\n```javascript\nfunction outer() {\n  const slip = { key: \"north\" } // heap object\n  function inner() {\n    return slip.key\n  }\n  return inner\n}\nconst later = outer()\nlater() // \"north\" — slip still alive after outer returns\n```\n\nThe common mistake is thinking a heap object dies when its creating frame returns. The quizzes here ask which name sits on top of the stack while `inner` runs, and where the beacon record lives. There is no Try function to write — answer from the picture: the running call is on top, the object stays on the heap while anything still points at it."
     },
     {
       "type": "predict",
-      "id": "await-os",
-      "promptMd": "`await` inside one function…",
-      "kind": "mcq",
-      "choices": [
-        {
-          "id": "os",
-          "md": "Stops the whole computer until the promise finishes",
-          "misconceptionId": "await-blocks-the-os"
-        },
-        {
-          "id": "fn",
-          "md": "Pauses that function and lets other JS run"
-        }
-      ],
-      "answer": "fn"
-    },
-    {
-      "type": "check",
-      "id": "await-not-os",
-      "kind": "tf",
-      "promptMd": "`await` freezes the whole computer until the promise finishes.",
-      "answer": "false",
-      "explainMd": "Only that async function pauses. Other JavaScript on the page can still run. The operating system is not frozen.",
-      "misconceptionId": "await-blocks-the-os"
-    },
-    {
-      "type": "check",
-      "id": "stack-frame",
+      "id": "stack-top",
       "promptMd": "While `inner()` is running, called from `outer()`, the top of the stack is…",
       "kind": "mcq",
       "choices": [
@@ -60,6 +33,79 @@
       ],
       "answer": "inner",
       "explainMd": "The running function is on top. outer waits under it until inner returns."
+    },
+    {
+      "type": "predict",
+      "id": "heap-home",
+      "promptMd": "The beacon record `inner` points at lives on…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "stack",
+          "md": "The stack — it dies when `inner` returns"
+        },
+        {
+          "id": "heap",
+          "md": "The heap — it stays while something still points at it"
+        }
+      ],
+      "answer": "heap",
+      "explainMd": "Objects live on the heap. The stack frame only holds the pointer. A later closure can keep that record alive after inner returns."
+    },
+    {
+      "type": "check",
+      "id": "frame-owns-object",
+      "kind": "tf",
+      "promptMd": "When `inner` returns, the heap object it pointed at is always gone.",
+      "answer": "false",
+      "explainMd": "The frame is gone. The object stays if anything still points at it — another variable, or a closure."
+    },
+    {
+      "type": "check",
+      "id": "stack-heap-life",
+      "kind": "cloze",
+      "promptMd": "A stack frame is {{a}}. A heap object stays {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "short-lived",
+              "md": "short-lived"
+            },
+            {
+              "id": "forever",
+              "md": "forever"
+            },
+            {
+              "id": "the operating system",
+              "md": "the operating system"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "while something points at it",
+              "md": "while something points at it"
+            },
+            {
+              "id": "only while the frame runs",
+              "md": "only while the frame runs"
+            },
+            {
+              "id": "until the next timeout",
+              "md": "until the next timeout"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "short-lived",
+        "b": "while something points at it"
+      },
+      "explainMd": "Calls come and go. Objects live until nothing points at them."
     }
   ],
   "description": "Calls sit on a stack. Objects live on the heap until nothing points at them."

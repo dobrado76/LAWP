@@ -19,7 +19,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Do not look at stdout\n\n`walk(dirs)` returns the end `{ x, y }` starting from `{ x: 0, y: 0 }`. It must not call `Player`. Tests check the object. The stage is for seeing a fox, not for proving the math.\n\n`east` adds 1 to `x`. `west` subtracts 1 from `x`. `south` adds 1 to `y`. `north` subtracts 1 from `y`.\n\nPrint `3,2` for three east and two south. A hidden test will send `west` then `north` and expect `{ x: -1, y: -1 }`."
+      "md": "## Do not look at stdout\n\n`walk(dirs)` returns the end `{ x, y }` starting from `{ x: 0, y: 0 }`. It must not call `Player`. Tests check the object. The stage is for seeing a fox, not for proving the math. `east` adds 1 to `x`. `west` subtracts 1 from `x`. `south` adds 1 to `y`. `north` subtracts 1 from `y`.\n\nWhy it bites: a test that parses `console.log` breaks the moment you add a label. Returning data is how a hidden test can send `west` then `north` and expect `{ x: -1, y: -1 }` without watching a stage. Origin is `0,0`. Three east and two south end at `3,2`.\n\n```javascript\nwalk([\"east\", \"east\", \"east\", \"south\", \"south\"])\n// { x: 3, y: 2 }\nwalk([\"west\", \"north\"])\n// { x: -1, y: -1 }\n```\n\nThe common mistake is calling `Player.move` or only printing a string. On Try, print `3,2` for that sample path. Return the object so the hidden test can assert it."
     },
     {
       "type": "predict",

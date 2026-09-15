@@ -7,4 +7,7 @@ const beacons = new Map([['n', 'north'], ['e', 'east']])
 assert.strictEqual(m.nameOf(beacons, 'n'), 'north')
 assert.strictEqual(m.nameOf(beacons, 'e'), 'east')
 assert.strictEqual(m.nameOf(beacons, 'ghost'), 'none', 'a missing key is none, not undefined')
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/new\s+Set\b|\bSet\s*\(/.test(src), 'unique must use a Set')
+assert.ok(/\.get\s*\(|\.has\s*\(/.test(src), 'nameOf must use Map get/has')
 
