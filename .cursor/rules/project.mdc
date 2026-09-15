@@ -38,4 +38,4 @@ This repo is **LAWP** (Learn Anything While Playing) — a standalone Windows El
 
 - Every new preference goes on `settingsSchema` so export/import round-trips it.
 - Strip window geometry (and secrets by default) from export. Optional setup bundle = settings + user cartridges; import merges, never silent overwrite.
-- Library is a runtime union of app `resources/packs` and `%APPDATA%\LAWP\packs` (user wins). Not a build-time catalog.
+- Library is runtime-resolved: lesson zip = overlay merge onto bundled; full pack zip = replace. Trust is a content fingerprint, not a pack id.

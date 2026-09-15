@@ -59,9 +59,29 @@ Bundled demo packs and user-installed packs use the **same shape**:
     assets/
 ```
 
-User installs copy into `%APPDATA%\LAWP\packs/<packId>/`. Bundled demos stay under the **app** `resources/packs/<packId>/` (read-only, may change when the app is upgraded). If the same `packId` exists in both places, the **user copy wins**.
+User installs land under `%APPDATA%\LAWP\packs/<packId>/`. Bundled demos stay under the **app** `resources/packs/<packId>/` (read-only, may change when the app is upgraded).
 
-The Library is **not** a list compiled into the installer. Main unions the two roots **every launch**. `npm run dist` / the NSIS installer must not copy bundled packs into AppData and must not overwrite `settings.json`, `packs/`, or `learners/`. A newer app may show newer bundled demos; it must not replace a cartridge the user already installed or authored.
+The Library is **not** a list compiled into the installer. Main **resolves** each `packId` every launch (below). `npm run dist` / the NSIS installer must not copy bundled packs into AppData and must not overwrite `settings.json`, `packs/`, or `learners/`.
+
+### Resolve pack: overlay vs full override (D37)
+
+Two user-side shapes. `pack.json` on disk in `userData/packs/<packId>/` **must** include `overlay: boolean`.
+
+| User `pack.json` | How it got there | Resolved catalog |
+| --- | --- | --- |
+| `overlay: true` | Standalone **lesson** zip, or Author “add lesson to bundled pack” | **Merge:** bundled pack is the base (tracks, courses, other lessons). User files overlay **by relative path**. A user `lessons/<id>/` replaces that lesson only. Missing user files fall through to bundled. Sibling bundled lessons **stay visible** |
+| `overlay: false` | Full **subject** zip, or a shell created because **no** bundled pack exists | **Replace:** ignore bundled tree for this `packId`. Confirm on install: “This hides the bundled pack until you remove the user copy” |
+| (no user dir) | — | Bundled pack as-is |
+
+**Standalone lesson zip** (has `lesson.json`, no `pack.json` in the archive):
+
+1. If a bundled pack exists for `lesson.packId` → write **only** `userData/packs/<packId>/pack.json` `{ kind, id, overlay: true, schemaVersion: 1 }` (create if missing; **do not** write a fake full manifest that omits courses) and `lessons/<lessonId>/`. Do **not** copy the rest of the bundled pack into AppData.
+2. If no bundled pack and no user pack → create a **minimal full pack** (`overlay: false`) with that lesson **Unfiled**.
+3. If a user full pack (`overlay: false`) already exists → add/replace `lessons/<lessonId>/` inside it (confirm if id exists). The full pack remains the whole catalog.
+
+**Full subject zip** (has `pack.json`): always install as `overlay: false` (confirm if a user dir or bundled pack already exists).
+
+`packs:get` / Library / Studio always see the **resolved** tree. Export lesson = that lesson folder. Export pack = resolved tree if overlay (or overlay-only if the author asks to share just their add-ons — v1: resolved tree so the zip is playable alone). Removing the user overlay directory restores the bundled pack in full.
 
 Do **not** put `body.md` beside JSON. Do **not** put progress, notes, snapshots, or workspaces inside a pack or lesson folder.
 
@@ -79,7 +99,7 @@ Paths in JSON are **lesson-relative**.
 
 ### Standalone lesson zip
 
-Archive root (or one wrapping folder) contains `lesson.json` with `kind: "lesson"` and `packId`. Missing pack → main creates a **minimal pack shell**. Unlisted lessons appear as **Unfiled**.
+Archive root (or one wrapping folder) contains `lesson.json` with `kind: "lesson"` and `packId`. Install follows **Resolve pack** above (overlay onto bundled, or minimal full pack if nothing exists). A new lesson id that no course lists appears as **Unfiled** in Library.
 
 ## Zip contract
 
@@ -122,9 +142,10 @@ Stable `kebab-case` ids, unique within a pack. Progress keys **`learnerId + pack
   description: string
   subjects: string[]          // e.g. ["science", "circuits"] or ["programming"]
   engines: Array<"none" | "python" | "javascript" | "react">
-  capabilities?: {            // default: infer from engines
+  overlay?: boolean           // user copies only; see Resolve pack
+  capabilities?: {            // must match lessons — see SECURITY
     execute: "none" | "python" | "javascript" | "react"
-    network: false            // v1: always false; do not claim otherwise
+    network: false            // v1: always false
   }
   version: string             // semver
   locale: "en"
@@ -311,9 +332,135 @@ type ValueOrExpr =
   | { op: "add" | "sub" | "mul" | "div"; a: string | number; b: string | number }
 ```
 
-`path` / `a` / `b` refer to part props (`lamp.brightness`) or numbers. Main applies rules in listed order after each action. No pack-supplied functions. If the authored rules cannot compute a physics result, the author supplies a **lookup** via `when`/`set` rows (AI-friendly).
+`path` / `a` / `b` refer to part props (`lamp.brightness`) or numbers. No pack-supplied functions.
 
 `play` with `engine: "grid-js"` is a **view skin** of `world-v1` (`view.kind: "grid"`) plus fox/beacon assets — not a second platform.
+
+#### `world-v1` semantics (normative)
+
+Implement these rules. The **brighter-lamp** example below is the conformance test.
+
+**Tick after each learner action**
+
+1. Apply the action (mutate parts/connections).
+2. Run `rules` **in listed order**. Each rule: if every `when` Property is true **against the world as it is now**, apply all of that rule’s `set` rows (still in order). Later rules **see** values written by earlier rules in the same tick.
+3. Evaluate `goal` and `constraints` on the resulting world. Record `constraintOk` (final) and `constraintEverFailed` (true if any tick this `runId` failed a constraint).
+4. Push a view model from `view` (below).
+
+**Paths.** `lamp.brightness` means `parts` id `lamp` → `props.brightness`. Missing part or key: the Property is **false**; a `set` **creates** the key on an existing part. `set` on a missing part is a no-op (do not throw).
+
+**ValueOrExpr.** `a` / `b` that are strings are paths; numbers are literals. Division by zero: **skip that `set` row**, do not throw, set `world.fault = "div-by-zero"` (string prop on a synthetic part id `_engine` or a flag on the run). Other arithmetic is ordinary IEEE-like numbers (integers in the example).
+
+**Actions and payloads** (`run:activity` `payload` is optional; defaults from the action)
+
+| `op` | Requires | Effect |
+| --- | --- | --- |
+| `set` | `target`, `key`, `payload.value` or first of `values` | `parts[target].props[key] = value` (must be in `values` if that list is present) |
+| `toggle` | `target`, `key` | Flip boolean; missing key becomes `true` |
+| `connect` | `payload.from` + `payload.to` (or `target` as `from` and `payload.to`) | Append `{ from, to, via? }` if not already present |
+| `disconnect` | same ends | Remove matching connection |
+| `add` | `payload.part: { id, type, props }` | Append part if `id` unused; else no-op |
+| `remove` | `target` or `payload.id` | Delete that part and any connection that mentions it |
+
+Unknown `actionId` → `validation`. Payload that fails the table → `validation`.
+
+**Constraints vs Check**
+
+- Activity field `constraintMode`: `"final"` (default) | `"always"`.
+- **Grade / Check** uses the world **main holds for this `runId`** after the last tick. `passed` = goal satisfied **and** (`constraintMode === "final"` ? constraints hold now : `constraintEverFailed === false`).
+- Intermediate over-limit with `"final"` can still pass if they turn the knob back; Why may still show `constraintEverFailed` + misconception.
+
+**View.** `view.kind: "graph"` draws each part as a node, each connection as an edge. `assetMap` keys: `"<type>"` or `"<type>@<key>=<value>"` (more specific wins). Missing asset: show `type` and all props as text. Bind brightness/position/labels **only** from `props` (`brightness`, `x`, `y`, `label` if present). Do not invent geometry.
+
+#### Reference cartridge: brighter-lamp
+
+Conformance: `run:start` copies `world` then runs **rules once with no action** (so derived props match). Then apply the transitions. Start state: `ohms=2`, `current=0.5`, `brightness=1`.
+
+```json
+{
+  "type": "activity",
+  "id": "brighter-lamp",
+  "kind": "experiment",
+  "engine": "world-v1",
+  "promptMd": "Make the lamp brighter without letting current go above 2.",
+  "skillIds": ["circuits.series.current"],
+  "constraintMode": "final",
+  "world": {
+    "parts": [
+      { "id": "battery", "type": "battery", "props": { "cells": 1 } },
+      { "id": "resistor", "type": "resistor", "props": { "ohms": 2 } },
+      { "id": "lamp", "type": "lamp", "props": { "brightness": 1, "label": "Lamp" } },
+      { "id": "meter", "type": "meter", "props": { "current": 0.5 } }
+    ],
+    "connections": [
+      { "from": "battery", "to": "resistor" },
+      { "from": "resistor", "to": "lamp" },
+      { "from": "lamp", "to": "battery" }
+    ],
+    "actions": [
+      {
+        "id": "set-ohms",
+        "label": "Set resistance",
+        "target": "resistor",
+        "op": "set",
+        "key": "ohms",
+        "values": [1, 2, 4]
+      }
+    ],
+    "rules": [
+      {
+        "id": "i-from-lookup",
+        "when": [],
+        "set": [
+          { "target": "meter", "key": "current", "value": { "op": "div", "a": "battery.cells", "b": "resistor.ohms" } }
+        ]
+      },
+      {
+        "id": "bright-from-i",
+        "when": [{ "path": "meter.current", "op": "gte", "value": 1 }],
+        "set": [{ "target": "lamp", "key": "brightness", "value": 2 }]
+      },
+      {
+        "id": "dim-from-i",
+        "when": [{ "path": "meter.current", "op": "lt", "value": 1 }],
+        "set": [{ "target": "lamp", "key": "brightness", "value": 1 }]
+      }
+    ],
+    "view": {
+      "kind": "graph",
+      "assetMap": {
+        "lamp@brightness=1": "assets/lamp-dim.svg",
+        "lamp@brightness=2": "assets/lamp-bright.svg",
+        "battery": "assets/battery.svg",
+        "resistor": "assets/resistor.svg",
+        "meter": "assets/meter.svg"
+      }
+    }
+  },
+  "goal": { "all": [{ "path": "lamp.brightness", "op": "eq", "value": 2 }] },
+  "constraints": [{ "path": "meter.current", "op": "lte", "value": 2 }],
+  "explainAfter": { "promptMd": "Why did brightness change?" },
+  "misconceptionMap": [
+    { "when": { "path": "meter.current", "op": "gt", "value": 2 }, "misconceptionId": "ignores-current-limit" }
+  ]
+}
+```
+
+Lookup note: `cells=1`, `ohms=2` → current `0.5` after integer-or-float div (`1/2 = 0.5`). The `gte 1` rule is false, `lt 1` sets brightness `1`. **v1 numbers are IEEE floats.**
+
+**Expected transitions** (start: `ohms=2`, `current=0.5`, `brightness=1`)
+
+| Action | After tick | `goalMet` | `constraintOk` | Notes |
+| --- | --- | --- | --- | --- |
+| `set-ohms` value `4` | `ohms=4`, `current=0.25`, `brightness=1` | false | true | Dimmer |
+| `set-ohms` value `1` | `ohms=1`, `current=1`, `brightness=2` | true | true | Pass: brighter, current `1 ≤ 2` |
+| (from start) `set-ohms` `1` then if we had cells=3… | — | — | — | Not in this world |
+
+If an author sets `battery.cells` to `0` and ohms to `0`, `div` is skipped, `fault=div-by-zero`, previous `current` remains.
+
+`constraintMode: "always"`: if any tick had `current > 2`, Check fails even if the final knob is safe.
+
+Renderer shows `lamp` with `assets/lamp-bright.svg` when `brightness===2`.
 
 ### `code` / `debug`
 
@@ -430,7 +577,44 @@ v1 example (React later): one personal app that gains filter → edit → persis
 | **Activity log** | Last **200** attempts per lesson; oldest dropped; `truncated: true` | This vs last, recent timeline |
 | **Evidence** | Durable; not truncated | First check, independent mastery, historical **best**, misconception hits, creation step |
 
-“Keep every run” applies until the log cap. **Bests and mastery are not stored only in the log** — copying them into `evidence/` means a truncated log cannot erase how well they once did.
+“Keep every run” applies until the activity-log cap. **Grades and bests are not stored only in that log.**
+
+### Grades ledger (durable, D41)
+
+`evidence/<lessonId>.json` holds a **compact ledger** of graded submits (not every Run):
+
+```ts
+type GradeRow = {
+  attemptId: string
+  at: string
+  blockId: string
+  taskRev: number
+  score: number
+  assisted: boolean
+  revealed: boolean
+  passed: boolean
+}
+
+// last 50 grades for this lesson (evict oldest grade row only)
+grades: GradeRow[]
+```
+
+Activity-log truncation **must not** delete `grades[]` rows. Every `grade:block` appends a row (or replaces the last row if `replaceLast`).
+
+**Derive, do not invent**
+
+- `current` / `previous` = last two rows in `grades[]` (same `taskRev` as the lesson, else last two of that rev).
+- After **delete-last**: remove that attempt from the activity log **and** from `grades[]` if present; then derive current/previous from remaining `grades[]`.
+- After **replace-last**: overwrite that ledger row; derive again.
+- **`best` is a stored value** `{ score, assisted, taskRev, attemptId? }`. After each ledger mutation: if `grades[]` is empty, clear `best`. Else set `best` to the D30 winner among **remaining `grades[]`**. Deleting the attempt that was best therefore yields the next-best **still in the ledger**, not a ghost from a discarded log line.
+- High-water: if you need “best I ever did” after the 50th grade evicts an old row, keep `bestEver` as a **copy of the value** (score, assisted, taskRev) updated only when a new grade **beats** it (D30). `bestEver` is **not** cleared when `grades[]` evicts a row. `bestEver` **is** cleared on `history: clear`, or when delete/replace removes the attempt **and** `bestEver.attemptId` matches **and** no remaining `grades[]` row equals that value — then set `bestEver` to the D30 winner of `grades[]` (or clear).
+- UI “Best” = `best` (from current ledger / current `taskRev`). Show `bestEver` as “best on record” if it differs.
+
+**`taskRev` bump** (breaking task change on the lesson):
+
+- Copy `{ taskRev, best, bestEver, independentPass, masteredAt, grades }` into `evidence.prior[oldRev]`.
+- Set `evidence.taskRev` to the new rev. `independentPass = false`, `masteredAt` cleared, `status = retrying` if it was checked/mastered.
+- New `grades` / `best` start empty. Old activity-log lines keep their `taskRev`. Mastery for the new rev requires a new independent pass. Compare “this vs last” only among grades with the **current** `taskRev`.
 
 ### Attempt record
 
@@ -463,18 +647,14 @@ type Attempt = {
 type LessonEvidence = {
   status: "not-started" | "in-progress" | "checked" | "mastered" | "retrying"
   taskRev: number
+  grades: GradeRow[]           // last 50 graded; see D41
   firstCheckedAt?: string
   masteredAt?: string
   independentPass: boolean
-  best: {                      // learning performance
-    attemptId: string
-    score: number
-    assisted: boolean          // independent beats assisted at the same score
-  }
-  fastest?: {                  // only if lesson.speedMatters === true
-    attemptId: string
-    durationMs: number
-  }
+  best?: { score: number, assisted: boolean, taskRev: number, attemptId?: string }
+  bestEver?: { score: number, assisted: boolean, taskRev: number, attemptId?: string }
+  prior?: Record<string, unknown>  // old taskRev snapshots
+  fastest?: { attemptId: string, durationMs: number }
   previousGradeId?: string
   currentGradeId?: string
   misconceptionHits: { id: string, count: number }[]
@@ -492,9 +672,9 @@ On each **graded** submit (check, activity goal, code grade), store a local snap
 | Action | IPC `history` | Default? | What happens |
 | --- | --- | --- | --- |
 | **Restart / redo** | `keep` | **Yes** | Restore starters; append `restart`; **log + evidence stay** |
-| **Replace last** | `replaceLast: true` on next run/grade | No | Overwrite newest attempt of that kind; evidence recomputed |
-| **Delete last** | `delete-last` | No | Drop newest attempt; recompute rollup |
-| **Clear history** | `clear` | No | Wipe log + snapshots in scope; evidence reset in scope. Stronger confirm |
+| **Replace last** | `replaceLast: true` on next run/grade | No | Overwrite newest attempt of that kind **and** its ledger row; derive current/previous/best from `grades[]` |
+| **Delete last** | `delete-last` | No | Drop newest attempt from log + ledger; derive from remaining `grades[]` (see D41). Never ask the truncated activity log for a missing best |
+| **Clear history** | `clear` | No | Wipe log, snapshots, `grades[]`, `best`, `bestEver` in scope. Stronger confirm |
 
 Scopes: `block` (exercise), `lesson`, `module` (chapter), `course`, `pack` (subject). `keepNotes` defaults true for block/lesson.
 
@@ -506,9 +686,10 @@ Not a deferred “full CMS.” v1 ships a **lightweight workbench**:
 
 1. Create a lesson from a **template** (`resources/templates/<templateId>.json`)
 2. Edit prompts, answers, hints, assets, `world-v1`, misconception links
-3. **Preview** the exact learner Studio (same block renderer)
-4. **Validate**: Zod, broken asset paths, missing `misconceptionId`s, `followUpLessonId`, creation steps, prerequisite ids
-5. **Export** zip (same contract as Library)
+3. **`author:save`** persists the draft; **`author:importAsset`** copies into `assets/`
+4. **Preview** the exact learner Studio (same block renderer)
+5. **Validate**: Zod, broken asset paths, missing `misconceptionId`s, `followUpLessonId`, creation steps, prerequisite ids, capabilities vs engines
+6. **Export** zip (same contract as Library)
 
 Visual editor: form + live preview for all v1 block types (including activity view). Raw JSON remains available for power users and AI paste-in.
 

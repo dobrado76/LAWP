@@ -34,6 +34,7 @@ Optional later in this pack (not required for the spike): `diagnose` a dead lamp
 ### Runtime notes
 
 - No spawn. If `world-v1` cannot express a rule, author a lookup table — do not add a physics engine for v1.
+- Conformance world and state table: **brighter-lamp** in [CONTENT_MODEL.md](CONTENT_MODEL.md).
 
 ---
 

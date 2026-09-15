@@ -77,7 +77,7 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 - Play (sounds, HUD)
 - Learners: current name, add, rename, switch (shared cartridges, separate progress)
 - Trusted packs (imported code execution)
-- Data: **Export settings**, **Import settings**, **Export setup** (settings + installed cartridges). Copy explains: another PC, same prefs/library; progress is not in this file; import will not silently overwrite
+- Data: **Export settings**, **Import settings**, **Export setup** (settings + installed cartridges). Copy explains: another PC, same prefs/library; progress is not in this file; import will not silently overwrite; **execution trust is not imported**
 - Privacy (empty)
 - About: version, **userData path** (must match for `npm run dev` and the installed exe), Open userData folder, Open current learner folder
 

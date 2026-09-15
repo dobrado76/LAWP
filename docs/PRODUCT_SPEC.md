@@ -2,7 +2,7 @@
 
 **App:** LAWP (Learn Anything While Playing)  
 **Platform:** Windows-first Electron desktop  
-**Version of this spec:** 0.3.1 (runtime library + shared AppData + setup export)
+**Version of this spec:** 0.3.2 (overlay merge, fingerprint trust, world-v1 reference, ledger, IPC)
 
 ## Problem
 
@@ -121,7 +121,7 @@ Better than Codefinity:
 ### Settings and data
 
 - All app state under Electron `userData` (`%APPDATA%\LAWP` for **both** `npm run dev` and the installed build)
-- Library is **runtime-union**: app-bundled demos + `%APPDATA%\LAWP\packs`. Not a catalog frozen at `npm run dist`. Installer/upgrade never overwrites settings or user cartridges
+- Library is **runtime-resolved**: overlay lesson zips **merge** onto bundled packs; a full user pack (`overlay: false`) hides the bundled pack after confirm. Not a catalog frozen at `npm run dist`. Installer/upgrade never overwrites settings or user cartridges
 - **Export / import settings** (prefs) and optional **setup bundle** (prefs + user-installed cartridge zips) for the same setup on another PC. Merge on import; confirm before replace. No window geometry, no learner progress
 - Every new preference lives on `settingsSchema` so export round-trips it. Strip secrets by default
 - Learner progress in JSON under `userData/learners/<id>/` (never inside a pack or a settings export)

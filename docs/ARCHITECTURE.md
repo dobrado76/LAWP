@@ -124,7 +124,7 @@ Persist `{ x, y, width, height, isMaximized }`.
 
 ## Session vs settings
 
-- **Settings:** theme, font, runtime paths, play HUD on/off, strict campaign, `currentLearnerId`, trusted pack ids — exportable (learner **progress** is not in this file)
+- **Settings:** theme, font, runtime paths, play HUD on/off, strict campaign, `currentLearnerId`, `trustedExecutions[]` (**fingerprint + packId**, not bare ids) — exportable **except** trust grants (D39: import does not grant spawn)
 - **Session:** where you were in the studio — not part of settings export
 - **Window geometry:** `window-state.json` only; strip from settings export
 - **Learner progress:** `learners/<id>/` only; settings/setup export must not embed it

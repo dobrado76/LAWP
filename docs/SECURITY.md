@@ -26,13 +26,40 @@ Local learning app. Threats: **malicious packs**, **learner code**, **XSS via Ma
 
 `pack.json` declares `capabilities.execute`: `none` | `python` | `javascript` | `react`.
 
+**Capabilities must match the resolved pack.** On load and on `author:validate`:
+
+- Collect engines from every `code` / `debug` / `project` block and from `engines[]`.
+- If any of those is `python` | `javascript` | `react` and `capabilities.execute` is `none` or missing → `pack-invalid`.
+- If `capabilities.execute` is a code engine but **no** lesson uses that engine → `pack-invalid` (do not advertise spawn you do not need).
+- `world-v1` / explain / check do not require execute.
+
 | Pack | Spawn? |
 | --- | --- |
 | `execute: "none"` / only `world-v1`, checks, explain | **Never** |
-| Bundled demo code packs | Yes, after the same Job Object / timeout policy |
-| **Imported** zip with a code capability | **No** until the learner **trusts that pack** (Settings / install dialog). Default deny. Untrusted = Studio can still show explain/check/activity; Run/Check that would spawn returns `sandbox` with remediation “enable execution for this pack” |
+| Bundled demo **bytes** with a code capability | Yes (Job Object / timeout). Overlay or edit that **changes the fingerprint** → treat as imported |
+| **Imported** / overlay / authored executable content | **No** until the learner trusts **this fingerprint**. Default deny → `sandbox` |
 
-Settings: honest warning — trusting a pack lets it run **their** Python/Node on **this** machine. This is not a VM.
+### Fingerprint (D39)
+
+Do **not** store “trusted pack ids.” Settings hold:
+
+```ts
+trustedExecutions: { packId: string, fingerprint: string, grantedAt: string }[]
+```
+
+`fingerprint` = SHA-256 of a canonical JSON (sorted keys, sorted lesson ids) of the **resolved** pack’s executable surface only:
+
+- `pack.id`, `engines`, `capabilities`
+- each lesson: `id`, `taskRev`, every `code`/`debug`/`project` block (engine, file paths, checks)
+- raw bytes of every lesson-relative file with role `edit` | `ro` | `hidden-test` | `fixture` (path → sha256)
+
+Explain/prose/assets/images **do not** enter the fingerprint (a new diagram does not revoke trust). Changing a hidden test, starter, engine, or `capabilities` **does**.
+
+Before spawn: recompute. Mismatch → deny, drop that grant, ask to trust again.
+
+Setup / settings **import never copies `trustedExecutions`**. The other PC must trust locally. Export may omit the array (preferred) or export it as empty.
+
+Settings warning: trusting lets that **exact content** run Python/Node on this machine. This is not a VM.
 
 v1 `capabilities.network` is always `false`. Do not claim the OS has disabled networking.
 
