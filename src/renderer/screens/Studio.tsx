@@ -166,6 +166,8 @@ export function Studio({
     | (Block & {
         promptMd?: string
         engine?: string
+        preview?: { kind?: string }
+        files?: { path: string; role: string; contents?: string }[]
         play?: {
           playerId?: string
           world?: World
@@ -551,6 +553,22 @@ export function Studio({
               </div>
             </div>
           ))}
+          {code?.preview?.kind === 'iframe' && (
+            <DomPreview html={code.files?.find((f) => f.path.endsWith('.html'))?.contents ?? ''} js={files.find((f) => f.path.endsWith('.js'))?.contents ?? ''} fixtures={Object.fromEntries(
+              (code.files ?? [])
+                .filter((f) => f.path.endsWith('.json') && f.contents)
+                .flatMap((f) => {
+                  const name = f.path.replace(/^files\//, '')
+                  const base = name.split('/').pop() ?? name
+                  return [
+                    [name, f.contents as string],
+                    ['/' + name, f.contents as string],
+                    [base, f.contents as string],
+                    ['/' + base, f.contents as string]
+                  ] as [string, string][]
+                })
+            )} />
+          )}
           {files.map((f) => (
             <CodeEditor
               key={f.path}
@@ -716,13 +734,49 @@ function replayPlay(
         resolve()
         return
       }
-      world = stepPlay(world, commands[i]!, playerId)
-      onFrame(world)
+      const cmd = commands[i]!
       i += 1
+      if (cmd.op === 'wait') {
+        window.setTimeout(tick, Math.min(2000, Math.max(1, cmd.ticks) * 180))
+        return
+      }
+      world = stepPlay(world, cmd, playerId)
+      onFrame(world)
       window.setTimeout(tick, 180)
     }
     window.setTimeout(tick, 80)
   })
+}
+
+function DomPreview({
+  html,
+  js,
+  fixtures
+}: {
+  html: string
+  js: string
+  fixtures: Record<string, string>
+}) {
+  const boot = `<script>
+const FIX = ${JSON.stringify(fixtures)};
+window.fetch = function(url) {
+  const href = String(url);
+  const path = href.replace(/^https?:\\/\\/[^/]+/i, '');
+  const body = FIX[href] || FIX[path] || FIX[path.replace(/^\\//, '')];
+  if (body == null) return Promise.resolve(new Response('', { status: 404 }));
+  return Promise.resolve(new Response(body, { status: 200, headers: { 'content-type': 'application/json' } }));
+};
+</script>
+<script>${js.replace(/<\/script/gi, '<\\/script')}</script>`
+  const srcdoc = /<\/body>/i.test(html) ? html.replace(/<\/body>/i, `${boot}</body>`) : `${html}${boot}`
+  return (
+    <iframe
+      className="dom-preview"
+      title="Page preview"
+      sandbox="allow-scripts"
+      srcDoc={srcdoc}
+    />
+  )
 }
 
 function GridStage({

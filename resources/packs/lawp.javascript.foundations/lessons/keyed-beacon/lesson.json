@@ -1,14 +1,16 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "keyed-beacon",
   "packId": "lawp.javascript.foundations",
-  "courseId": "signals",
-  "moduleId": "functions",
-  "title": "The keyed beacon",
-  "skillIds": ["js.functions"],
+  "taskRev": 2,
   "estimatedMinutes": 20,
-  "taskRev": 1,
+  "skillIds": [
+    "js.functions"
+  ],
+  "id": "keyed-beacon",
+  "courseId": "signals",
+  "moduleId": "loops",
+  "title": "The keyed beacon",
   "blocks": [
     {
       "type": "explain",
@@ -20,9 +22,18 @@
       "promptMd": "Fox starts at `(2, 3)`. A rock sits at `(3, 3)`. After `Player.move(\"east\")`, where is the fox?",
       "kind": "mcq",
       "choices": [
-        { "id": "through", "md": "At (3, 3) — it walked through the rock" },
-        { "id": "stay", "md": "Still at (2, 3) — the rock blocked the step" },
-        { "id": "clamp", "md": "Off the board" }
+        {
+          "id": "through",
+          "md": "At (3, 3) — it walked through the rock"
+        },
+        {
+          "id": "stay",
+          "md": "Still at (2, 3) — the rock blocked the step"
+        },
+        {
+          "id": "clamp",
+          "md": "Off the board"
+        }
       ],
       "answer": "stay"
     },
@@ -32,69 +43,305 @@
       "engine": "javascript",
       "entry": "main.js",
       "promptMd": "The stage is the map. Discover the route — Hint if you need a compass.",
-      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Rocks stop a step. Tokens vanish when you walk onto them. Read x and y on the stage."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Coin is south of the fox. After that, go north to the open row. Glint is far west. Key is far east. Beacon is one step north of the middle of that row."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "On the beacon you still need Player.rotate(90), Player.scale(2), and Player.say(\"ready\"). scale(3) is rejected."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "south; north north north; west west (glint); east east east east (key); west west; north; rotate(90); scale(2); say(\"ready\")."
+        }
+      ],
       "play": {
         "api": "player-v1",
         "playerId": "fox",
-        "scaleValues": [1, 2],
         "world": {
           "parts": [
-            { "id": "fox", "type": "fox", "props": { "x": 2, "y": 3, "rot": 0, "scale": 1, "label": "Fox" } },
-            { "id": "beacon", "type": "beacon", "props": { "x": 2, "y": 0, "label": "Beacon" } },
-            { "id": "coin", "type": "coin", "props": { "x": 2, "y": 4, "collect": true, "taken": false, "label": "Coin" } },
-            { "id": "glint", "type": "glint", "props": { "x": 0, "y": 1, "collect": true, "taken": false, "label": "Glint" } },
-            { "id": "key", "type": "key", "props": { "x": 4, "y": 1, "collect": true, "taken": false, "label": "Key" } },
-            { "id": "r00", "type": "rock", "props": { "x": 0, "y": 0, "solid": true } },
-            { "id": "r10", "type": "rock", "props": { "x": 1, "y": 0, "solid": true } },
-            { "id": "r30", "type": "rock", "props": { "x": 3, "y": 0, "solid": true } },
-            { "id": "r40", "type": "rock", "props": { "x": 4, "y": 0, "solid": true } },
-            { "id": "r02", "type": "rock", "props": { "x": 0, "y": 2, "solid": true } },
-            { "id": "r12", "type": "rock", "props": { "x": 1, "y": 2, "solid": true } },
-            { "id": "r32", "type": "rock", "props": { "x": 3, "y": 2, "solid": true } },
-            { "id": "r42", "type": "rock", "props": { "x": 4, "y": 2, "solid": true } },
-            { "id": "r03", "type": "rock", "props": { "x": 0, "y": 3, "solid": true } },
-            { "id": "r33", "type": "rock", "props": { "x": 3, "y": 3, "solid": true } },
-            { "id": "r43", "type": "rock", "props": { "x": 4, "y": 3, "solid": true } },
-            { "id": "r04", "type": "rock", "props": { "x": 0, "y": 4, "solid": true } },
-            { "id": "r14", "type": "rock", "props": { "x": 1, "y": 4, "solid": true } },
-            { "id": "r34", "type": "rock", "props": { "x": 3, "y": 4, "solid": true } },
-            { "id": "r44", "type": "rock", "props": { "x": 4, "y": 4, "solid": true } }
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 2,
+                "y": 3,
+                "rot": 0,
+                "label": "Fox",
+                "scale": 1
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 0,
+                "label": "Beacon"
+              }
+            },
+            {
+              "id": "coin",
+              "type": "coin",
+              "props": {
+                "x": 2,
+                "y": 4,
+                "collect": true,
+                "taken": false,
+                "label": "Coin"
+              }
+            },
+            {
+              "id": "glint",
+              "type": "glint",
+              "props": {
+                "x": 0,
+                "y": 1,
+                "collect": true,
+                "taken": false,
+                "label": "Glint"
+              }
+            },
+            {
+              "id": "key",
+              "type": "key",
+              "props": {
+                "x": 4,
+                "y": 1,
+                "collect": true,
+                "taken": false,
+                "label": "Key"
+              }
+            },
+            {
+              "id": "r00",
+              "type": "rock",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "r10",
+              "type": "rock",
+              "props": {
+                "x": 1,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "r30",
+              "type": "rock",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "r40",
+              "type": "rock",
+              "props": {
+                "x": 4,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "r02",
+              "type": "rock",
+              "props": {
+                "x": 0,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "r12",
+              "type": "rock",
+              "props": {
+                "x": 1,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "r32",
+              "type": "rock",
+              "props": {
+                "x": 3,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "r42",
+              "type": "rock",
+              "props": {
+                "x": 4,
+                "y": 2,
+                "solid": true
+              }
+            },
+            {
+              "id": "r03",
+              "type": "rock",
+              "props": {
+                "x": 0,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "r33",
+              "type": "rock",
+              "props": {
+                "x": 3,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "r43",
+              "type": "rock",
+              "props": {
+                "x": 4,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "r04",
+              "type": "rock",
+              "props": {
+                "x": 0,
+                "y": 4,
+                "solid": true
+              }
+            },
+            {
+              "id": "r14",
+              "type": "rock",
+              "props": {
+                "x": 1,
+                "y": 4,
+                "solid": true
+              }
+            },
+            {
+              "id": "r34",
+              "type": "rock",
+              "props": {
+                "x": 3,
+                "y": 4,
+                "solid": true
+              }
+            },
+            {
+              "id": "r44",
+              "type": "rock",
+              "props": {
+                "x": 4,
+                "y": 4,
+                "solid": true
+              }
+            }
           ],
           "connections": [],
           "actions": [],
           "rules": [],
           "view": {
             "kind": "grid",
-            "grid": { "cols": 5, "rows": 5 },
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
             "assetMap": {
               "fox": "fox.svg",
               "beacon": "beacon.svg",
               "rock": "rock.svg",
               "coin": "coin.svg",
-              "glint": "glint.svg",
-              "key": "key.svg"
+              "key": "key.svg",
+              "glint": "glint.svg"
             }
           }
         },
         "goal": {
           "all": [
-            { "path": "fox.x", "op": "eq", "value": 2 },
-            { "path": "fox.y", "op": "eq", "value": 0 },
-            { "path": "fox.rot", "op": "eq", "value": 90 },
-            { "path": "fox.scale", "op": "eq", "value": 2 },
-            { "path": "fox.say", "op": "eq", "value": "ready" },
-            { "path": "coin.taken", "op": "eq", "value": true },
-            { "path": "glint.taken", "op": "eq", "value": true },
-            { "path": "key.taken", "op": "eq", "value": true }
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            },
+            {
+              "path": "fox.rot",
+              "op": "eq",
+              "value": 90
+            },
+            {
+              "path": "fox.scale",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.say",
+              "op": "eq",
+              "value": "ready"
+            },
+            {
+              "path": "coin.taken",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "path": "glint.taken",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "path": "key.taken",
+              "op": "eq",
+              "value": true
+            }
           ]
-        }
-      },
-      "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "Rocks stop a step. Tokens vanish when you walk onto them. Read x and y on the stage." },
-        { "level": 2, "kind": "concept", "md": "Coin is south of the fox. After that, go north to the open row. Glint is far west. Key is far east. Beacon is one step north of the middle of that row." },
-        { "level": 3, "kind": "concept", "md": "On the beacon you still need Player.rotate(90), Player.scale(2), and Player.say(\"ready\"). scale(3) is rejected." },
-        { "level": 4, "kind": "assist", "md": "south; north north north; west west (glint); east east east east (key); west west; north; rotate(90); scale(2); say(\"ready\")." }
-      ]
+        },
+        "scaleValues": [
+          1,
+          2
+        ]
+      }
     }
   ]
 }

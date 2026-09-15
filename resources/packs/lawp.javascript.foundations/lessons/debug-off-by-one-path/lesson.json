@@ -1,0 +1,135 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.flow"
+  ],
+  "id": "debug-off-by-one-path",
+  "courseId": "signals",
+  "moduleId": "loops",
+  "title": "Debug: one cell short",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The fox stops early\n\nThe loop was written as `i <= 2` when the author meant three steps from 0, or `i < 2` when they needed three. Off-by-one is a counting story, not a mystery.\n\nFix the loop so the fox stands on the beacon at (3, 0)."
+    },
+    {
+      "type": "predict",
+      "id": "lte-vs-lt",
+      "promptMd": "`for (let i = 0; i <= 2; i++)` runs how many times?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "two",
+          "md": "2",
+          "misconceptionId": "off-by-one-inclusive"
+        },
+        {
+          "id": "three",
+          "md": "3"
+        }
+      ],
+      "answer": "three"
+    },
+    {
+      "type": "debug",
+      "id": "fix-loop",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> The starter walks only to x=2. Fix the bound so the fox reaches x=3.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "ast",
+          "query": "for"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Count on your fingers: i = 0, 1, 2 is three moves if the test is i < 3."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "for (let i = 0; i < 3; i++) Player.move(\"east\")"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

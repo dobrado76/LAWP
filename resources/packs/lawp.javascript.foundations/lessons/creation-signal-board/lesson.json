@@ -1,0 +1,84 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.dom",
+    "js.events"
+  ],
+  "id": "creation-signal-board",
+  "courseId": "the-page",
+  "moduleId": "live",
+  "title": "Creation: signal board",
+  "creation": {
+    "id": "signal-board",
+    "step": 1,
+    "briefMd": "A live list you can filter and keep."
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A board you keep\n\nAdd one `li` for each starter name already in `#seeds` (comma-separated), then keep the filter from the last lesson: `#q` hides non-matches.\n\nThe board is yours — export later from Studio."
+    },
+    {
+      "type": "predict",
+      "id": "seeds",
+      "promptMd": "Starter names should become…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "one-p",
+          "md": "One paragraph of comma text"
+        },
+        {
+          "id": "lis",
+          "md": "One `li` per name"
+        }
+      ],
+      "answer": "lis"
+    },
+    {
+      "type": "code",
+      "id": "board",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Build `#list` from `#seeds` text, and filter with `#q`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Split seeds, createElement li, append, then bind input filter."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const list = document.querySelector(\"#list\")\nconst names = document.querySelector(\"#seeds\").textContent.split(\",\").map((s) => s.trim())\nfor (const name of names) {\n  const li = document.createElement(\"li\")\n  li.textContent = name\n  list.append(li)\n}\nconst q = document.querySelector(\"#q\")\nq.addEventListener(\"input\", () => {\n  const needle = q.value.toLowerCase()\n  for (const li of list.querySelectorAll(\"li\")) li.hidden = !li.textContent.toLowerCase().includes(needle)\n})"
+        }
+      ]
+    }
+  ]
+}

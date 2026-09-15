@@ -1,25 +1,19 @@
 {
   "id": "signals",
-  "title": "Signals and functions",
+  "title": "Commands on the stage",
   "level": "beginner",
-  "estimatedMinutes": 180,
-  "creationId": "signal-log",
-  "skillIds": ["js.values", "js.functions", "js.arrays"],
+  "estimatedMinutes": 300,
+  "skillIds": ["js.functions", "js.flow"],
   "modules": [
     {
-      "id": "values",
-      "title": "Values",
-      "lessonIds": ["values-and-typeof", "triple-equals"]
+      "id": "call",
+      "title": "Call and return",
+      "lessonIds": ["functions-call", "beacon-call", "return-not-print", "parameters-and-defaults"]
     },
     {
-      "id": "functions",
-      "title": "Functions",
-      "lessonIds": ["functions-call", "beacon-call", "keyed-beacon"]
-    },
-    {
-      "id": "arrays",
-      "title": "Arrays",
-      "lessonIds": ["arrays-map", "signal-log"]
+      "id": "loops",
+      "title": "Loops that write a path",
+      "lessonIds": ["loops-for", "loops-while-break", "keyed-beacon", "debug-off-by-one-path"]
     }
   ]
 }

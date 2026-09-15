@@ -1,0 +1,39 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "js.http"
+  ],
+  "id": "http-as-messages",
+  "courseId": "talking-servers",
+  "moduleId": "messages",
+  "title": "HTTP as messages",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Method, URL, status\n\nA request is a **method** (`GET`, `POST`…) plus a **URL**. A response is a **status** (200, 404, 500) plus a body.\n\n`GET /beacons.json` asking for a list is a message, not a magic tunnel. This pack never opens the real network."
+    },
+    {
+      "type": "check",
+      "id": "status-404",
+      "promptMd": "HTTP 404 means…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "throw-js",
+          "md": "JavaScript always throws before you see a body",
+          "misconceptionId": "res-ok-throws"
+        },
+        {
+          "id": "not-found",
+          "md": "The server answered: this URL was not found"
+        }
+      ],
+      "answer": "not-found",
+      "explainMd": "fetch only throws on network failure or abort. 404 is a normal response with res.ok === false."
+    }
+  ]
+}

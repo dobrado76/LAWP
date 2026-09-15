@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.objects"
+  ],
+  "id": "json-roundtrip",
+  "courseId": "data",
+  "moduleId": "records",
+  "title": "JSON round-trip",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Text in, object out\n\n`JSON.parse` reads a string. Bad text throws. `JSON.stringify` writes a string. A fixture file in this lesson is `signal.json` — parse it and print the `name` field."
+    },
+    {
+      "type": "predict",
+      "id": "parse-throw",
+      "promptMd": "`JSON.parse(\"{\")` does what?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "empty",
+          "md": "Returns `{}`"
+        },
+        {
+          "id": "throw",
+          "md": "Throws a SyntaxError"
+        }
+      ],
+      "answer": "throw"
+    },
+    {
+      "type": "code",
+      "id": "read-fixture",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Parse `signal.json` and print the `name` field (`north`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/signal.json",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "north"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "fs.readFileSync(\"signal.json\", \"utf8\") then JSON.parse."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const fs = require(\"fs\")\nfunction readName() {\n  return JSON.parse(fs.readFileSync(\"signal.json\", \"utf8\")).name\n}\nconsole.log(readName())\nmodule.exports = { readName }"
+        }
+      ]
+    }
+  ]
+}

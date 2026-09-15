@@ -1,0 +1,80 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.this"
+  ],
+  "id": "arrow-vs-function",
+  "courseId": "scope-hofs",
+  "moduleId": "tools",
+  "title": "Arrow vs function",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Shorter is not the whole story\n\n`const add = (a, b) => a + b` is shorter. An arrow also **does not get its own `this`**. It keeps the `this` from outside.\n\nA method that needs `this.dir` should stay a `function`, or you bind it later. This lesson is syntax plus that preview — no DOM yet."
+    },
+    {
+      "type": "predict",
+      "id": "arrow-this",
+      "promptMd": "An arrow function’s `this` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "call",
+          "md": "Whatever called it, like a method",
+          "misconceptionId": "arrow-is-just-shorter"
+        },
+        {
+          "id": "outer",
+          "md": "The `this` from the scope where it was created"
+        }
+      ],
+      "answer": "outer"
+    },
+    {
+      "type": "code",
+      "id": "arrow-sum",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Write `add` as an arrow that returns `a + b`. Print `add(2, 3)` (`5`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "5"
+        },
+        {
+          "type": "ast",
+          "query": "=>"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const add = (a, b) => a + b"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const add = (a, b) => a + b\nconsole.log(add(2, 3))\nmodule.exports = { add }"
+        }
+      ]
+    }
+  ]
+}

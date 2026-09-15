@@ -1,0 +1,88 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 30,
+  "skillIds": [
+    "js.http",
+    "js.dom"
+  ],
+  "id": "transfer-library-search",
+  "courseId": "talking-servers",
+  "moduleId": "transfer",
+  "title": "Transfer: search fixture JSON",
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Search, then render\n\n`GET /catalog.json` returns `{ items: [{ name, kind }] }`. On submit (or button click), fetch, filter names that include the query, and put matching names into `#results` as `li` nodes using `textContent`."
+    },
+    {
+      "type": "predict",
+      "id": "no-innerhtml",
+      "promptMd": "Each result name should be set with…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "html",
+          "md": "`innerHTML` of the ul",
+          "misconceptionId": "innerhtml-for-text"
+        },
+        {
+          "id": "text",
+          "md": "`textContent` on each `li`"
+        }
+      ],
+      "answer": "text"
+    },
+    {
+      "type": "code",
+      "id": "search-ui",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Click `#go` with query `bea` should list `Beacon` (from the fixture), not `Rock`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/catalog.json",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "fetch(\"/catalog.json\") then filter, createElement li."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "document.querySelector(\"#go\").addEventListener(\"click\", async () => {\n  const q = document.querySelector(\"#q\").value.toLowerCase()\n  const res = await fetch(\"/catalog.json\")\n  const data = await res.json()\n  const ul = document.querySelector(\"#results\")\n  ul.replaceChildren()\n  for (const item of data.items) {\n    if (!item.name.toLowerCase().includes(q)) continue\n    const li = document.createElement(\"li\")\n    li.textContent = item.name\n    ul.append(li)\n  }\n})"
+        }
+      ]
+    }
+  ]
+}

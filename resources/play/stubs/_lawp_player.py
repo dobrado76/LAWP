@@ -48,6 +48,14 @@ class _Player:
         _write({"op": "say", "text": str(text)})
         print("Player.say")
 
+    def wait(self, ticks):
+        if not isinstance(ticks, int) or ticks < 0:
+            _write({"op": "fault", "message": "wait ticks must be a whole number ≥ 0"})
+            print("Player.wait: bad ticks")
+            return
+        _write({"op": "wait", "ticks": ticks})
+        print(f"Player.wait({ticks})")
+
     def __getattr__(self, name):
         def unknown(*_a, **_k):
             _write({"op": "fault", "message": f"unknown method {name}"})

@@ -1,0 +1,38 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 12,
+  "skillIds": [
+    "js.http"
+  ],
+  "id": "cors-mental-model",
+  "courseId": "talking-servers",
+  "moduleId": "messages",
+  "title": "CORS is a browser rule",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Not Node, not this sandbox\n\nThe **browser** asks: may this page’s origin read that response? CORS is an HTTP header conversation the *browser* enforces.\n\nNode `fetch` and this lesson stub do **not** simulate CORS. `capabilities.network: false` also does not claim to be an OS firewall. The idea still matters when you later ship a page."
+    },
+    {
+      "type": "check",
+      "id": "who-enforces",
+      "promptMd": "Who enforces CORS?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "node",
+          "md": "Node.js on every `fetch`"
+        },
+        {
+          "id": "browser",
+          "md": "The browser, for front-end origins"
+        }
+      ],
+      "answer": "browser",
+      "explainMd": "A server can send Access-Control-Allow-Origin. The browser decides whether page JS may read the body."
+    }
+  ]
+}

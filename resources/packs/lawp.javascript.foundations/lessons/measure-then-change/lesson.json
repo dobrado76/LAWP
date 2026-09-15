@@ -1,0 +1,75 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.test"
+  ],
+  "id": "measure-then-change",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "Measure, then change",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Time a loop; do not guess\n\n`performance.now()` (or `Date.now()`) before and after. Print the **count** you measured (`1000`), not a made-up faster algorithm.\n\nThe point is the habit: measure the loop you have."
+    },
+    {
+      "type": "predict",
+      "id": "guess",
+      "promptMd": "You should rewrite a loop because…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "feel",
+          "md": "It feels slow"
+        },
+        {
+          "id": "number",
+          "md": "A measurement showed it is the problem"
+        }
+      ],
+      "answer": "number"
+    },
+    {
+      "type": "code",
+      "id": "count-loop",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Loop 1000 times, increment `n`, print `n`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "1000"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "for (let i = 0; i < 1000; i++) n++"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function count() {\n  let n = 0\n  for (let i = 0; i < 1000; i++) n += 1\n  return n\n}\nconsole.log(count())\nmodule.exports = { count }"
+        }
+      ]
+    }
+  ]
+}

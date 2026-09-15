@@ -1,14 +1,16 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "beacon-call",
   "packId": "lawp.javascript.foundations",
-  "courseId": "signals",
-  "moduleId": "functions",
-  "title": "Reach the beacon",
-  "skillIds": ["js.functions"],
+  "taskRev": 3,
   "estimatedMinutes": 15,
-  "taskRev": 2,
+  "skillIds": [
+    "js.functions"
+  ],
+  "id": "beacon-call",
+  "courseId": "signals",
+  "moduleId": "call",
+  "title": "Reach the beacon",
   "blocks": [
     {
       "type": "explain",
@@ -20,8 +22,14 @@
       "promptMd": "The fox starts at (0, 0). After one `Player.move(\"east\")`, where is it?",
       "kind": "mcq",
       "choices": [
-        { "id": "same", "md": "Still at (0, 0)" },
-        { "id": "east", "md": "At (1, 0)" }
+        {
+          "id": "same",
+          "md": "Still at (0, 0)"
+        },
+        {
+          "id": "east",
+          "md": "At (1, 0)"
+        }
       ],
       "answer": "east"
     },
@@ -31,37 +39,98 @@
       "engine": "javascript",
       "entry": "main.js",
       "promptMd": "> Walk the fox onto the beacon at `(3, 2)`.",
-      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Beacon is at x=3, y=2. One move changes one coordinate by 1."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "You need three east calls and two south calls. Order does not matter."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Player.move(\"east\") three times, then Player.move(\"south\") twice."
+        }
+      ],
       "play": {
         "api": "player-v1",
         "playerId": "fox",
-        "guided": true,
         "world": {
           "parts": [
-            { "id": "fox", "type": "fox", "props": { "x": 0, "y": 0, "rot": 0, "label": "Fox" } },
-            { "id": "beacon", "type": "beacon", "props": { "x": 3, "y": 2, "label": "Beacon" } }
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 2,
+                "label": "Beacon"
+              }
+            }
           ],
           "connections": [],
           "actions": [],
           "rules": [],
           "view": {
             "kind": "grid",
-            "grid": { "cols": 5, "rows": 5 },
-            "assetMap": { "fox": "fox.svg", "beacon": "beacon.svg" }
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
           }
         },
         "goal": {
           "all": [
-            { "path": "fox.x", "op": "eq", "value": 3 },
-            { "path": "fox.y", "op": "eq", "value": 2 }
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 2
+            }
           ]
-        }
-      },
-      "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "Beacon is at x=3, y=2. One move changes one coordinate by 1." },
-        { "level": 2, "kind": "concept", "md": "You need three east calls and two south calls. Order does not matter." },
-        { "level": 4, "kind": "assist", "md": "Player.move(\"east\") three times, then Player.move(\"south\") twice." }
-      ]
+        },
+        "guided": true
+      }
     }
   ]
 }

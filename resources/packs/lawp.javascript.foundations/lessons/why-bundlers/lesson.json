@@ -1,0 +1,38 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 12,
+  "skillIds": [
+    "js.modules"
+  ],
+  "id": "why-bundlers",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "Why bundlers exist",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The browser has no `require` of your files\n\nA page can load one script URL. `require(\"./walker.js\")` is a Node idea. A **bundler** walks your `import` graph and emits files the browser can load.\n\nThis lesson does not run a bundler. It asks you to name the problem."
+    },
+    {
+      "type": "check",
+      "id": "browser-require",
+      "promptMd": "Why do front-end apps use a bundler (or native ESM URLs)?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "pretty",
+          "md": "Only to minify for fashion"
+        },
+        {
+          "id": "graph",
+          "md": "The browser does not `require()` a folder of files the way Node does"
+        }
+      ],
+      "answer": "graph",
+      "explainMd": "You can also ship native ESM with import maps. The gap is still: the browser is not Node’s module loader."
+    }
+  ]
+}

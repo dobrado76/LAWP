@@ -58,6 +58,15 @@ describe('player-v1 apply', () => {
     expect(out.passed).toBe(false)
   })
 
+  it('wait is a no-op on the world and is not a fault', () => {
+    const out = applyPlayLog(gridWorld(), [{ op: 'wait', ticks: 2 }, { op: 'move', dir: 'east' }], {
+      playerId: 'fox'
+    })
+    expect(out.fault).toBeNull()
+    expect(out.world.parts.find((p) => p.id === 'fox')?.props.x).toBe(1)
+    expect(parsePlayLog([{ op: 'wait', ticks: 3 }])).toEqual([{ op: 'wait', ticks: 3 }])
+  })
+
   it('unknown log rows become faults', () => {
     const cmds = parsePlayLog([{ op: 'teleport', x: 9 }])
     expect(cmds).toEqual([{ op: 'fault', message: 'Unknown play command' }])

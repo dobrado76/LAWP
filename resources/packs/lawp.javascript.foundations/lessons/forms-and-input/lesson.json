@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.events",
+    "js.dom"
+  ],
+  "id": "forms-and-input",
+  "courseId": "the-page",
+  "moduleId": "live",
+  "title": "input event and value",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The live value\n\n`input` fires as the person types. Read `event.target.value` (or the input’s `.value`). Copy it into `#echo`."
+    },
+    {
+      "type": "predict",
+      "id": "value-field",
+      "promptMd": "The text in a text field lives on…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "html",
+          "md": "`innerHTML` of the input"
+        },
+        {
+          "id": "value",
+          "md": "`.value`"
+        }
+      ],
+      "answer": "value"
+    },
+    {
+      "type": "code",
+      "id": "echo-input",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Mirror `#name` into `#echo` on `input`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "name.addEventListener(\"input\", (e) => { echo.textContent = e.target.value })"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "document.querySelector(\"#name\").addEventListener(\"input\", (e) => {\n  document.querySelector(\"#echo\").textContent = e.target.value\n})"
+        }
+      ]
+    }
+  ]
+}

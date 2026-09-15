@@ -1,0 +1,76 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.node.fs"
+  ],
+  "id": "paths-and-encoding",
+  "courseId": "the-process",
+  "moduleId": "io",
+  "title": "path.join, no .. tricks",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Join names, do not climb out\n\n`path.join(\"logs\", \"today.txt\")` builds a path for *this* folder. `..` is how people try to leave. This lesson refuses it.\n\n`safeJoin(\"logs\", name)` should throw if `name` includes `..`."
+    },
+    {
+      "type": "predict",
+      "id": "dotdot",
+      "promptMd": "`path.join(\"logs\", \"../secret\")` in a careless tool…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "ok",
+          "md": "Is always safe",
+          "misconceptionId": "path-dotdot-ok"
+        },
+        {
+          "id": "escape",
+          "md": "Can point outside `logs`"
+        }
+      ],
+      "answer": "escape"
+    },
+    {
+      "type": "code",
+      "id": "safe-join",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `safeJoin(\"logs\", \"a.txt\")` prints `logs/a.txt` or `logs\\\\a.txt`. Hidden: `..` throws.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout-regex",
+          "pattern": "logs[\\\\/]a\\.txt"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "if (name.includes(\"..\")) throw new Error(\"no\")"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const path = require(\"path\")\nfunction safeJoin(root, name) {\n  if (name.includes(\"..\")) throw new Error(\"no\")\n  return path.join(root, name)\n}\nconsole.log(safeJoin(\"logs\", \"a.txt\"))\nmodule.exports = { safeJoin }"
+        }
+      ]
+    }
+  ]
+}

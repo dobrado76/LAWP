@@ -1,5 +1,20 @@
 [
   { "id": "js.values", "title": "Values and equality", "prereqIds": [] },
-  { "id": "js.functions", "title": "Functions", "prereqIds": ["js.values"] },
-  { "id": "js.arrays", "title": "Arrays", "prereqIds": ["js.functions"] }
+  { "id": "js.flow", "title": "Flow and truthiness", "prereqIds": ["js.values"] },
+  { "id": "js.functions", "title": "Functions and calls", "prereqIds": ["js.values"] },
+  { "id": "js.arrays", "title": "Arrays and transforms", "prereqIds": ["js.functions"] },
+  { "id": "js.objects", "title": "Objects and references", "prereqIds": ["js.values"] },
+  { "id": "js.closures", "title": "Scope and closures", "prereqIds": ["js.functions"] },
+  { "id": "js.errors", "title": "Errors you can recover from", "prereqIds": ["js.functions"] },
+  { "id": "js.proto", "title": "Prototypes and classes", "prereqIds": ["js.objects"] },
+  { "id": "js.this", "title": "this, call, and bind", "prereqIds": ["js.functions"] },
+  { "id": "js.iter", "title": "Iterators and generators", "prereqIds": ["js.arrays"] },
+  { "id": "js.async", "title": "The event loop and promises", "prereqIds": ["js.functions"] },
+  { "id": "js.modules", "title": "Modules and files", "prereqIds": ["js.functions"] },
+  { "id": "js.dom", "title": "The document tree", "prereqIds": ["js.objects"] },
+  { "id": "js.events", "title": "Events and delegation", "prereqIds": ["js.dom"] },
+  { "id": "js.http", "title": "HTTP messages and fetch", "prereqIds": ["js.async"] },
+  { "id": "js.node.fs", "title": "Node files and process", "prereqIds": ["js.functions"] },
+  { "id": "js.test", "title": "Assertions and fixtures", "prereqIds": ["js.functions"] },
+  { "id": "js.security", "title": "XSS and prototype hygiene", "prereqIds": ["js.objects"] }
 ]

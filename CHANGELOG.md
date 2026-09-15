@@ -26,9 +26,16 @@ First product minor. Package/spec numbering was previously `0.3.3`; this release
 - This changelog and minor-bump release notes (shown in-app)
 - `npm run dist` increments PATCH; `npm run dist:nobump` keeps the version
 - Tag-only GitHub workflow ships the NSIS installer to a Release (no workflow artifacts)
+- JavaScript working-expert curriculum on `lawp.javascript.foundations` (placement through craft/capstone; fox/beacon grid, DOM harness, mock fetch)
+- Code runner: ESM boot, hidden `js-assert` after the learner entry, `Player.wait(ticks)`, happy-dom DOM grade in main, fixture `fetch` stub
+
+- Library is a numbered tutorial path: Play next, then values and the fox before lists; later courses stay locked until the one above is done (Skip ahead if you want)
+- Library lists lessons as cards with Done and To do marks
+- Export lesson, Restart, and Clear history are icon buttons with tooltips
 
 ### Fixed
 
+- Library no longer lists courses by filename, so Craft no longer appears before Placement
 - A crashing program can no longer pass a play goal (exit code 0 required)
 - Runtime output and errors show on grid lessons
 - Player API lint ignores comments and strings

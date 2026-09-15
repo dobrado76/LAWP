@@ -1,0 +1,130 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.async"
+  ],
+  "id": "parallel-vs-sequence",
+  "courseId": "event-loop",
+  "moduleId": "async-code",
+  "title": "Promise.all vs await-in-loop",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three waits, two stories\n\n`await Player.wait(1)` three times in a row is **sequence**. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together.\n\nThe fox still only moves after you say so. Use `wait` then walk east to (3, 0). Sequence is fine here — the lesson is that `all` would overlap the pauses."
+    },
+    {
+      "type": "predict",
+      "id": "all-overlap",
+      "promptMd": "`Promise.all` of three waits…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "sum",
+          "md": "Always adds the times"
+        },
+        {
+          "id": "max",
+          "md": "Finishes when the slowest finishes (they overlap)"
+        }
+      ],
+      "answer": "max"
+    },
+    {
+      "type": "code",
+      "id": "three-waits",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `await Player.wait(1)` three times (or `Promise.all`), then walk east to (3, 0).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "async function go() { await Player.wait(1); await Player.wait(1); await Player.wait(1); for (let i = 0; i < 3; i++) Player.move(\"east\") }\ngo()"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function go() {\n  await Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])\n  Player.move(\"east\")\n  Player.move(\"east\")\n  Player.move(\"east\")\n}\ngo()"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

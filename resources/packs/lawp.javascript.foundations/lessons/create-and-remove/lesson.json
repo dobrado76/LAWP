@@ -1,0 +1,78 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.dom"
+  ],
+  "id": "create-and-remove",
+  "courseId": "the-page",
+  "moduleId": "tree",
+  "title": "createElement and append",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Grow the tree\n\n`document.createElement(\"li\")`, set `textContent`, `ul.append(li)`.\n\n`li.remove()` takes a node off. Do not concatenate HTML strings to add one item."
+    },
+    {
+      "type": "predict",
+      "id": "append-parent",
+      "promptMd": "After `ul.append(li)`, `li.parentNode` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "doc",
+          "md": "`document`"
+        },
+        {
+          "id": "ul",
+          "md": "The `ul`"
+        }
+      ],
+      "answer": "ul"
+    },
+    {
+      "type": "code",
+      "id": "add-li",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Create an `li` with text `East` and append it to `#list`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const li = document.createElement(\"li\"); li.textContent = \"East\"; list.append(li)"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const li = document.createElement(\"li\")\nli.textContent = \"East\"\ndocument.querySelector(\"#list\").append(li)"
+        }
+      ]
+    }
+  ]
+}

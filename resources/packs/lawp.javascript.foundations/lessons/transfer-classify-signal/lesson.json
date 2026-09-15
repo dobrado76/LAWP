@@ -1,0 +1,86 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.values",
+    "js.flow"
+  ],
+  "id": "transfer-classify-signal",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "Transfer: classify a signal",
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Name the kind, honestly\n\n`classify(value)` should return:\n\n- `\"empty\"` for `null` or `undefined`\n- `\"zero\"` for `0` or `\"\"`\n- `\"list\"` for arrays\n- `\"text\"` for other strings\n- `\"other\"` for everything else\n\n`typeof null` is `\"object\"` — do not trust it. Use `value == null` or check `null` / `undefined` first."
+    },
+    {
+      "type": "predict",
+      "id": "null-first",
+      "promptMd": "If you write `typeof value === \"object\"` first, `null` is labelled…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "object",
+          "md": "as an object — that is the trap",
+          "misconceptionId": "null-is-object-ok"
+        },
+        {
+          "id": "empty",
+          "md": "empty only if you checked null first"
+        }
+      ],
+      "answer": "object"
+    },
+    {
+      "type": "code",
+      "id": "classify",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Print `classify(null)` (`empty`). Hidden tests cover the other labels.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "empty"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Check null and undefined before typeof."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Array.isArray tells lists apart from plain objects."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function classify(value) {\n  if (value === null || value === undefined) return \"empty\"\n  if (value === 0 || value === \"\") return \"zero\"\n  if (Array.isArray(value)) return \"list\"\n  if (typeof value === \"string\") return \"text\"\n  return \"other\"\n}\nconsole.log(classify(null))\nmodule.exports = { classify }"
+        }
+      ]
+    }
+  ]
+}

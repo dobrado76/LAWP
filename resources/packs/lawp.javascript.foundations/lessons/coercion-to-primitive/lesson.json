@@ -1,0 +1,76 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.values",
+    "js.objects"
+  ],
+  "id": "coercion-to-primitive",
+  "courseId": "internals",
+  "moduleId": "objects-deep",
+  "title": "Coercion to primitive",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## `+` and `==` ask an object for a primitive\n\n`[] + []` is `\"\"`. `[] == false` is `true` because both sides coerce. `{ valueOf() { return 1 } } + 1` is `2`.\n\nPrefer `===` and explicit `Number` / `String`. The Why is: the language has a ToPrimitive walk, not a moral about “empty”."
+    },
+    {
+      "type": "predict",
+      "id": "empty-array-eq",
+      "promptMd": "`[] == false` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "false",
+          "md": "false — an array is an object"
+        },
+        {
+          "id": "true",
+          "md": "true — both coerce toward 0"
+        }
+      ],
+      "answer": "true"
+    },
+    {
+      "type": "code",
+      "id": "valueof",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `asNumber` returns `Number(box)` where `box.valueOf` returns `2`. Print `2`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const box = { valueOf() { return 2 } }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function asNumber() {\n  const box = { valueOf() { return 2 } }\n  return Number(box)\n}\nconsole.log(asNumber())\nmodule.exports = { asNumber }"
+        }
+      ]
+    }
+  ]
+}

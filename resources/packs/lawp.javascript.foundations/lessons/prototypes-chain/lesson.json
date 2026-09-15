@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.proto"
+  ],
+  "id": "prototypes-chain",
+  "courseId": "internals",
+  "moduleId": "objects-deep",
+  "title": "The prototype chain",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Shared methods live on the prototype\n\n`Object.getPrototypeOf(obj)` is the next place JS looks for a field. Many objects share one method object. That is `[[Prototype]]`, not a copy of the function on every instance."
+    },
+    {
+      "type": "predict",
+      "id": "shared-method",
+      "promptMd": "Two objects from the same prototype share…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "own",
+          "md": "A private copy of each method"
+        },
+        {
+          "id": "one",
+          "md": "One method function on the prototype"
+        }
+      ],
+      "answer": "one"
+    },
+    {
+      "type": "code",
+      "id": "read-proto",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `protoName()` returns `Object.getPrototypeOf({}).constructor.name` (`Object`). Print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "Object"
+        },
+        {
+          "type": "ast",
+          "query": "getPrototypeOf"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Object.getPrototypeOf({}) is Object.prototype."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function protoName() {\n  return Object.getPrototypeOf({}).constructor.name\n}\nconsole.log(protoName())\nmodule.exports = { protoName }"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.security"
+  ],
+  "id": "proto-pollution",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "Prototype pollution",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Do not merge untrusted keys onto Object.prototype\n\n`obj.__proto__` or a merge of `{ \"__proto__\": { polluted: true } }` can change **every** object.\n\nSafe dictionaries: `Object.create(null)` or `Object.assign` onto a new object **without** copying `__proto__`. `Object.freeze(Object.prototype)` is a belt.\n\n`safeMerge(target, src)` copies only own keys that are not `__proto__` or `constructor`."
+    },
+    {
+      "type": "predict",
+      "id": "proto-key",
+      "promptMd": "Merging `src[\"__proto__\"]` onto a shared object…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fine",
+          "md": "Is a normal field merge",
+          "misconceptionId": "proto-merge-ok"
+        },
+        {
+          "id": "danger",
+          "md": "Can change Object.prototype for everyone"
+        }
+      ],
+      "answer": "danger"
+    },
+    {
+      "type": "code",
+      "id": "safe-merge",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `safeMerge({}, { __proto__: { x: 1 }, name: \"n\" }).name` prints `n`. Hidden: prototype stays clean.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "n"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Skip keys __proto__, constructor, prototype."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function safeMerge(target, src) {\n  const out = Object.assign(Object.create(null), target)\n  for (const key of Object.keys(src)) {\n    if (key === \"__proto__\" || key === \"constructor\" || key === \"prototype\") continue\n    out[key] = src[key]\n  }\n  return out\n}\nconsole.log(safeMerge({}, { name: \"n\" }).name)\nmodule.exports = { safeMerge }"
+        }
+      ]
+    }
+  ]
+}

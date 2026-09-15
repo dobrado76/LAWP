@@ -1,0 +1,80 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.test",
+    "js.functions"
+  ],
+  "id": "transfer-test-the-fox",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "Transfer: tests for walk(dirs)",
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Do not look at stdout\n\n`walk(dirs)` returns the end `{ x, y }` starting from `{ x: 0, y: 0 }` without calling `Player`. Tests check the object.\n\nPrint `3,2` for three east and two south."
+    },
+    {
+      "type": "predict",
+      "id": "pure-walk",
+      "promptMd": "`walk` in this lesson should…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "player",
+          "md": "Call Player.move so the test watches the stage"
+        },
+        {
+          "id": "return",
+          "md": "Return coordinates the test can assert"
+        }
+      ],
+      "answer": "return"
+    },
+    {
+      "type": "code",
+      "id": "pure-end",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `walk([\"east\",\"east\",\"east\",\"south\",\"south\"])` → print `3,2`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "3,2"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "east +x, west -x, south +y, north -y."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function walk(dirs) {\n  let x = 0, y = 0\n  for (const d of dirs) {\n    if (d === \"east\") x += 1\n    if (d === \"west\") x -= 1\n    if (d === \"south\") y += 1\n    if (d === \"north\") y -= 1\n  }\n  return { x, y }\n}\nconst p = walk([\"east\", \"east\", \"east\", \"south\", \"south\"])\nconsole.log(p.x + \",\" + p.y)\nmodule.exports = { walk }"
+        }
+      ]
+    }
+  ]
+}

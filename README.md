@@ -49,7 +49,7 @@ npm run dist
 
 ## What you can do today
 
-**Learn.** Open **circuits** and make a lamp brighter without blowing the limit. Walk a **fox** to a beacon in JavaScript or Python. Your edits come back when you change lessons. Restart restores starters and keeps history.
+**Learn.** Open **circuits** and make a lamp brighter without blowing the limit. Walk a **fox** to a beacon in Python, or take the full **JavaScript** expert path (language, DOM, Node, tests). Your edits come back when you change lessons. Restart restores starters and keeps history.
 
 **See why.** A miss names a misconception — or asks a diagnostic instead of faking one. Concept hints are free. Assist hints mark the attempt.
 

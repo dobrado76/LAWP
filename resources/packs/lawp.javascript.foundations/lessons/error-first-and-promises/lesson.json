@@ -1,0 +1,84 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.node.fs",
+    "js.async"
+  ],
+  "id": "error-first-and-promises",
+  "courseId": "the-process",
+  "moduleId": "style",
+  "title": "fs.promises",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## From callbacks to promises\n\nOld Node: `fs.readFile(path, (err, data) => …)` — error first. New: `await fs.promises.readFile(path, \"utf8\")` and `try/catch`.\n\nRead `note.txt` and print `north`."
+    },
+    {
+      "type": "predict",
+      "id": "err-first",
+      "promptMd": "In `fs.readFile(path, cb)`, the first callback argument is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "data",
+          "md": "The file text"
+        },
+        {
+          "id": "err",
+          "md": "An error or `null`"
+        }
+      ],
+      "answer": "err"
+    },
+    {
+      "type": "code",
+      "id": "promises-read",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `async function load()` uses `fs.promises` to read `note.txt`. Print trimmed `north`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/note.txt",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "north"
+        },
+        {
+          "type": "ast",
+          "query": "promises"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "await fs.promises.readFile(\"note.txt\", \"utf8\")"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const fs = require(\"fs\")\nasync function load() {\n  return (await fs.promises.readFile(\"note.txt\", \"utf8\")).trim()\n}\nload().then((v) => console.log(v))\nmodule.exports = { load }"
+        }
+      ]
+    }
+  ]
+}

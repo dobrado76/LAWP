@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.values"
+  ],
+  "id": "numbers-and-nan",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Numbers and NaN",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Not a Number is still a number kind\n\n`Number(\"fox\")` is `NaN`. `typeof NaN` is `\"number\"`. `NaN === NaN` is **false**. Use `Number.isNaN(x)` when you mean “this failed to become a number.”"
+    },
+    {
+      "type": "predict",
+      "id": "nan-equals",
+      "promptMd": "`NaN === NaN` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "true",
+          "md": "true"
+        },
+        {
+          "id": "false",
+          "md": "false"
+        }
+      ],
+      "answer": "false"
+    },
+    {
+      "type": "code",
+      "id": "is-nan",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `failedNumber(\"fox\")` returns `true` using `Number.isNaN`. Print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "true"
+        },
+        {
+          "type": "ast",
+          "query": "Number.isNaN"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Number(\"fox\") is NaN. Number.isNaN tells you that on purpose."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function failedNumber(text) { return Number.isNaN(Number(text)) }\nconsole.log(failedNumber(\"fox\"))\nmodule.exports = { failedNumber }"
+        }
+      ]
+    }
+  ]
+}

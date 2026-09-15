@@ -1,0 +1,75 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.modules"
+  ],
+  "id": "cjs-vs-esm-node",
+  "courseId": "the-process",
+  "moduleId": "style",
+  "title": "require vs import",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two module systems\n\n`require` / `module.exports` is CommonJS. `import` / `export` is ESM. Node picks ESM for `.mjs` or `\"type\": \"module\"`.\n\nThis lesson is ESM: export `ping` and print `pong`."
+    },
+    {
+      "type": "predict",
+      "id": "which-file",
+      "promptMd": "A `.mjs` file is treated as…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "cjs",
+          "md": "CommonJS"
+        },
+        {
+          "id": "esm",
+          "md": "ESM"
+        }
+      ],
+      "answer": "esm"
+    },
+    {
+      "type": "code",
+      "id": "esm-ping",
+      "engine": "javascript",
+      "entry": "main.mjs",
+      "promptMd": "> `export function ping()` returns `pong`. Print it.",
+      "files": [
+        {
+          "path": "files/main.mjs",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.mjs",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "pong"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "export function ping() { return \"pong\" }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "export function ping() { return \"pong\" }\nconsole.log(ping())"
+        }
+      ]
+    }
+  ]
+}

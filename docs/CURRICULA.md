@@ -103,48 +103,103 @@ NumPy / pandas / ML. Do not stub empty courses for them.
 
 ---
 
-## Track B — JavaScript: Language of the web (without the framework)
+## Track B — JavaScript: Working expert
 
-**Pack id:** `lawp.javascript.foundations`  
+**Pack id:** `lawp.javascript.foundations` (progress keys stay on this id)  
 **Engine:** `javascript`  
-**Level:** beginner → intermediate  
+**Level:** beginner → working expert (~80–100 h)  
+**Story:** signal / fox / beacon. Never ninja-sushi. React is Track C, not this pack.
 
-### Goals
+A working expert can **predict** what JS will do, **prove** it with a small program or test, and **explain why** — including coercion, `this`, the event loop, prototypes, and XSS. Not a V8 engineer. Not a React specialist.
 
-Values, equality, functions, arrays/objects, modules (ESM), DOM *ideas* in a tiny harness, async `fetch` against a **local mock**.
+**In scope:** language semantics, modules, async, DOM/events/fetch, Node `fs`/`path`/`process`, assertions, fixtures, basic security and performance judgment.  
+**Out of scope:** writing an engine, WebGL/WebRTC/service workers as a track, TypeScript-as-product, cloud/DevOps.
 
-Avoid “Ninja collects sushi”. Use **signal beacons / fox** play engine (`grid-js`) for early functions/loops.
+The grid teaches sequence, reuse, and transformation of **write-only** `player-v1` commands (`move` / `rotate` / `scale` / `say` / `wait`). Conditionals live in JS; the stage shows the consequence. DOM, HTTP, event-loop order, modules, XSS, and prototype pollution are **not** faked as tiles.
 
-### Diagnostic
+### Course 0 — Placement (~25 min)
 
-literals, `===` vs `==`, closures sniff, `map`/`filter`, promise vs callback sniff.
+`js-placement` — skip-aware `check` battery: `typeof` / `===` / truthiness / closure sniff / `map` vs mutate / promise vs callback / `this` sniff / DOM query sniff. No grid.
 
-### Course 1 — Values and flow (~3 h)
+### Course 1 — Values you can see (~4 h)
 
-`let`/`const`; primitives; strict equality; `if`; loops; truthy pitfalls (`0`, `""`). Predict-the-output heavily.
+`values-and-typeof`, `names-let-const`, `strings-and-templates`, `numbers-and-nan`, `triple-equals`, `truth-and-if`, `transfer-classify-signal`.
 
-### Course 2 — Functions as values (~3 h)
+Predict-heavy; tiny stdout; one “say the type” closer. Misconceptions: `null-is-object-ok`, `const-means-immutable`, `double-equals-is-fine`.
 
-Declarations vs expressions; arrow functions; scope; closures with a *purpose* (makeCounter).  
-Play: commands as functions in an object map.
+### Course 2 — Commands on the stage (~5 h)
 
-### Course 3 — Data (~4 h)
+`functions-call`, `beacon-call`, `return-not-print`, `parameters-and-defaults`, `loops-for`, `loops-while-break`, `keyed-beacon`, `debug-off-by-one-path`.
 
-Arrays (immutability habit: `map`/`filter`/`reduce` with one reduce that is justified); objects; spread; destructure; JSON.parse/stringify errors.
+Grid first. Course id stays `signals`. Misconceptions: `print-is-return`, `off-by-one-inclusive`.
 
-### Course 4 — The DOM as a tree (~3 h)
+### Course 3 — Data that becomes a path (~6 h)
 
-Not a full browser unit: sandboxed HTML fixture + JS that queries/updates. Events: click, input.  
-Transfer: filter a list UI.
+`arrays-index`, `arrays-map`, `arrays-filter-find`, `arrays-reduce-once`, `objects-props`, `reference-vs-copy`, `destructure-spread`, `json-roundtrip`, `signal-log`.
 
-### Course 5 — Async (~3 h)
+Grid + stdout. One justified `reduce`. Creation: signal log. Misconceptions: `arrays-are-copied-by-assign`, `map-mutates`.
 
-`Promise`, `async/await`, error paths. Mock `fetch` in the harness.  
-Project: tiny “library search” against fixture JSON.
+### Course 4 — Scope and functions as tools (~6 h)
 
-### Course 6 — Modules and hygiene (~2 h)
+`scope-and-tdz`, `closures-radio`, `callbacks-as-commands`, `arrow-vs-function`, `higher-order-route`, `stale-closure-debug`, `transfer-command-table`.
 
-ESM import/export; why bundlers exist (concept `explain`); `===` lint-ish AST check for `==` in learner file.
+Grid for HOFs; predict for `this` / TDZ. Misconceptions: `closure-copies-value`, `arrow-is-just-shorter`.
+
+### Course 5 — Errors you can recover from (~3 h)
+
+`throw-and-catch`, `finally-and-rethrow`, `custom-errors`, `debug-read-the-stack`.
+
+Bad dir: catch, `say` the fault, still finish the goal.
+
+### Course 6 — The language under the hood (~10 h)
+
+`coercion-to-primitive`, `prototypes-chain`, `new-and-create`, `classes-syntax`, `this-call-apply-bind`, `descriptors-get-set`, `symbols`, `weak-collections`, `iterators-for-of`, `generators`, `proxies-reflect`, `transfer-model-a-part`.
+
+Predict + small objects; grid only where a part can be an instance.
+
+### Course 7 — Time: the event loop (~8 h)
+
+`stack-vs-heap`, `macrotasks-timeout`, `microtasks-then`, `promises-states`, `async-await`, `async-errors`, `parallel-vs-sequence`, `async-iterators`, `transfer-beacon-dispatch`, `debug-forgotten-await`.
+
+Dispatch-desk `world-v1` first; timed fox walks use `Player.wait(ticks)` (D43). Misconceptions: `await-blocks-the-os`, `then-and-timeout-same-queue`.
+
+### Course 8 — The page is a tree (~8 h)
+
+`tree-not-string`, `query-and-update`, `create-and-remove`, `events-bubble`, `delegation`, `forms-and-input`, `a11y-name-and-role`, `xss-text-vs-html`, `transfer-filter-list-ui`, `creation-signal-board`.
+
+Sandboxed fixture HTML + learner JS. Grade in main (happy-dom). Visual iframe is display-only.
+
+### Course 9 — Talking to servers (~5 h)
+
+`http-as-messages`, `fetch-ok-and-fail`, `json-body`, `abort-and-timeout`, `cors-mental-model`, `transfer-library-search`.
+
+App `fetch` stub + fixture JSON. `capabilities.network: false` stays honest — no real network.
+
+### Course 10 — The process (~8 h)
+
+`process-argv-env`, `fs-read-write`, `paths-and-encoding`, `buffers-vs-strings`, `streams-idea`, `cjs-vs-esm-node`, `error-first-and-promises`, `transfer-clean-a-log`, `creation-log-scrubber`.
+
+Node sandbox already real. Files stay under the run cwd. ESM lessons use the ESM boot.
+
+### Course 11 — Craft (~8 h) + capstone
+
+`assert-and-aaa`, `fixtures-and-hidden-tests`, `mocking-time-and-fs`, `why-bundlers`, `modules-esm-files`, `ast-and-lint`, `proto-pollution`, `measure-then-change`, `jsdoc-contracts`, `transfer-test-the-fox`, `capstone-signal-ops`.
+
+`ast` checks are substring stand-ins; the lint lesson says so. Capstone is multi-file: route module + log cleaner + hidden tests + Why writeup.
+
+### Skills
+
+`js.values`, `js.flow`, `js.functions`, `js.arrays`, `js.objects`, `js.closures`, `js.errors`, `js.proto`, `js.this`, `js.iter`, `js.async`, `js.modules`, `js.dom`, `js.events`, `js.http`, `js.node.fs`, `js.test`, `js.security`.
+
+### Runtime notes
+
+- Hidden `js-assert` on every `code` lesson (visible check + hidden check)
+- ESM boot for `import` / `.mjs` (not `require()` only)
+- `Player.wait(ticks)` is app-owned; stubs log `{ op: "wait", ticks }`; Studio replay delays
+- DOM grade uses happy-dom **in main**; iframe is preview
+- Mock `fetch` reads lesson fixtures; no internet
+- Node `fs` is the existing sandbox — not an OS firewall
+- Do not stub empty courses. A course is not in the Library until its lessons validate.
 
 ---
 
@@ -205,5 +260,5 @@ Each course has:
 
 1. **Circuits** — playable non-code + Author zip round-trip
 2. **Python Course 1** — same Why / progress / creation shells
-3. **JavaScript** — values, functions, `world-v1` grid
+3. **JavaScript** — working-expert path (values through Node, DOM, tests) on the fox/beacon grid plus DOM/fetch harnesses
 4. **React** — continuing creation (preview is still Node-backed; see [STATUS.md](STATUS.md))

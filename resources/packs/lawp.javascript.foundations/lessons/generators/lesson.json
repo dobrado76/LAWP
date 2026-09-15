@@ -1,0 +1,134 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.iter"
+  ],
+  "id": "generators",
+  "courseId": "internals",
+  "moduleId": "meta",
+  "title": "function* yields the next step",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Pause, yield, resume\n\n`function* steps() { yield \"east\"; yield \"south\" }` returns a generator. `for...of` pulls each yield.\n\nThe fox walks what you yield."
+    },
+    {
+      "type": "predict",
+      "id": "yield-pause",
+      "promptMd": "A generator function returns…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "first",
+          "md": "The first yielded value immediately"
+        },
+        {
+          "id": "gen",
+          "md": "A generator object you iterate"
+        }
+      ],
+      "answer": "gen"
+    },
+    {
+      "type": "code",
+      "id": "yield-walk",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `function* route()` yields east twice and south once. Walk to (2, 1).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "ast",
+          "query": "function*"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "for (const d of route()) Player.move(d)"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function* route() {\n  yield \"east\"\n  yield \"east\"\n  yield \"south\"\n}\nfor (const d of route()) Player.move(d)\nmodule.exports = { route }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 1,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "signal-board",
+  "title": "Signal board",
+  "briefMd": "A tiny page that lists beacons. You query the tree; you do not build HTML as one string.",
+  "exportKinds": ["folder", "zip"],
+  "steps": [
+    { "lessonId": "creation-signal-board", "addsMd": "A live list you can filter and keep." }
+  ]
+}

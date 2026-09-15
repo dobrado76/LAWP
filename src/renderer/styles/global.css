@@ -97,8 +97,100 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
   cursor: pointer;
 }
 .card:hover { border-color: var(--accent); }
+.card.is-selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .card h3 { margin: 0 0 6px; font-size: 16px; color: var(--text); }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+
+.library-page { padding-bottom: 48px; }
+.lib-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.lib-title-row h1 { margin: 0; }
+.lib-title-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.lib-split {
+  border: none; border-top: 1px solid var(--border);
+  margin: 28px 0 20px;
+}
+.lib-pack { margin-top: 0; }
+.lib-pack-head {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 12px; margin-bottom: 8px;
+}
+.lib-pack-head h2 { margin: 0 0 4px; }
+.lib-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.lib-next {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  width: 100%; margin: 8px 0 20px; padding: 16px 18px;
+  background: #13241f; border: 1px solid #2a6b63; border-radius: 12px;
+  color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.lib-next:hover { border-color: var(--accent); }
+.lib-next strong { color: var(--text); font-size: 18px; }
+.lib-next.is-done-path {
+  background: var(--bg-2); border-color: var(--border); cursor: default;
+}
+.lib-level { margin: 28px 0 8px; }
+.lib-level.is-locked { opacity: 0.72; }
+.lib-level-head { margin-bottom: 12px; }
+.lib-level-kicker {
+  margin: 0 0 4px; font-size: 12px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+}
+.lib-level-head h3 { margin: 0; font-size: 16px; font-weight: 500; color: var(--muted); }
+.lib-lock-note {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin: 10px 0 0;
+}
+.lib-course { margin: 0 0 22px; }
+.lib-course.is-locked { opacity: 0.78; padding: 12px 14px; background: var(--bg-2); border: 1px dashed var(--border); border-radius: 12px; }
+.lib-course-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  margin: 0 0 10px;
+}
+.lib-course-head h4 { margin: 0 0 4px; font-size: 15px; color: var(--text); }
+.lib-course-num { color: var(--accent); font-variant-numeric: tabular-nums; }
+.lib-course-why { margin: 0; font-size: 13px; color: var(--muted); max-width: 52ch; }
+.lib-card-top { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
+.lib-step { font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.lib-lesson-card.is-next { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.lib-lesson-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;
+}
+.lib-lesson-card {
+  display: flex; flex-direction: column;
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px;
+  min-height: 168px; overflow: hidden;
+}
+.lib-lesson-card.is-done { border-color: #2d5a3c; }
+.lib-lesson-card.is-progress { border-color: #6a5a28; }
+.lib-lesson-main {
+  flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  background: transparent; border: none; color: inherit; text-align: left;
+  padding: 14px 14px 8px; cursor: pointer; font: inherit;
+}
+.lib-lesson-main:hover { background: var(--bg-3); }
+.lib-lesson-main strong { color: var(--text); font-size: 15px; line-height: 1.3; }
+.lib-lesson-main p {
+  margin: 0; color: var(--muted); font-size: 13px; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.lib-mark {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; border-radius: 999px; padding: 2px 8px;
+}
+.lib-mark.is-done { background: #163325; color: var(--ok); }
+.lib-mark.is-todo { background: var(--bg-3); color: var(--muted); }
+.lib-mark.is-progress { background: #3a3216; color: #e6b84d; }
+.lib-lesson-actions {
+  display: flex; justify-content: flex-end; gap: 4px;
+  padding: 6px 8px 8px; border-top: 1px solid var(--border);
+}
+.icon-btn {
+  padding: 6px; line-height: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.icon-btn svg { width: 16px; height: 16px; display: block; }
 
 .studio-bar {
   display: flex; align-items: center; gap: 10px; flex: 0 0 auto;
@@ -394,6 +486,15 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .code-status .code-lang { color: var(--muted); }
 .author-editor { min-height: 380px; display: flex; flex-direction: column; margin-top: 12px; }
 .output { max-height: 28%; margin: 8px 0 0; white-space: pre-wrap; }
+.dom-preview {
+  width: 100%;
+  min-height: 180px;
+  max-height: 40%;
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  background: #fff;
+  margin-bottom: 8px;
+}
 .fault { color: var(--danger); font-weight: 600; }
 .ok { color: var(--ok); }
 .muted { color: var(--muted); font-size: 13px; }

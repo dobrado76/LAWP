@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { safeJoin } from '../security/paths'
 import { courseSchema, packManifestSchema, trackSchema, type Course, type PackManifest, type Track } from '@shared/schemas/pack'
+import { orderResolved } from '@shared/catalog'
 import { lessonSchema, parseLessonBlocks } from '@shared/schemas/lesson'
 import { bundledPacksRoot, userPacksRoot } from '../paths'
 
@@ -76,10 +77,14 @@ function loadSidecars(packDir: string): Pick<ResolvedPack, 'tracks' | 'courses' 
   return { tracks, courses, skills: Array.isArray(skills) ? skills : [skills], misconceptions: Array.isArray(misconceptions) ? misconceptions : [misconceptions], creations }
 }
 
+function finish(pack: ResolvedPack): ResolvedPack {
+  return orderResolved(pack)
+}
+
 function loadFull(packDir: string, source: 'bundled' | 'user'): ResolvedPack {
   const manifest = packManifestSchema.parse(readJson(join(packDir, 'pack.json')))
   const lessons = listLessonIds(packDir).map((id) => loadLesson(join(packDir, 'lessons', id), source))
-  return {
+  return finish({
     packId: manifest.id,
     root: packDir,
     overlay: false,
@@ -87,7 +92,7 @@ function loadFull(packDir: string, source: 'bundled' | 'user'): ResolvedPack {
     manifest,
     lessons,
     ...loadSidecars(packDir)
-  }
+  })
 }
 
 export function listPackIds(): string[] {
@@ -120,13 +125,13 @@ export function resolvePack(packId: string): ResolvedPack | null {
     if (idx >= 0) lessons[idx] = overlayLesson
     else lessons.push(overlayLesson)
   }
-  return {
+  return finish({
     ...base,
     source: 'merged',
     overlay: true,
     lessons,
     manifest: { ...base.manifest, overlay: true }
-  }
+  })
 }
 
 export function lessonById(pack: ResolvedPack, lessonId: string): ResolvedLesson | undefined {

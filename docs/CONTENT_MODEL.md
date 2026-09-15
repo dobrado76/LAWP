@@ -340,7 +340,7 @@ type ValueOrExpr =
 
 `play` with `engine: "grid-js"` is a **view skin** of `world-v1` (`view.kind: "grid"`) plus fox/beacon assets — not a second platform.
 
-Graphical **code** lessons opt in with `play` on the `code` / `debug` block (D43). Learner Python/JS calls `Player.move` / `rotate` / `scale` / `say`. App stubs append a command log; **main** applies that log to `world-v1` (clamp to `view.grid`, default 5×5) and grades the resulting world. Parts with `solid: true` block a step (the player stays put). Parts with `collect: true` set `taken: true` when the player steps on their cell. Unknown methods or bad args write a `fault` command — `passed` is false. Studio draws tiles + `assetMap` sprites, axis labels, a facing readout, and a live checklist from `play.goal`. `play.guided: true` keeps compass copy visible (intro). Puzzle lessons omit `guided` and put the route on Hint. Missing asset → typed tile, no invented geometry. Circuits `view.kind: "graph"` is unchanged.
+Graphical **code** lessons opt in with `play` on the `code` / `debug` block (D43). Learner Python/JS calls `Player.move` / `rotate` / `scale` / `say` / `wait(ticks)`. App stubs append a command log; **main** applies that log to `world-v1` (clamp to `view.grid`, default 5×5) and grades the resulting world. `wait` does not move the fox; Studio replay delays that many ticks. Parts with `solid: true` block a step (the player stays put). Parts with `collect: true` set `taken: true` when the player steps on their cell. Unknown methods or bad args write a `fault` command — `passed` is false. Studio draws tiles + `assetMap` sprites, axis labels, a facing readout, and a live checklist from `play.goal`. `play.guided: true` keeps compass copy visible (intro). Puzzle lessons omit `guided` and put the route on Hint. Missing asset → typed tile, no invented geometry. Circuits `view.kind: "graph"` is unchanged.
 
 #### `world-v1` semantics (normative)
 
@@ -354,6 +354,8 @@ Implement these rules. The **brighter-lamp** example below is the conformance te
 4. Push a view model from `view` (below).
 
 **Paths.** `lamp.brightness` means `parts` id `lamp` → `props.brightness`. Missing part or key: the Property is **false**; a `set` **creates** the key on an existing part. `set` on a missing part is a no-op (do not throw).
+
+JavaScript `code` blocks may also: boot as **ESM** when the entry is `.mjs` or files use `import`/`export`; run a **hidden `js-assert`** after the learner entry (visible stdout or play plus hidden); grade **DOM** fixtures with happy-dom in main (`preview.kind: "iframe"` is display-only); and use an app **`fetch` stub** that reads lesson fixture JSON (no network). Optional `argv` / `env` on the block are passed to the sandbox process.
 
 **ValueOrExpr.** `a` / `b` that are strings are paths; numbers are literals. **v1 numbers are IEEE floats.** Division by zero (or non-finite result): skip that `set` row, do not throw, set **`run.calcFault = "div-by-zero"`** (a field on the **run** in main — not a synthetic `_engine` part, not a pack-visible world prop). Other arithmetic is ordinary IEEE floats.
 

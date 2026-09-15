@@ -80,4 +80,126 @@ describe('code run grading', () => {
     expect(out.play?.passed).toBe(true)
     expect(out.passed).toBe(true)
   })
+
+  it('runs hidden js-assert after the learner entry', async () => {
+    const { executeCodeBlock } = await import('@main/runners/code')
+    const block: CodeBlock = {
+      type: 'code',
+      id: 'hidden',
+      engine: 'javascript',
+      entry: 'main.js',
+      files: [
+        { path: 'files/main.js', role: 'edit', contents: '' },
+        {
+          path: 'files/hidden.test.js',
+          role: 'hidden-test',
+          contents: `const assert = require('assert')\nconst { label } = require('./main.js')\nassert.strictEqual(label(), 'beacon')\n`
+        }
+      ],
+      checks: [
+        { type: 'stdout', equals: 'beacon' },
+        { type: 'js-assert' }
+      ]
+    }
+    const fail = await executeCodeBlock(root, block, [
+      { path: 'files/main.js', contents: `function label() { return 'nope' }\nconsole.log(label())\nmodule.exports = { label }\n` }
+    ])
+    expect(fail.passed).toBe(false)
+    const ok = await executeCodeBlock(root, block, [
+      { path: 'files/main.js', contents: `function label() { return 'beacon' }\nconsole.log(label())\nmodule.exports = { label }\n` }
+    ])
+    expect(ok.stdout.trim()).toBe('beacon')
+    expect(ok.passed).toBe(true)
+  })
+
+  it('boots ESM import/export', async () => {
+    const { executeCodeBlock } = await import('@main/runners/code')
+    const block: CodeBlock = {
+      type: 'code',
+      id: 'esm',
+      engine: 'javascript',
+      entry: 'main.mjs',
+      files: [
+        { path: 'files/main.mjs', role: 'edit', contents: '' },
+        {
+          path: 'files/hidden.test.mjs',
+          role: 'hidden-test',
+          contents: `import assert from 'node:assert'\nimport { ping } from './main.mjs'\nassert.strictEqual(ping(), 'pong')\n`
+        }
+      ],
+      checks: [
+        { type: 'stdout', equals: 'pong' },
+        { type: 'js-assert' }
+      ]
+    }
+    const out = await executeCodeBlock(root, block, [
+      { path: 'files/main.mjs', contents: `export function ping() { return 'pong' }\nconsole.log(ping())\n` }
+    ])
+    expect(out.passed).toBe(true)
+  })
+
+  it('mocks fetch from a fixture and honors abort', async () => {
+    const { executeCodeBlock } = await import('@main/runners/code')
+    const block: CodeBlock = {
+      type: 'code',
+      id: 'fetch',
+      engine: 'javascript',
+      entry: 'main.js',
+      timeoutMs: 4000,
+      files: [
+        { path: 'files/main.js', role: 'edit', contents: '' },
+        { path: 'files/beacons.json', role: 'fixture', contents: '{"ok":true}' },
+        {
+          path: 'files/routes.json',
+          role: 'fixture',
+          contents: JSON.stringify({ '/slow': { file: 'beacons.json', delayMs: 400 } })
+        },
+        {
+          path: 'files/hidden.test.js',
+          role: 'hidden-test',
+          contents: `const assert = require('assert')\nconst { read } = require('./main.js')\nassert.ok(typeof read === 'function')\n`
+        }
+      ],
+      checks: [
+        { type: 'stdout', equals: 'true' },
+        { type: 'js-assert' }
+      ]
+    }
+    const out = await executeCodeBlock(root, block, [
+      {
+        path: 'files/main.js',
+        contents: `async function read() {\n  const res = await fetch('/beacons.json')\n  const data = await res.json()\n  console.log(data.ok)\n  return data\n}\nread()\nmodule.exports = { read }\n`
+      }
+    ])
+    expect(out.passed).toBe(true)
+  })
+
+  it('grades DOM fixtures in main with happy-dom', async () => {
+    const { executeCodeBlock } = await import('@main/runners/code')
+    const block: CodeBlock = {
+      type: 'code',
+      id: 'dom',
+      engine: 'javascript',
+      entry: 'main.js',
+      preview: { kind: 'iframe' },
+      files: [
+        { path: 'files/index.html', role: 'fixture', contents: '<!doctype html><html><body><h1 id="t">old</h1></body></html>' },
+        { path: 'files/main.js', role: 'edit', contents: '' },
+        {
+          path: 'files/hidden.test.js',
+          role: 'hidden-test',
+          contents: `assert.strictEqual(document.querySelector('#t').textContent, 'Beacon')\n`
+        }
+      ],
+      checks: [{ type: 'js-assert' }]
+    }
+    const miss = await executeCodeBlock(root, block, [
+      { path: 'files/main.js', contents: `document.querySelector('#t').textContent = 'nope'\n` }
+    ])
+    expect(miss.passed).toBe(false)
+    const ok = await executeCodeBlock(root, block, [
+      { path: 'files/main.js', contents: `document.querySelector('#t').textContent = 'Beacon'\n` }
+    ])
+    expect(ok.passed).toBe(true)
+  })
 })

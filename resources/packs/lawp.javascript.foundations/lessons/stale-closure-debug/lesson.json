@@ -1,0 +1,131 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.closures"
+  ],
+  "id": "stale-closure-debug",
+  "courseId": "scope-hofs",
+  "moduleId": "scope",
+  "title": "Debug: the last direction",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One binding, many callbacks\n\nA loop with `var i` (or one `let dir` you overwrite) makes every callback see the **last** value. The fox repeats the last dir.\n\nFix it: `let` in the loop, or `dirs.forEach((dir) => { ... })` so each callback has its own `dir`."
+    },
+    {
+      "type": "predict",
+      "id": "var-loop",
+      "promptMd": "Three `var` callbacks scheduled in a loop over `east, south, west` often all see…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "each",
+          "md": "Their own dir from that iteration",
+          "misconceptionId": "closure-copies-value"
+        },
+        {
+          "id": "last",
+          "md": "The last dir after the loop finishes"
+        }
+      ],
+      "answer": "last"
+    },
+    {
+      "type": "debug",
+      "id": "fix-stale",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> The starter queues movers that all walk the last dir. Fix them so the path is east, south (1, 1).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "forEach gives each function its own dir parameter."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const dirs = [\"east\", \"south\"]\nconst movers = dirs.map((dir) => () => Player.move(dir))\nfor (const go of movers) go()"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 1,
+                "y": 1,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 1
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

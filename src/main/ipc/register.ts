@@ -9,6 +9,7 @@ import { activityBlockSchema, executableBlockSchema, lessonSchema } from '@share
 import { app } from 'electron'
 import { iconPath, releaseNotesPath, userDataRoot, userPacksRoot } from '../paths'
 import { extractMinorNotes, minorKey } from '@shared/versioning'
+import { lessonBlurb } from '@shared/catalog'
 import { exportSettingsDocument, grantTrust, hasTrust, loadSettings, updateSettings } from '../settings/store'
 import { loadSession, saveSession } from '../session/store'
 import {
@@ -219,7 +220,9 @@ export function registerIpc(): void {
           estimatedMinutes: l.raw.estimatedMinutes,
           skillIds: l.raw.skillIds,
           taskRev: l.raw.taskRev,
-          source: l.source
+          source: l.source,
+          courseId: l.raw.courseId,
+          description: lessonBlurb(l.raw.blocks)
         })),
         skills: p.skills,
         misconceptions: p.misconceptions,

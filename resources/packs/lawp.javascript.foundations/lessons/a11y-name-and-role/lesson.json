@@ -1,0 +1,78 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.dom"
+  ],
+  "id": "a11y-name-and-role",
+  "courseId": "the-page",
+  "moduleId": "live",
+  "title": "Accessible name and role",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A button should be a button\n\nA `div` with a click is a trap for keyboard and screen readers. Use `<button>`. The **accessible name** is often the text content, or `aria-label`.\n\nSet the button’s label to `Call north` using `textContent` — not `innerHTML` for this plain phrase."
+    },
+    {
+      "type": "predict",
+      "id": "div-click",
+      "promptMd": "A `div` with `onclick` is a good button?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "yes",
+          "md": "Yes — click is enough"
+        },
+        {
+          "id": "no",
+          "md": "No — it misses role, keyboard, and name by default"
+        }
+      ],
+      "answer": "no"
+    },
+    {
+      "type": "code",
+      "id": "name-button",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `#call` is a button. Set its accessible name (text) to `Call north`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "textContent is the name for a button with no aria-label."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "document.querySelector(\"#call\").textContent = \"Call north\""
+        }
+      ]
+    }
+  ]
+}

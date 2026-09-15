@@ -1,28 +1,82 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "signal-log",
   "packId": "lawp.javascript.foundations",
-  "courseId": "signals",
-  "moduleId": "arrays",
-  "title": "Signal log",
-  "skillIds": ["js.functions", "js.arrays"],
+  "taskRev": 2,
   "estimatedMinutes": 20,
-  "taskRev": 1,
-  "creation": { "id": "signal-log", "step": 1, "briefMd": "logBeacon returns a tagged line." },
+  "skillIds": [
+    "js.functions",
+    "js.arrays"
+  ],
+  "id": "signal-log",
+  "courseId": "data",
+  "moduleId": "records",
+  "title": "Signal log",
+  "creation": {
+    "id": "signal-log",
+    "step": 1,
+    "briefMd": "logBeacon returns a tagged line the hidden tests also run."
+  },
   "blocks": [
     {
       "type": "explain",
-      "md": "## A log you keep\n\n`logBeacon(name)` should return `beacon:name`. The two prints must be `beacon:north` then `beacon:east`."
+      "md": "## A log you keep\n\n`logBeacon(name)` should return `beacon:name`. Print `beacon:north` then `beacon:east`.\n\nHidden tests call your function with other names. Do not only print two literals."
+    },
+    {
+      "type": "predict",
+      "id": "return-tag",
+      "promptMd": "If `logBeacon` only prints and returns nothing, a later test that reads the return gets…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "line",
+          "md": "The printed line"
+        },
+        {
+          "id": "undef",
+          "md": "`undefined`",
+          "misconceptionId": "print-is-return"
+        }
+      ],
+      "answer": "undef"
     },
     {
       "type": "code",
       "id": "log-fn",
       "engine": "javascript",
       "entry": "main.js",
-      "files": [{ "path": "files/main.js", "role": "edit" }],
-      "checks": [{ "type": "stdout", "equals": "beacon:north\nbeacon:east" }],
-      "hintLadder": [{ "level": 1, "kind": "concept", "md": "return `beacon:${name}`" }]
+      "promptMd": "> `logBeacon(name)` returns `beacon:name`. Print north then east, one per line.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "beacon:north\nbeacon:east"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "return `beacon:${name}`"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function logBeacon(name) { return `beacon:${name}` }\nconsole.log(logBeacon(\"north\"))\nconsole.log(logBeacon(\"east\"))\nmodule.exports = { logBeacon }"
+        }
+      ]
     }
   ]
 }

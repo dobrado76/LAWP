@@ -1,0 +1,130 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.objects"
+  ],
+  "id": "objects-props",
+  "courseId": "data",
+  "moduleId": "records",
+  "title": "A route record",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Fields, not a mystery bag\n\n`{ east: 3, south: 2 }` is a route record. Read `route.east` and loop that many moves. Objects store named numbers; they do not walk themselves."
+    },
+    {
+      "type": "predict",
+      "id": "dot-vs-missing",
+      "promptMd": "`({ east: 3 }).south` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "zero",
+          "md": "`0`"
+        },
+        {
+          "id": "undef",
+          "md": "`undefined`"
+        }
+      ],
+      "answer": "undef"
+    },
+    {
+      "type": "code",
+      "id": "walk-record",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Walk `east` then `south` using the numbers on `route`. Beacon is at (3, 2).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "for (let i = 0; i < route.east; i++) Player.move(\"east\")"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const route = { east: 3, south: 2 }\nfor (let i = 0; i < route.east; i++) Player.move(\"east\")\nfor (let i = 0; i < route.south; i++) Player.move(\"south\")\nmodule.exports = { route }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 2,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 2
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

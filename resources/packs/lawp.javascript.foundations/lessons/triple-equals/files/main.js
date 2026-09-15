@@ -1,2 +1,5 @@
-// Print true if 0 and "" are NOT strictly equal.
-console.log(0 == "")
+function notStrictSame(a, b) {
+  return a == b
+}
+console.log(notStrictSame(0, ""))
+module.exports = { notStrictSame }

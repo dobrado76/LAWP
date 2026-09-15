@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.node.fs"
+  ],
+  "id": "streams-idea",
+  "courseId": "the-process",
+  "moduleId": "io",
+  "title": "Read a log in chunks",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Chunks, not one giant string in your head\n\n`fs.createReadStream` emits `data` chunks. For this small fixture you still practice the API: collect chunks, join, print the last non-empty line (`east`)."
+    },
+    {
+      "type": "predict",
+      "id": "stream-end",
+      "promptMd": "You know the file is finished when…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "first",
+          "md": "The first `data` event fires"
+        },
+        {
+          "id": "end",
+          "md": "The `end` event fires"
+        }
+      ],
+      "answer": "end"
+    },
+    {
+      "type": "code",
+      "id": "stream-last",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Stream `chunk-log.txt`, print the last trimmed line (`east`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/chunk-log.txt",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Listen for data and end. Or readFile if you must — hidden wants createReadStream in the source."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const fs = require(\"fs\")\nfunction lastLine() {\n  return new Promise((resolve) => {\n    let raw = \"\"\n    const s = fs.createReadStream(\"chunk-log.txt\", \"utf8\")\n    s.on(\"data\", (c) => { raw += c })\n    s.on(\"end\", () => {\n      const lines = raw.trim().split(/\\r?\\n/)\n      resolve(lines[lines.length - 1])\n    })\n  })\n}\nlastLine().then((v) => console.log(v))\nmodule.exports = { lastLine }"
+        }
+      ]
+    }
+  ]
+}

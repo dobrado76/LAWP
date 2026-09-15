@@ -1,0 +1,131 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.arrays"
+  ],
+  "id": "arrays-index",
+  "courseId": "data",
+  "moduleId": "lists",
+  "title": "Index vs length",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A list of directions\n\n`const dirs = [\"east\", \"east\", \"south\"]`. Index `0` is the first item. `dirs.length` is `3`. The last item is at `length - 1`, not `length`."
+    },
+    {
+      "type": "predict",
+      "id": "last-index",
+      "promptMd": "For `[\"east\", \"south\"]`, the last index is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "2",
+          "md": "`2` — same as length",
+          "misconceptionId": "off-by-one-inclusive"
+        },
+        {
+          "id": "1",
+          "md": "`1` — length minus one"
+        }
+      ],
+      "answer": "1"
+    },
+    {
+      "type": "code",
+      "id": "walk-dirs",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Walk every string in `dirs` with `Player.move`. Do not hard-code four moves.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "for (const dir of dirs) Player.move(dir)"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const dirs = [\"east\", \"east\", \"south\"]\nfor (const dir of dirs) Player.move(dir)\nmodule.exports = { dirs }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 1,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -5,6 +5,7 @@ export type PlayCommand =
   | { op: 'rotate'; deg: number }
   | { op: 'scale'; n: number }
   | { op: 'say'; text: string }
+  | { op: 'wait'; ticks: number }
   | { op: 'fault'; message: string }
 
 export type PlayWorld = {
@@ -28,6 +29,8 @@ export function parsePlayLog(raw: unknown): PlayCommand[] {
       out.push({ op: 'scale', n: (row as { n: number }).n })
     } else if (op === 'say' && typeof (row as { text: string }).text === 'string') {
       out.push({ op: 'say', text: (row as { text: string }).text })
+    } else if (op === 'wait' && Number.isInteger((row as { ticks: number }).ticks) && (row as { ticks: number }).ticks >= 0) {
+      out.push({ op: 'wait', ticks: (row as { ticks: number }).ticks })
     } else if (op === 'fault') {
       out.push({ op: 'fault', message: String((row as { message?: string }).message ?? 'invalid play command') })
     } else {
@@ -145,6 +148,8 @@ export function applyPlayCommands(
       part.props.scale = cmd.n
     } else if (cmd.op === 'say') {
       part.props.say = cmd.text
+    } else if (cmd.op === 'wait') {
+      // Delay is for Studio replay only. The world does not change.
     }
   }
   return { world, fault }

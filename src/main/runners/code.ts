@@ -6,6 +6,7 @@ import { resetSandbox, runProcess, writeSandboxFile, type SpawnResult } from './
 import { safeJoin } from '../security/paths'
 import { applyPlayLog, parsePlayLog, type PlayApplyResult } from '../play/commands'
 import { playStubsRoot } from '../paths'
+import { isDomBlock, runDomHarness } from './dom'
 
 const MAX_FILE = 256 * 1024
 const MAX_FILES = 32
@@ -91,6 +92,29 @@ function stubsDir(): string {
   return playStubsRoot()
 }
 
+function sandboxName(rel: string): string {
+  return rel.replace(/^files\//, '').replace(/\\/g, '/')
+}
+
+function isEsmBlock(block: CodeBlock, files: { path: string; contents: string; role: string }[]): boolean {
+  const entry = sandboxName(block.entry ?? files.find((f) => f.role === 'edit')?.path ?? '')
+  if (entry.endsWith('.mjs')) return true
+  if (files.some((f) => sandboxName(f.path).endsWith('.mjs'))) return true
+  const pkg = files.find((f) => sandboxName(f.path).endsWith('package.json'))
+  if (pkg) {
+    try {
+      if ((JSON.parse(pkg.contents) as { type?: string }).type === 'module') return true
+    } catch {
+      /* ignore */
+    }
+  }
+  return files.some(
+    (f) =>
+      f.role !== 'hidden-test' &&
+      (/(?:^|\n)\s*import\s/.test(f.contents) || /(?:^|\n)\s*export\s/.test(f.contents))
+  )
+}
+
 export async function executeCodeBlock(
   lessonFolder: string,
   block: CodeBlock,
@@ -98,15 +122,23 @@ export async function executeCodeBlock(
 ): Promise<CodeRunOut> {
   const files = mergeLearnerFiles(lessonFolder, block, learnerFiles)
   const cwd = resetSandbox(`run-${Date.now()}-${Math.random().toString(16).slice(2)}`)
-  for (const f of files) writeSandboxFile(cwd, f.path.replace(/^files\//, ''), f.contents)
-  const entry = (block.entry ?? files.find((f) => f.role === 'edit')?.path ?? 'main.py').replace(/^files\//, '')
+  for (const f of files) writeSandboxFile(cwd, sandboxName(f.path), f.contents)
+  const entry = sandboxName(block.entry ?? files.find((f) => f.role === 'edit')?.path ?? 'main.py')
   const timeout = block.timeoutMs ?? 8000
   const hidden = files.find((f) => f.role === 'hidden-test')
   const play = block.play
-  let boot = entry
-  if (play) {
-    const stubs = stubsDir()
-    if (block.engine === 'python') {
+  const extraEnv = { ...(block.env ?? {}) }
+  const argv = block.argv ?? []
+  let result: SpawnResult
+
+  if (block.engine === 'javascript' && isDomBlock(block, files)) {
+    result = await runDomHarness(block, files)
+  } else if (block.engine === 'python') {
+    const bin = await findPython()
+    await assertPython3(bin)
+    let boot = entry
+    if (play) {
+      const stubs = stubsDir()
       copyFileSync(join(stubs, '_lawp_player.py'), join(cwd, '_lawp_player.py'))
       writeSandboxFile(
         cwd,
@@ -114,30 +146,70 @@ export async function executeCodeBlock(
         `from _lawp_player import Player\nimport runpy\nrunpy.run_path(${JSON.stringify(entry)}, init_globals={"Player": Player})\n`
       )
       boot = '_boot.py'
-    } else if (block.engine === 'javascript') {
-      copyFileSync(join(stubs, '_lawp_player.js'), join(cwd, '_lawp_player.js'))
-      writeSandboxFile(cwd, '_boot.js', `global.Player = require('./_lawp_player.js').Player\nrequire(${JSON.stringify('./' + entry)})\n`)
-      boot = '_boot.js'
     }
-  }
-  let result: SpawnResult
-  if (block.engine === 'python') {
-    const bin = await findPython()
-    await assertPython3(bin)
-    const script =
-      !play && hidden && block.checks.some((c) => c.type === 'python-assert')
-        ? hidden.path.replace(/^files\//, '')
-        : boot
-    const launched = pythonBinArgs(bin, [script])
-    result = await runProcess(launched.bin, launched.args, cwd, timeout)
+    const launched = pythonBinArgs(bin, [boot, ...argv])
+    result = await runProcess(launched.bin, launched.args, cwd, timeout, extraEnv)
+    if (hidden && block.checks.some((c) => c.type === 'python-assert')) {
+      const hiddenName = sandboxName(hidden.path)
+      const assertLaunch = pythonBinArgs(bin, [hiddenName, ...argv])
+      const assertRun = await runProcess(assertLaunch.bin, assertLaunch.args, cwd, timeout, extraEnv)
+      result = mergeAssertRun(result, assertRun)
+    }
   } else if (block.engine === 'javascript') {
     const bin = await findNode()
-    const script =
-      !play && hidden && block.checks.some((c) => c.type === 'js-assert') ? hidden.path.replace(/^files\//, '') : boot
-    result = await runProcess(bin, [script], cwd, timeout)
+    const stubs = stubsDir()
+    copyFileSync(join(stubs, '_lawp_fetch.js'), join(cwd, '_lawp_fetch.js'))
+    const esm = isEsmBlock(block, files)
+    let boot = entry
+    if (play) {
+      if (esm) {
+        copyFileSync(join(stubs, '_lawp_player.mjs'), join(cwd, '_lawp_player.mjs'))
+        writeSandboxFile(
+          cwd,
+          '_boot.mjs',
+          `import { createRequire } from 'node:module'\nconst require = createRequire(import.meta.url)\nrequire('./_lawp_fetch.js')\nimport { Player } from './_lawp_player.mjs'\nglobalThis.Player = Player\nawait import(${JSON.stringify('./' + entry)})\n`
+        )
+        boot = '_boot.mjs'
+      } else {
+        copyFileSync(join(stubs, '_lawp_player.js'), join(cwd, '_lawp_player.js'))
+        writeSandboxFile(
+          cwd,
+          '_boot.js',
+          `require('./_lawp_fetch.js')\nglobal.Player = require('./_lawp_player.js').Player\nrequire(${JSON.stringify('./' + entry)})\n`
+        )
+        boot = '_boot.js'
+      }
+    } else if (!esm) {
+      writeSandboxFile(cwd, '_boot.js', `require('./_lawp_fetch.js')\nrequire(${JSON.stringify('./' + entry)})\n`)
+      boot = '_boot.js'
+    } else {
+      writeSandboxFile(
+        cwd,
+        '_boot.mjs',
+        `import { createRequire } from 'node:module'\nconst require = createRequire(import.meta.url)\nrequire('./_lawp_fetch.js')\nawait import(${JSON.stringify('./' + entry)})\n`
+      )
+      boot = '_boot.mjs'
+    }
+    result = await runProcess(bin, [boot, ...argv], cwd, timeout, extraEnv)
+    if (hidden && block.checks.some((c) => c.type === 'js-assert')) {
+      const hiddenName = sandboxName(hidden.path)
+      const hiddenEsm = hiddenName.endsWith('.mjs') || esm
+      const assertBoot = hiddenEsm ? '_assert_boot.mjs' : '_assert_boot.js'
+      if (hiddenEsm) {
+        writeSandboxFile(
+          cwd,
+          assertBoot,
+          `import { createRequire } from 'node:module'\nconst require = createRequire(import.meta.url)\nrequire('./_lawp_fetch.js')\nawait import(${JSON.stringify('./' + hiddenName)})\n`
+        )
+      } else {
+        writeSandboxFile(cwd, assertBoot, `require('./_lawp_fetch.js')\nrequire(${JSON.stringify('./' + hiddenName)})\n`)
+      }
+      const assertRun = await runProcess(bin, [assertBoot, ...argv], cwd, timeout, extraEnv)
+      result = mergeAssertRun(result, assertRun)
+    }
   } else {
     const bin = await findNode()
-    result = await runProcess(bin, [boot], cwd, timeout)
+    result = await runProcess(bin, [entry, ...argv], cwd, timeout, extraEnv)
   }
   const checks = gradeChecks(block, files, result)
   let playOut: PlayApplyResult | undefined
@@ -159,8 +231,18 @@ export async function executeCodeBlock(
     })
   }
   const processOk = result.exitCode === 0 && !result.timedOut
-  const passed = (playOut ? playOut.passed : checks.every((c) => c.ok)) && processOk
+  const passed = (playOut ? playOut.passed && checks.every((c) => c.ok) : checks.every((c) => c.ok)) && processOk
   return { ...result, checks, passed, play: playOut }
+}
+
+function mergeAssertRun(first: SpawnResult, assertRun: SpawnResult): SpawnResult {
+  return {
+    stdout: first.stdout,
+    stderr: [first.stderr, assertRun.stderr].filter(Boolean).join('\n'),
+    exitCode: first.exitCode !== 0 ? first.exitCode : assertRun.exitCode,
+    timedOut: first.timedOut || assertRun.timedOut,
+    durationMs: first.durationMs + assertRun.durationMs
+  }
 }
 
 function gradeChecks(

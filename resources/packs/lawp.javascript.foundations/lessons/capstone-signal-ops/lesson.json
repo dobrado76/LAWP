@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 40,
+  "skillIds": [
+    "js.modules",
+    "js.test",
+    "js.node.fs"
+  ],
+  "id": "capstone-signal-ops",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "Capstone: signal ops",
+  "creation": {
+    "id": "signal-ops",
+    "step": 1,
+    "briefMd": "walk(dirs) plus scrubLog(text) with three hidden tests."
+  },
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three files, one kit\n\n1. `walk.mjs` exports `walk(dirs)` → `{ x, y }` from the origin.\n2. `scrub.mjs` exports `scrubLog(text)` → unique trimmed sorted names.\n3. `main.mjs` imports both, prints `walk` of east×3+south×2 as `3,2`, then a space, then `scrubLog` of `b\\na\\nb` (`a\\nb`).\n\nWrite a short Why below: why `walk` is testable without the stage."
+    },
+    {
+      "type": "predict",
+      "id": "why-pure",
+      "promptMd": "Hidden tests can check `walk` without `Player` because…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "log",
+          "md": "They parse stdout only"
+        },
+        {
+          "id": "return",
+          "md": "The function returns data"
+        }
+      ],
+      "answer": "return"
+    },
+    {
+      "type": "code",
+      "id": "capstone",
+      "engine": "javascript",
+      "entry": "main.mjs",
+      "promptMd": "> Print `3,2` then a newline then `a` newline `b`.",
+      "files": [
+        {
+          "path": "files/walk.mjs",
+          "role": "edit"
+        },
+        {
+          "path": "files/scrub.mjs",
+          "role": "edit"
+        },
+        {
+          "path": "files/main.mjs",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.mjs",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "3,2\na\nb"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "walk increments x/y. scrubLog uses Set + sort."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "See Hint 4 in the ladder — implement walk and scrubLog, import both in main.mjs."
+        }
+      ]
+    },
+    {
+      "type": "reflect",
+      "id": "why-writeup",
+      "promptMd": "In a few sentences: why can a test prove `walk` without looking at the fox? When would you still want the stage?"
+    }
+  ]
+}

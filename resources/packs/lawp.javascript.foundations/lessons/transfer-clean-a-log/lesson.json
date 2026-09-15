@@ -1,0 +1,84 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.node.fs",
+    "js.arrays"
+  ],
+  "id": "transfer-clean-a-log",
+  "courseId": "the-process",
+  "moduleId": "style",
+  "title": "Transfer: clean a names log",
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Scrub a messy file\n\n`messy.txt` has blank lines, spaces, and duplicate names. `clean(text)` returns unique trimmed names, sorted, one per line.\n\nPrint the cleaned text (ending with `west` on the last line)."
+    },
+    {
+      "type": "predict",
+      "id": "unique",
+      "promptMd": "Two `North` lines should become…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "two",
+          "md": "Two lines"
+        },
+        {
+          "id": "one",
+          "md": "One `North` line"
+        }
+      ],
+      "answer": "one"
+    },
+    {
+      "type": "code",
+      "id": "clean-text",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Clean `messy.txt` and print unique sorted names.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/messy.txt",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east\nnorth\nwest"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "trim, filter Boolean, unique with Set, sort, join newlines."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const fs = require(\"fs\")\nfunction clean(text) {\n  const names = text.split(/\\r?\\n/).map((s) => s.trim()).filter(Boolean)\n  return [...new Set(names)].sort().join(\"\\n\")\n}\nconsole.log(clean(fs.readFileSync(\"messy.txt\", \"utf8\")))\nmodule.exports = { clean }"
+        }
+      ]
+    }
+  ]
+}

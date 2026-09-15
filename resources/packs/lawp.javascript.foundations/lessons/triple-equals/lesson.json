@@ -1,32 +1,80 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "triple-equals",
   "packId": "lawp.javascript.foundations",
-  "courseId": "signals",
-  "moduleId": "values",
-  "title": "Triple equals",
-  "skillIds": ["js.values"],
+  "taskRev": 2,
   "estimatedMinutes": 15,
-  "taskRev": 1,
+  "skillIds": [
+    "js.values"
+  ],
+  "id": "triple-equals",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "Triple equals",
   "blocks": [
     {
       "type": "explain",
-      "md": "## `===` does not convert\n\n`0 == \"\"` is true because `==` coerces. `0 === \"\"` is false. Print whether they are **not** strictly equal (true)."
+      "md": "## `===` does not convert\n\n`0 == \"\"` is true because `==` coerces. `0 === \"\"` is false. Prefer `===` and `!==` unless you can name the coercion you want.\n\nPrint whether `0` and `\"\"` are **not** strictly equal (`true`)."
+    },
+    {
+      "type": "predict",
+      "id": "double-trap",
+      "promptMd": "`0 == \"\"` is true. Is `0 === \"\"` also true?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "yes",
+          "md": "Yes — empty is empty",
+          "misconceptionId": "double-equals-is-fine"
+        },
+        {
+          "id": "no",
+          "md": "No — different kinds stay different"
+        }
+      ],
+      "answer": "no"
     },
     {
       "type": "code",
       "id": "strict",
       "engine": "javascript",
       "entry": "main.js",
-      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "promptMd": "> Print `true` because `0` and `\"\"` are not strictly equal. Use `!==` or `===`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
       "checks": [
-        { "type": "stdout", "equals": "true", "misconceptionId": "double-equals-ok" },
-        { "type": "ast", "query": "===" }
+        {
+          "type": "stdout",
+          "equals": "true",
+          "misconceptionId": "double-equals-is-fine"
+        },
+        {
+          "type": "ast",
+          "query": "==="
+        },
+        {
+          "type": "js-assert"
+        }
       ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "Use ===, then negate or compare to false." },
-        { "level": 2, "kind": "concept", "md": "console.log(0 === \"\" ? false : true) or console.log(!(0 === \"\")) wait — you want true because they are not equal: console.log(0 !== \"\")" }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Use === or !==. Do not use ==."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function notStrictSame(a, b) { return a !== b }\nconsole.log(notStrictSame(0, \"\"))\nmodule.exports = { notStrictSame }"
+        }
       ]
     }
   ]

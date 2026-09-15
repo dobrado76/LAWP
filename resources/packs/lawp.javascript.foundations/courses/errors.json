@@ -1,0 +1,14 @@
+{
+  "id": "errors",
+  "title": "Errors you can recover from",
+  "level": "intermediate",
+  "estimatedMinutes": 180,
+  "skillIds": ["js.errors"],
+  "modules": [
+    {
+      "id": "recover",
+      "title": "Throw, catch, explain",
+      "lessonIds": ["throw-and-catch", "finally-and-rethrow", "custom-errors", "debug-read-the-stack"]
+    }
+  ]
+}

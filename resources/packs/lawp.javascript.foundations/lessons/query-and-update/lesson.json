@@ -1,0 +1,78 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.dom"
+  ],
+  "id": "query-and-update",
+  "courseId": "the-page",
+  "moduleId": "tree",
+  "title": "querySelector and textContent",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Find, then write text\n\n`querySelector` takes a CSS selector. `#id`, `.class`, `li`.\n\nPut the name `North` into `#beacon-name`. Use `textContent`, not `innerHTML`, for plain text."
+    },
+    {
+      "type": "predict",
+      "id": "missing",
+      "promptMd": "`querySelector(\"#nope\")` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "empty",
+          "md": "`\"\"`"
+        },
+        {
+          "id": "null",
+          "md": "`null`"
+        }
+      ],
+      "answer": "null"
+    },
+    {
+      "type": "code",
+      "id": "set-name",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `#beacon-name` should read `North`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "textContent on the node you queried."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "document.querySelector(\"#beacon-name\").textContent = \"North\""
+        }
+      ]
+    }
+  ]
+}

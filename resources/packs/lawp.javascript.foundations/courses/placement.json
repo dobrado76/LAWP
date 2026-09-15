@@ -1,0 +1,15 @@
+{
+  "id": "placement",
+  "title": "Placement",
+  "level": "beginner",
+  "estimatedMinutes": 25,
+  "diagnosticLessonId": "js-placement",
+  "skillIds": ["js.values", "js.flow", "js.functions", "js.arrays", "js.closures", "js.async", "js.this", "js.dom"],
+  "modules": [
+    {
+      "id": "diagnostic",
+      "title": "Where you stand",
+      "lessonIds": ["js-placement"]
+    }
+  ]
+}

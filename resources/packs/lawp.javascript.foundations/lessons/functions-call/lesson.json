@@ -1,27 +1,76 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "functions-call",
   "packId": "lawp.javascript.foundations",
-  "courseId": "signals",
-  "moduleId": "functions",
-  "title": "Call the function",
-  "skillIds": ["js.functions"],
+  "taskRev": 2,
   "estimatedMinutes": 12,
-  "taskRev": 1,
+  "skillIds": [
+    "js.functions"
+  ],
+  "id": "functions-call",
+  "courseId": "signals",
+  "moduleId": "call",
+  "title": "Call the function",
   "blocks": [
     {
       "type": "explain",
-      "md": "## A name is not a call\n\n`ping` is the function. `ping()` runs it and gives you `\"pong\"`."
+      "md": "## A name is not a call\n\n`ping` is the function. `ping()` runs it and gives you `\"pong\"`. Printing the function itself is not the same as printing its result."
+    },
+    {
+      "type": "predict",
+      "id": "call-vs-name",
+      "promptMd": "What does `console.log(ping)` print (not `ping()`)?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "pong",
+          "md": "`pong`"
+        },
+        {
+          "id": "fn",
+          "md": "The function text — you never called it",
+          "misconceptionId": "print-is-return"
+        }
+      ],
+      "answer": "fn"
     },
     {
       "type": "code",
       "id": "call-ping",
       "engine": "javascript",
       "entry": "main.js",
-      "files": [{ "path": "files/main.js", "role": "edit" }],
-      "checks": [{ "type": "stdout", "equals": "pong" }],
-      "hintLadder": [{ "level": 1, "kind": "concept", "md": "console.log(ping())" }]
+      "promptMd": "> Call `ping` and print the returned string `pong`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "pong"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Parentheses run the function: ping()"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "console.log(ping())"
+        }
+      ]
     }
   ]
 }

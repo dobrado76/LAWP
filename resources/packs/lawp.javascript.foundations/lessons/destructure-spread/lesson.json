@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.objects"
+  ],
+  "id": "destructure-spread",
+  "courseId": "data",
+  "moduleId": "records",
+  "title": "Destructure and spread",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Copy, then extend\n\n`const { east, south } = route` pulls fields out. `{ ...route, south: 2 }` copies then overrides. That is how you keep the original record honest."
+    },
+    {
+      "type": "predict",
+      "id": "spread-copy",
+      "promptMd": "After `const b = { ...a, south: 2 }` with `a = { east: 3, south: 0 }`, `a.south` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "2",
+          "md": "`2`"
+        },
+        {
+          "id": "0",
+          "md": "`0` — spread copied, then b changed"
+        }
+      ],
+      "answer": "0"
+    },
+    {
+      "type": "code",
+      "id": "extend-route",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `extendSouth({ east: 3, south: 0 })` returns a new object with `south: 2`. Print that south value.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2"
+        },
+        {
+          "type": "ast",
+          "query": "..."
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "return { ...route, south: 2 }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function extendSouth(route) { return { ...route, south: 2 } }\nconsole.log(extendSouth({ east: 3, south: 0 }).south)\nmodule.exports = { extendSouth }"
+        }
+      ]
+    }
+  ]
+}

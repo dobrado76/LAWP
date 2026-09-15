@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.arrays"
+  ],
+  "id": "arrays-reduce-once",
+  "courseId": "data",
+  "moduleId": "lists",
+  "title": "One justified reduce",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## reduce when you are building one value\n\n`map` and `filter` already make lists. Use `reduce` here to **join a path string**: `[\"east\", \"south\"]` becomes `\"east-south\"`.\n\nThat is one accumulator, not a loop you hide for style."
+    },
+    {
+      "type": "predict",
+      "id": "reduce-seed",
+      "promptMd": "`[\"east\"].reduce((acc, d) => acc + d, \"\")` starts `acc` as…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "east",
+          "md": "`\"east\"` — the first item"
+        },
+        {
+          "id": "empty",
+          "md": "`\"\"` — the seed you passed"
+        }
+      ],
+      "answer": "empty"
+    },
+    {
+      "type": "code",
+      "id": "join-path",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `pathOf([\"east\", \"south\"])` returns `east-south` using `reduce`. Print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east-south"
+        },
+        {
+          "type": "ast",
+          "query": "reduce"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "If acc is empty, return the dir. Else return acc + \"-\" + dir."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function pathOf(dirs) {\n  return dirs.reduce((acc, d) => (acc ? acc + \"-\" + d : d), \"\")\n}\nconsole.log(pathOf([\"east\", \"south\"]))\nmodule.exports = { pathOf }"
+        }
+      ]
+    }
+  ]
+}

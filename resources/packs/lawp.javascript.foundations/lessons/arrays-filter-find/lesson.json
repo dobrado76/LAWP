@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.arrays"
+  ],
+  "id": "arrays-filter-find",
+  "courseId": "data",
+  "moduleId": "lists",
+  "title": "filter and find",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Keep only what you need\n\n`filter` returns every match. `find` returns the first match or `undefined`.\n\nFrom `[\"east\", \"south\", \"east\"]`, keep only `\"east\"`. Find the first beacon name that starts with `\"N\"`."
+    },
+    {
+      "type": "predict",
+      "id": "find-missing",
+      "promptMd": "`[\"south\"].find(d => d === \"east\")` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "empty",
+          "md": "`\"\"`"
+        },
+        {
+          "id": "undef",
+          "md": "`undefined`"
+        }
+      ],
+      "answer": "undef"
+    },
+    {
+      "type": "code",
+      "id": "only-east",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `onlyEast(dirs)` returns only `\"east\"` entries, joined as `east,east`. Print that.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east,east"
+        },
+        {
+          "type": "ast",
+          "query": "filter"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "dirs.filter(d => d === \"east\").join(\",\")"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function onlyEast(dirs) { return dirs.filter(d => d === \"east\").join(\",\") }\nconsole.log(onlyEast([\"east\", \"south\", \"east\"]))\nmodule.exports = { onlyEast }"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.functions"
+  ],
+  "id": "return-not-print",
+  "courseId": "signals",
+  "moduleId": "call",
+  "title": "Return is not print",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The stage hears `say`, not `console.log`\n\n`status()` should **return** `\"locked\"`. Then `Player.say(status())` shows that word on the fox. Printing to the console is a notebook, not the result the next function can use."
+    },
+    {
+      "type": "predict",
+      "id": "say-return",
+      "promptMd": "If `status` only `console.log`s `\"locked\"` and returns nothing, `Player.say(status())` says…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "locked",
+          "md": "`locked`"
+        },
+        {
+          "id": "undef",
+          "md": "`undefined` — log is not a return",
+          "misconceptionId": "print-is-return"
+        }
+      ],
+      "answer": "undef"
+    },
+    {
+      "type": "code",
+      "id": "say-status",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Return `\"locked\"` from `status`, then `Player.say` that string. Stand on the beacon too.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "return the string. Then pass it to Player.say."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function status() { return \"locked\" }\nPlayer.say(status())\nmodule.exports = { status }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 2,
+                "y": 2,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 2,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.say",
+              "op": "eq",
+              "value": "locked"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

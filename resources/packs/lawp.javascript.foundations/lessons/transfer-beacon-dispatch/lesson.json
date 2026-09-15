@@ -1,0 +1,134 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.async"
+  ],
+  "id": "transfer-beacon-dispatch",
+  "courseId": "event-loop",
+  "moduleId": "async-code",
+  "title": "Transfer: timed walk",
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Wait, then walk\n\n`Player.wait(ticks)` logs a pause. Studio replay honors it. The world does not move during `wait`.\n\nAwait two ticks, then walk to (2, 1): east, east, south."
+    },
+    {
+      "type": "predict",
+      "id": "wait-world",
+      "promptMd": "During `Player.wait(2)` the fox’s cell…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "slides",
+          "md": "Slides toward the beacon"
+        },
+        {
+          "id": "stays",
+          "md": "Stays put — wait is time, not a move"
+        }
+      ],
+      "answer": "stays"
+    },
+    {
+      "type": "code",
+      "id": "timed-walk",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `await Player.wait(2)` then walk east, east, south onto the beacon.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "async function go() { await Player.wait(2); ...moves }\ngo()"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function go() {\n  await Player.wait(2)\n  Player.move(\"east\")\n  Player.move(\"east\")\n  Player.move(\"south\")\n}\ngo()"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 1,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

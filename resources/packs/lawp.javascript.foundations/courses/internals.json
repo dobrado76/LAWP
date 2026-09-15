@@ -1,0 +1,19 @@
+{
+  "id": "internals",
+  "title": "The language under the hood",
+  "level": "advanced",
+  "estimatedMinutes": 600,
+  "skillIds": ["js.proto", "js.this", "js.iter", "js.objects"],
+  "modules": [
+    {
+      "id": "objects-deep",
+      "title": "Objects all the way down",
+      "lessonIds": ["coercion-to-primitive", "prototypes-chain", "new-and-create", "classes-syntax", "this-call-apply-bind"]
+    },
+    {
+      "id": "meta",
+      "title": "Hidden keys and walks",
+      "lessonIds": ["descriptors-get-set", "symbols", "weak-collections", "iterators-for-of", "generators", "proxies-reflect", "transfer-model-a-part"]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.http"
+  ],
+  "id": "abort-and-timeout",
+  "courseId": "talking-servers",
+  "moduleId": "messages",
+  "title": "AbortController against the mock",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Cancel the wait\n\n`/slow` is delayed. `AbortController` + `fetch(url, { signal })` rejects with `AbortError` when you `abort()`.\n\nAbort immediately and print `aborted`."
+    },
+    {
+      "type": "predict",
+      "id": "abort-name",
+      "promptMd": "A fetch aborted via `signal` rejects with…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "404",
+          "md": "A 404 response"
+        },
+        {
+          "id": "abort",
+          "md": "An error named `AbortError`"
+        }
+      ],
+      "answer": "abort"
+    },
+    {
+      "type": "code",
+      "id": "abort-now",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Start `/slow`, abort, print `aborted`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/beacons.json",
+          "role": "fixture"
+        },
+        {
+          "path": "files/routes.json",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "aborted"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const c = new AbortController(); const p = fetch(\"/slow\", { signal: c.signal }); c.abort()"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function race() {\n  const c = new AbortController()\n  const p = fetch(\"/slow\", { signal: c.signal })\n  c.abort()\n  try { await p; return \"ok\" }\n  catch (e) { return e.name === \"AbortError\" ? \"aborted\" : \"other\" }\n}\nrace().then((v) => console.log(v))\nmodule.exports = { race }"
+        }
+      ]
+    }
+  ]
+}

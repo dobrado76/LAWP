@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.objects"
+  ],
+  "id": "descriptors-get-set",
+  "courseId": "internals",
+  "moduleId": "meta",
+  "title": "Getters and descriptors",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A `position` getter\n\n`get position() { return this.x + \",\" + this.y }` runs on read. `Object.getOwnPropertyDescriptor` shows `get` / `set` / `writable`.\n\nPrint `2,1` from a fox-like object."
+    },
+    {
+      "type": "predict",
+      "id": "getter-call",
+      "promptMd": "Reading `obj.position`…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fn",
+          "md": "Returns the getter function"
+        },
+        {
+          "id": "run",
+          "md": "Runs the getter and returns its value"
+        }
+      ],
+      "answer": "run"
+    },
+    {
+      "type": "code",
+      "id": "pos-get",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Object with `x: 2`, `y: 1`, getter `position` → `2,1`. Print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2,1"
+        },
+        {
+          "type": "ast",
+          "query": "get "
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "get position() { return this.x + \",\" + this.y }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const fox = {\n  x: 2,\n  y: 1,\n  get position() { return this.x + \",\" + this.y }\n}\nconsole.log(fox.position)\nmodule.exports = { fox }"
+        }
+      ]
+    }
+  ]
+}

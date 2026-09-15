@@ -1,0 +1,19 @@
+{
+  "id": "talking-servers",
+  "title": "Talking to servers",
+  "level": "intermediate",
+  "estimatedMinutes": 300,
+  "skillIds": ["js.http", "js.async", "js.dom"],
+  "modules": [
+    {
+      "id": "messages",
+      "title": "Messages",
+      "lessonIds": ["http-as-messages", "fetch-ok-and-fail", "json-body", "abort-and-timeout", "cors-mental-model"]
+    },
+    {
+      "id": "transfer",
+      "title": "Search a fixture",
+      "lessonIds": ["transfer-library-search"]
+    }
+  ]
+}

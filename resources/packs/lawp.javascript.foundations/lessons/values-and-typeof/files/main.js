@@ -1,2 +1,5 @@
-// Print the typeof 3 (number).
-console.log("?")
+function kindOf(v) {
+  return "?"
+}
+console.log(kindOf(3))
+module.exports = { kindOf }

@@ -1,0 +1,9 @@
+{
+  "id": "log-scrubber",
+  "title": "Log scrubber",
+  "briefMd": "A Node tool that reads a messy names log and writes a clean file under the run folder.",
+  "exportKinds": ["folder", "zip"],
+  "steps": [
+    { "lessonId": "creation-log-scrubber", "addsMd": "scrub(input, output) writes unique trimmed names." }
+  ]
+}

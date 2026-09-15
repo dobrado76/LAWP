@@ -1,0 +1,132 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.objects",
+    "js.arrays"
+  ],
+  "id": "reference-vs-copy",
+  "courseId": "data",
+  "moduleId": "records",
+  "title": "Reference vs copy",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two names, one list\n\n`const b = a` does not copy items. Change `b[0]` and `a[0]` changes too. The fox will walk the surprise path if you mutate a shared route.\n\nCopy with `a.slice()` or `[...a]` when you mean a second list."
+    },
+    {
+      "type": "predict",
+      "id": "assign-copy",
+      "promptMd": "After `const b = a; b[0] = \"south\"` (and `a` was `[\"east\"]`), `a[0]` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "east",
+          "md": "`\"east\"` — assign copied",
+          "misconceptionId": "arrays-are-copied-by-assign"
+        },
+        {
+          "id": "south",
+          "md": "`\"south\"` — both names point at one list"
+        }
+      ],
+      "answer": "south"
+    },
+    {
+      "type": "code",
+      "id": "shared-route",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `shared` starts as `[\"east\",\"east\"]`. Another name mutates it to add `\"south\"`. Walk `shared` to (2, 1).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Mutate the shared array, then walk it. The lesson is that both names see south."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const shared = [\"east\", \"east\"]\nconst also = shared\nalso.push(\"south\")\nfor (const d of shared) Player.move(d)\nmodule.exports = { shared }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 1,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

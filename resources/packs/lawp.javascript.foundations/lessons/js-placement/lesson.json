@@ -1,0 +1,208 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.values",
+    "js.flow",
+    "js.functions",
+    "js.arrays",
+    "js.closures",
+    "js.async",
+    "js.this",
+    "js.dom"
+  ],
+  "id": "js-placement",
+  "courseId": "placement",
+  "moduleId": "diagnostic",
+  "title": "Placement: what JS already does in your head",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## No fox yet\n\nEight short questions. Wrong answers do not lock you out — they mark which later lessons to take slowly. Pick the result you expect JavaScript to produce, not the result you wish it produced."
+    },
+    {
+      "type": "check",
+      "id": "typeof-null",
+      "promptMd": "`typeof null` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "null",
+          "md": "`\"null\"`"
+        },
+        {
+          "id": "object",
+          "md": "`\"object\"`",
+          "misconceptionId": "null-is-object-ok"
+        },
+        {
+          "id": "undefined",
+          "md": "`\"undefined\"`"
+        }
+      ],
+      "answer": "object",
+      "explainMd": "`typeof null` is the string `\"object\"`. That is a lie the language kept. Later you will treat `null` as its own empty value, not as an object you can poke.",
+      "diagnostic": true,
+      "skillIds": [
+        "js.values"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "strict-eq",
+      "promptMd": "`0 === \"\"` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "true",
+          "md": "true — they feel empty",
+          "misconceptionId": "double-equals-is-fine"
+        },
+        {
+          "id": "false",
+          "md": "false — different kinds"
+        }
+      ],
+      "answer": "false",
+      "diagnostic": true,
+      "skillIds": [
+        "js.values"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "truthy-zero",
+      "promptMd": "`if (0) { \"go\" } else { \"stop\" }` yields…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "go",
+          "md": "`go`"
+        },
+        {
+          "id": "stop",
+          "md": "`stop`"
+        }
+      ],
+      "answer": "stop",
+      "diagnostic": true,
+      "skillIds": [
+        "js.flow"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "closure-sniff",
+      "promptMd": "`function make() { let n = 0; return () => ++n } const a = make(); a(); a();` — `a()` now returns…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "1",
+          "md": "`1` — each call starts over",
+          "misconceptionId": "closure-copies-value"
+        },
+        {
+          "id": "3",
+          "md": "`3` — `n` is still the same box"
+        },
+        {
+          "id": "2",
+          "md": "`2`"
+        }
+      ],
+      "answer": "3",
+      "diagnostic": true,
+      "skillIds": [
+        "js.closures"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "map-vs-mutate",
+      "promptMd": "`const xs = [1]; const ys = xs.map(n => n + 1)` — `xs[0]` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "2",
+          "md": "`2` — map rewrote the list",
+          "misconceptionId": "map-mutates"
+        },
+        {
+          "id": "1",
+          "md": "`1` — map returned a new list"
+        }
+      ],
+      "answer": "1",
+      "diagnostic": true,
+      "skillIds": [
+        "js.arrays"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "promise-vs-cb",
+      "promptMd": "A `Promise` that is waiting to finish is in which state?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "pending",
+          "md": "pending"
+        },
+        {
+          "id": "callback",
+          "md": "callback — that is the same thing"
+        }
+      ],
+      "answer": "pending",
+      "diagnostic": true,
+      "skillIds": [
+        "js.async"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "this-sniff",
+      "promptMd": "A plain `function greet() { return this }` called as `greet()` in sloppy Node often sees `this` as…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "undefined-strict",
+          "md": "always `undefined`"
+        },
+        {
+          "id": "globalish",
+          "md": "the global object (unless `\"use strict\"`)"
+        }
+      ],
+      "answer": "globalish",
+      "diagnostic": true,
+      "skillIds": [
+        "js.this"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "dom-sniff",
+      "promptMd": "`document.querySelector(\"#beacon\")` returns…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "string",
+          "md": "the HTML as a string"
+        },
+        {
+          "id": "node",
+          "md": "one element node, or `null` if missing"
+        }
+      ],
+      "answer": "node",
+      "diagnostic": true,
+      "skillIds": [
+        "js.dom"
+      ]
+    }
+  ]
+}

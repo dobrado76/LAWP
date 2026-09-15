@@ -25,5 +25,10 @@ export const PLAYER_METHODS: Record<
     args: '"…"',
     info: 'Show a label on the stage.',
     sample: 'Player.say("ready")'
+  },
+  wait: {
+    args: 'ticks',
+    info: 'Pause replay that many ticks. Returns a Promise. The fox does not move.',
+    sample: 'await Player.wait(2)'
   }
 }

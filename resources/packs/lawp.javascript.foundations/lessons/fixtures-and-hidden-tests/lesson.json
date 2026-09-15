@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.test"
+  ],
+  "id": "fixtures-and-hidden-tests",
+  "courseId": "craft",
+  "moduleId": "prove",
+  "title": "Fixtures and hidden tests",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## You write a test the hidden runner also runs\n\n`cases.json` is a fixture: `[{ \"dirs\": [\"east\"], \"n\": 1 }]`. `testWalk` reads it and asserts `walkLength`.\n\nPrint `ok` when all fixture cases pass."
+    },
+    {
+      "type": "predict",
+      "id": "hidden-role",
+      "promptMd": "A hidden test is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "secret-ui",
+          "md": "A second editor tab"
+        },
+        {
+          "id": "grade",
+          "md": "A file the grader runs that you cannot edit"
+        }
+      ],
+      "answer": "grade"
+    },
+    {
+      "type": "code",
+      "id": "fixture-cases",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `walkLength` plus a loop over `cases.json`. Print `ok`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/cases.json",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "ok"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "JSON.parse the fixture, assert each n."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const fs = require(\"fs\")\nconst assert = require(\"assert\")\nfunction walkLength(dirs) { return dirs.length }\nfor (const c of JSON.parse(fs.readFileSync(\"cases.json\", \"utf8\"))) {\n  assert.strictEqual(walkLength(c.dirs), c.n)\n}\nconsole.log(\"ok\")\nmodule.exports = { walkLength }"
+        }
+      ]
+    }
+  ]
+}

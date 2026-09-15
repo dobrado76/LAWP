@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "js.test"
+  ],
+  "id": "jsdoc-contracts",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "JSDoc as a checklist",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## `@param` / `@returns` are a contract you can read\n\nThis is not TypeScript-as-product. One lesson: write the tags so a later you (or a TS pack) can check them.\n\n`/** @param {string[]} dirs @returns {number} */`\n\nPrint `walkLength` of two dirs (`2`)."
+    },
+    {
+      "type": "predict",
+      "id": "jsdoc-runtime",
+      "promptMd": "JSDoc tags…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "enforce",
+          "md": "Are enforced by Node at runtime"
+        },
+        {
+          "id": "doc",
+          "md": "Document the contract; tools may check them later"
+        }
+      ],
+      "answer": "doc"
+    },
+    {
+      "type": "code",
+      "id": "jsdoc-fn",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Document and implement `walkLength`. Print `2`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2"
+        },
+        {
+          "type": "ast",
+          "query": "@param"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Put @param and @returns above the function."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "/** @param {string[]} dirs @returns {number} */\nfunction walkLength(dirs) { return dirs.length }\nconsole.log(walkLength([\"east\", \"south\"]))\nmodule.exports = { walkLength }"
+        }
+      ]
+    }
+  ]
+}

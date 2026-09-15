@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.node.fs"
+  ],
+  "id": "fs-read-write",
+  "courseId": "the-process",
+  "moduleId": "io",
+  "title": "Read and write UTF-8",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Files stay under the run folder\n\n`fs.readFileSync(\"note.txt\", \"utf8\")` reads the fixture. `fs.writeFileSync(\"out.txt\", text)` writes beside it.\n\nPrint the trimmed contents of `note.txt` (`north`)."
+    },
+    {
+      "type": "predict",
+      "id": "encoding",
+      "promptMd": "Passing `\"utf8\"` means…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "bytes",
+          "md": "You still get a Buffer"
+        },
+        {
+          "id": "text",
+          "md": "You get a string of text"
+        }
+      ],
+      "answer": "text"
+    },
+    {
+      "type": "code",
+      "id": "read-note",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Read `note.txt` as UTF-8, trim, print it. Also write the same text to `out.txt`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/note.txt",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "north"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "fs.readFileSync(\"note.txt\", \"utf8\").trim()"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const fs = require(\"fs\")\nfunction readNote() {\n  const text = fs.readFileSync(\"note.txt\", \"utf8\").trim()\n  fs.writeFileSync(\"out.txt\", text)\n  return text\n}\nconsole.log(readNote())\nmodule.exports = { readNote }"
+        }
+      ]
+    }
+  ]
+}

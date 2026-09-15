@@ -1,0 +1,80 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.proto",
+    "js.objects"
+  ],
+  "id": "transfer-model-a-part",
+  "courseId": "internals",
+  "moduleId": "meta",
+  "title": "Transfer: model a part",
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## An object graph that matches a world part\n\nBuild `{ id, type, props }` like `world-v1`. `makePart(\"fox\", { x: 1, y: 0 })` returns that shape. `movePart(part, \"east\")` increments `props.x`.\n\nPrint `2` after two easts from x=0."
+    },
+    {
+      "type": "predict",
+      "id": "props-box",
+      "promptMd": "`part.props` should be…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "copy",
+          "md": "A string dump of fields"
+        },
+        {
+          "id": "obj",
+          "md": "An object the engine can read (`x`, `y`…)"
+        }
+      ],
+      "answer": "obj"
+    },
+    {
+      "type": "code",
+      "id": "make-part",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `makePart` + `movePart` east twice from x=0. Print the new x (`2`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "part.props.x += 1 for east."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function makePart(type, props) {\n  return { id: type, type, props: { ...props } }\n}\nfunction movePart(part, dir) {\n  if (dir === \"east\") part.props.x += 1\n}\nconst fox = makePart(\"fox\", { x: 0, y: 0 })\nmovePart(fox, \"east\")\nmovePart(fox, \"east\")\nconsole.log(fox.props.x)\nmodule.exports = { makePart, movePart }"
+        }
+      ]
+    }
+  ]
+}

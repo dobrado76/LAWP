@@ -1,0 +1,81 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.node.fs"
+  ],
+  "id": "process-argv-env",
+  "courseId": "the-process",
+  "moduleId": "io",
+  "title": "argv and env",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Flags the process already has\n\n`process.argv` is the command line. After `node` and the script path come your flags. This lesson runs with `--scrub`.\n\n`process.env.LAWP_FLAG` is also set. Print `scrub` if the flag is present."
+    },
+    {
+      "type": "predict",
+      "id": "argv-0",
+      "promptMd": "`process.argv[0]` is usually…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "script",
+          "md": "Your script path"
+        },
+        {
+          "id": "node",
+          "md": "The node binary"
+        }
+      ],
+      "answer": "node"
+    },
+    {
+      "type": "code",
+      "id": "read-flag",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> If `process.argv` includes `--scrub`, print `scrub`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "scrub"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "process.argv.includes(\"--scrub\")"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function flag() {\n  return process.argv.includes(\"--scrub\") ? \"scrub\" : \"none\"\n}\nconsole.log(flag())\nmodule.exports = { flag }"
+        }
+      ],
+      "argv": [
+        "--scrub"
+      ],
+      "env": {
+        "LAWP_FLAG": "scrub"
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.values"
+  ],
+  "id": "strings-and-templates",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Strings and templates",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Text does not mutate in place\n\n`\"east\".toUpperCase()` returns a **new** string. The original stays `\"east\"`.\n\nA template literal lets you drop a value into a string: `` `beacon:${name}` ``."
+    },
+    {
+      "type": "predict",
+      "id": "string-immutable",
+      "promptMd": "After `let d = \"east\"; d.toUpperCase()`, what is `d`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "EAST",
+          "md": "`\"EAST\"`"
+        },
+        {
+          "id": "east",
+          "md": "`\"east\"` — the method returned a new string"
+        }
+      ],
+      "answer": "east"
+    },
+    {
+      "type": "code",
+      "id": "tag-name",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `tagBeacon(\"north\")` returns `beacon:north`. Print that.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "beacon:north"
+        },
+        {
+          "type": "ast",
+          "query": "`"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Use a template literal, not + if you can help it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function tagBeacon(name) { return `beacon:${name}` }\nconsole.log(tagBeacon(\"north\"))\nmodule.exports = { tagBeacon }"
+        }
+      ]
+    }
+  ]
+}

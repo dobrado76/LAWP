@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.objects"
+  ],
+  "id": "weak-collections",
+  "courseId": "internals",
+  "moduleId": "meta",
+  "title": "WeakMap notes",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Private-ish notes on objects you do not own\n\n`WeakMap` keys must be objects. When the key is garbage-collected, the entry can go. You cannot iterate a WeakMap — that is the point.\n\nTiny code: remember a note on a route object."
+    },
+    {
+      "type": "predict",
+      "id": "weak-key",
+      "promptMd": "A WeakMap key can be the string `\"fox\"`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "yes",
+          "md": "Yes"
+        },
+        {
+          "id": "no",
+          "md": "No — keys must be objects"
+        }
+      ],
+      "answer": "no"
+    },
+    {
+      "type": "code",
+      "id": "weak-note",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `noteOf(route)` reads a WeakMap. Store `\"keep\"` on `{}` and print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "keep"
+        },
+        {
+          "type": "ast",
+          "query": "WeakMap"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const notes = new WeakMap(); notes.set(route, \"keep\")"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const notes = new WeakMap()\nfunction noteOf(route) { return notes.get(route) }\nconst route = {}\nnotes.set(route, \"keep\")\nconsole.log(noteOf(route))\nmodule.exports = { noteOf, notes, route }"
+        }
+      ]
+    }
+  ]
+}

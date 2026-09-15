@@ -1,0 +1,135 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.errors"
+  ],
+  "id": "throw-and-catch",
+  "courseId": "errors",
+  "moduleId": "recover",
+  "title": "throw and catch",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A bad dir is not the end\n\n`Player.move` already faults on a bad dir. Here **you** throw `new Error(\"bad dir\")` if the string is not a compass word. `catch` `say`s the fault, then you still finish the walk east to the beacon.\n\nThe program continues after a handled error."
+    },
+    {
+      "type": "predict",
+      "id": "catch-continues",
+      "promptMd": "After `catch` runs, the next line after the `try/catch`…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "dead",
+          "md": "Never runs"
+        },
+        {
+          "id": "runs",
+          "md": "Runs — you recovered"
+        }
+      ],
+      "answer": "runs"
+    },
+    {
+      "type": "code",
+      "id": "catch-say",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `step(\"up\")` throws. Catch it, `Player.say(\"fault\")`, then walk east to (2, 0).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "try { step(\"up\") } catch (e) { Player.say(\"fault\") }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function step(dir) {\n  if (![\"north\", \"south\", \"east\", \"west\"].includes(dir)) throw new Error(\"bad dir\")\n  Player.move(dir)\n}\ntry { step(\"up\") } catch (e) { Player.say(\"fault\") }\nstep(\"east\"); step(\"east\")\nmodule.exports = { step }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 0,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            },
+            {
+              "path": "fox.say",
+              "op": "eq",
+              "value": "fault"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

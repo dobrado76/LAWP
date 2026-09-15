@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.errors"
+  ],
+  "id": "custom-errors",
+  "courseId": "errors",
+  "moduleId": "recover",
+  "title": "class RouteError",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Name the failure\n\n`class RouteError extends Error {}` lets `catch (e)` ask `e instanceof RouteError`. A generic `Error` is a shrug. A named class is a signal."
+    },
+    {
+      "type": "predict",
+      "id": "instanceof",
+      "promptMd": "`throw new RouteError(\"blocked\")` then `e instanceof Error` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "false",
+          "md": "false — it is a different type"
+        },
+        {
+          "id": "true",
+          "md": "true — subclasses still are Errors"
+        }
+      ],
+      "answer": "true"
+    },
+    {
+      "type": "code",
+      "id": "route-error",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Define `RouteError`. `fail()` throws one with message `blocked`. Catch it and print `blocked`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "blocked"
+        },
+        {
+          "type": "ast",
+          "query": "class RouteError"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "class RouteError extends Error {}"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class RouteError extends Error {}\nfunction fail() { throw new RouteError(\"blocked\") }\ntry { fail() } catch (e) { console.log(e.message) }\nmodule.exports = { RouteError, fail }"
+        }
+      ]
+    }
+  ]
+}

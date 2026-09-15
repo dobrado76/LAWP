@@ -1,0 +1,84 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.http"
+  ],
+  "id": "fetch-ok-and-fail",
+  "courseId": "talking-servers",
+  "moduleId": "messages",
+  "title": "res.ok vs throw",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## 404 does not throw\n\nThe app stub answers `/missing` with status 404. `fetch` still resolves. `res.ok` is false. You throw *if you choose* after you look.\n\nPrint `ok` for `/beacons.json` and teach `read()` to throw when `!res.ok`."
+    },
+    {
+      "type": "predict",
+      "id": "fetch-404",
+      "promptMd": "`await fetch(\"/missing\")` on this stub…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "throws",
+          "md": "Throws immediately",
+          "misconceptionId": "res-ok-throws"
+        },
+        {
+          "id": "res",
+          "md": "Resolves to a response with status 404"
+        }
+      ],
+      "answer": "res"
+    },
+    {
+      "type": "code",
+      "id": "fetch-ok",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `read(\"/beacons.json\")` returns parsed JSON and prints `true` (`ok` field). Hidden: `/missing` throws.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/beacons.json",
+          "role": "fixture"
+        },
+        {
+          "path": "files/routes.json",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "true"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "if (!res.ok) throw new Error(String(res.status))"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function read(url) {\n  const res = await fetch(url)\n  if (!res.ok) throw new Error(String(res.status))\n  return res.json()\n}\nread(\"/beacons.json\").then((d) => console.log(d.ok))\nmodule.exports = { read }"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.modules"
+  ],
+  "id": "modules-esm-files",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "export a walker, import in main",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two files\n\n`walker.mjs` exports `walkLength`. `main.mjs` imports it and prints `2` for `[\"east\", \"south\"]`."
+    },
+    {
+      "type": "predict",
+      "id": "export-name",
+      "promptMd": "`export function walkLength` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "global",
+          "md": "A global in every file automatically"
+        },
+        {
+          "id": "named",
+          "md": "A named export you must import"
+        }
+      ],
+      "answer": "named"
+    },
+    {
+      "type": "code",
+      "id": "two-files",
+      "engine": "javascript",
+      "entry": "main.mjs",
+      "promptMd": "> Export from `walker.mjs`, import in `main.mjs`, print `2`.",
+      "files": [
+        {
+          "path": "files/walker.mjs",
+          "role": "edit"
+        },
+        {
+          "path": "files/main.mjs",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.mjs",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "import { walkLength } from \"./walker.mjs\""
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "walker.mjs: export function walkLength(dirs) { return dirs.length }\nmain.mjs: import { walkLength } from \"./walker.mjs\"\nconsole.log(walkLength([\"east\", \"south\"]))"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.async",
+    "js.errors"
+  ],
+  "id": "async-errors",
+  "courseId": "event-loop",
+  "moduleId": "async-code",
+  "title": "Rejected await in try",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## `await` a rejection inside `try`\n\n`await Promise.reject(new Error(\"lost\"))` throws into the async function. `try/catch` works the same as sync throw.\n\nPrint `lost` from the catch."
+    },
+    {
+      "type": "predict",
+      "id": "await-reject",
+      "promptMd": "A rejected `await` without `try`…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "undef",
+          "md": "Becomes `undefined`"
+        },
+        {
+          "id": "throw",
+          "md": "Rejects the async function (an exception in that function)"
+        }
+      ],
+      "answer": "throw"
+    },
+    {
+      "type": "code",
+      "id": "catch-lost",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `readKey()` awaits a rejection `\"lost\"` and returns that message from `catch`. Print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "lost"
+        },
+        {
+          "type": "ast",
+          "query": "await"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "try { await Promise.reject(new Error(\"lost\")) } catch (e) { return e.message }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function readKey() {\n  try { await Promise.reject(new Error(\"lost\")) }\n  catch (e) { return e.message }\n}\nreadKey().then((v) => console.log(v))\nmodule.exports = { readKey }"
+        }
+      ]
+    }
+  ]
+}

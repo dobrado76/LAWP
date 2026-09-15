@@ -1,0 +1,56 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.async"
+  ],
+  "id": "stack-vs-heap",
+  "courseId": "event-loop",
+  "moduleId": "queues",
+  "title": "Stack vs heap",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Where values live\n\nThe **stack** is the list of function calls that are running now. The **heap** is the bag of objects those frames point at.\n\nA closure keeps a heap object alive after the stack frame that created it is gone. `await` *pauses that function* — it does not freeze the operating system."
+    },
+    {
+      "type": "predict",
+      "id": "await-os",
+      "promptMd": "`await` inside one function…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "os",
+          "md": "Stops the whole computer until the promise finishes",
+          "misconceptionId": "await-blocks-the-os"
+        },
+        {
+          "id": "fn",
+          "md": "Pauses that function and lets other JS run"
+        }
+      ],
+      "answer": "fn"
+    },
+    {
+      "type": "check",
+      "id": "stack-frame",
+      "promptMd": "While `inner()` is running, called from `outer()`, the top of the stack is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "outer",
+          "md": "`outer`"
+        },
+        {
+          "id": "inner",
+          "md": "`inner`"
+        }
+      ],
+      "answer": "inner",
+      "explainMd": "The running function is on top. outer waits under it until inner returns."
+    }
+  ]
+}

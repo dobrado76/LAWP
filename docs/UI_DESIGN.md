@@ -36,8 +36,10 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 
 ## Library
 
-- Cards for installed subject-matters (packs) and their lessons
-- Filters: subject, engine, level
+- Cards for installed subject-matters (packs)
+- After a pack: a numbered **tutorial path** (chapter → course → lesson). **Play next**. Later courses stay locked until the one above is done; **Skip ahead** if you want
+- Do not dump every “beginner” lesson into one grid — values and the first commands come before lists
+- Filters: all / to do / done
 - Primary action: **Install from ZIP** (subject *or* lesson). Copy explains that a zip is one folder of JSON + files
 - Per pack: **Export ZIP**, open in Library tree
 - Per lesson: **Export lesson ZIP**, **Restart lesson** (keep history), **Clear lesson history** (stronger confirm)

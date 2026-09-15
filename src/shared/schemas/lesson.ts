@@ -118,7 +118,9 @@ const codeBlockFields = {
   hintLadder: z.array(hintSchema).default([]),
   preview: z.object({ kind: z.enum(['none', 'iframe']) }).optional(),
   play: playSpecSchema.optional(),
-  promptMd: z.string().optional()
+  promptMd: z.string().optional(),
+  argv: z.array(z.string()).optional(),
+  env: z.record(z.string()).optional()
 }
 
 export const codeBlockSchema = z.object({

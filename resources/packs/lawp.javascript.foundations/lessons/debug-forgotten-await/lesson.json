@@ -1,0 +1,151 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.async"
+  ],
+  "id": "debug-forgotten-await",
+  "courseId": "event-loop",
+  "moduleId": "async-code",
+  "title": "Debug: forgotten await",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The key is “collected” too late\n\n`Player.wait` **logs when the timer finishes**, not when you call it. If you forget `await`, the next `move` is written first. The story says: say `keyed` only after the wait, *then* walk onto the key.\n\nFix the starter so the log is wait → say → move."
+    },
+    {
+      "type": "predict",
+      "id": "order",
+      "promptMd": "If `wait` logs on resolve, forgetting `await` before `move` puts `move`…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "after",
+          "md": "After wait in the log"
+        },
+        {
+          "id": "before",
+          "md": "Before wait in the log"
+        }
+      ],
+      "answer": "before"
+    },
+    {
+      "type": "debug",
+      "id": "await-key",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Await the wait, `Player.say(\"keyed\")`, then move south onto the key at (2, 4).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "await Player.wait(1) before say and move."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function collect() {\n  await Player.wait(1)\n  Player.say(\"keyed\")\n  Player.move(\"south\")\n}\ncollect()"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 2,
+                "y": 3,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "key",
+              "type": "key",
+              "props": {
+                "x": 2,
+                "y": 4,
+                "collect": true,
+                "taken": false,
+                "label": "key"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 4,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 4
+            },
+            {
+              "path": "fox.say",
+              "op": "eq",
+              "value": "keyed"
+            },
+            {
+              "path": "key.taken",
+              "op": "eq",
+              "value": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

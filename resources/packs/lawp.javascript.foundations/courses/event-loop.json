@@ -1,0 +1,19 @@
+{
+  "id": "event-loop",
+  "title": "Time: the event loop",
+  "level": "advanced",
+  "estimatedMinutes": 480,
+  "skillIds": ["js.async"],
+  "modules": [
+    {
+      "id": "queues",
+      "title": "Stacks and queues",
+      "lessonIds": ["stack-vs-heap", "macrotasks-timeout", "microtasks-then", "promises-states"]
+    },
+    {
+      "id": "async-code",
+      "title": "Async programs",
+      "lessonIds": ["async-await", "async-errors", "parallel-vs-sequence", "async-iterators", "transfer-beacon-dispatch", "debug-forgotten-await"]
+    }
+  ]
+}

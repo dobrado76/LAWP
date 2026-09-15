@@ -1,0 +1,78 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.events"
+  ],
+  "id": "delegation",
+  "courseId": "the-page",
+  "moduleId": "live",
+  "title": "One listener on the parent",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Delegation\n\nOne listener on `ul#list` can handle clicks on any `button` inside, including buttons you add later. Check `event.target.matches(\"button\")`."
+    },
+    {
+      "type": "predict",
+      "id": "later-child",
+      "promptMd": "A parent listener (bubble) hears clicks on a button appended after bind?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "no",
+          "md": "No — you had to bind that button"
+        },
+        {
+          "id": "yes",
+          "md": "Yes — the click bubbles to the parent"
+        }
+      ],
+      "answer": "yes"
+    },
+    {
+      "type": "code",
+      "id": "delegate",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Clicking a button in `#list` should set `#picked` to that button’s `data-name`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "list.addEventListener(\"click\", (e) => { const b = e.target.closest(\"button\"); if (b) ... })"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "document.querySelector(\"#list\").addEventListener(\"click\", (e) => {\n  const b = e.target.closest(\"button\")\n  if (!b) return\n  document.querySelector(\"#picked\").textContent = b.getAttribute(\"data-name\")\n})"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.functions",
+    "js.objects"
+  ],
+  "id": "callbacks-as-commands",
+  "courseId": "scope-hofs",
+  "moduleId": "tools",
+  "title": "Commands as an object map",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A table of functions\n\n`const cmds = { go(dir) { Player.move(dir) }, turn() { Player.rotate(90) } }`.\n\nYou look up a name and call it. That is how a small language of stage commands stays data."
+    },
+    {
+      "type": "predict",
+      "id": "lookup-call",
+      "promptMd": "`cmds.go` without `()` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "move",
+          "md": "A move that already happened"
+        },
+        {
+          "id": "fn",
+          "md": "The function value — you still have to call it"
+        }
+      ],
+      "answer": "fn"
+    },
+    {
+      "type": "code",
+      "id": "cmd-table",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Build `cmds.go` / `cmds.turn`. go east three times, turn, stand on (3,0) facing 90°.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "cmds.go(\"east\") three times, then cmds.turn()."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const cmds = {\n  go(dir) { Player.move(dir) },\n  turn() { Player.rotate(90) }\n}\ncmds.go(\"east\"); cmds.go(\"east\"); cmds.go(\"east\"); cmds.turn()\nmodule.exports = { cmds }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            },
+            {
+              "path": "fox.rot",
+              "op": "eq",
+              "value": 90
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

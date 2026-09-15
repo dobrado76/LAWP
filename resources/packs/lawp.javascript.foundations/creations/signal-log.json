@@ -1,7 +1,9 @@
 {
   "id": "signal-log",
   "title": "Signal log",
-  "briefMd": "A function that records beacon names. You will keep it.",
+  "briefMd": "A function that tags beacon names. You keep it and raise the bar with hidden tests.",
   "exportKinds": ["folder", "zip"],
-  "steps": [{ "lessonId": "signal-log", "addsMd": "logBeacon(name) prints a line." }]
+  "steps": [
+    { "lessonId": "signal-log", "addsMd": "logBeacon(name) returns a tagged line the hidden tests also run." }
+  ]
 }

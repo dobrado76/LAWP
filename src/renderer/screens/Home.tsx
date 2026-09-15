@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { lessonPath, orderCatalog } from '@shared/catalog'
+import type { Course, Track } from '@shared/schemas/pack'
 import { IPC, invoke } from '../api'
 
 type PackSum = { id: string; title: string; description: string; lessonCount: number }
@@ -26,11 +28,19 @@ export function Home({ onOpen }: { onOpen: (packId: string, lessonId: string) =>
 
   async function openFirst(packId: string) {
     const tree = await invoke<{
+      manifest?: { tracks: string[] }
       lessons: { id: string }[]
-      courses: { modules: { lessonIds: string[] }[] }[]
+      courses: Course[]
+      tracks?: Track[]
     }>(IPC.packsGet, { packId })
-    const fromCourse = tree.courses[0]?.modules[0]?.lessonIds[0]
-    const first = fromCourse ?? tree.lessons[0]?.id
+    const catalog = orderCatalog(tree.manifest?.tracks ?? [], tree.tracks ?? [], tree.courses)
+    const path = lessonPath(catalog.tracks, catalog.courses)
+    const ev = await invoke<{ lessons: Record<string, { status: string }> }>(IPC.progressGet, { packId })
+    const next = path.find((id) => {
+      const status = ev.lessons?.[id]?.status
+      return status !== 'checked' && status !== 'mastered'
+    })
+    const first = next ?? path[0] ?? tree.lessons[0]?.id
     if (first) onOpen(packId, first)
   }
 }

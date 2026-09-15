@@ -1,0 +1,134 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.flow"
+  ],
+  "id": "loops-while-break",
+  "courseId": "signals",
+  "moduleId": "loops",
+  "title": "while and break",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Stop when the counter says so\n\n`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon.\n\nA `while (true)` without `break` is a runaway. The runner will time out."
+    },
+    {
+      "type": "predict",
+      "id": "break-why",
+      "promptMd": "Why does `break` exist in a `while (true)`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "style",
+          "md": "Only to look fancy"
+        },
+        {
+          "id": "reason",
+          "md": "To leave when a real condition happens inside the body"
+        }
+      ],
+      "answer": "reason"
+    },
+    {
+      "type": "code",
+      "id": "while-south",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Walk south with `while` until you have moved twice. Use `break` or a counter.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "ast",
+          "query": "while"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Keep a steps variable. break when it reaches 2."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "let steps = 0\nwhile (true) {\n  Player.move(\"south\")\n  steps += 1\n  if (steps === 2) break\n}"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 1,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 1,
+                "y": 2,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 1
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 2
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

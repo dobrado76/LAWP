@@ -1,0 +1,80 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.security",
+    "js.dom"
+  ],
+  "id": "xss-text-vs-html",
+  "courseId": "the-page",
+  "moduleId": "live",
+  "title": "XSS: textContent vs innerHTML",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The fixture tries a payload\n\n`#raw` starts with a fake script payload in a data attribute. Put that string into `#safe` with **`textContent`**. If you use `innerHTML`, you are practicing the bug.\n\nThe page should show the characters, not run them."
+    },
+    {
+      "type": "predict",
+      "id": "innerhtml",
+      "promptMd": "Putting untrusted text into `innerHTML`…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fine",
+          "md": "Is fine if you trust the lesson",
+          "misconceptionId": "innerhtml-for-text"
+        },
+        {
+          "id": "xss",
+          "md": "Can turn text into elements / script"
+        }
+      ],
+      "answer": "xss"
+    },
+    {
+      "type": "code",
+      "id": "safe-copy",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Copy `#raw`’s `data-payload` into `#safe` using `textContent`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "safe.textContent = raw.getAttribute(\"data-payload\")"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const raw = document.querySelector(\"#raw\")\ndocument.querySelector(\"#safe\").textContent = raw.getAttribute(\"data-payload\")"
+        }
+      ]
+    }
+  ]
+}

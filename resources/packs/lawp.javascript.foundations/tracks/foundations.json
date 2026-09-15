@@ -1,6 +1,6 @@
 {
   "id": "foundations",
-  "title": "Signals and functions",
-  "courseIds": ["signals"],
-  "intro": "JavaScript Course 1."
+  "title": "Foundations",
+  "courseIds": ["placement", "values", "signals", "data"],
+  "intro": "Tutorial 1. First: what a value is. Then: tell the fox to walk. Last: lists and objects — not before."
 }

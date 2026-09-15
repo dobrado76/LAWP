@@ -1,0 +1,9 @@
+{
+  "id": "signal-ops",
+  "title": "Signal ops",
+  "briefMd": "A multi-file kit: a grid route module, a Node log cleaner, hidden tests, and a short Why writeup.",
+  "exportKinds": ["folder", "zip"],
+  "steps": [
+    { "lessonId": "capstone-signal-ops", "addsMd": "walk(dirs) plus scrubLog(text) with three hidden tests." }
+  ]
+}

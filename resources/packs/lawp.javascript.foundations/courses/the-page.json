@@ -1,0 +1,20 @@
+{
+  "id": "the-page",
+  "title": "The page is a tree",
+  "level": "intermediate",
+  "estimatedMinutes": 480,
+  "creationId": "signal-board",
+  "skillIds": ["js.dom", "js.events", "js.security"],
+  "modules": [
+    {
+      "id": "tree",
+      "title": "Nodes, not strings",
+      "lessonIds": ["tree-not-string", "query-and-update", "create-and-remove"]
+    },
+    {
+      "id": "live",
+      "title": "Events and trust",
+      "lessonIds": ["events-bubble", "delegation", "forms-and-input", "a11y-name-and-role", "xss-text-vs-html", "transfer-filter-list-ui", "creation-signal-board"]
+    }
+  ]
+}

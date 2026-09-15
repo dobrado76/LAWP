@@ -1,0 +1,83 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.dom",
+    "js.events"
+  ],
+  "id": "transfer-filter-list-ui",
+  "courseId": "the-page",
+  "moduleId": "live",
+  "title": "Transfer: filter a beacon list",
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Filter in the page\n\nThe list is already in the tree. On `input` of `#q`, hide `li` nodes whose text does not include the query (case-insensitive). Use a class or `hidden` — do not rebuild innerHTML from a string of names."
+    },
+    {
+      "type": "predict",
+      "id": "hide-not-rebuild",
+      "promptMd": "The honest filter…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "html",
+          "md": "Writes a new innerHTML string of the matches"
+        },
+        {
+          "id": "nodes",
+          "md": "Shows/hides existing `li` nodes"
+        }
+      ],
+      "answer": "nodes"
+    },
+    {
+      "type": "code",
+      "id": "filter-li",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Typing `ea` in `#q` should hide `North` and leave `East` visible.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "for (const li of list.querySelectorAll(\"li\")) li.hidden = !li.textContent.toLowerCase().includes(q)"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const q = document.querySelector(\"#q\")\nq.addEventListener(\"input\", () => {\n  const needle = q.value.toLowerCase()\n  for (const li of document.querySelectorAll(\"#list li\")) {\n    li.hidden = !li.textContent.toLowerCase().includes(needle)\n  }\n})"
+        }
+      ]
+    }
+  ]
+}

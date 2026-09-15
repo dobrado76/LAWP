@@ -1,0 +1,80 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.async"
+  ],
+  "id": "async-await",
+  "courseId": "event-loop",
+  "moduleId": "async-code",
+  "title": "async / await",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Sugar over promises\n\n`async function` always returns a Promise. `await` pauses **that** function until the promise settles. Other JavaScript on the page can still run. The OS is not frozen."
+    },
+    {
+      "type": "predict",
+      "id": "await-scope",
+      "promptMd": "`await` blocks…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "os",
+          "md": "The operating system",
+          "misconceptionId": "await-blocks-the-os"
+        },
+        {
+          "id": "fn",
+          "md": "Only the async function you are in"
+        }
+      ],
+      "answer": "fn"
+    },
+    {
+      "type": "code",
+      "id": "await-label",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `async function label()` returns `\"keyed\"` after `await Promise.resolve()`. Print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "keyed"
+        },
+        {
+          "type": "ast",
+          "query": "await"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "async function label() { await Promise.resolve(); return \"keyed\" }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function label() {\n  await Promise.resolve()\n  return \"keyed\"\n}\nlabel().then((v) => console.log(v))\nmodule.exports = { label }"
+        }
+      ]
+    }
+  ]
+}

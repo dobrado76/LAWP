@@ -1,0 +1,20 @@
+{
+  "id": "the-process",
+  "title": "The process",
+  "level": "intermediate",
+  "estimatedMinutes": 480,
+  "creationId": "log-scrubber",
+  "skillIds": ["js.node.fs", "js.modules"],
+  "modules": [
+    {
+      "id": "io",
+      "title": "Process and files",
+      "lessonIds": ["process-argv-env", "fs-read-write", "paths-and-encoding", "buffers-vs-strings", "streams-idea"]
+    },
+    {
+      "id": "style",
+      "title": "Module style and a tool",
+      "lessonIds": ["cjs-vs-esm-node", "error-first-and-promises", "transfer-clean-a-log", "creation-log-scrubber"]
+    }
+  ]
+}

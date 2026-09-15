@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.errors"
+  ],
+  "id": "finally-and-rethrow",
+  "courseId": "errors",
+  "moduleId": "recover",
+  "title": "finally and rethrow",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Cleanup, then fail\n\n`finally` runs whether `try` threw or not. Use it to `Player.say(\"clear\")` after an attempt.\n\nIf you still want the caller to see the error, `throw e` again after cleanup."
+    },
+    {
+      "type": "predict",
+      "id": "finally-always",
+      "promptMd": "`finally` runs when `try` throws?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "no",
+          "md": "No — catch ate it"
+        },
+        {
+          "id": "yes",
+          "md": "Yes — finally always runs"
+        }
+      ],
+      "answer": "yes"
+    },
+    {
+      "type": "code",
+      "id": "cleanup",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `attempt()` tries a throw, `finally` pushes `\"clear\"` into `notes`, then rethrows. Print `notes[0]` by catching outside (`clear`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "clear"
+        },
+        {
+          "type": "ast",
+          "query": "finally"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "try { throw new Error(\"x\") } finally { notes.push(\"clear\") }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const notes = []\nfunction attempt() {\n  try { throw new Error(\"x\") }\n  finally { notes.push(\"clear\") }\n}\ntry { attempt() } catch (e) {}\nconsole.log(notes[0])\nmodule.exports = { attempt, notes }"
+        }
+      ]
+    }
+  ]
+}

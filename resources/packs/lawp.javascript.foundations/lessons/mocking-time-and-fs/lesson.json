@@ -1,0 +1,75 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.test"
+  ],
+  "id": "mocking-time-and-fs",
+  "courseId": "craft",
+  "moduleId": "prove",
+  "title": "Fake clock, fake read",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Do not wait on the real clock\n\n`now()` should call `deps.clock()`. In tests, pass `{ clock: () => 1000 }`.\n\n`load(deps)` should call `deps.read(\"log.txt\")`. Fake `read` returns `\"north\"`.\n\nPrint `1000 north`."
+    },
+    {
+      "type": "predict",
+      "id": "why-fake",
+      "promptMd": "You fake `read` so the test…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "disk",
+          "md": "Needs the real disk every time"
+        },
+        {
+          "id": "pure",
+          "md": "Controls the bytes without a real file"
+        }
+      ],
+      "answer": "pure"
+    },
+    {
+      "type": "code",
+      "id": "inject-deps",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `report({ clock, read })` prints `clock() + \" \" + read(\"log.txt\")`. Use 1000 and north.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "1000 north"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Do not call Date.now() or fs in report — use deps."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function report(deps) {\n  return deps.clock() + \" \" + deps.read(\"log.txt\")\n}\nconsole.log(report({ clock: () => 1000, read: () => \"north\" }))\nmodule.exports = { report }"
+        }
+      ]
+    }
+  ]
+}

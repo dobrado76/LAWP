@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.node.fs"
+  ],
+  "id": "buffers-vs-strings",
+  "courseId": "the-process",
+  "moduleId": "io",
+  "title": "Bytes vs text",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A Buffer is bytes\n\n`Buffer.from(\"café\", \"utf8\")` is bytes. `.toString(\"utf8\")` is text again. `.length` on a buffer is byte length, not character count.\n\nPrint the UTF-8 byte length of `café` (`5`)."
+    },
+    {
+      "type": "predict",
+      "id": "byte-len",
+      "promptMd": "`Buffer.byteLength(\"é\", \"utf8\")` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "one",
+          "md": "`1`"
+        },
+        {
+          "id": "two",
+          "md": "`2` (typical UTF-8)"
+        }
+      ],
+      "answer": "two"
+    },
+    {
+      "type": "code",
+      "id": "byte-length",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Print `Buffer.byteLength(\"café\", \"utf8\")`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "5"
+        },
+        {
+          "type": "ast",
+          "query": "Buffer"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Buffer.byteLength(text, \"utf8\")"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function bytesOf(text) { return Buffer.byteLength(text, \"utf8\") }\nconsole.log(bytesOf(\"café\"))\nmodule.exports = { bytesOf }"
+        }
+      ]
+    }
+  ]
+}

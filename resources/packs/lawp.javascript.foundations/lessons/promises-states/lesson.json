@@ -1,0 +1,76 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.async"
+  ],
+  "id": "promises-states",
+  "courseId": "event-loop",
+  "moduleId": "queues",
+  "title": "Promise states",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Pending, fulfilled, rejected\n\nA Promise starts **pending**. It becomes **fulfilled** with a value or **rejected** with a reason. It does not go back.\n\n`Promise.resolve(\"locked\")` is already fulfilled. Print that value with `then` or `await` in the next lesson — here, return it from an async setup using `.then` and print `locked`."
+    },
+    {
+      "type": "predict",
+      "id": "no-unfulfill",
+      "promptMd": "Can a fulfilled promise become pending again?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "yes",
+          "md": "Yes"
+        },
+        {
+          "id": "no",
+          "md": "No — the state sticks"
+        }
+      ],
+      "answer": "no"
+    },
+    {
+      "type": "code",
+      "id": "resolve-then",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `label()` returns `Promise.resolve(\"locked\")`. Print the fulfilled value.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "locked"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "label().then(v => console.log(v))"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function label() { return Promise.resolve(\"locked\") }\nlabel().then((v) => console.log(v))\nmodule.exports = { label }"
+        }
+      ],
+      "timeoutMs": 4000
+    }
+  ]
+}

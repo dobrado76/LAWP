@@ -1,0 +1,20 @@
+{
+  "id": "data",
+  "title": "Data that becomes a path",
+  "level": "beginner",
+  "estimatedMinutes": 360,
+  "creationId": "signal-log",
+  "skillIds": ["js.arrays", "js.objects"],
+  "modules": [
+    {
+      "id": "lists",
+      "title": "Lists",
+      "lessonIds": ["arrays-index", "arrays-map", "arrays-filter-find", "arrays-reduce-once"]
+    },
+    {
+      "id": "records",
+      "title": "Records and copies",
+      "lessonIds": ["objects-props", "reference-vs-copy", "destructure-spread", "json-roundtrip", "signal-log"]
+    }
+  ]
+}

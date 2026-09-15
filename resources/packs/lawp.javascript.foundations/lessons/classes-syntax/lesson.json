@@ -1,0 +1,134 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.proto"
+  ],
+  "id": "classes-syntax",
+  "courseId": "internals",
+  "moduleId": "objects-deep",
+  "title": "class as sugar",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods. The fox uses `new Route(\"east\").go()` three times."
+    },
+    {
+      "type": "predict",
+      "id": "class-proto",
+      "promptMd": "`new Route(\"east\").go === new Route(\"east\").go` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "false",
+          "md": "false — each instance gets a new go"
+        },
+        {
+          "id": "true",
+          "md": "true — go lives on Route.prototype"
+        }
+      ],
+      "answer": "true"
+    },
+    {
+      "type": "code",
+      "id": "class-route",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `class Route` with `go()`. Walk east to (3, 0).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "ast",
+          "query": "class Route"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const r = new Route(\"east\"); r.go(); r.go(); r.go()"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Route {\n  constructor(dir) { this.dir = dir }\n  go() { Player.move(this.dir) }\n}\nconst r = new Route(\"east\")\nr.go(); r.go(); r.go()\nmodule.exports = { Route }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

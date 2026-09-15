@@ -1,0 +1,134 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.this"
+  ],
+  "id": "this-call-apply-bind",
+  "courseId": "internals",
+  "moduleId": "objects-deep",
+  "title": "this, call, apply, bind",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Four rules (plain functions)\n\n1. `obj.method()` — `this` is `obj`.\n2. `fn()` — `this` is undefined in strict / global in sloppy.\n3. `fn.call(obj)` / `apply` — you pick `this`.\n4. `fn.bind(obj)` — returns a new function with `this` locked.\n\nBind a mover so the callback still walks east."
+    },
+    {
+      "type": "predict",
+      "id": "detached",
+      "promptMd": "After `const go = obj.go; go()` (plain function method), `this` is usually…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "obj",
+          "md": "`obj`"
+        },
+        {
+          "id": "lost",
+          "md": "Not `obj` — the call site lost the receiver"
+        }
+      ],
+      "answer": "lost"
+    },
+    {
+      "type": "code",
+      "id": "bind-mover",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `const go = mover.go.bind(mover)` then `go()` three times east to (3, 0).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "ast",
+          "query": "bind"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "bind locks this to mover so go() still reads this.dir."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const mover = {\n  dir: \"east\",\n  go() { Player.move(this.dir) }\n}\nconst go = mover.go.bind(mover)\ngo(); go(); go()\nmodule.exports = { mover }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

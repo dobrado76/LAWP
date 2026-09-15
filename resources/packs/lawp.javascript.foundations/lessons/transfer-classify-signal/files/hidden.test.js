@@ -1,0 +1,10 @@
+const assert = require('assert')
+const m = require('./main.js')
+assert.strictEqual(m.classify(null), 'empty')
+assert.strictEqual(m.classify(undefined), 'empty')
+assert.strictEqual(m.classify(0), 'zero')
+assert.strictEqual(m.classify(''), 'zero')
+assert.strictEqual(m.classify([]), 'list')
+assert.strictEqual(m.classify('east'), 'text')
+assert.strictEqual(m.classify(3), 'other')
+

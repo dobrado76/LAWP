@@ -1,0 +1,75 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.flow"
+  ],
+  "id": "truth-and-if",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "Truth and if",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Some values act as “no”\n\nIn an `if`, these are falsy: `0`, `\"\"`, `null`, `undefined`, `NaN`, `false`.\n\n`[]` and `\"0\"` are truthy. An empty list is still a list. The string zero is still text."
+    },
+    {
+      "type": "predict",
+      "id": "empty-array",
+      "promptMd": "`if ([]) { \"go\" } else { \"stop\" }` yields…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "stop",
+          "md": "`stop` — empty means false"
+        },
+        {
+          "id": "go",
+          "md": "`go` — an array object is truthy"
+        }
+      ],
+      "answer": "go"
+    },
+    {
+      "type": "code",
+      "id": "label-truth",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `gate(value)` returns `\"open\"` if the value is truthy, otherwise `\"shut\"`. Print `gate(0)`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "shut"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "if (value) is enough. 0 is falsy."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function gate(value) { return value ? \"open\" : \"shut\" }\nconsole.log(gate(0))\nmodule.exports = { gate }"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "scope-hofs",
+  "title": "Scope and functions as tools",
+  "level": "intermediate",
+  "estimatedMinutes": 360,
+  "skillIds": ["js.closures", "js.this", "js.functions"],
+  "modules": [
+    {
+      "id": "scope",
+      "title": "Scope and memory",
+      "lessonIds": ["scope-and-tdz", "closures-radio", "stale-closure-debug"]
+    },
+    {
+      "id": "tools",
+      "title": "Functions as tools",
+      "lessonIds": ["callbacks-as-commands", "arrow-vs-function", "higher-order-route", "transfer-command-table"]
+    }
+  ]
+}

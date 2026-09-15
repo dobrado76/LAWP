@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.objects"
+  ],
+  "id": "symbols",
+  "courseId": "internals",
+  "moduleId": "meta",
+  "title": "Symbols as unique keys",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A key that will not collide\n\n`const meta = Symbol(\"meta\")` is unique. `obj[meta] = \"hidden\"` does not show up in `Object.keys` or JSON by default.\n\nPrint the hidden meta field."
+    },
+    {
+      "type": "predict",
+      "id": "keys-skip",
+      "promptMd": "`Object.keys({ [Symbol(\"m\")]: 1 })` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "one",
+          "md": "`[\"Symbol(m)\"]`"
+        },
+        {
+          "id": "empty",
+          "md": "`[]` — symbols are skipped"
+        }
+      ],
+      "answer": "empty"
+    },
+    {
+      "type": "code",
+      "id": "hide-meta",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Store `\"note\"` under a symbol key and print it (`note`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "note"
+        },
+        {
+          "type": "ast",
+          "query": "Symbol"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const k = Symbol(\"meta\"); obj[k] = \"note\""
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const k = Symbol(\"meta\")\nconst obj = { [k]: \"note\" }\nfunction hiddenNote() { return obj[k] }\nconsole.log(hiddenNote())\nmodule.exports = { hiddenNote, k, obj }"
+        }
+      ]
+    }
+  ]
+}

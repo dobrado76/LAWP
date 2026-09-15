@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.closures"
+  ],
+  "id": "scope-and-tdz",
+  "courseId": "scope-hofs",
+  "moduleId": "scope",
+  "title": "Scope and the TDZ",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A name before it is ready\n\n`let` and `const` exist in a temporal dead zone from the start of the block until the line that initializes them. Reading `label` above `let label = \"east\"` throws `ReferenceError`.\n\n`var` is older and hoists as `undefined`. Prefer `let`/`const` so the crash teaches you."
+    },
+    {
+      "type": "predict",
+      "id": "tdz",
+      "promptMd": "What happens if you `console.log(x)` on the line before `let x = 1` in the same block?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "undef",
+          "md": "Prints `undefined`"
+        },
+        {
+          "id": "throw",
+          "md": "Throws ReferenceError"
+        }
+      ],
+      "answer": "throw"
+    },
+    {
+      "type": "code",
+      "id": "after-init",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `readyLabel()` returns `\"east\"` from a `let` that is initialized before you read it. Print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east"
+        },
+        {
+          "type": "ast",
+          "query": "let"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Declare, then assign or initialize, then return."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function readyLabel() {\n  let dir = \"east\"\n  return dir\n}\nconsole.log(readyLabel())\nmodule.exports = { readyLabel }"
+        }
+      ]
+    }
+  ]
+}

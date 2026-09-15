@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.proto"
+  ],
+  "id": "new-and-create",
+  "courseId": "internals",
+  "moduleId": "objects-deep",
+  "title": "new vs Object.create",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two ways to set the prototype\n\n`new Fn()` runs `Fn` and sets the instance proto to `Fn.prototype`.\n\n`Object.create(proto)` makes an object whose proto is `proto` and does not run a constructor. Use `create` when you want a chain without `new`."
+    },
+    {
+      "type": "predict",
+      "id": "create-null",
+      "promptMd": "`Object.create(null)` has…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "object-proto",
+          "md": "`Object.prototype` as its proto"
+        },
+        {
+          "id": "null-proto",
+          "md": "No prototype — a clean dictionary"
+        }
+      ],
+      "answer": "null-proto"
+    },
+    {
+      "type": "code",
+      "id": "create-child",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `child()` returns `Object.create({ kind: \"beacon\" })`. Print `child().kind`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "beacon"
+        },
+        {
+          "type": "ast",
+          "query": "Object.create"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The field lives on the prototype. The child still reads it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function child() { return Object.create({ kind: \"beacon\" }) }\nconsole.log(child().kind)\nmodule.exports = { child }"
+        }
+      ]
+    }
+  ]
+}

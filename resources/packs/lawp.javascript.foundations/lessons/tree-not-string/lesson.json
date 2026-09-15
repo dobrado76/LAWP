@@ -1,0 +1,78 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.dom"
+  ],
+  "id": "tree-not-string",
+  "courseId": "the-page",
+  "moduleId": "tree",
+  "title": "The document is a tree",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Nodes, not one long string\n\nThe page is a tree of nodes. `document.body` is an element. Changing `textContent` changes a node. You do not rebuild the whole HTML string to rename a heading."
+    },
+    {
+      "type": "predict",
+      "id": "query-type",
+      "promptMd": "`document.querySelector(\"h1\")` returns…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "html",
+          "md": "The tag as a string"
+        },
+        {
+          "id": "node",
+          "md": "An element node (or null)"
+        }
+      ],
+      "answer": "node"
+    },
+    {
+      "type": "code",
+      "id": "see-tree",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Set the `h1#title` text to `Signal desk`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "document.querySelector(\"#title\").textContent = \"Signal desk\""
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "document.querySelector(\"#title\").textContent = \"Signal desk\""
+        }
+      ]
+    }
+  ]
+}

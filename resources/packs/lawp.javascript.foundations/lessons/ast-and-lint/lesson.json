@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.test"
+  ],
+  "id": "ast-and-lint",
+  "courseId": "craft",
+  "moduleId": "prove",
+  "title": "A stand-in for a linter",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Refuse `==` in the edit file\n\nLAWP’s `ast` check is a **substring** search, not a real parser pass. Treat it as a stand-in for a linter.\n\nWrite `same(a, b)` with `===`. Print `false` for `0` and `\"\"`."
+    },
+    {
+      "type": "predict",
+      "id": "ast-honest",
+      "promptMd": "This lesson’s `==` ban is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "eslint",
+          "md": "A full ESLint run"
+        },
+        {
+          "id": "substr",
+          "md": "A stand-in: the file text must not use `==`"
+        }
+      ],
+      "answer": "substr"
+    },
+    {
+      "type": "code",
+      "id": "no-double",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `same(0, \"\")` is false via `===`. Print `false`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "false"
+        },
+        {
+          "type": "ast",
+          "query": "==="
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Use === only."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function same(a, b) { return a === b }\nconsole.log(same(0, \"\"))\nmodule.exports = { same }"
+        }
+      ]
+    }
+  ]
+}

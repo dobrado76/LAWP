@@ -1,0 +1,80 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.async",
+    "js.iter"
+  ],
+  "id": "async-iterators",
+  "courseId": "event-loop",
+  "moduleId": "async-code",
+  "title": "for await of a step stream",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A stream of steps\n\n`async function* steps() { yield \"east\"; yield \"south\" }`.\n\n`for await (const d of steps())` waits for each yield. Print `east-south` joined from the stream."
+    },
+    {
+      "type": "predict",
+      "id": "for-await",
+      "promptMd": "`for await` is for…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "sync",
+          "md": "Only ordinary arrays"
+        },
+        {
+          "id": "async",
+          "md": "Async iterables (and sync ones too)"
+        }
+      ],
+      "answer": "async"
+    },
+    {
+      "type": "code",
+      "id": "await-of",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `async function* steps` yields `east` then `south`. Join with `-` and print `east-south`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east-south"
+        },
+        {
+          "type": "ast",
+          "query": "for await"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "for await (const d of steps()) out.push(d)"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function* steps() {\n  yield \"east\"\n  yield \"south\"\n}\nasync function join() {\n  const out = []\n  for await (const d of steps()) out.push(d)\n  return out.join(\"-\")\n}\njoin().then((v) => console.log(v))\nmodule.exports = { steps, join }"
+        }
+      ]
+    }
+  ]
+}

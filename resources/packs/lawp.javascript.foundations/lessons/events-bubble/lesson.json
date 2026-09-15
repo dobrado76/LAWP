@@ -1,0 +1,78 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.events"
+  ],
+  "id": "events-bubble",
+  "courseId": "the-page",
+  "moduleId": "live",
+  "title": "Events bubble",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using target id then currentTarget id."
+    },
+    {
+      "type": "predict",
+      "id": "target",
+      "promptMd": "You click the inner button. `event.target` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "outer",
+          "md": "The parent with the listener"
+        },
+        {
+          "id": "inner",
+          "md": "The inner button"
+        }
+      ],
+      "answer": "inner"
+    },
+    {
+      "type": "code",
+      "id": "bubble-ids",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> On click of `#outer`, write `targetId>currentId` into `#out`. Hidden test clicks `#inner`.",
+      "preview": {
+        "kind": "iframe"
+      },
+      "files": [
+        {
+          "path": "files/index.html",
+          "role": "fixture"
+        },
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "outer.addEventListener(\"click\", (e) => { ... e.target.id ... e.currentTarget.id })"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "document.querySelector(\"#outer\").addEventListener(\"click\", (e) => {\n  document.querySelector(\"#out\").textContent = e.target.id + \">\" + e.currentTarget.id\n})"
+        }
+      ]
+    }
+  ]
+}

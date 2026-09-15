@@ -1,31 +1,80 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "arrays-map",
   "packId": "lawp.javascript.foundations",
-  "courseId": "signals",
-  "moduleId": "arrays",
-  "title": "Map makes a new list",
-  "skillIds": ["js.arrays"],
+  "taskRev": 2,
   "estimatedMinutes": 18,
-  "taskRev": 1,
+  "skillIds": [
+    "js.arrays"
+  ],
+  "id": "arrays-map",
+  "courseId": "data",
+  "moduleId": "lists",
+  "title": "Map makes a new list",
   "blocks": [
     {
       "type": "explain",
-      "md": "## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array. Print `ADA,GRACE`."
+      "md": "## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array. Print `ADA,GRACE`.\n\nThen walk: map `\"E\"`/`\"S\"` labels into `\"east\"`/`\"south\"` and move those dirs to (2, 1)."
+    },
+    {
+      "type": "predict",
+      "id": "map-original",
+      "promptMd": "After `const ys = xs.map(n => n + 1)`, `xs` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "changed",
+          "md": "Changed in place",
+          "misconceptionId": "map-mutates"
+        },
+        {
+          "id": "same",
+          "md": "The same list as before"
+        }
+      ],
+      "answer": "same"
     },
     {
       "type": "code",
       "id": "upper-map",
       "engine": "javascript",
       "entry": "main.js",
-      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "promptMd": "> Map `ada, grace` to uppercase and join with a comma: `ADA,GRACE`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
       "checks": [
-        { "type": "stdout", "equals": "ADA,GRACE", "misconceptionId": "map-mutates" },
-        { "type": "ast", "query": "map" }
+        {
+          "type": "stdout",
+          "equals": "ADA,GRACE",
+          "misconceptionId": "map-mutates"
+        },
+        {
+          "type": "ast",
+          "query": "map"
+        },
+        {
+          "type": "js-assert"
+        }
       ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "Use map, then join with a comma." }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Use map, then join with a comma."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function uppers(names) { return names.map(n => n.toUpperCase()).join(\",\") }\nconsole.log(uppers([\"ada\", \"grace\"]))\nmodule.exports = { uppers }"
+        }
       ]
     }
   ]

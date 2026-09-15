@@ -1,0 +1,80 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.values"
+  ],
+  "id": "names-let-const",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Names, let, and const",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot *rebinding* — the sticker on the box stays. If the value is an object, the stuff *inside* can still change.\n\n`const signal = { on: false }; signal.on = true` is legal. `signal = {}` is not."
+    },
+    {
+      "type": "predict",
+      "id": "const-object",
+      "promptMd": "After `const route = { dir: \"east\" }; route.dir = \"south\"`, what is `route.dir`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "east",
+          "md": "`\"east\"` — const froze the object",
+          "misconceptionId": "const-means-immutable"
+        },
+        {
+          "id": "south",
+          "md": "`\"south\"` — the binding stayed, the field changed"
+        }
+      ],
+      "answer": "south"
+    },
+    {
+      "type": "code",
+      "id": "bind-then-print",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `labelBox` should return the string `locked` from a `const` binding. Print that word.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "locked"
+        },
+        {
+          "type": "ast",
+          "query": "const"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const names a binding. You can still read it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const word = \"locked\"\nfunction labelBox() { return word }\nconsole.log(labelBox())\nmodule.exports = { labelBox }"
+        }
+      ]
+    }
+  ]
+}

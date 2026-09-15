@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.objects"
+  ],
+  "id": "proxies-reflect",
+  "courseId": "internals",
+  "moduleId": "meta",
+  "title": "One proxy trap",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Trap `get`, do not build a framework\n\n`new Proxy(target, { get(t, key) { return Reflect.get(t, key) } })` intercepts reads. Use it once to default missing dirs to `\"east\"`.\n\nPrint the fallback dir."
+    },
+    {
+      "type": "predict",
+      "id": "proxy-get",
+      "promptMd": "A `get` trap runs when you…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "write",
+          "md": "Write a field"
+        },
+        {
+          "id": "read",
+          "md": "Read a field"
+        }
+      ],
+      "answer": "read"
+    },
+    {
+      "type": "code",
+      "id": "proxy-default",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Proxy a `{}` so missing keys return `\"east\"`. Print `wrap.unknown`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east"
+        },
+        {
+          "type": "ast",
+          "query": "Proxy"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "get(t, key) { return key in t ? t[key] : \"east\" }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function wrapRoute(obj) {\n  return new Proxy(obj, {\n    get(t, key) {\n      if (key in t) return Reflect.get(t, key)\n      return \"east\"\n    }\n  })\n}\nconsole.log(wrapRoute({}).unknown)\nmodule.exports = { wrapRoute }"
+        }
+      ]
+    }
+  ]
+}

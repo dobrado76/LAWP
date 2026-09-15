@@ -1,0 +1,358 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.async"
+  ],
+  "id": "macrotasks-timeout",
+  "courseId": "event-loop",
+  "moduleId": "queues",
+  "title": "Macrotasks: timeout",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Sync, then the timeout tray\n\n`setTimeout(fn, 0)` does **not** mean “run now.” It means “put `fn` on the macrotask queue.” Sync work finishes first.\n\nOn the desk: light **1 Sync**, then later **3 timeout**. (The `then` lamp waits for the next lesson.)"
+    },
+    {
+      "type": "activity",
+      "id": "desk-sync-timeout",
+      "kind": "experiment",
+      "engine": "world-v1",
+      "promptMd": "Light sync first, then the timeout. Leave `then` off for this lesson. Wrong order sets a fault.",
+      "skillIds": [
+        "js.async"
+      ],
+      "constraintMode": "final",
+      "predict": {
+        "promptMd": "Does `setTimeout(fn, 0)` run before the current call stack finishes?",
+        "kind": "mcq",
+        "choices": [
+          {
+            "id": "yes",
+            "md": "Yes — 0 means now"
+          },
+          {
+            "id": "no",
+            "md": "No — sync finishes first"
+          }
+        ],
+        "answer": "no"
+      },
+      "world": {
+        "parts": [
+          {
+            "id": "desk",
+            "type": "meter",
+            "props": {
+              "step": 0,
+              "fault": 0,
+              "pick": 0,
+              "label": "Dispatch desk"
+            }
+          },
+          {
+            "id": "sync",
+            "type": "lamp",
+            "props": {
+              "on": 0,
+              "brightness": 1,
+              "label": "1 · Sync work"
+            }
+          },
+          {
+            "id": "micro",
+            "type": "lamp",
+            "props": {
+              "on": 0,
+              "brightness": 1,
+              "label": "2 · promise.then"
+            }
+          },
+          {
+            "id": "macro",
+            "type": "lamp",
+            "props": {
+              "on": 0,
+              "brightness": 1,
+              "label": "3 · setTimeout"
+            }
+          }
+        ],
+        "connections": [],
+        "actions": [
+          {
+            "id": "pick-sync",
+            "label": "Run the sync call",
+            "target": "desk",
+            "op": "set",
+            "key": "pick",
+            "values": [
+              1
+            ]
+          },
+          {
+            "id": "pick-micro",
+            "label": "Flush promise.then",
+            "target": "desk",
+            "op": "set",
+            "key": "pick",
+            "values": [
+              2
+            ]
+          },
+          {
+            "id": "pick-macro",
+            "label": "Fire the timeout",
+            "target": "desk",
+            "op": "set",
+            "key": "pick",
+            "values": [
+              3
+            ]
+          }
+        ],
+        "rules": [
+          {
+            "id": "sync-ok",
+            "when": [
+              {
+                "path": "desk.pick",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "path": "desk.step",
+                "op": "eq",
+                "value": 0
+              }
+            ],
+            "set": [
+              {
+                "target": "sync",
+                "key": "on",
+                "value": 1
+              },
+              {
+                "target": "sync",
+                "key": "brightness",
+                "value": 2
+              },
+              {
+                "target": "desk",
+                "key": "step",
+                "value": 1
+              },
+              {
+                "target": "desk",
+                "key": "pick",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "id": "micro-ok",
+            "when": [
+              {
+                "path": "desk.pick",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "path": "desk.step",
+                "op": "eq",
+                "value": 1
+              }
+            ],
+            "set": [
+              {
+                "target": "micro",
+                "key": "on",
+                "value": 1
+              },
+              {
+                "target": "micro",
+                "key": "brightness",
+                "value": 2
+              },
+              {
+                "target": "desk",
+                "key": "step",
+                "value": 2
+              },
+              {
+                "target": "desk",
+                "key": "pick",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "id": "macro-ok",
+            "when": [
+              {
+                "path": "desk.pick",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "path": "desk.step",
+                "op": "eq",
+                "value": 2
+              }
+            ],
+            "set": [
+              {
+                "target": "macro",
+                "key": "on",
+                "value": 1
+              },
+              {
+                "target": "macro",
+                "key": "brightness",
+                "value": 2
+              },
+              {
+                "target": "desk",
+                "key": "step",
+                "value": 3
+              },
+              {
+                "target": "desk",
+                "key": "pick",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "id": "sync-wrong",
+            "when": [
+              {
+                "path": "desk.pick",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "path": "desk.step",
+                "op": "neq",
+                "value": 0
+              }
+            ],
+            "set": [
+              {
+                "target": "desk",
+                "key": "fault",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "id": "micro-wrong",
+            "when": [
+              {
+                "path": "desk.pick",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "path": "desk.step",
+                "op": "neq",
+                "value": 1
+              }
+            ],
+            "set": [
+              {
+                "target": "desk",
+                "key": "fault",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "id": "macro-wrong",
+            "when": [
+              {
+                "path": "desk.pick",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "path": "desk.step",
+                "op": "neq",
+                "value": 2
+              }
+            ],
+            "set": [
+              {
+                "target": "desk",
+                "key": "fault",
+                "value": 1
+              }
+            ]
+          }
+        ],
+        "view": {
+          "kind": "list"
+        }
+      },
+      "goal": {
+        "all": [
+          {
+            "path": "sync.on",
+            "op": "eq",
+            "value": 1
+          },
+          {
+            "path": "macro.on",
+            "op": "eq",
+            "value": 1
+          },
+          {
+            "path": "desk.fault",
+            "op": "eq",
+            "value": 0
+          }
+        ]
+      },
+      "constraints": [
+        {
+          "path": "desk.fault",
+          "op": "eq",
+          "value": 0
+        }
+      ],
+      "explainAfter": {
+        "promptMd": "Timeouts are macrotasks. They wait until the stack is clear."
+      },
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Press Run the sync call, then Fire the timeout. Skip then for now — but the desk still wants then between them if you use the full order…"
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "This desk’s full legal order is sync → then → timeout. For this lesson, light then as well so the timeout is legal — then treat that lamp as “queue gap.”"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Sync, then Flush promise.then, then Fire the timeout."
+        }
+      ],
+      "misconceptionMap": [
+        {
+          "when": {
+            "path": "desk.fault",
+            "op": "eq",
+            "value": 1
+          },
+          "misconceptionId": "then-and-timeout-same-queue"
+        }
+      ]
+    }
+  ]
+}

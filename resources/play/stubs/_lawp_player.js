@@ -48,6 +48,21 @@ const api = {
   say(text) {
     write({ op: 'say', text: String(text) })
     console.log('Player.say')
+  },
+  wait(ticks) {
+    if (!Number.isInteger(ticks) || ticks < 0) {
+      write({ op: 'fault', message: 'wait ticks must be a whole number ≥ 0' })
+      console.log('Player.wait: bad ticks')
+      return Promise.reject(new TypeError('wait ticks must be a whole number ≥ 0'))
+    }
+    const ms = Math.min(2000, ticks * 25)
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        write({ op: 'wait', ticks })
+        console.log('Player.wait(' + ticks + ')')
+        resolve()
+      }, ms)
+    })
   }
 }
 

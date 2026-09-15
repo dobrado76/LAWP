@@ -1,27 +1,89 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "values-and-typeof",
   "packId": "lawp.javascript.foundations",
-  "courseId": "signals",
-  "moduleId": "values",
-  "title": "Values and typeof",
-  "skillIds": ["js.values"],
+  "taskRev": 2,
   "estimatedMinutes": 12,
-  "taskRev": 1,
+  "skillIds": [
+    "js.values"
+  ],
+  "id": "values-and-typeof",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Values and typeof",
   "blocks": [
     {
       "type": "explain",
-      "md": "## Kinds of values\n\n`typeof 3` is `\"number\"`. `typeof \"3\"` is `\"string\"`. Print the kind of the number 3."
+      "md": "## Kinds you can print\n\nEvery value has a kind. `typeof 3` is `\"number\"`. `typeof \"3\"` is `\"string\"`. `typeof null` is `\"object\"` — that answer is a leftover bug. Do not treat `null` as a bag of fields.\n\nExport `kindOf` so a hidden test can call it. Print the kind of the number 3."
+    },
+    {
+      "type": "predict",
+      "id": "typeof-null",
+      "promptMd": "`typeof null` prints which string?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "null",
+          "md": "`null`"
+        },
+        {
+          "id": "object",
+          "md": "`object`",
+          "misconceptionId": "null-is-object-ok"
+        },
+        {
+          "id": "undefined",
+          "md": "`undefined`"
+        }
+      ],
+      "answer": "object"
     },
     {
       "type": "code",
       "id": "typeof-number",
       "engine": "javascript",
       "entry": "main.js",
-      "files": [{ "path": "files/main.js", "role": "edit" }],
-      "checks": [{ "type": "stdout", "equals": "number" }],
-      "hintLadder": [{ "level": 1, "kind": "concept", "md": "console.log(typeof 3)" }]
+      "promptMd": "> Return and print `typeof 3` (`number`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "number"
+        },
+        {
+          "type": "ast",
+          "query": "typeof"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "`typeof` is an operator, not a function you must call with extra punctuation."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Export `kindOf` so the hidden test can call `kindOf(3)`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function kindOf(v) { return typeof v }\nconsole.log(kindOf(3))\nmodule.exports = { kindOf }"
+        }
+      ]
     }
   ]
 }

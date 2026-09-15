@@ -1,0 +1,135 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "js.functions",
+    "js.objects"
+  ],
+  "id": "transfer-command-table",
+  "courseId": "scope-hofs",
+  "moduleId": "tools",
+  "title": "Transfer: a new maze table",
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Dispatch drives the walk\n\n`run(plan, table)` looks up each string in `table` and calls that function. A new maze is a new plan array — not a new pile of copy-paste moves.\n\nPlan: `\"e\"`, `\"e\"`, `\"s\"` to (2, 1)."
+    },
+    {
+      "type": "predict",
+      "id": "missing-key",
+      "promptMd": "If `plan` has `\"n\"` and `table` has no `n`, a careful runner should…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "skip",
+          "md": "Skip silently forever"
+        },
+        {
+          "id": "throw",
+          "md": "Throw or say the unknown key"
+        }
+      ],
+      "answer": "throw"
+    },
+    {
+      "type": "code",
+      "id": "run-plan",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `run(plan, table)` with table keys `e` / `s`. Reach the beacon at (2, 1).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "for (const key of plan) table[key]()"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function run(plan, table) {\n  for (const key of plan) {\n    if (!table[key]) throw new Error(\"unknown \" + key)\n    table[key]()\n  }\n}\nconst table = { e: () => Player.move(\"east\"), s: () => Player.move(\"south\") }\nrun([\"e\", \"e\", \"s\"], table)\nmodule.exports = { run }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 1,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

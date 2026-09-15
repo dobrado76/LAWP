@@ -1,0 +1,131 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.closures"
+  ],
+  "id": "closures-radio",
+  "courseId": "scope-hofs",
+  "moduleId": "scope",
+  "title": "A radio that remembers",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The function keeps the box\n\n`makeMover(dir)` returns a function. That inner function still sees `dir` later — that is a closure. The fox can call the returned function after you have left `makeMover`.\n\nThe closure does not copy the value onto a sticky note unless you create a new binding each time."
+    },
+    {
+      "type": "predict",
+      "id": "remembers-dir",
+      "promptMd": "`const go = makeMover(\"east\");` later `go()` should move…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "east",
+          "md": "east — it still sees `dir`"
+        },
+        {
+          "id": "lost",
+          "md": "nowhere — `dir` is gone",
+          "misconceptionId": "closure-copies-value"
+        }
+      ],
+      "answer": "east"
+    },
+    {
+      "type": "code",
+      "id": "radio-east",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `makeMover(\"east\")` returns a function. Call it three times to reach x=3.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "return function () { Player.move(dir) }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function makeMover(dir) {\n  return function go() { Player.move(dir) }\n}\nconst go = makeMover(\"east\")\ngo(); go(); go()\nmodule.exports = { makeMover }"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

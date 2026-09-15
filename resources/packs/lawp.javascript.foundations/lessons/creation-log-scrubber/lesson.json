@@ -1,0 +1,84 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.node.fs"
+  ],
+  "id": "creation-log-scrubber",
+  "courseId": "the-process",
+  "moduleId": "style",
+  "title": "Creation: log scrubber",
+  "creation": {
+    "id": "log-scrubber",
+    "step": 1,
+    "briefMd": "scrub(input, output) writes unique trimmed names."
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A tool you keep\n\n`scrub(input, output)` reads UTF-8, writes unique trimmed sorted names to `output`. Use the same rules as the transfer lesson.\n\nPrint `ok` after writing `clean.txt` from `messy.txt`."
+    },
+    {
+      "type": "predict",
+      "id": "write-side",
+      "promptMd": "`scrub` should…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "stdout-only",
+          "md": "Only print the names"
+        },
+        {
+          "id": "write",
+          "md": "Write a file the next program can open"
+        }
+      ],
+      "answer": "write"
+    },
+    {
+      "type": "code",
+      "id": "scrub-fn",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `scrub(\"messy.txt\", \"clean.txt\")` writes the clean list. Print `ok`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/messy.txt",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "ok"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Reuse clean(), then writeFileSync."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const fs = require(\"fs\")\nfunction clean(text) {\n  const names = text.split(/\\r?\\n/).map((s) => s.trim()).filter(Boolean)\n  return [...new Set(names)].sort().join(\"\\n\")\n}\nfunction scrub(input, output) {\n  fs.writeFileSync(output, clean(fs.readFileSync(input, \"utf8\")))\n}\nscrub(\"messy.txt\", \"clean.txt\")\nconsole.log(\"ok\")\nmodule.exports = { clean, scrub }"
+        }
+      ]
+    }
+  ]
+}

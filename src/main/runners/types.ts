@@ -29,4 +29,7 @@ export type CodeBlock = {
   hintLadder?: { level: number; kind?: 'concept' | 'assist'; md: string }[]
   play?: PlaySpec
   promptMd?: string
+  preview?: { kind: 'none' | 'iframe' }
+  argv?: string[]
+  env?: Record<string, string>
 }

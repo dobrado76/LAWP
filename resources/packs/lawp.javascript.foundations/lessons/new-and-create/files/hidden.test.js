@@ -1,0 +1,10 @@
+const assert = require('assert')
+const m = require('./main.js')
+const c = m.child()
+assert.strictEqual(c.kind, 'beacon')
+assert.ok(!Object.hasOwn(c, 'kind'))
+
+const fs = require('fs')
+const assert = require('assert')
+const src = fs.readFileSync('main.js', 'utf8')
+assert.ok(src.includes("Object.create"), 'expected source to include ' + "Object.create")

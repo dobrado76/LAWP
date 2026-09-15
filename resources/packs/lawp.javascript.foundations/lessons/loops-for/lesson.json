@@ -1,0 +1,140 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.flow",
+    "js.functions"
+  ],
+  "id": "loops-for",
+  "courseId": "signals",
+  "moduleId": "loops",
+  "title": "for writes the path",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One idea, many steps\n\nA `for` loop is a counter that writes the path. Three east steps should be one loop, not three copy-pasted calls that will drift when the beacon moves."
+    },
+    {
+      "type": "predict",
+      "id": "for-count",
+      "promptMd": "`for (let i = 0; i < 3; i++)` runs the body how many times?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "two",
+          "md": "2",
+          "misconceptionId": "off-by-one-inclusive"
+        },
+        {
+          "id": "three",
+          "md": "3"
+        },
+        {
+          "id": "four",
+          "md": "4 — it includes 3"
+        }
+      ],
+      "answer": "three"
+    },
+    {
+      "type": "code",
+      "id": "for-east",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Use a `for` loop to walk east onto the beacon at (3, 0).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "ast",
+          "query": "for"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "i < 3 with i starting at 0 runs three times."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "for (let i = 0; i < 3; i++) {\n  Player.move(\"east\")\n}"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "label": "Beacon"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg",
+              "rock": "rock.svg",
+              "coin": "coin.svg",
+              "key": "key.svg",
+              "glint": "glint.svg"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

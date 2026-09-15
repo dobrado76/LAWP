@@ -1,4 +1,18 @@
 [
-  { "id": "double-equals-ok", "title": "Treats == as safe equality", "skillIds": ["js.values"] },
-  { "id": "map-mutates", "title": "Thinks map changes the original array", "skillIds": ["js.arrays"] }
+  { "id": "null-is-object-ok", "title": "Treats typeof null as a true kind", "skillIds": ["js.values"], "followUpLessonId": "values-and-typeof" },
+  { "id": "const-means-immutable", "title": "Thinks const freezes an object", "skillIds": ["js.values"], "followUpLessonId": "names-let-const" },
+  { "id": "double-equals-is-fine", "title": "Treats == as safe equality", "skillIds": ["js.values"], "followUpLessonId": "triple-equals" },
+  { "id": "double-equals-ok", "title": "Treats == as safe equality", "skillIds": ["js.values"], "followUpLessonId": "triple-equals" },
+  { "id": "print-is-return", "title": "Thinks printing is the function result", "skillIds": ["js.functions"], "followUpLessonId": "return-not-print" },
+  { "id": "off-by-one-inclusive", "title": "Counts the last index one too far", "skillIds": ["js.flow"], "followUpLessonId": "debug-off-by-one-path" },
+  { "id": "arrays-are-copied-by-assign", "title": "Thinks array assign copies items", "skillIds": ["js.arrays"], "followUpLessonId": "reference-vs-copy" },
+  { "id": "map-mutates", "title": "Thinks map changes the original array", "skillIds": ["js.arrays"], "followUpLessonId": "arrays-map" },
+  { "id": "closure-copies-value", "title": "Thinks a closure copies the value at create time", "skillIds": ["js.closures"], "followUpLessonId": "stale-closure-debug" },
+  { "id": "arrow-is-just-shorter", "title": "Thinks arrow is only shorter syntax", "skillIds": ["js.this"], "followUpLessonId": "arrow-vs-function" },
+  { "id": "await-blocks-the-os", "title": "Thinks await freezes the operating system", "skillIds": ["js.async"], "followUpLessonId": "async-await" },
+  { "id": "then-and-timeout-same-queue", "title": "Thinks then and setTimeout share one queue", "skillIds": ["js.async"], "followUpLessonId": "microtasks-then" },
+  { "id": "innerhtml-for-text", "title": "Puts plain text through innerHTML", "skillIds": ["js.security"], "followUpLessonId": "xss-text-vs-html" },
+  { "id": "res-ok-throws", "title": "Thinks fetch throws on HTTP 404", "skillIds": ["js.http"], "followUpLessonId": "fetch-ok-and-fail" },
+  { "id": "path-dotdot-ok", "title": "Walks out of the folder with ..", "skillIds": ["js.node.fs"], "followUpLessonId": "paths-and-encoding" },
+  { "id": "proto-merge-ok", "title": "Merges untrusted keys onto Object.prototype", "skillIds": ["js.security"], "followUpLessonId": "proto-pollution" }
 ]

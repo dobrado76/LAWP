@@ -1,0 +1,79 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.test"
+  ],
+  "id": "assert-and-aaa",
+  "courseId": "craft",
+  "moduleId": "prove",
+  "title": "Arrange, act, assert",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## AAA on a route helper\n\n**Arrange** a list of dirs. **Act** by calling `walkLength`. **Assert** with `assert.strictEqual`.\n\n`walkLength([\"east\", \"south\"])` is `2`. Print `pass` after your own assert in `main.js` (the hidden test also asserts)."
+    },
+    {
+      "type": "predict",
+      "id": "assert-fail",
+      "promptMd": "A failed `assert.strictEqual` …",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "log",
+          "md": "Only prints"
+        },
+        {
+          "id": "throw",
+          "md": "Throws, so the process exits non-zero"
+        }
+      ],
+      "answer": "throw"
+    },
+    {
+      "type": "code",
+      "id": "aaa",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Implement `walkLength`. Assert it. Print `pass`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "pass"
+        },
+        {
+          "type": "ast",
+          "query": "assert"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "const assert = require(\"assert\"); assert.strictEqual(walkLength([\"east\"]), 1)"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const assert = require(\"assert\")\nfunction walkLength(dirs) { return dirs.length }\nassert.strictEqual(walkLength([\"east\", \"south\"]), 2)\nconsole.log(\"pass\")\nmodule.exports = { walkLength }"
+        }
+      ]
+    }
+  ]
+}

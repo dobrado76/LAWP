@@ -1,0 +1,83 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.http"
+  ],
+  "id": "json-body",
+  "courseId": "talking-servers",
+  "moduleId": "messages",
+  "title": "JSON body parse errors",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. Catch that and return `\"bad-json\"`.\n\nGood `/beacons.json` still parses."
+    },
+    {
+      "type": "predict",
+      "id": "json-throw",
+      "promptMd": "`res.json()` on `{` …",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "obj",
+          "md": "Returns `{}`"
+        },
+        {
+          "id": "throw",
+          "md": "Rejects / throws a parse error"
+        }
+      ],
+      "answer": "throw"
+    },
+    {
+      "type": "code",
+      "id": "parse-safe",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `safeRead(\"/broken\")` returns `\"bad-json\"`. Print it.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/beacons.json",
+          "role": "fixture"
+        },
+        {
+          "path": "files/routes.json",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "bad-json"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "try { return await res.json() } catch { return \"bad-json\" }"
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function safeRead(url) {\n  const res = await fetch(url)\n  try { return await res.json() }\n  catch { return \"bad-json\" }\n}\nsafeRead(\"/broken\").then((v) => console.log(v))\nmodule.exports = { safeRead }"
+        }
+      ]
+    }
+  ]
+}
