@@ -31,6 +31,11 @@ First product minor. Package/spec numbering was previously `0.3.3`; this release
 ### Library
 
 - The pack header now wears that pack's **cover art** with the blurb from its shelf card, so opening a pack no longer drops you from an illustrated shelf onto a bare line of text. The art sits under a gradient that keeps it behind the title rather than competing with it, and a pack with no cover just gets the plain bar as before
+- Card blurbs are short learning objectives (two-line clamp); the fuller text stays inside the lesson. Cards prefer the lesson's short `description` over the longer `LESSON_CARDS` copy
+- Border colour means **selection only** (Play next / current). Progress and completion no longer paint the card edge — that was why yellow looked like a "transfer" colour. Transfer and debug get an amber/coral left stripe and a type chip instead
+- Status badges say **Passed** or **Mastered**, matching the grading model; the filter that covers both is **Finished**
+- Section time is the sum of lesson minutes (section 1.2 no longer claims 4 h when the lessons add up to ~2 h 50)
+- **names-let-const** prompt now says plainly: declare a `const`, return that binding — a bare `return "locked"` fails. Hidden test rejects a string-literal return. Studio no longer hides the overall **Incorrect** when questions pass but code fails (that was why two Correct banners could sit next to 67% with no lesson verdict); Why then says the questions are right and the code task is still open
 
 - Dropped the **Your path** heading. The pack title is already above it and the filter pills already carry the counts, so the row was restating what the page had just said. The pills moved up beside **Export pack ZIP** in the title row, which removes a second near-empty row and opens the pack page straight onto Play next
 - A chapter now reads as a chapter: **`Chapter 3 — The page` on one 21px line**, the number in accent and the name in full-strength text, with its one-line intro underneath as supporting text. It was the reverse before — the chapter name was the smallest type on the page while its description was the largest. Sections read the same way, `1.2 — Values you can see`

@@ -187,6 +187,7 @@ export function lessonsC7C9() {
       title: 'Promise states',
       skillIds: ['js.async'],
       estimatedMinutes: 18,
+      taskRev: 3,
       blocks: [
         explain(
           '## Pending, fulfilled, rejected\n\nA Promise starts **pending**. It becomes **fulfilled** with a value or **rejected** with a reason. After that, the state sticks. You cannot send it back to pending.\n\n`Promise.resolve("locked")` is already fulfilled. The desk already stamped the slip. Print that value with `.then` here — `await` comes next.\n\nOn the board: a beacon key that is already locked is still a promise. You just do not wait for a later tick to settle it.'
@@ -208,7 +209,8 @@ export function lessonsC7C9() {
         ),
         stdoutCode({
           id: 'resolve-then',
-          prompt: '> `label()` returns `Promise.resolve("locked")`. Print the fulfilled value.',
+          prompt:
+            '> `label()` must return a Promise (e.g. `Promise.resolve("locked")`), not a bare string. Print the fulfilled value.',
           equals: 'locked',
           hidden: true,
           timeoutMs: 4000,
@@ -228,7 +230,9 @@ export function lessonsC7C9() {
 label().then((v) => console.log(v))
 module.exports = { label }
 `,
-      'hidden.test.js': asyncAssert(`  const v = await m.label()
+      'hidden.test.js': asyncAssert(`  const p = m.label()
+  assert.ok(p instanceof Promise, 'label must return a Promise')
+  const v = await p
   assert.strictEqual(v, 'locked')
 `)
     }
@@ -242,6 +246,7 @@ module.exports = { label }
       title: 'async / await',
       skillIds: ['js.async'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
           '## Sugar over promises\n\nAn `async function` always returns a Promise. `await` pauses **that** function until the promise settles. Other JavaScript on the page can still run. The operating system is not frozen.\n\nThe fox can `await` a wait on the field while the desk still lights other lamps. Only the fox’s function is paused. When the promise settles, that function continues with the value.'
@@ -266,7 +271,8 @@ module.exports = { label }
         ),
         stdoutCode({
           id: 'await-label',
-          prompt: '> `async function label()` returns `"keyed"` after `await Promise.resolve()`. Print it.',
+          prompt:
+            '> `async function label()` must `await` a real promise (e.g. `Promise.resolve()`), then return `"keyed"`. Do not just `return "keyed"`. Print it.',
           equals: 'keyed',
           ast: 'await',
           hidden: true,
@@ -288,6 +294,9 @@ module.exports = { label }
 `,
       'hidden.test.js': asyncAssert(`  const v = await m.label()
   assert.strictEqual(v, 'keyed')
+  const src = require('fs').readFileSync('main.js', 'utf8')
+  assert.ok(/await\\s+/.test(src), 'await a promise inside label')
+  assert.ok(/Promise\\.resolve|new\\s+Promise/.test(src), 'await a real Promise, not only the return word')
 `)
     }
   })
@@ -300,6 +309,7 @@ module.exports = { label }
       title: 'Rejected await in try',
       skillIds: ['js.async', 'js.errors'],
       estimatedMinutes: 18,
+      taskRev: 3,
       blocks: [
         explain(
           '## `await` a rejection inside `try`\n\n`await Promise.reject(new Error("lost"))` throws into the async function. `try/catch` works the same as a sync throw. The rejection becomes an exception at the `await` line.\n\nPrint `lost` from the catch. On the desk, a lost key is a failed slip — you still handle it in the same function. It does not become `undefined` just because you skipped `try`.'
@@ -321,7 +331,8 @@ module.exports = { label }
         ),
         stdoutCode({
           id: 'catch-lost',
-          prompt: '> `readKey()` awaits a rejection `"lost"` and returns that message from `catch`. Print it.',
+          prompt:
+            '> `readKey()` must `await Promise.reject(...)` inside `try/catch` and return `e.message`. Do not hard-code `return "lost"`. Print it.',
           equals: 'lost',
           ast: 'await',
           hidden: true,
@@ -343,6 +354,11 @@ module.exports = { readKey }
 `,
       'hidden.test.js': asyncAssert(`  const v = await m.readKey()
   assert.strictEqual(v, 'lost')
+  const src = require('fs').readFileSync('main.js', 'utf8')
+  assert.ok(/Promise\\.reject/.test(src), 'await Promise.reject')
+  assert.ok(/await\\s+/.test(src), 'await the rejection')
+  assert.ok(/try\\s*\\{/.test(src) && /catch\\s*\\(/.test(src), 'use try/catch around the await')
+  assert.ok(!/return\\s+[\"']lost[\"']/.test(src), 'return e.message from catch, not a hardcoded string')
 `)
     }
   })
@@ -355,9 +371,10 @@ module.exports = { readKey }
       title: 'Promise.all vs await-in-loop',
       skillIds: ['js.async'],
       estimatedMinutes: 22,
+      taskRev: 3,
       blocks: [
         explain(
-          '## Three waits, two stories\n\n`await Player.wait(1)` three times in a row is **sequence**. Each pause starts after the last one finishes. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together. They overlap. The whole group finishes when the slowest one finishes.\n\nThe fox still only moves after you say so. Use `wait` then walk east to (3, 0). Sequence is fine here — the lesson is that `all` would overlap the pauses. Trees and a wall sit off the path so the yard looks like a field, not a blank strip.'
+          '## Three waits, one `Promise.all`\n\n`await Player.wait(1)` three times in a row is **sequence**. Each pause starts after the last one finishes. `Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])` starts them together. They overlap. The whole group finishes when the slowest one finishes.\n\nThis lesson grades the overlapping form: use `Promise.all` for the three waits, then walk east to (3, 0). Trees and a wall sit off the path so the yard looks like a field, not a blank strip.'
         ),
         predict(
           'all-overlap',
@@ -376,7 +393,8 @@ module.exports = { readKey }
         ),
         playCode({
           id: 'three-waits',
-          prompt: '> `await Player.wait(1)` three times (or `Promise.all`), then walk east to (3, 0).',
+          prompt:
+            '> Use `Promise.all` with three `Player.wait(1)` calls, then walk east to (3, 0). The source must include `Promise.all`.',
           world: field([
             fox(0, 0),
             beacon(3, 0),
@@ -389,7 +407,7 @@ module.exports = { readKey }
           hidden: true,
           hints: ladder(
             'Wait first, then walk. The beacon is three cells east.',
-            'Three `Player.wait(1)` calls in a row, or one `Promise.all` of three waits, then three east moves.',
+            'One `Promise.all` of three waits, then three east moves.',
             'Trees and the wall are off the east path. Stay on y = 0.',
             'async function go() {\n  await Promise.all([Player.wait(1), Player.wait(1), Player.wait(1)])\n  Player.move("east")\n  Player.move("east")\n  Player.move("east")\n}\ngo()'
           )
@@ -408,6 +426,8 @@ const ops = log.map((row) => row.op)
 const moves = log.filter((row) => row.op === 'move' && row.dir === 'east')
 assert.ok(moves.length >= 3, 'walk east onto the beacon after the waits')
 assert.ok(ops.lastIndexOf('wait') < ops.indexOf('move'), 'finish the waiting before the walking')
+const src = fs.readFileSync('main.js', 'utf8')
+assert.ok(/Promise\\.all\\s*\\(/.test(src), 'overlap the waits with Promise.all')
 `)
     }
   })
@@ -786,6 +806,7 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
       title: 'createElement and append',
       skillIds: ['js.dom'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
           '## Grow the tree\n\n`document.createElement("li")` makes a node that is not on the page yet. Set `textContent`, then `ul.append(li)` to hang it on the list. `li.remove()` takes a node off.\n\nDo not concatenate HTML strings to add one item. On this tray, the beacon log starts empty. Create an `li` that says `East` and append it to `#list`.'
@@ -807,7 +828,8 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
         ),
         domCode({
           id: 'add-li',
-          prompt: '> Create an `li` with text `East` and append it to `#list`.',
+          prompt:
+            '> Create an `li` with `createElement`, set text `East`, and `append` it to `#list`. Do not build the list with `innerHTML`.',
           hidden: true,
           hints: ladder(
             'Create an `li` node first. It is not on the page yet.',
@@ -826,6 +848,9 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
       'main.js': `// Create an li, set its text, append it to #list.\n`,
       'hidden.test.js': `const items = [...document.querySelectorAll('#list li')].map((n) => n.textContent)
 assert.ok(items.includes('East'))
+assert.ok(/createElement\\s*\\(/.test(__learnerSource), 'use createElement')
+assert.ok(/\\.append\\s*\\(|appendChild\\s*\\(/.test(__learnerSource), 'append the node')
+assert.ok(!/innerHTML\\s*=/.test(__learnerSource), 'do not build the list with innerHTML')
 `
     }
   })
@@ -840,7 +865,7 @@ assert.ok(items.includes('East'))
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running. One listener on a parent can hear a click on a child.\n\nBubbling is the second half of the trip. The event first travels **down** from the document to the target — the capture phase — and `addEventListener(type, fn, { capture: true })` takes a seat on that leg instead. Same event, earlier seat. `stopPropagation()` ends the trip wherever you call it.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using the target id, then the currentTarget id. The inner ping is the target. The outer nest is the listener.'
+          '## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running. One listener on a parent can hear a click on a child.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using the target id, then the currentTarget id. The inner ping is the target. The outer nest is the listener.'
         ),
         predict(
           'target',
@@ -890,6 +915,7 @@ assert.strictEqual(document.querySelector('#out').textContent, 'inner>outer')
       title: 'One listener on the parent',
       skillIds: ['js.events'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
           '## Delegation\n\nOne listener on `ul#list` can handle clicks on any `button` inside, including buttons you add later. Check `event.target.matches("button")` or use `closest("button")`.\n\nYou do not bind each button by hand. On this pick board, North and East are already listed. Clicking East should write `East` into `#picked` from `data-name`.'
@@ -911,7 +937,8 @@ assert.strictEqual(document.querySelector('#out').textContent, 'inner>outer')
         ),
         domCode({
           id: 'delegate',
-          prompt: '> Clicking a button in `#list` should set `#picked` to that button’s `data-name`.',
+          prompt:
+            '> One listener on `#list`: clicking a button sets `#picked` to that button’s `data-name`. Hidden test also clicks a button appended *after* your bind.',
           hidden: true,
           hints: ladder(
             'One listener on `#list` is enough.',
@@ -930,6 +957,16 @@ assert.strictEqual(document.querySelector('#out').textContent, 'inner>outer')
       'main.js': `// One listener on #list. Set #picked from the button's data-name.\n`,
       'hidden.test.js': `document.querySelector('[data-name="East"]').dispatchEvent(new MouseEvent('click', { bubbles: true }))
 assert.strictEqual(document.querySelector('#picked').textContent, 'East')
+const late = document.createElement('button')
+late.type = 'button'
+late.setAttribute('data-name', 'West')
+late.textContent = 'W'
+document.querySelector('#list').append(late)
+document.querySelector('#picked').textContent = ''
+late.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+assert.strictEqual(document.querySelector('#picked').textContent, 'West', 'parent listener must hear buttons added after bind')
+assert.ok(/#list|getElementById\\(\\s*['\"]list['\"]\\s*\\)|querySelector\\(\\s*['\"]ul/.test(__learnerSource) || /addEventListener/.test(__learnerSource), 'bind the parent')
+assert.ok(!/querySelectorAll\\(\\s*['\"]button/.test(__learnerSource), 'do not bind each button by hand')
 `
     }
   })
@@ -944,7 +981,7 @@ assert.strictEqual(document.querySelector('#picked').textContent, 'East')
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## The live value\n\nThe `input` event fires as the person types. Read `event.target.value` (or the input’s `.value`). That string is the live field, not `innerHTML`.\n\nFor a whole form at once, `new FormData(formEl)` collects every named control: `data.get(\"name\")` reads one field and `Object.fromEntries(data)` turns the lot into a plain record. Controls without a `name` attribute are not collected, which is the usual reason a field goes missing.\n\nCopy it into `#echo`. On the echo plate, each letter the fox types should appear on the line below as it is typed.'
+          '## The live value\n\nThe `input` event fires as the person types. Read `event.target.value` (or the input’s `.value`). That string is the live field, not `innerHTML`.\n\nCopy it into `#echo`. On the echo plate, each letter the fox types should appear on the line below as it is typed.'
         ),
         predict(
           'value-field',
@@ -1333,7 +1370,7 @@ assert.deepStrictEqual(vis, ['West'])
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Method and labels\n\n`GET` asks to read. `POST` sends a body. The method is the verb on the slip. Headers are labels on that slip. `Content-Type` tells the other side how to read the body.\n\nThe address has structure too. `new URL(\"/beacons?kind=lamp\", \"https://desk.test\")` splits into `pathname` and `searchParams`, and `url.searchParams.set(\"kind\", \"beacon\")` edits a query safely — it escapes spaces and symbols so you never glue a broken address together by hand.\n\nThis lesson does not open the network. You only describe a request object. `describe({ method: \'POST\', headers: { \'content-type\': \'application/json\' } })` should print `POST application/json`. A GET with no content-type label prints `GET none`.'
+          '## Method and labels\n\n`GET` asks to read. `POST` sends a body. The method is the verb on the slip. Headers are labels on that slip. `Content-Type` tells the other side how to read the body.\n\nThis lesson does not open the network. You only describe a request object. `describe({ method: \'POST\', headers: { \'content-type\': \'application/json\' } })` should print `POST application/json`. A GET with no content-type label prints `GET none`.'
         ),
         predict(
           'get-vs-post',
@@ -1458,6 +1495,7 @@ module.exports = { read }
       title: 'JSON body parse errors',
       skillIds: ['js.http'],
       estimatedMinutes: 18,
+      taskRev: 3,
       blocks: [
         explain(
           '## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `"bad-json"`.\n\n**Run the starter first.** It crashes, and the stack trace is the lesson: the rejection came out of `res.json()`, not out of `fetch`. The status was fine; the body was torn.\n\nGood `/beacons.json` still parses. The fox asked for a record and got a torn slip. Handle the tear. Do not pretend the body was `{}`.'
@@ -1480,7 +1518,8 @@ module.exports = { read }
         stdoutCode({
           id: 'parse-safe',
           debug: true,
-          prompt: '> The starter throws on a torn body. Make `safeRead("/broken")` return `"bad-json"` instead. Print it.',
+          prompt:
+            '> The starter throws on a torn body. Make `safeRead("/broken")` return `"bad-json"`. Good JSON (e.g. `/beacons.json`) must still parse — do not always return `"bad-json"`. Print the broken case.',
           equals: 'bad-json',
           hidden: true,
           extraFiles: [
@@ -1508,6 +1547,10 @@ module.exports = { safeRead }
 `,
       'hidden.test.js': asyncAssert(`  const v = await m.safeRead('/broken')
   assert.strictEqual(v, 'bad-json')
+  const good = await m.safeRead('/beacons.json')
+  assert.strictEqual(good.ok, true, 'good JSON must still parse')
+  const src = require('fs').readFileSync('main.js', 'utf8')
+  assert.ok(!/^\\s*async function safeRead[\\s\\S]*return\\s+[\"']bad-json[\"']\\s*\\n\\}/m.test(src.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '').replace(/\\/\\/.*$/gm, '')), 'do not always return bad-json')
 `)
     }
   })
@@ -1520,6 +1563,7 @@ module.exports = { safeRead }
       title: 'AbortController against the mock',
       skillIds: ['js.http'],
       estimatedMinutes: 22,
+      taskRev: 3,
       blocks: [
         explain(
           '## Cancel the wait\n\n`/slow` is delayed. `AbortController` + `fetch(url, { signal })` rejects with `AbortError` when you `abort()`. The wait ends because you said so, not because the body arrived.\n\nAbort immediately and print `aborted`. On the desk, you pull the slip back before the slow tray answers.'
@@ -1541,7 +1585,8 @@ module.exports = { safeRead }
         ),
         stdoutCode({
           id: 'abort-now',
-          prompt: '> Start `/slow`, abort, print `aborted`.',
+          prompt:
+            '> Start `/slow` with an `AbortController` `signal`, abort, print `aborted`. Do not hard-code `return "aborted"` without the controller.',
           equals: 'aborted',
           hidden: true,
           extraFiles: [
@@ -1568,6 +1613,10 @@ module.exports = { race }
 `,
       'hidden.test.js': asyncAssert(`  const v = await m.race()
   assert.strictEqual(v, 'aborted')
+  const src = require('fs').readFileSync('main.js', 'utf8')
+  assert.ok(/AbortController/.test(src), 'use AbortController')
+  assert.ok(/signal/.test(src), 'pass signal to fetch')
+  assert.ok(!/return\\s+[\"']aborted[\"']/.test(src), 'return aborted from the AbortError path, not a hardcoded string')
 `)
     }
   })

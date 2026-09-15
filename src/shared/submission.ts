@@ -19,6 +19,11 @@ export type SubmissionBlockOut = {
   attempted: boolean
   required: 'pass' | 'attempt'
   misconceptionIds: string[]
+  /**
+   * Only on a diagnostic fail — the renderer never sees `answer` on the lesson
+   * (stripped), so main hands back the choice ids to highlight in amber.
+   */
+  correctChoiceIds?: string[]
 }
 
 export type SubmissionOut = {

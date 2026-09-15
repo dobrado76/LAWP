@@ -182,7 +182,11 @@ export function lessonsC0C3() {
             { id: 'object', md: '`object`', misconceptionId: 'null-is-object-ok' },
             { id: 'undefined', md: '`undefined`' }
           ],
-          'object'
+          'object',
+          {
+            explainMd:
+              '`typeof null` is `"object"` — a leftover language bug. Do not treat `null` as a bag of fields.'
+          }
         ),
         cloze(
           'kind-words',
@@ -230,6 +234,7 @@ assert.strictEqual(m.kindOf('3'), 'string')
       title: 'Names, let, and const',
       skillIds: ['js.values'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
           '## A name is a box\n\n`let` names a box you can refill. `const` names a box you cannot *rebind* — the sticker on the box stays. If the value is an object, the stuff *inside* can still change.\n\nOn the desk: `const signal = { on: false }; signal.on = true` is legal. `signal = {}` is not. The name still points at the same record. The lamp field flipped.'
@@ -241,7 +246,11 @@ assert.strictEqual(m.kindOf('3'), 'string')
             { id: 'east', md: '`"east"` — const froze the object', misconceptionId: 'const-means-immutable' },
             { id: 'south', md: '`"south"` — the binding stayed, the field changed' }
           ],
-          'south'
+          'south',
+          {
+            explainMd:
+              '`const` locks the binding, not the object. `route.dir = "south"` is fine; `route = {}` is not.'
+          }
         ),
         tf(
           'const-rebind',
@@ -251,14 +260,15 @@ assert.strictEqual(m.kindOf('3'), 'string')
         ),
         stdoutCode({
           id: 'bind-then-print',
-          prompt: '> `labelBox` should return the string `locked` from a `const` binding. Print that word.',
+          prompt:
+            '> Inside `labelBox`, declare a `const` named binding for the string `"locked"`, then return that binding. Print the result. A bare `return "locked"` is not enough — the point of this lesson is the binding.',
           equals: 'locked',
           ast: 'const',
           hidden: true,
           hints: ladder(
-            'The word `locked` should live in a binding the function reads, not be invented inside the return.',
-            '`const` names a box you cannot rebind. Reading it from inside a function is fine.',
-            '`const tag = "ready"` above `function readTag() { return tag }` prints `ready`.',
+            'Put `"locked"` in a `const` box first. The function should read that box, not invent the string at the return.',
+            '`const` names a box you cannot rebind. Declaring it above the function, or inside it, both work — as long as the function returns the binding.',
+            '`const word = "locked"` then `return word` (and `console.log(labelBox())`).',
             'const word = "locked"\nfunction labelBox() { return word }\nconsole.log(labelBox())\nmodule.exports = { labelBox }'
           )
         })
@@ -273,7 +283,8 @@ module.exports = { labelBox }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(m.labelBox(), 'locked')
 const src = require('fs').readFileSync('main.js', 'utf8')
-assert.ok(src.includes('const'))
+assert.ok(/\\bconst\\b/.test(src), 'declare a const binding for the word')
+assert.ok(!/return\\s+[\"']locked[\"']/.test(src), 'return the binding, not the string literal')
 `)
     }
   })
@@ -286,6 +297,7 @@ assert.ok(src.includes('const'))
       title: 'Strings and templates',
       skillIds: ['js.values'],
       estimatedMinutes: 18,
+      taskRev: 3,
       blocks: [
         explain(
           '## Text does not mutate in place\n\n`"east".toUpperCase()` returns a **new** string. The original stays `"east"`. A beacon tag is the same idea: you build a new label; you do not scratch the old letters off.\n\nA template literal drops a value into a string: `` `beacon:${name}` ``. The result is still text.'
@@ -301,7 +313,8 @@ assert.ok(src.includes('const'))
         ),
         stdoutCode({
           id: 'tag-name',
-          prompt: '> `tagBeacon("north")` returns `beacon:north`. Print that.',
+          prompt:
+            '> `tagBeacon(name)` must return a template literal like `` `beacon:${name}` `` — not string concatenation and not a hard-coded `"beacon:north"`. Print `tagBeacon("north")`.',
           equals: 'beacon:north',
           ast: '`',
           hidden: true,
@@ -323,6 +336,9 @@ module.exports = { tagBeacon }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(m.tagBeacon('east'), 'beacon:east')
 assert.strictEqual(m.tagBeacon('north'), 'beacon:north')
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/\`[^\`]*\\$\\{/.test(src), 'use a template literal with \${ }')
+assert.ok(!/return\\s+[\"']beacon:/.test(src), 'build the label from name, do not hard-code it')
 `)
     }
   })
@@ -346,7 +362,8 @@ assert.strictEqual(m.tagBeacon('north'), 'beacon:north')
             { id: 'true', md: 'true' },
             { id: 'false', md: 'false' }
           ],
-          'false'
+          'false',
+          { explainMd: 'NaN is never equal to anything, including itself. Use `Number.isNaN` to detect it.' }
         ),
         stdoutCode({
           id: 'is-nan',
@@ -500,6 +517,7 @@ assert.strictEqual(m.gate(1), 'open')
       title: 'Stop at the first yes or no',
       skillIds: ['js.flow', 'js.values'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
           '## `&&`, `||`, and `??`\n\n`a && b` returns `a` if `a` is falsy, otherwise `b`. `a || b` returns `a` if `a` is truthy, otherwise `b`. They stop as soon as they know the answer.\n\n`??` is narrower: it only skips `null` or `undefined`. `0 || "north"` becomes `"north"`. `0 ?? "north"` stays `0`. A lamp at brightness zero is still a reading — do not replace it with a default name.'
@@ -526,7 +544,8 @@ assert.strictEqual(m.gate(1), 'open')
         ),
         stdoutCode({
           id: 'label-or',
-          prompt: '> `label(name)` returns `name` if it is a non-empty string, otherwise `"anon"`. Print `label("")`.',
+          prompt:
+            '> `label(name)` returns `name` if it is truthy, otherwise `"anon"`. Use `||` or `??` in the source — do not branch with `if` alone. Print `label("")`.',
           equals: 'anon',
           hidden: true,
           hints: ladder(
@@ -548,6 +567,8 @@ module.exports = { label }
       'hidden.test.js': exportAssert(`assert.strictEqual(m.label(''), 'anon')
 assert.strictEqual(m.label('east'), 'east')
 assert.strictEqual(m.label(0), 'anon')
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/\\|\\||\\?\\?/.test(src), 'use || or ?? for the default')
 `)
     }
   })
@@ -560,6 +581,7 @@ assert.strictEqual(m.label(0), 'anon')
       title: 'Reach into a record that may be missing',
       skillIds: ['js.values', 'js.objects'],
       estimatedMinutes: 18,
+      taskRev: 3,
       blocks: [
         explain(
           '## `?.` asks first\n\n`signal.beacon.name` throws the moment `signal.beacon` is `undefined`. `signal?.beacon?.name` stops at the first missing link and hands back `undefined` instead of throwing.\n\n`?.` does **not** supply a default. It only avoids the crash. Pair it with `??` when you want a fallback:\n\n```\nsignal?.beacon?.name ?? "unknown"\n```\n\nThere are two more forms: `fn?.()` calls only if `fn` exists, and `list?.[0]` indexes only if `list` exists.'
@@ -572,7 +594,11 @@ assert.strictEqual(m.label(0), 'anon')
             { id: 'undef', md: '`undefined` — the chain stopped early' },
             { id: 'empty', md: '`""` — it becomes an empty string', misconceptionId: 'optional-chain-defaults' }
           ],
-          'undef'
+          'undef',
+          {
+            explainMd:
+              '`?.` stops at the first missing link and returns `undefined`. It does not throw, and it does not invent a default string.'
+          }
         ),
         check(
           'chain-not-default',
@@ -591,7 +617,7 @@ assert.strictEqual(m.label(0), 'anon')
         stdoutCode({
           id: 'beacon-name',
           prompt:
-            '> `beaconName(signal)` returns the beacon name. Missing signal or missing beacon gives `"unknown"`, but an empty name stays empty. Print `beaconName({ beacon: { name: "north" } })`.',
+            '> `beaconName(signal)` returns the beacon name using `?.` and `??`. Missing signal or missing beacon gives `"unknown"`, but an empty name stays empty. Print `beaconName({ beacon: { name: "north" } })`.',
           equals: 'north',
           hidden: true,
           hints: ladder(
@@ -615,7 +641,7 @@ assert.strictEqual(m.beaconName({}), 'unknown')
 assert.strictEqual(m.beaconName(null), 'unknown')
 assert.strictEqual(m.beaconName(undefined), 'unknown')
 assert.strictEqual(m.beaconName({ beacon: { name: '' } }), '')
-`)
+`) + srcIncludes('?.', '??')
     }
   })
 
@@ -837,6 +863,7 @@ module.exports = { status }
       title: 'Parameters and defaults',
       skillIds: ['js.functions'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
           '## A function that walks `n` steps\n\n`function walk(n = 1)` uses `1` when you omit `n`. Call `Player.move("east")` that many times. Do not copy-paste five `move` lines if a parameter will do.'
@@ -852,7 +879,8 @@ module.exports = { status }
         ),
         playCode({
           id: 'walk-n',
-          prompt: '> Write `walk(n = 1)` that moves east `n` times. Call `walk(3)` to reach x=3.',
+          prompt:
+            '> Write `walk(n = 1)` that moves east `n` times. Call `walk(3)` to reach x=3. The default must be in the parameter list — `walk()` with no args must move once.',
           world: gridWorld([fox(0, 0), beacon(3, 0)]),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
@@ -874,7 +902,15 @@ walk(3)
 module.exports = { walk }
 `,
       'hidden.test.js':
-        srcIncludes('function walk') +
+        exportAssert(`assert.strictEqual(m.walk.length, 0, 'declare the default as walk(n = 1)')
+const before = require('fs').readFileSync('play-log.json', 'utf8')
+const beforeLen = JSON.parse(before).filter((row) => row.op === 'move').length
+m.walk()
+const after = JSON.parse(require('fs').readFileSync('play-log.json', 'utf8'))
+const afterLen = after.filter((row) => row.op === 'move').length
+assert.strictEqual(afterLen - beforeLen, 1, 'walk() with no args must move once')
+`) +
+        srcIncludes('n = 1') +
         playLogOk(`assert.ok(log.filter((row) => row.op === 'move' && row.dir === 'east').length >= 3)
 `)
     }
@@ -1187,6 +1223,7 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
       title: 'Index vs length',
       skillIds: ['js.arrays'],
       estimatedMinutes: 18,
+      taskRev: 3,
       blocks: [
         explain(
           '## A list of directions\n\n`const dirs = ["east", "east", "south"]`. Index `0` is the first item. `dirs.length` is `3`. The last item is at `length - 1`, not `length`.'
@@ -1202,7 +1239,8 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
         ),
         playCode({
           id: 'walk-dirs',
-          prompt: '> Walk every string in `dirs` with `Player.move`. Do not hard-code four moves.',
+          prompt:
+            '> Walk every string in `dirs` with `Player.move` — loop over `dirs` (for…of / forEach / indexed loop). Do not hard-code three separate `Player.move("…")` calls.',
           world: gridWorld([fox(0, 0), beacon(2, 1)]),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 1)] },
           hidden: true,
@@ -1220,7 +1258,21 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
 Player.move("east")
 module.exports = { dirs }
 `,
-      'hidden.test.js': srcIncludes('dirs') + playLogOk()
+      'hidden.test.js':
+        playLogOk() +
+        `;(function () {
+  const fs = require('fs')
+  const assert = require('assert')
+  const src = fs.readFileSync('main.js', 'utf8')
+  assert.ok(/\\bdirs\\b/.test(src), 'use the dirs list')
+  assert.ok(
+    /for\\s*\\(.*\\bof\\s+dirs\\b|dirs\\.forEach|for\\s*\\(.*dirs\\.length|dirs\\[/.test(src),
+    'iterate dirs — do not paste three hard-coded moves'
+  )
+  const moveLits = src.match(/Player\\.move\\(\\s*["'](?:east|south|west|north)["']\\s*\\)/g) || []
+  assert.ok(moveLits.length <= 1, 'move via the list values, not hard-coded headings for each step')
+})()
+`
     }
   })
 
@@ -1283,21 +1335,22 @@ assert.strictEqual(src[0], 'ada')
       id: 'arrays-filter-find',
       courseId: 'data',
       moduleId: 'lists',
-      title: 'filter and find',
+      title: 'filter keeps matches',
       skillIds: ['js.arrays'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
-          '## Keep only what you need\n\n`filter` returns every match. `find` returns the first match or `undefined`.\n\nFrom `["east", "south", "east"]`, keep only `"east"`. Find the first beacon name that starts with `"N"`.'
+          '## Keep only what you need\n\n`filter` returns every match as a new list. From `["east", "south", "east"]`, keep only `"east"` and join them.'
         ),
         predict(
-          'find-missing',
-          '`["south"].find(d => d === "east")` is…',
+          'filter-empty',
+          '`["south"].filter(d => d === "east")` is…',
           [
-            { id: 'empty', md: '`""`' },
+            { id: 'empty', md: '`[]` — no matches' },
             { id: 'undef', md: '`undefined`' }
           ],
-          'undef'
+          'empty'
         ),
         stdoutCode({
           id: 'only-east',
@@ -1384,6 +1437,7 @@ assert.strictEqual(m.pathOf(['west']), 'west')
       title: 'A route record',
       skillIds: ['js.objects'],
       estimatedMinutes: 18,
+      taskRev: 3,
       blocks: [
         explain(
           '## Fields, not a mystery bag\n\n`{ east: 3, south: 2 }` is a route record. Read `route.east` and loop that many moves. Objects store named numbers; they do not walk themselves.'
@@ -1399,7 +1453,8 @@ assert.strictEqual(m.pathOf(['west']), 'west')
         ),
         playCode({
           id: 'walk-record',
-          prompt: '> Walk `east` then `south` using the numbers on `route`. Beacon is at (3, 2).',
+          prompt:
+            '> Walk `east` then `south` using `route.east` and `route.south` in the source (loop each count). Beacon is at (3, 2).',
           world: field(
             [
               fox(0, 0),
@@ -1428,7 +1483,7 @@ module.exports = { route }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(m.route.east, 3)
 assert.strictEqual(m.route.south, 2)
-`) + playLogOk()
+`) + srcIncludes('route.east', 'route.south') + playLogOk()
     }
   })
 
@@ -1505,6 +1560,7 @@ assert.strictEqual(m.summary(child), 'east=1', 'inherited keys must not appear')
       title: 'Set and Map',
       skillIds: ['js.arrays', 'js.objects'],
       estimatedMinutes: 22,
+      taskRev: 3,
       blocks: [
         explain(
           '## Unique names, keyed lookup\n\nA `Set` keeps each value once. `new Set(["east", "east", "south"])` has size `2`. A `Map` stores a value under a key you choose — not only a string field on an object.\n\nThe desk uses a set to scrub a log (`east` twice is still one heading) and a map to look up a beacon by name. `map.get("north")` is missing when the key was never set — that is `undefined`, not a throw.'
@@ -1528,7 +1584,7 @@ assert.strictEqual(m.summary(child), 'east=1', 'inherited keys must not appear')
         stdoutCode({
           id: 'unique-join',
           prompt:
-            '> Two jobs. `unique(dirs)` returns the unique headings joined with `-`. `nameOf(map, key)` returns `map.get(key)`, or `"none"` when the key was never set. Print `unique(["east","east","south"])` (`east-south`).',
+            '> Two jobs. `unique(dirs)` uses a `Set` and returns unique headings joined with `-`. `nameOf(map, key)` uses `Map` `.get` / `.has` and returns the value, or `"none"` when the key was never set. Print `unique(["east","east","south"])` (`east-south`).',
           equals: 'east-south',
           hidden: true,
           hints: ladder(
@@ -1557,6 +1613,9 @@ const beacons = new Map([['n', 'north'], ['e', 'east']])
 assert.strictEqual(m.nameOf(beacons, 'n'), 'north')
 assert.strictEqual(m.nameOf(beacons, 'e'), 'east')
 assert.strictEqual(m.nameOf(beacons, 'ghost'), 'none', 'a missing key is none, not undefined')
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/new\\s+Set\\b|\\bSet\\s*\\(/.test(src), 'unique must use a Set')
+assert.ok(/\\.get\\s*\\(|\\.has\\s*\\(/.test(src), 'nameOf must use Map get/has')
 `)
     }
   })

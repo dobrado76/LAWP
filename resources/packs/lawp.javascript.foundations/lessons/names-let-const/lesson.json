@@ -2,7 +2,7 @@
   "kind": "lesson",
   "schemaVersion": 1,
   "packId": "lawp.javascript.foundations",
-  "taskRev": 2,
+  "taskRev": 3,
   "estimatedMinutes": 20,
   "skillIds": [
     "js.values"
@@ -48,7 +48,7 @@
       "id": "bind-then-print",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `labelBox` should return the string `locked` from a `const` binding. Print that word.",
+      "promptMd": "> Inside `labelBox`, declare a `const` named binding for the string `\"locked\"`, then return that binding. Print the result. A bare `return \"locked\"` is not enough — the point of this lesson is the binding.",
       "files": [
         {
           "path": "files/main.js",
@@ -76,17 +76,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "The word `locked` should live in a binding the function reads, not be invented inside the return."
+          "md": "Put `\"locked\"` in a `const` box first. The function should read that box, not invent the string at the return."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "`const` names a box you cannot rebind. Reading it from inside a function is fine."
+          "md": "`const` names a box you cannot rebind. Declaring it above the function, or inside it, both work — as long as the function returns the binding."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "`const tag = \"ready\"` above `function readTag() { return tag }` prints `ready`."
+          "md": "`const word = \"locked\"` then `return word` (and `console.log(labelBox())`)."
         },
         {
           "level": 4,

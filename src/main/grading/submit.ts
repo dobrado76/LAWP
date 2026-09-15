@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { gradeCheckAnswer, isAttemptedAnswer, type CheckPrompt } from '@shared/check'
+import { correctChoiceIds, gradeCheckAnswer, isAttemptedAnswer, type CheckPrompt } from '@shared/check'
 import { activityBlockSchema, executableBlockSchema } from '@shared/schemas/lesson'
 import { lessonRequirements } from '@shared/schemas/progress'
 import { filesHash, type SubmissionBlockOut, type SubmissionOut, type SubmissionPayload } from '@shared/submission'
@@ -83,7 +83,12 @@ export async function submitLesson(learnerId: string, input: SubmissionPayload):
         passed: graded.passed,
         attempted,
         required: isAttemptOnly ? 'attempt' : 'pass',
-        misconceptionIds: graded.misconceptionIds
+        misconceptionIds: graded.misconceptionIds,
+        // Answers are stripped from the lesson the renderer sees. On a diagnostic
+        // miss, hand back the choice ids so amber can mark the right one.
+        ...(prompt.diagnostic && attempted && !graded.passed
+          ? { correctChoiceIds: correctChoiceIds(prompt) }
+          : {})
       })
       continue
     }

@@ -28,12 +28,21 @@ describe('catalog order', () => {
     expect(path.indexOf('values-and-typeof')).toBeLessThan(path.indexOf('arrays-index'))
   })
 
-  it('prefers the lesson card catalog over leftover explain copy', () => {
+  it('prefers the short authored objective, then the catalog, then explain prose', () => {
     expect(
-      cardDescription({ id: 'values-and-typeof', description: 'Old leftover `code`.', blocks: [] })
-    ).toBe(
-      'Every value has a kind. A number is not text, and true or false is not a number. Ask for the kind before you try to add, join, or list anything.'
-    )
+      cardDescription({
+        id: 'values-and-typeof',
+        description: 'Every value has a kind: number, text, or true and false.',
+        blocks: []
+      })
+    ).toBe('Every value has a kind: number, text, or true and false.')
+    expect(cardDescription({ id: 'values-and-typeof', blocks: [] })).toMatch(/kind/)
+    expect(
+      cardDescription({
+        id: 'unknown-lesson',
+        blocks: [{ type: 'explain', md: '## Title\n\nThe fox walks east.' }]
+      })
+    ).toBe('The fox walks east.')
   })
 
   it('reads a short blurb from the first explain', () => {

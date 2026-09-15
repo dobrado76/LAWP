@@ -132,6 +132,7 @@ export async function runDomHarness(
     URL: window.URL,
     Response: window.Response,
     assert: await import('node:assert').then((m) => m.default ?? m),
+    __learnerSource: learner?.contents ?? '',
     module: { exports: {} },
     exports: {}
   })

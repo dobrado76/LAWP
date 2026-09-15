@@ -68,12 +68,14 @@ export function orderResolved<T extends { manifest: PackManifest; tracks: Track[
 }
 
 export function cardDescription(lesson: { id?: string; description?: string; blocks?: unknown[] }): string {
+  // Prefer the short authored objective on the lesson; LESSON_CARDS is icon/tags
+  // and used to carry a longer blurb that made cards hard to scan.
+  const authored = lesson.description?.trim()
+  if (authored) return authored
   if (lesson.id) {
     const catalog = lessonCardDescription(lesson.id)
     if (catalog) return catalog
   }
-  const authored = lesson.description?.trim()
-  if (authored) return authored
   return lessonBlurb(lesson.blocks ?? [])
 }
 

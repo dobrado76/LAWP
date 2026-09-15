@@ -83,5 +83,5 @@
       ]
     }
   ],
-  "description": "A call is a step. You name the function and it runs."
+  "description": "Name a function and pass values in to run it. Nothing runs until you call it."
 }

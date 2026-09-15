@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Lightbulb, Play, RotateCcw, Settings } from 'lucide-react'
 
 export function IconBtn({
   label,
@@ -27,66 +28,38 @@ export function IconBtn({
   )
 }
 
+const iconProps = { size: 18, strokeWidth: 2, 'aria-hidden': true as const }
+
 export function BackIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path fill="currentColor" d="M10.2 2.4 4.6 8l5.6 5.6 1.1-1.1L6.8 8l4.5-4.5-1.1-1.1Z" />
-    </svg>
-  )
+  return <ChevronLeft {...iconProps} />
 }
 
 export function NextIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path fill="currentColor" d="m5.8 2.4 5.6 5.6-5.6 5.6-1.1-1.1L9.2 8 4.7 3.5l1.1-1.1Z" />
-    </svg>
-  )
+  return <ChevronRight {...iconProps} />
 }
 
 export function UpIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path fill="currentColor" d="M2.4 10.2 8 4.6l5.6 5.6-1.1 1.1L8 6.8l-4.5 4.5-1.1-1.1Z" />
-    </svg>
-  )
+  return <ChevronUp {...iconProps} />
 }
 
 export function DownIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path fill="currentColor" d="m2.4 5.8 5.6 5.6 5.6-5.6-1.1-1.1L8 9.2 3.5 4.7 2.4 5.8Z" />
-    </svg>
-  )
+  return <ChevronDown {...iconProps} />
 }
 
 export function HintIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M8 1.6A4.6 4.6 0 0 0 3.4 6.2c0 1.9 1.1 3.2 2 4.1.4.4.8.8 1 1.3h3.2c.2-.5.6-.9 1-1.3.9-.9 2-2.2 2-4.1A4.6 4.6 0 0 0 8 1.6Zm-1.3 11.6h2.6V14H6.7v-.8Zm.2 1.6h2.2V15H6.9v-.8Z"
-      />
-    </svg>
-  )
+  return <Lightbulb {...iconProps} />
+}
+
+export function PlayIcon() {
+  return <Play {...iconProps} />
 }
 
 export function SettingsIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M6.4 1.2h3.2l.3 1.4a5 5 0 0 1 1.3.7l1.3-.6 1.6 2.8-1.1 1c.1.4.2.8.2 1.2s-.1.8-.2 1.2l1.1 1-1.6 2.8-1.3-.6a5 5 0 0 1-1.3.7l-.3 1.4H6.4l-.3-1.4a5 5 0 0 1-1.3-.7l-1.3.6L1.9 9.9l1.1-1A5 5 0 0 1 2.8 7.6c0-.4.1-.8.2-1.2l-1.1-1 1.6-2.8 1.3.6a5 5 0 0 1 1.3-.7l.3-1.4ZM8 5.5A2.1 2.1 0 1 0 8 9.7 2.1 2.1 0 0 0 8 5.5Z"
-      />
-    </svg>
-  )
+  return <Settings {...iconProps} />
 }
 
 export function RestartIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path fill="currentColor" d="M8 2.5a5.5 5.5 0 1 1-4.7 2.6l1.1.7A4.2 4.2 0 1 0 8 3.8V6L11 3.2 8 .5V2.5Z" />
-    </svg>
-  )
+  return <RotateCcw {...iconProps} />
 }
 
 export function CheckVerdict({ result }: { result: 'pass' | 'fail' }) {

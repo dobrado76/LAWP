@@ -32,6 +32,7 @@ export function lessonsC4C6() {
       title: 'Scope and the TDZ',
       skillIds: ['js.closures'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
           '## A name before it is ready\n\n`let` and `const` exist from the start of the block, but you cannot read them until the line that sets them. That empty stretch is the temporal dead zone. `console.log(label)` above `let label = "east"` throws `ReferenceError`.\n\n`var` is older: it hoists as `undefined`, so a read before the assign is quiet and wrong. Prefer `let` and `const` so the crash teaches you.\n\nOn the desk, the fox cannot read a heading sticker that is still blank. Write the heading first, then walk.'
@@ -54,7 +55,8 @@ export function lessonsC4C6() {
         ),
         stdoutCode({
           id: 'after-init',
-          prompt: '> `readyLabel()` returns `"east"` from a `let` that is initialized before you read it. Print it.',
+          prompt:
+            '> Inside `readyLabel`, declare a `let` binding for `"east"`, then return that binding. Print it. A bare `return "east"` is not enough — the point is reading the binding after init.',
           equals: 'east',
           ast: 'let',
           hidden: true,
@@ -76,6 +78,9 @@ console.log("?")
 module.exports = { readyLabel }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(m.readyLabel(), 'east')
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/\\blet\\b/.test(src), 'declare a let binding for the word')
+assert.ok(!/return\\s+[\"']east[\"']/.test(src), 'return the binding, not the string literal')
 `)
     }
   })
@@ -163,6 +168,7 @@ assert.ok(!/Player\\.move\\(\\s*["']east["']\\s*\\)/.test(src), 'move through th
       title: 'Commands as an object map',
       skillIds: ['js.functions', 'js.objects'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
           '## A table of functions\n\n`const cmds = { go(dir) { Player.move(dir) }, turn() { Player.rotate(90) } }` stores functions under names. You look up a name and call it. That is how a small language of stage commands stays data.\n\nThe name without `()` is the function value. You still have to call it.\n\nThe desk files `go` and `turn` on a clipboard. The fox only moves when you say `cmds.go("east")`, not when you glance at `cmds.go`.'
@@ -185,7 +191,8 @@ assert.ok(!/Player\\.move\\(\\s*["']east["']\\s*\\)/.test(src), 'move through th
         ),
         playCode({
           id: 'cmd-table',
-          prompt: '> Build `cmds.go` / `cmds.turn`. go east three times, turn, stand on (3,0) facing 90°.',
+          prompt:
+            '> Build `cmds.go` / `cmds.turn`. Drive the walk only through `cmds.go("east")` and `cmds.turn()` — not bare `Player.move` / `Player.rotate` at the call site. Reach (3,0) facing 90°.',
           world: field(
             [
               fox(0, 0),
@@ -221,7 +228,14 @@ module.exports = { cmds }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(typeof m.cmds.go, 'function')
 assert.strictEqual(typeof m.cmds.turn, 'function')
-`) + playLogOk()
+`) +
+        playLogOk(`const src = fs.readFileSync('main.js', 'utf8')
+assert.ok(/cmds\\.go\\s*\\(/.test(src), 'call through cmds.go')
+assert.ok(/cmds\\.turn\\s*\\(/.test(src), 'call through cmds.turn')
+const withoutTable = src.replace(/const\\s+cmds\\s*=\\s*\\{[\\s\\S]*?\\n\\}/, '')
+assert.ok(!/Player\\.move\\s*\\(/.test(withoutTable), 'do not call Player.move outside the cmds table')
+assert.ok(!/Player\\.rotate\\s*\\(/.test(withoutTable), 'do not call Player.rotate outside the cmds table')
+`)
     }
   })
 
@@ -230,12 +244,13 @@ assert.strictEqual(typeof m.cmds.turn, 'function')
       id: 'arrow-vs-function',
       courseId: 'scope-hofs',
       moduleId: 'tools',
-      title: 'Arrow vs function',
-      skillIds: ['js.this'],
+      title: 'Arrow function syntax',
+      skillIds: ['js.functions'],
       estimatedMinutes: 20,
+      taskRev: 3,
       blocks: [
         explain(
-          '## Shorter is not the whole story\n\n`const add = (a, b) => a + b` is shorter. An arrow also **does not get its own `this`**. It keeps the `this` from the scope where it was created.\n\nA method that needs `this.dir` should stay a `function`, or you bind it later. This lesson is syntax plus that preview — no page tree yet.\n\nIf the fox writes an arrow as `go` on a route object, `this.dir` is not the route. A plain `function go()` would see the object that called it.'
+          '## A shorter function shape\n\n`const add = (a, b) => a + b` is an **arrow function**: parameters on the left of `=>`, expression (or block) on the right. No `function` keyword.\n\nArrows also keep the outer `this` instead of getting a new one at the call site — that matters later when you write methods. This lesson grades the syntax: write `add` as an arrow that returns the sum.'
         ),
         predict(
           'arrow-this',
@@ -244,7 +259,11 @@ assert.strictEqual(typeof m.cmds.turn, 'function')
             { id: 'call', md: 'Whatever called it, like a method', misconceptionId: 'arrow-is-just-shorter' },
             { id: 'outer', md: 'The `this` from the scope where it was created' }
           ],
-          'outer'
+          'outer',
+          {
+            explainMd:
+              'Arrows do not get a new `this` at the call site. They keep the `this` from where they were written. Methods that need their own `this` stay as `function`.'
+          }
         ),
         cloze(
           'arrow-keeps',
@@ -430,6 +449,7 @@ assert.ok(log.some((row) => row.dir === 'south'))
       title: 'Transfer: a new maze table',
       skillIds: ['js.functions', 'js.objects'],
       estimatedMinutes: 25,
+      taskRev: 3,
       mastery: { requiresTransfer: true, minCorrectIndependent: 1 },
       blocks: [
         explain(
@@ -453,7 +473,8 @@ assert.ok(log.some((row) => row.dir === 'south'))
         ),
         playCode({
           id: 'run-plan',
-          prompt: '> `run(plan, table)` with table keys `e` / `s`. Reach the beacon at (2, 1).',
+          prompt:
+            '> `run(plan, table)` with table keys `e` / `s`. Reach the beacon at (2, 1). A missing key must `throw` (hidden test uses `assert.throws`).',
           world: field(
             [
               fox(0, 0),
@@ -490,6 +511,7 @@ module.exports = { run }
       'hidden.test.js': exportAssert(`let n = 0
 m.run(['x', 'x'], { x: () => { n += 1 } })
 assert.strictEqual(n, 2)
+assert.throws(() => m.run(['missing'], { x: () => {} }), /./, 'missing plan keys must throw')
 `) + playLogOk()
     }
   })
@@ -748,6 +770,7 @@ assert.throws(() => m.step('up'))
       title: 'Coercion to primitive',
       skillIds: ['js.values', 'js.objects'],
       estimatedMinutes: 22,
+      taskRev: 3,
       blocks: [
         explain(
           '## `+` and `==` ask an object for a primitive\n\n`[] + []` is `""`. `[] == false` is `true` because both sides coerce. `{ valueOf() { return 1 } } + 1` is `2`.\n\nPrefer `===` and explicit `Number` / `String`. The language has a ToPrimitive walk, not a moral about “empty.”\n\nThe desk asked whether an empty tray `[]` equals `false` (lamp off). Loose `==` says yes. The fox should not treat an empty list as “off.”'
@@ -770,7 +793,8 @@ assert.throws(() => m.step('up'))
         ),
         stdoutCode({
           id: 'valueof',
-          prompt: '> `asNumber` returns `Number(box)` where `box.valueOf` returns `2`. Print `2`.',
+          prompt:
+            '> `asNumber` builds a `box` with `valueOf` that returns `2`, then returns `Number(box)`. Print `2`. A bare `return 2` is not enough.',
           equals: '2',
           hidden: true,
           hints: ladder(
@@ -790,6 +814,11 @@ console.log(asNumber())
 module.exports = { asNumber }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(m.asNumber(), 2)
+const src = require('fs').readFileSync('main.js', 'utf8')
+assert.ok(/valueOf/.test(src), 'provide valueOf on the box')
+assert.ok(/Number\\s*\\(/.test(src), 'coerce with Number(box)')
+const stripped = src.replace(/valueOf\\s*\\([^)]*\\)\\s*\\{[\\s\\S]*?\\}/g, '')
+assert.ok(!/return\\s+2\\b/.test(stripped), 'return Number(box), not the literal 2')
 `)
     }
   })
@@ -916,7 +945,7 @@ assert.ok(!Object.hasOwn(c, 'kind'))
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods.\n\n`go` lives on `Route.prototype`. Two instances share the same function.\n\n`class Patrol extends Route` links the two prototypes. Inside `Patrol`, `super(dir)` runs the parent constructor — you must call it before you touch `this` — and `super.go()` calls the parent method you are wrapping instead of replacing.\n\nThe fox builds `new Route("east")` and calls `go` three times. The heading lives on the instance; the walk method is shared.'
+          '## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods.\n\n`go` lives on `Route.prototype`. Two instances share the same function.\n\nThe fox builds `new Route("east")` and calls `go` three times. The heading lives on the instance; the walk method is shared.'
         ),
         predict(
           'class-proto',

@@ -383,619 +383,619 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     tags: ['listen', 'choice']
   },
   'js-placement': {
-    description: 'A short quiz about what you already expect JavaScript to do. Wrong answers do not lock you out. They only help sit you on the path.',
+    description: 'A short quiz about what you already expect JavaScript to do. Wrong answers do not lock you out.',
     icon: 'Compass',
     color: teal,
     tags: ['placement', 'javascript']
   },
   'values-and-typeof': {
-    description: 'Every value has a kind. A number is not text, and true or false is not a number. Ask for the kind before you try to add, join, or list anything.',
+    description: 'Every value has a kind: number, text, or true and false. You need this before any list.',
     icon: 'Shapes',
     color: amber,
     tags: ['number', 'string', 'boolean']
   },
   'names-let-const': {
-    description: 'A name is a box for a value. Some boxes you can refill. Some you can only fill once. Rebinding is not the same as changing a field inside a value.',
+    description: 'A name is a box for a value. Some boxes you can refill. Some you cannot rebind.',
     icon: 'Tag',
     color: blue,
     tags: ['let', 'const', 'binding']
   },
   'strings-and-templates': {
-    description: 'Text can be a plain string you write out, or a template that fills holes with values. Both are still text when you are done.',
+    description: 'Text can be a plain string or a template that fills in values.',
     icon: 'Quote',
     color: pink,
     tags: ['string', 'template']
   },
   'numbers-and-nan': {
-    description: 'Not every calculation is a real number. Divide in a way that has no meaning and the result is empty of number-ness. Learn to spot that, and do not treat it as zero.',
+    description: 'Some calculations have no numeric answer. Spot NaN and do not treat it as zero.',
     icon: 'Hash',
     color: orange,
     tags: ['number', 'NaN', 'double']
   },
   'triple-equals': {
-    description: 'Strict equality compares value and kind together. Loose equality will convert first and surprise you. Prefer the strict check unless you can name the conversion you want.',
+    description: 'Strict equality compares value and kind. Loose equality will surprise you.',
     icon: 'Equal',
     color: teal,
     tags: ['equality', 'boolean', 'type']
   },
   'truth-and-if': {
-    description: 'Some values act as no in a decision: empty text, zero, missing. An empty list is still a list, so it acts as yes. Know which values flip the branch.',
+    description: 'Some values act as no in a decision. An empty list is still a list.',
     icon: 'GitBranch',
     color: green,
     tags: ['if', 'boolean', 'truth']
   },
   'short-circuit': {
-    description: 'And, or, and nullish stop as soon as they know the answer. Zero is a real reading. Empty text is not. Pick the operator that matches that difference.',
+    description: 'And, or, and nullish stop as soon as they know the answer. Zero is a real reading.',
     icon: 'GitMerge',
     color: cyan,
     tags: ['boolean', 'or', 'nullish']
   },
   'transfer-classify-signal': {
-    description: 'Use kinds of values to label a signal in a new story. The names change. The question is the same: what kind is this, and what can I do with it.',
+    description: 'Use kinds of values to label a signal in a new story.',
     icon: 'Tags',
     color: purple,
     tags: ['type', 'classify', 'signal']
   },
   'functions-call': {
-    description: 'A call is a step. You name the function, you may pass values in, and the function runs. Nothing happens until you call it.',
+    description: 'Name a function and pass values in to run it. Nothing runs until you call it.',
     icon: 'Play',
     color: cyan,
     tags: ['function', 'call', 'parameters']
   },
   'beacon-call': {
-    description: 'Walk the fox onto the beacon one cell at a time. Each call is one move. The path is the list of calls you chose.',
+    description: 'Walk the fox onto the beacon by calling a move, one cell at a time.',
     icon: 'Navigation',
     color: orange,
     tags: ['function', 'call', 'grid']
   },
   'return-not-print': {
-    description: 'Showing a value on the screen is not the same as handing it back to the caller. A function that only prints leaves the caller empty-handed.',
+    description: 'Showing a value is not the same as handing it back to the caller.',
     icon: 'Reply',
     color: blue,
     tags: ['return', 'function', 'value']
   },
   'parameters-and-defaults': {
-    description: 'A function can take values in through parameters. If a caller skips one, a default can fill the hole so the function still has something to use.',
+    description: 'A function can take values in. Missing ones can have a fallback.',
     icon: 'SlidersHorizontal',
     color: amber,
     tags: ['parameters', 'default', 'function']
   },
   'loops-for': {
-    description: 'A counted loop writes a path, one step per turn. You say how many times. The body runs that many times, then stops.',
+    description: 'A counted loop writes a path, one step per turn.',
     icon: 'Repeat',
     color: teal,
     tags: ['loop', 'count', 'array']
   },
   'optional-chaining': {
-    description: 'Reach through a record that may be missing without crashing. The question mark dot stops at the first gap. It hands back nothing, which is not the same as a default.',
+    description: 'Reach through a record that may be missing without crashing. The question mark dot stops at the first gap, and it is not a default.',
     icon: 'Link',
     color: cyan,
     tags: ['optional', 'nullish', 'object']
   },
   'switch-dispatch': {
-    description: 'One command name can pick between many branches. Grouped labels share a body on purpose, and a missing stop runs the next branch by accident.',
+    description: 'One command name picks between many branches. Grouped labels share a body on purpose, and a missing stop runs the next branch by accident.',
     icon: 'GitBranch',
     color: green,
     tags: ['switch', 'branch', 'dispatch']
   },
   'object-key-iteration': {
-    description: 'Walk a record by its own keys, its values, or both together. One of the older ways also hands you keys the record inherited, which is rarely what you meant.',
+    description: 'Walk a record by its own keys, its values, or both. The older loop also hands you inherited keys.',
     icon: 'FolderTree',
     color: teal,
     tags: ['object', 'keys', 'loop']
   },
   'promise-combinators': {
-    description: 'Waiting for a group is three different questions. Require every part, report what each part did, or take whichever answer lands first.',
+    description: 'Waiting for a group is three questions. Require every part, report what each part did, or take whichever answer lands first.',
     icon: 'Layers',
     color: blue,
     tags: ['promise', 'all', 'race']
   },
   'regex-lines': {
-    description: 'A pattern pulls fields out of a log line and squeezes the spacing. Without the global flag it fixes only the first match it finds.',
+    description: 'A pattern pulls fields out of a log line and squeezes the spacing. Without the global flag it fixes only the first match.',
     icon: 'ScanSearch',
     color: orange,
     tags: ['regex', 'text', 'log']
   },
   'loops-while-break': {
-    description: 'Keep going while a condition is true. Stop when you have a reason, even if the count is not finished. An endless loop is a missing stop.',
+    description: 'Keep going while a condition is true. Stop when you have a reason.',
     icon: 'Repeat',
     color: green,
     tags: ['loop', 'while', 'break']
   },
   'keyed-beacon': {
-    description: 'Collect every token, then stand on the beacon facing the right way. Order and facing both matter. A finished walk with the wrong facing still fails.',
+    description: 'Collect every token, then stand on the beacon facing the right way.',
     icon: 'Key',
     color: amber,
     tags: ['loop', 'grid', 'collect']
   },
   'debug-off-by-one-path': {
-    description: 'The walk is one cell short. That usually means the loop counted wrong, or the first or last step was skipped. Find the off-by-one and fix it.',
+    description: 'The walk is one cell short. Find the off-by-one and fix it.',
     icon: 'Bug',
     color: red,
     tags: ['debug', 'loop', 'index']
   },
   'arrays-index': {
-    description: 'Length is how many items sit in the list. Index is the place of one item, starting at zero. The last item lives at length minus one.',
+    description: 'Length is how many items. Index is the place of one item.',
     icon: 'List',
     color: blue,
     tags: ['array', 'index', 'length']
   },
   'arrays-map': {
-    description: 'Make a new list from an old one by changing each item. The original list stays put. Map is a transform, not an edit in place.',
+    description: 'Make a new list from an old one. The original stays put.',
     icon: 'ArrowLeftRight',
     color: purple,
     tags: ['array', 'map', 'list']
   },
   'arrays-filter-find': {
-    description: 'Keep the items that match a check, or stop at the first one that does. Filter returns a list. Find returns one item or nothing.',
+    description: 'Keep the items that match, or find the first one that does.',
     icon: 'Filter',
     color: cyan,
     tags: ['array', 'filter', 'find']
   },
   'arrays-reduce-once': {
-    description: 'Fold a list into one value: a sum, a record, a decision. Be able to say what the running result is after each item.',
+    description: 'Fold a list into one value, and be able to say why.',
     icon: 'Layers',
     color: orange,
     tags: ['array', 'reduce', 'value']
   },
   'objects-props': {
-    description: 'A record holds named fields you can read and change. The name of the field is the key. The thing stored there is the value.',
+    description: 'A record holds named fields you can read and change.',
     icon: 'Box',
     color: teal,
     tags: ['object', 'field', 'value']
   },
   'set-and-map': {
-    description: 'A set keeps each value once. A map stores a value under a key you choose. Use them when a list of duplicates or a plain record is the wrong shape.',
+    description: 'A set keeps each value once. A map stores a value under a key you choose.',
     icon: 'Boxes',
     color: purple,
     tags: ['set', 'map', 'unique']
   },
   'reference-vs-copy': {
-    description: 'Two names can point at the same object. Change it through one name and the other sees it. A copy is a new object with the same shape.',
+    description: 'Two names can point at the same object. A copy is a new one.',
     icon: 'Copy',
     color: amber,
     tags: ['reference', 'copy', 'object']
   },
   'destructure-spread': {
-    description: 'Pull fields out of a record into their own names, or copy those fields into a new record. Spread makes the copy. Destructure makes the names.',
+    description: 'Pull fields out of a record, or copy them into a new one.',
     icon: 'Braces',
     color: pink,
     tags: ['object', 'spread', 'fields']
   },
   'json-roundtrip': {
-    description: 'Turn a record into text and back again without losing the shape. If a field disappears, the text did not hold that kind of value.',
+    description: 'Turn a record into text and back again without losing the shape.',
     icon: 'FileJson',
     color: green,
     tags: ['json', 'object', 'string']
   },
   'signal-log': {
-    description: 'Build a small log of signals you can keep. Each entry is a record. The list of entries is the log you will grow in later lessons.',
+    description: 'Build a small log of signals you can keep working on.',
     icon: 'ScrollText',
     color: blue,
     tags: ['array', 'object', 'log']
   },
   'scope-and-tdz': {
-    description: 'A name is only alive in its block. Using it before the line that creates it is a fault, even if the name appears later in the same function.',
+    description: 'A name is only alive in its block. Using it too early is a fault.',
     icon: 'Lock',
     color: orange,
     tags: ['scope', 'let', 'binding']
   },
   'closures-radio': {
-    description: 'A function can remember values from the place it was created, even after that place has finished. That memory is a closure, not a global.',
+    description: 'A function can remember values from the place it was created.',
     icon: 'Radio',
     color: purple,
     tags: ['closure', 'function', 'scope']
   },
   'callbacks-as-commands': {
-    description: 'A table of functions is a set of commands. Look up a name, call what you find, and the walk changes without a long chain of branches.',
+    description: 'A table of functions is a set of commands you can call by name.',
     icon: 'Command',
     color: cyan,
     tags: ['function', 'callback', 'table']
   },
   'arrow-vs-function': {
-    description: 'Two ways to write a function. They look close, but they are not the same about the special value this. Pick one on purpose.',
+    description: 'Two ways to write a function. They are not the same about this.',
     icon: 'ArrowRight',
     color: teal,
     tags: ['function', 'arrow', 'this']
   },
   'higher-order-route': {
-    description: 'Pass a function into another function so the walk can change. The outer function decides when to call. The inner function decides what the step is.',
+    description: 'Pass a function into another function so the walk can change.',
     icon: 'GitMerge',
     color: blue,
     tags: ['function', 'callback', 'parameters']
   },
   'stale-closure-debug': {
-    description: 'The last direction keeps winning. An old value got stuck in a function that closed over it too early. Find the stale memory and recapture the current one.',
+    description: 'The last direction keeps winning. Find why the old value stuck.',
     icon: 'Bug',
     color: red,
     tags: ['debug', 'closure', 'this']
   },
   'transfer-command-table': {
-    description: 'Build a new maze from a table of commands. Each name maps to a step. Filling the table is how you write the walk without a giant branch.',
+    description: 'Build a new maze from a table of commands.',
     icon: 'Table2',
     color: amber,
     tags: ['function', 'table', 'grid']
   },
   'throw-and-catch': {
-    description: 'Throw a problem when the walk cannot continue. Catch it so the program does not die, then decide whether to recover or stop.',
+    description: 'Throw a problem, catch it, and keep walking.',
     icon: 'Shield',
     color: orange,
     tags: ['throw', 'catch', 'error']
   },
   'finally-and-rethrow': {
-    description: 'Some work must run after a try, even when you throw again. Finally is that cleanup. Rethrow keeps the original problem moving up.',
+    description: 'Work that must run after a try, even when you throw again.',
     icon: 'RotateCcw',
     color: purple,
     tags: ['finally', 'throw', 'cleanup']
   },
   'custom-errors': {
-    description: 'Make your own error type so the catch can tell stories apart. A missing file and a bad password should not look like the same failure.',
+    description: 'Make your own error type so the catch can tell stories apart.',
     icon: 'BadgeAlert',
     color: red,
     tags: ['error', 'type', 'catch']
   },
   'debug-read-the-stack': {
-    description: 'The stack is the list of calls that were still open when it failed. Read from the top to see which call broke, then walk down to see who asked for it.',
+    description: 'Read the stack to see which call failed and why.',
     icon: 'Layers',
     color: amber,
     tags: ['debug', 'stack', 'call']
   },
   'coercion-to-primitive': {
-    description: 'An object can be asked to become a simple value. Know whether it answers with text, a number, or something unhelpful, because the asker will use that answer.',
+    description: 'An object can be asked to become a simple value. Know what it answers.',
     icon: 'Shuffle',
     color: pink,
     tags: ['object', 'number', 'string']
   },
   'prototypes-chain': {
-    description: 'A missing field is looked up on the object behind this one, then the one behind that. The chain ends when nothing is left to ask.',
+    description: 'A missing field is looked up on the object behind this one.',
     icon: 'Link',
     color: teal,
     tags: ['prototype', 'object', 'field']
   },
   'new-and-create': {
-    description: 'Two ways to make an object that shares a prototype. One looks like a constructor call. The other builds from a chosen parent. The sharing story is the same.',
+    description: 'Two ways to make an object that shares a prototype.',
     icon: 'Sparkles',
     color: cyan,
     tags: ['object', 'prototype', 'new']
   },
   'classes-syntax': {
-    description: 'Class syntax is sugar over the same prototype story. Methods still live on the shared parent. Instances still hold their own fields.',
+    description: 'Class syntax is sugar over the same prototype story.',
     icon: 'Component',
     color: blue,
     tags: ['class', 'prototype', 'this']
   },
   'this-call-apply-bind': {
-    description: 'This is who the function is talking about, not where it was written. Call, apply, and bind let you set that who on purpose.',
+    description: 'This is who the function is talking about, not where it was written.',
     icon: 'User',
     color: green,
     tags: ['this', 'function', 'bind']
   },
   'descriptors-get-set': {
-    description: 'A field can run code when you read it or write it. The name still looks like a field. The work behind it is a function pair.',
+    description: 'A field can run code when you read or write it.',
     icon: 'Settings2',
     color: amber,
     tags: ['get', 'set', 'object']
   },
   'symbols': {
-    description: 'A symbol is a unique key that will not clash with ordinary names. Two symbols with the same description are still different keys.',
+    description: 'A unique key that will not clash with ordinary names.',
     icon: 'KeyRound',
     color: purple,
     tags: ['symbol', 'key', 'object']
   },
   'weak-collections': {
-    description: 'A weak collection holds notes that do not keep an object alive. When nothing else points at the object, the note can disappear with it.',
+    description: 'Notes that do not keep an object alive after you let it go.',
     icon: 'Ghost',
     color: blue,
     tags: ['weak', 'object', 'memory']
   },
   'iterators-for-of': {
-    description: 'A custom list can hand out the next item when asked. A for-of loop is the polite way to walk that list until it says it is done.',
+    description: 'A custom list of directions you can walk with a for-of loop.',
     icon: 'List',
     color: teal,
     tags: ['iterator', 'loop', 'array']
   },
   'generators': {
-    description: 'A generator is a function that yields the next step when you ask, then pauses. Call it again and it continues from that pause, not from the start.',
+    description: 'A function that yields the next step when you ask.',
     icon: 'Play',
     color: orange,
     tags: ['generator', 'yield', 'function']
   },
   'proxies-reflect': {
-    description: 'A proxy intercepts one read or write and decides what it means. Reflect is the polite way to forward the same act to the real object.',
+    description: 'Intercept one read or write and decide what it means.',
     icon: 'Scan',
     color: cyan,
     tags: ['proxy', 'object', 'get']
   },
   'transfer-model-a-part': {
-    description: 'Model a part as an object with fields, a prototype, and the same lookup rules you just learned. The story changed. The object rules did not.',
+    description: 'Model a part as an object with the same rules you just learned.',
     icon: 'Boxes',
     color: green,
     tags: ['object', 'prototype', 'model']
   },
   'stack-vs-heap': {
-    description: 'Calls sit on a stack that grows and shrinks. Objects live on the heap until nothing points at them. Mixing the two stories is how leaks and crashes get explained badly.',
+    description: 'Calls sit on a stack. Objects live on the heap until nothing points at them.',
     icon: 'Layers',
     color: amber,
     tags: ['stack', 'heap', 'memory']
   },
   'macrotasks-timeout': {
-    description: 'A timeout waits until the current work is done, then it runs. It is not a pause inside the function. It is a note for later, after this turn finishes.',
+    description: 'A timeout waits until the current work is done, then it runs.',
     icon: 'Clock',
     color: orange,
     tags: ['timeout', 'event loop', 'async']
   },
   'microtasks-then': {
-    description: 'A then callback runs before the next timeout. Microtasks and timeouts are different trays. Draining one is not the same as waiting for the other.',
+    description: 'A then callback runs before the next timeout. They are not the same tray.',
     icon: 'Timer',
     color: purple,
     tags: ['promise', 'microtask', 'then']
   },
   'promises-states': {
-    description: 'A promise is pending, kept, or broken. Once it settles, it does not change again. Later thens still see that same settled result.',
+    description: 'A promise is pending, kept, or broken. It does not change again.',
     icon: 'CircleDashed',
     color: teal,
     tags: ['promise', 'async', 'state']
   },
   'async-await': {
-    description: 'Await pauses this function until a promise settles, then continues with the value. The rest of the program is not frozen. Only this function waits.',
+    description: 'Await pauses this function until a promise settles, then continues.',
     icon: 'Hourglass',
     color: cyan,
     tags: ['async', 'await', 'promise']
   },
   'async-errors': {
-    description: 'A rejected await belongs in try and catch, like a throw. If you skip the catch, the failure becomes an unhandled rejection.',
+    description: 'A rejected await belongs in try and catch, like a throw.',
     icon: 'ShieldAlert',
     color: red,
     tags: ['async', 'catch', 'error']
   },
   'parallel-vs-sequence': {
-    description: 'Wait for many promises together when the work does not depend on order. Wait one after another when the next step needs the last result.',
+    description: 'Wait for many promises together, or one after another on purpose.',
     icon: 'GitMerge',
     color: blue,
     tags: ['promise', 'parallel', 'async']
   },
   'async-iterators': {
-    description: 'Walk a stream of steps as each one arrives. You do not have the whole list up front. You ask for the next item and wait until it is there.',
+    description: 'Walk a stream of steps as each one arrives.',
     icon: 'Waves',
     color: pink,
     tags: ['async', 'iterator', 'stream']
   },
   'transfer-beacon-dispatch': {
-    description: 'Time a walk on the grid using waits you just learned. Some steps are ready now. Some steps must wait. The path is still a sequence of calls.',
+    description: 'Time a walk on the grid using what you just learned about waiting.',
     icon: 'Send',
     color: amber,
     tags: ['async', 'grid', 'promise']
   },
   'debug-forgotten-await': {
-    description: 'The walk finishes too soon because a wait was never asked for. The promise was created. Nobody paused for it. Find the missing wait.',
+    description: 'The walk finishes too soon. Find the missing wait.',
     icon: 'Bug',
     color: red,
     tags: ['debug', 'await', 'promise']
   },
   'tree-not-string': {
-    description: 'The page is a tree of nodes, not a pile of text. Each node has a parent, children, and a kind. Markup is only how we write that tree down.',
+    description: 'The page is a tree of nodes, not a pile of text.',
     icon: 'Network',
     color: green,
     tags: ['dom', 'tree', 'node']
   },
   'query-and-update': {
-    description: 'Find a node in the tree, then change the text it shows. If you query the wrong node, the right words appear in the wrong place.',
+    description: 'Find a node, then change the text it shows.',
     icon: 'Search',
     color: teal,
     tags: ['dom', 'query', 'text']
   },
   'create-and-remove': {
-    description: 'Make a node, put it in the tree, or take it out. A node that is not attached is invisible. Removing it does not have to destroy the object first.',
+    description: 'Make a node, put it in the tree, or take it out.',
     icon: 'Plus',
     color: blue,
     tags: ['dom', 'create', 'remove']
   },
   'events-bubble': {
-    description: 'A click starts on the target and rises through the parents unless you stop it. The parent can hear a click that happened on a child.',
+    description: 'A click rises through the tree unless you stop it.',
     icon: 'Waves',
     color: cyan,
     tags: ['event', 'bubble', 'dom']
   },
   'delegation': {
-    description: 'One listener on a parent can handle many children. You listen high, then ask which child was the target. New children are covered for free.',
+    description: 'One listener on a parent can handle many children.',
     icon: 'Users',
     color: purple,
     tags: ['event', 'delegate', 'dom']
   },
   'forms-and-input': {
-    description: 'Read what the learner typed as they type it. The field holds a string. Your job is to notice the change and use that string.',
+    description: 'Read what the learner typed as they type it.',
     icon: 'TextCursorInput',
     color: amber,
     tags: ['input', 'string', 'event']
   },
   'prevent-default': {
-    description: 'Stop the form from leaving the page, then copy the typed words onto the board. The default submit is a leave. You cancel it on purpose.',
+    description: 'Stop the form from leaving the page, then copy the typed words onto the board.',
     icon: 'Shield',
     color: teal,
     tags: ['form', 'submit', 'event']
   },
   'a11y-name-and-role': {
-    description: 'A control needs a name and a role a screen reader can use. A pretty button with no name is silent. The visible label should be that name.',
+    description: 'A control needs a name and a role a screen reader can use.',
     icon: 'Accessibility',
     color: green,
     tags: ['a11y', 'name', 'role']
   },
   'xss-text-vs-html': {
-    description: 'Put plain words in as text. Do not feed learner input as markup. Markup is a program. Text is only characters.',
+    description: 'Put plain words in as text. Do not feed them as markup.',
     icon: 'ShieldOff',
     color: red,
     tags: ['xss', 'text', 'html']
   },
   'transfer-filter-list-ui': {
-    description: 'Filter a list on a real page using the same tree ideas. Query the field, read the string, and show only the rows that match.',
+    description: 'Filter a list on a real page using the same tree ideas.',
     icon: 'Filter',
     color: blue,
     tags: ['dom', 'filter', 'list']
   },
   'creation-signal-board': {
-    description: 'Keep a signal board on the page. Add rows, change them, and take the board with you to the next lesson.',
+    description: 'Keep a signal board on the page and take it with you.',
     icon: 'LayoutDashboard',
     color: teal,
     tags: ['dom', 'keep', 'list']
   },
   'http-as-messages': {
-    description: 'A request and a response are messages, not magic. You send one. You get one back. The network is a conversation with a delay.',
+    description: 'A request and a response are messages, not magic.',
     icon: 'Mail',
     color: orange,
     tags: ['http', 'request', 'response']
   },
   'method-and-headers': {
-    description: 'A request has a method and labels. Those labels tell the other side how to read the body. GET asks to read. POST sends a body.',
+    description: 'A request has a method and labels. Those labels tell the other side how to read the body.',
     icon: 'Tag',
     color: blue,
     tags: ['http', 'header', 'method']
   },
   'fetch-ok-and-fail': {
-    description: 'A missing page is still a response. The server answered. Only a broken network throws. Check the ok flag before you trust the body.',
+    description: 'A missing page is still a response. Only a broken network throws.',
     icon: 'Globe',
     color: cyan,
     tags: ['fetch', 'http', 'error']
   },
   'json-body': {
-    description: 'Reading a body as data can fail if the text is not a record. Handle the bad text. Do not assume every response is a clean object.',
+    description: 'Reading a body as data can fail. Handle the bad text.',
     icon: 'FileJson',
     color: amber,
     tags: ['json', 'fetch', 'object']
   },
   'abort-and-timeout': {
-    description: 'Cancel a request on purpose when you have waited long enough. An abandoned request still uses the network until you abort it.',
+    description: 'Cancel a request on purpose when you have waited long enough.',
     icon: 'CircleStop',
     color: red,
     tags: ['abort', 'timeout', 'fetch']
   },
   'cors-mental-model': {
-    description: 'The browser decides whether page code may read another origin. The server can allow it. Your code cannot override a no.',
+    description: 'The browser decides whether page code may read another origin.',
     icon: 'Ban',
     color: orange,
     tags: ['cors', 'origin', 'http']
   },
   'transfer-library-search': {
-    description: 'Search a fixture of records the way a library search would. Send a query, read the list that comes back, and show the matches.',
+    description: 'Search a fixture of records the way a library search would.',
     icon: 'Library',
     color: purple,
     tags: ['fetch', 'array', 'search']
   },
   'process-argv-env': {
-    description: 'A program can read the words you typed after its name, and the environment around it. Those values are strings until you turn them into numbers.',
+    description: 'A program can read the words you typed and the environment around it.',
     icon: 'Terminal',
     color: green,
     tags: ['argv', 'env', 'string']
   },
   'fs-read-write': {
-    description: 'Read a text file from disk, change it, and write it back. The file is bytes on disk. Your program sees a string after it is decoded.',
+    description: 'Read and write a text file on disk.',
     icon: 'HardDrive',
     color: blue,
     tags: ['file', 'read', 'write']
   },
   'paths-and-encoding': {
-    description: 'Join path parts safely. Do not walk above the folder you meant. Encoding is how bytes become text. The wrong encoding makes garbage, not a crash.',
+    description: 'Join path parts safely. Do not walk above the folder you meant.',
     icon: 'FolderTree',
     color: teal,
     tags: ['path', 'encoding', 'file']
   },
   'buffers-vs-strings': {
-    description: 'Bytes are not the same as text. A buffer is the raw bytes. A string is decoded text. Decode on purpose, or you will slice a character in half.',
+    description: 'Bytes are not the same as text. Decode them on purpose.',
     icon: 'Binary',
     color: amber,
     tags: ['buffer', 'string', 'bytes']
   },
   'streams-idea': {
-    description: 'Read a log in chunks instead of all at once. A stream hands you the next piece when it is ready. You do not hold the whole file in memory.',
+    description: 'Read a log in chunks instead of all at once.',
     icon: 'Waves',
     color: cyan,
     tags: ['stream', 'file', 'chunk']
   },
   'cjs-vs-esm-node': {
-    description: 'Two module styles live in Node. One uses require. One uses import. Know which file is which, because mixing them without a bridge fails.',
+    description: 'Two module styles. Know which file is which.',
     icon: 'Package',
     color: purple,
     tags: ['module', 'import', 'require']
   },
   'error-first-and-promises': {
-    description: 'Older file calls pass an error first, then the result. Newer ones return a promise. Both mean the same thing: check failure before you use the value.',
+    description: 'Older file calls pass an error first. Newer ones return a promise.',
     icon: 'FileWarning',
     color: orange,
     tags: ['error', 'promise', 'callback']
   },
   'transfer-clean-a-log': {
-    description: 'Clean a names log using files and the process. Read the file, drop the bad lines, write a cleaner file, and say what you changed.',
+    description: 'Clean a names log using files and the process.',
     icon: 'Eraser',
     color: pink,
     tags: ['file', 'string', 'filter']
   },
   'creation-log-scrubber': {
-    description: 'Keep a log scrubber you can run again. Point it at a file, get a cleaned file back, and take that tool with you.',
+    description: 'Keep a log scrubber you can run again.',
     icon: 'Sparkles',
     color: teal,
     tags: ['file', 'keep', 'filter']
   },
   'assert-and-aaa': {
-    description: 'Arrange the world, act, then assert what must be true. An assertion is a claim the test will fail if it is false. One claim per test is easier to read.',
+    description: 'Arrange the world, act, then assert what must be true.',
     icon: 'CheckSquare',
     color: green,
     tags: ['assert', 'test', 'boolean']
   },
   'fixtures-and-hidden-tests': {
-    description: 'Hidden tests use fixtures you do not see. Your file is the thing they call. If you hard-code the sample, the hidden case will fail.',
+    description: 'Hidden tests use fixtures. Your file is the thing they call.',
     icon: 'Boxes',
     color: blue,
     tags: ['fixture', 'test', 'function']
   },
   'mocking-time-and-fs': {
-    description: 'Fake the clock and the disk so a test does not wait or write for real. The fake must still look like the real thing to the code under test.',
+    description: 'Fake the clock and the disk so a test does not wait or write for real.',
     icon: 'Watch',
     color: amber,
     tags: ['mock', 'time', 'file']
   },
   'why-bundlers': {
-    description: 'A bundler packs modules for the page so the browser can load one file instead of a tree of imports. Know why that step exists before you fight it.',
+    description: 'A bundler packs modules for the page. Know why that step exists.',
     icon: 'Package',
     color: cyan,
     tags: ['bundler', 'module', 'import']
   },
   'modules-esm-files': {
-    description: 'Export a walker from one file and import it in another. The export is the public surface. Everything else in the file stays private.',
+    description: 'Export a walker from one file and import it in another.',
     icon: 'FileInput',
     color: teal,
     tags: ['export', 'import', 'module']
   },
   'ast-and-lint': {
-    description: 'A linter reads the shape of the code, not only the text. It walks a tree of nodes. That is why it can catch a missing name you never ran.',
+    description: 'A linter reads the shape of the code, not only the text.',
     icon: 'ScanSearch',
     color: purple,
     tags: ['ast', 'lint', 'tree']
   },
   'proto-pollution': {
-    description: 'Do not let outside data write into the shared object behind every record. One bad key can change how every later object behaves.',
+    description: 'Do not let outside data write into the shared object behind every record.',
     icon: 'Skull',
     color: red,
     tags: ['prototype', 'security', 'object']
   },
   'measure-then-change': {
-    description: 'Measure first. Change one thing. Measure again. A faster feeling is not a measurement. The number before and after is the lesson.',
+    description: 'Measure first. Change one thing. Measure again.',
     icon: 'Ruler',
     color: orange,
     tags: ['measure', 'change', 'number']
   },
   'jsdoc-contracts': {
-    description: 'A short comment can be a checklist of what a function owes: the parameters it takes, the value it returns, and what it must not do.',
+    description: 'A short comment can be a checklist of what a function owes.',
     icon: 'FileCheck',
     color: green,
     tags: ['jsdoc', 'function', 'parameters']
   },
   'transfer-test-the-fox': {
-    description: 'Write tests for a walk so a later change cannot silently break it. If the fox should end on the beacon, assert that. Do not watch it by eye.',
+    description: 'Write tests for a walk so a later change cannot silently break it.',
     icon: 'TestTube',
     color: blue,
     tags: ['test', 'assert', 'grid']
   },
   'capstone-signal-ops': {
-    description: 'Put the path together. Walk the grid, keep records, show them on the page, and test the parts you cannot afford to break.',
+    description: 'Put the path together: walk, records, the page, and tests.',
     icon: 'Flag',
     color: amber,
     tags: ['capstone', 'array', 'function']

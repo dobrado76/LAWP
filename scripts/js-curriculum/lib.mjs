@@ -92,7 +92,7 @@ export function explain(md) {
   return { type: 'explain', md }
 }
 
-export function predict(id, promptMd, choices, answer) {
+export function predict(id, promptMd, choices, answer, extra = {}) {
   return {
     type: 'predict',
     id,
@@ -101,7 +101,9 @@ export function predict(id, promptMd, choices, answer) {
     choices: choices.map((c) =>
       typeof c === 'string' ? { id: c, md: c } : { id: c.id, md: c.md, ...(c.misconceptionId ? { misconceptionId: c.misconceptionId } : {}) }
     ),
-    answer
+    answer,
+    ...(extra.explainMd ? { explainMd: extra.explainMd } : {}),
+    ...(extra.misconceptionId ? { misconceptionId: extra.misconceptionId } : {})
   }
 }
 

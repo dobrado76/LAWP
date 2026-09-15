@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { House, Library as LibraryIcon, Code2, Target, PenLine } from 'lucide-react'
 import { IPC, invoke } from './api'
 import { ReleaseNotes } from './components/ReleaseNotes'
 import { Home } from './screens/Home'
@@ -10,6 +11,14 @@ import { Practice } from './screens/Practice'
 import { SettingsIcon } from './ui/IconBtn'
 
 export type Route = 'home' | 'library' | 'studio' | 'author' | 'settings' | 'practice'
+
+const NAV: { route: Route; label: string; Icon: typeof House }[] = [
+  { route: 'home', label: 'Home', Icon: House },
+  { route: 'library', label: 'Library', Icon: LibraryIcon },
+  { route: 'studio', label: 'Studio', Icon: Code2 },
+  { route: 'practice', label: 'Practice', Icon: Target },
+  { route: 'author', label: 'Author', Icon: PenLine }
+]
 
 export function App() {
   const [route, setRoute] = useState<Route>('home')
@@ -48,9 +57,17 @@ export function App() {
   return (
     <div className="app">
       <nav className="nav">
-        {(['home', 'library', 'studio', 'practice', 'author'] as Route[]).map((r) => (
-          <button key={r} className={route === r ? 'active' : ''} onClick={() => go(r)}>
-            {r[0]!.toUpperCase() + r.slice(1)}
+        {NAV.map(({ route: r, label, Icon }) => (
+          <button
+            key={r}
+            type="button"
+            className={`btn icon-btn${route === r ? ' active' : ''}`}
+            title={label}
+            aria-label={label}
+            aria-current={route === r ? 'page' : undefined}
+            onClick={() => go(r)}
+          >
+            <Icon size={18} strokeWidth={2} aria-hidden />
           </button>
         ))}
         <div className="spacer" />
@@ -59,6 +76,7 @@ export function App() {
           className={`btn icon-btn${route === 'settings' ? ' active' : ''}`}
           title="Settings"
           aria-label="Settings"
+          aria-current={route === 'settings' ? 'page' : undefined}
           onClick={() => go('settings')}
         >
           <SettingsIcon />

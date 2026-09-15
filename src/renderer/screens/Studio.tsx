@@ -10,7 +10,7 @@ import { CheckPanel, GradeCta, lessonWorkVerdict, unansweredChecks } from '../ch
 import { CodeEditor } from '../editor/CodeEditor'
 import { inspectPage } from '../editor/pageSource'
 import { md } from '../md'
-import { BackIcon, CheckVerdict, HintIcon, IconBtn, NextIcon, RestartIcon } from '../ui/IconBtn'
+import { BackIcon, CheckVerdict, HintIcon, IconBtn, NextIcon, PlayIcon, RestartIcon } from '../ui/IconBtn'
 
 type Block = Record<string, unknown> & { type: string; id?: string; md?: string; promptMd?: string }
 type LessonSum = { id: string; title: string }
@@ -64,6 +64,7 @@ export function Studio({
   const [predict, setPredict] = useState('')
   const [checkAns, setCheckAns] = useState<Record<string, unknown>>({})
   const [checkResult, setCheckResult] = useState<Record<string, 'pass' | 'fail'>>({})
+  const [revealAnswers, setRevealAnswers] = useState<Record<string, string[]>>({})
   const [attempted, setAttempted] = useState<Record<string, boolean>>({})
   const [firstTry, setFirstTry] = useState<Record<string, 'pass' | 'fail'>>({})
   const [evidence, setEvidence] = useState('')
@@ -168,6 +169,7 @@ export function Studio({
     setTouched(touchedNow)
     setCheckAns(answers)
     setCheckResult(results)
+    setRevealAnswers({})
     setAttempted(seen)
     setTaskResult(task)
     setPassHash(hash)
@@ -259,6 +261,7 @@ export function Studio({
     setCanExport(false)
     setPassHash(null)
     setAttempted({})
+    setRevealAnswers({})
     setSubmitting(false)
     setRunNote('')
     setTouched(new Set())
@@ -348,11 +351,14 @@ export function Studio({
   const answersDirty = checks.some((ch) => attempted[ch.id] && !checkResult[ch.id])
   const pendingCheck = gradedChecks.find((ch) => checkResult[ch.id] !== 'pass')
   const taskPending = Boolean((code || activity) && (taskResult !== 'pass' || !hashOk))
+  // Only a *pass* is tied to the files hash. A fail must still show as fail —
+  // otherwise two Correct question reviews sit next to 67% with no overall verdict.
+  const shownTask = taskResult === 'pass' && !hashOk ? null : taskResult
   const ctaResult = diagnosticsPending
     ? null
     : lessonWorkVerdict({
         checkResults: gradedChecks.map((ch) => checkResult[ch.id] ?? null),
-        taskResult: hashOk ? taskResult : null,
+        taskResult: shownTask,
         hasTask: Boolean(code || activity)
       })
   const canAdvance = !pendingCheck && !taskPending && !diagnosticsPending && !answersDirty
@@ -370,6 +376,15 @@ export function Studio({
       if (b.kind === 'check') results[b.blockId] = b.passed ? 'pass' : 'fail'
     }
     setCheckResult((prev) => ({ ...prev, ...results }))
+    setRevealAnswers((prev) => {
+      const next = { ...prev }
+      for (const b of r.blocks) {
+        if (b.kind !== 'check') continue
+        if (b.correctChoiceIds?.length) next[b.blockId] = b.correctChoiceIds
+        else delete next[b.blockId]
+      }
+      return next
+    })
     setAttempted((prev) => ({ ...prev, ...seen }))
     setFirstTry((prev) => {
       const out = { ...prev }
@@ -400,6 +415,14 @@ export function Studio({
         // activity's after-word has nowhere else to go.
         const explain = activity?.explainAfter?.promptMd
         if (explain) setWhy(String(explain))
+      } else if (task && !task.passed) {
+        const requiredChecks = r.blocks.filter((b) => b.kind === 'check' && b.required === 'pass')
+        const checksOk = requiredChecks.length > 0 && requiredChecks.every((b) => b.passed)
+        setWhy(
+          checksOk
+            ? 'The questions are right. The code task is still open — read the prompt on the left again.'
+            : 'Not quite. Look again, then submit.'
+        )
       } else if (!r.code) {
         setWhy('Not quite. Look again, then submit.')
       }
@@ -651,9 +674,9 @@ export function Studio({
   const actions = (
     <div className="studio-bar-actions">
       {code && (
-        <button className="btn primary" onClick={() => void runCode()}>
-          Run
-        </button>
+        <IconBtn label="Run" onClick={() => void runCode()}>
+          <PlayIcon />
+        </IconBtn>
       )}
       {playable && (
         <IconBtn label={hintLevel ? `Hint ${hintLevel}/5` : 'Hint'} disabled={hintLevel >= 5} onClick={() => void askHint()}>
@@ -767,6 +790,7 @@ export function Studio({
                 packId={packId}
                 lessonId={lessonId}
                 result={checkResult[ch.id] ?? null}
+                revealIds={revealAnswers[ch.id] ?? []}
               />
             ))}
           {checkOnly && checks.length === 1 && checkResult[checks[0]!.id] ? (
@@ -882,6 +906,7 @@ export function Studio({
                 packId={packId}
                 lessonId={lessonId}
                 result={checkResult[ch.id] ?? null}
+                revealIds={revealAnswers[ch.id] ?? []}
               />
             ))}
           {runNote && <p className="run-note">{runNote}</p>}

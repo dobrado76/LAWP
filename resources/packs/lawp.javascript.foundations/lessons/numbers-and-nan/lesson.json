@@ -86,5 +86,5 @@
       ]
     }
   ],
-  "description": "Not every calculation is a real number. Learn when the result is empty of meaning."
+  "description": "Some calculations have no numeric answer. Spot NaN and do not treat it as zero."
 }

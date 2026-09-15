@@ -88,18 +88,42 @@ function isTodo(status?: LessonStatus) {
   return !isDone(status)
 }
 
-function mark(status?: LessonStatus): { kind: 'done' | 'todo' | 'progress'; label: string } {
-  if (status === 'checked' || status === 'mastered') return { kind: 'done', label: 'Done' }
+/**
+ * The library speaks the same language as grading: a checked lesson was Passed,
+ * a mastered one was Mastered. "Done" as a single word hid that difference.
+ */
+function mark(status?: LessonStatus): {
+  kind: 'mastered' | 'passed' | 'todo' | 'progress'
+  label: string
+} {
+  if (status === 'mastered') return { kind: 'mastered', label: 'Mastered' }
+  if (status === 'checked') return { kind: 'passed', label: 'Passed' }
   if (status === 'in-progress' || status === 'retrying') return { kind: 'progress', label: 'In progress' }
   return { kind: 'todo', label: 'To do' }
 }
 
+/** Transfer / debug are lesson kinds, not statuses — stripe, not a status colour. */
+function lessonKind(lessonId: string): 'transfer' | 'debug' | null {
+  if (lessonId.startsWith('transfer-')) return 'transfer'
+  if (lessonId.startsWith('debug-') || lessonId.includes('-debug-')) return 'debug'
+  return null
+}
+
 function minutesLabel(n: number) {
-  if (n >= 60) {
-    const h = Math.round((n / 60) * 10) / 10
-    return `${h} h`
-  }
-  return `${n} min`
+  if (n < 60) return `${n} min`
+  const h = Math.floor(n / 60)
+  const m = Math.round(n % 60)
+  if (m === 0) return `${h} h`
+  if (h === 0) return `${m} min`
+  return `${h} h ${m} min`
+}
+
+/** Section time is the sum of its lessons — authored course totals were drifting high. */
+function courseMinutes(course: Course, lessons: LessonSum[]): number {
+  return courseLessonIds(course).reduce((sum, id) => {
+    const lesson = lessons.find((l) => l.id === id)
+    return sum + (lesson?.estimatedMinutes ?? 0)
+  }, 0)
 }
 
 function introLessonId(course: Course): string | undefined {
@@ -253,7 +277,7 @@ export function Library({
                 [
                   ['all', `All (${counts.total})`],
                   ['todo', `To do (${counts.todo})`],
-                  ['done', `Done (${counts.done})`]
+                  ['done', `Finished (${counts.done})`]
                 ] as const
               ).map(([id, label]) => (
                 <button
@@ -384,7 +408,7 @@ export function Library({
                         const status = progress[id]?.status
                         const show = filter === 'all' || (filter === 'done' ? isDone(status) : isTodo(status))
                         if (!show) return []
-                        return [{ id, lesson, moduleTitle: mod.title, status, step: path.indexOf(id) + 1 }]
+                        return [{ id, lesson, status }]
                       })
                     )
                     const introId = introLessonId(course)
@@ -456,7 +480,7 @@ export function Library({
                                 </button>
                               </p>
                             </div>
-                            <span className="muted">{minutesLabel(course.estimatedMinutes)}</span>
+                            <span className="muted">{minutesLabel(courseMinutes(course, tree.lessons))}</span>
                           </div>
                         </div>
                       )
@@ -474,20 +498,18 @@ export function Library({
                             </h4>
                             <p className="lib-course-why">{COURSE_WHY[course.id] ?? ''}</p>
                           </div>
-                          <span className="muted">{minutesLabel(course.estimatedMinutes)}</span>
+                          <span className="muted">{minutesLabel(courseMinutes(course, tree.lessons))}</span>
                         </div>
                         <div className="lib-lesson-grid">
-                          {visible.map(({ id, lesson, moduleTitle, status, step }) => (
+                          {visible.map(({ id, lesson, status }) => (
                             <LessonCard
                               key={id}
                               packId={open}
                               lessonId={id}
-                              step={step}
                               next={id === nextId}
                               title={lesson?.title ?? id}
                               description={lesson?.description ?? ''}
                               minutes={lesson?.estimatedMinutes ?? 0}
-                              moduleTitle={moduleTitle}
                               status={status}
                               current={id === lessonId}
                               onOpen={() => openLesson(id)}
@@ -524,12 +546,10 @@ export function Library({
                           key={id}
                           packId={open}
                           lessonId={id}
-                          step={path.indexOf(id) + 1}
                           next={id === nextId}
                           title={lesson?.title ?? id}
                           description={lesson?.description ?? ''}
                           minutes={lesson?.estimatedMinutes ?? 0}
-                          moduleTitle={mod.title}
                           status={progress[id]?.status}
                           current={id === lessonId}
                           onOpen={() => openLesson(id)}
@@ -565,12 +585,10 @@ export function Library({
                       key={lesson.id}
                       packId={open}
                       lessonId={lesson.id}
-                      step={0}
                       next={lesson.id === nextId}
                       title={lesson.title}
                       description={lesson.description ?? ''}
                       minutes={lesson.estimatedMinutes}
-                      moduleTitle="Unfiled"
                       status={progress[lesson.id]?.status}
                       current={lesson.id === lessonId}
                       onOpen={() => openLesson(lesson.id)}
@@ -689,12 +707,10 @@ function IntroRow({
 function LessonCard({
   packId,
   lessonId,
-  step,
   next,
   title,
   description,
   minutes,
-  moduleTitle,
   status,
   current,
   onOpen,
@@ -702,25 +718,25 @@ function LessonCard({
 }: {
   packId: string
   lessonId: string
-  step: number
   next: boolean
   title: string
   description: string
   minutes: number
-  moduleTitle: string
   status?: LessonStatus
   current?: boolean
   onOpen: () => void
   onChanged: () => void
 }) {
   const copy = lessonCard(lessonId)
-  const blurb = copy?.description ?? description
+  // Prefer the short objective on the lesson; LESSON_CARDS often carries a longer blurb.
+  const blurb = (description.trim() || copy?.description || '').trim()
   const tags = copy?.tags ?? []
   const m = mark(status)
+  const kind = lessonKind(lessonId)
   return (
     <article
       data-lesson-id={lessonId}
-      className={`lib-lesson-card is-${m.kind}${next ? ' is-next' : ''}${current ? ' is-current' : ''}`}
+      className={`lib-lesson-card is-${m.kind}${next ? ' is-next' : ''}${current ? ' is-current' : ''}${kind ? ` is-${kind}` : ''}`}
     >
       <div className="lib-lesson-more">
         <OverflowMenu items={lessonMenu(packId, lessonId, title, onChanged)} />
@@ -729,6 +745,7 @@ function LessonCard({
         <span className="lib-lesson-head">
           {copy ? <LessonIcon name={copy.icon} color={copy.color} /> : null}
           <strong>{title}</strong>
+          {kind ? <span className={`lib-lesson-kind is-${kind}`}>{kind === 'transfer' ? 'Transfer' : 'Debug'}</span> : null}
         </span>
         <span className="lib-lesson-mid">
           <span className={`lib-lesson-body${blurb ? '' : ' is-empty'}`}>
@@ -745,14 +762,8 @@ function LessonCard({
           ) : null}
         </span>
         <span className="lib-lesson-foot">
-          <span className="lib-lesson-foot-status">
-            <em className={`is-${m.kind}`}>{m.label}</em>
-            {step > 0 ? <span className="lib-lesson-step">{step}</span> : null}
-          </span>
-          <span className="lib-lesson-foot-meta">
-            <span className="lib-lesson-mod">{moduleTitle}</span>
-            {minutes ? <span className="lib-lesson-mins">{minutesLabel(minutes)}</span> : null}
-          </span>
+          <em className={`is-${m.kind}`}>{m.label}</em>
+          {minutes ? <span className="lib-lesson-mins">{minutesLabel(minutes)}</span> : null}
         </span>
       </button>
     </article>

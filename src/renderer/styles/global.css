@@ -39,7 +39,8 @@ body {
 .btn:disabled { opacity: 0.4; cursor: default; }
 .btn.danger { border-color: var(--danger); color: var(--danger); }
 .nav .spacer { flex: 1; }
-.nav .icon-btn { margin-left: 4px; }
+.nav .icon-btn { margin-left: 0; padding: 8px; }
+.nav .spacer + .icon-btn { margin-left: 4px; }
 .notes-backdrop {
   position: fixed; inset: 0; z-index: 40;
   display: flex; align-items: center; justify-content: center;
@@ -260,9 +261,8 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
   display: flex; align-items: center; gap: 10px; flex: 0 0 auto;
   padding: 10px 12px; background: var(--card-chrome); border-left: 1px solid #0006;
 }
-.lib-lesson-card.is-next, .lib-lesson-card.is-current { border-color: var(--accent); }
 .lib-lesson-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
   gap: 16px; align-items: stretch;
 }
 .lib-lesson-card {
@@ -272,9 +272,23 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
   background: var(--card-chrome); border: 2px solid var(--border); border-radius: 12px;
   overflow: hidden;
 }
-.lib-lesson-card.is-done { border-color: #3d7a52; }
-.lib-lesson-card.is-progress { border-color: #8a7340; }
-.lib-lesson-card.is-next { border-color: var(--accent); }
+/* Border colour means selection only. Status lives in the footer badge; type
+   (transfer / debug) gets a left stripe so yellow and teal each have one job. */
+.lib-lesson-card.is-next,
+.lib-lesson-card.is-current { border-color: var(--accent); }
+.lib-lesson-card.is-transfer::before,
+.lib-lesson-card.is-debug::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; z-index: 1;
+}
+.lib-lesson-card.is-transfer::before { background: var(--warn); }
+.lib-lesson-card.is-debug::before { background: var(--danger); }
+.lib-lesson-kind {
+  margin-left: auto; flex: 0 0 auto;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 7px; border-radius: 999px; line-height: 1;
+}
+.lib-lesson-kind.is-transfer { background: #2b2211; color: var(--warn); }
+.lib-lesson-kind.is-debug { background: #2c1613; color: var(--danger); }
 .lib-lesson-more {
   position: absolute; top: 8px; right: 8px; z-index: 2;
 }
@@ -297,7 +311,7 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .lib-lesson-icon { flex: 0 0 auto; display: inline-flex; line-height: 0; }
 .lib-lesson-head strong {
   color: var(--text); font-size: 16px; font-weight: 650; line-height: 1.3;
-  letter-spacing: -0.02em; min-width: 0;
+  letter-spacing: -0.02em; min-width: 0; flex: 1 1 auto;
 }
 .lib-lesson-mid {
   display: flex; flex-direction: column; justify-content: flex-start;
@@ -330,27 +344,13 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
   color: var(--muted); font-size: 12px;
   white-space: nowrap;
 }
-.lib-lesson-foot-status {
-  display: flex; align-items: center; gap: 6px; flex: 0 0 auto;
-}
 .lib-lesson-foot em {
   font-style: normal; font-weight: 650; letter-spacing: 0.02em;
   white-space: nowrap;
 }
-.lib-lesson-step {
-  font-variant-numeric: tabular-nums; font-weight: 650;
-  min-width: 1.25em; color: var(--text);
-}
-.lib-lesson-step::before { content: "·"; margin-right: 6px; color: var(--muted); font-weight: 650; }
-.lib-lesson-foot-meta {
-  display: flex; align-items: center; justify-content: flex-end; gap: 6px;
-  min-width: 0; overflow: hidden;
-}
-.lib-lesson-mod {
-  min-width: 0; overflow: hidden; text-overflow: ellipsis;
-}
 .lib-lesson-mins { flex: 0 0 auto; }
-.lib-lesson-foot em.is-done { color: var(--ok); }
+.lib-lesson-foot em.is-mastered { color: var(--ok); }
+.lib-lesson-foot em.is-passed { color: #9bc9a0; }
 .lib-lesson-foot em.is-progress { color: #e6b84d; }
 .lib-lesson-foot em.is-todo { color: var(--muted); }
 .lib-lesson-card.is-next .lib-lesson-foot em { color: var(--accent); }
@@ -358,7 +358,8 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
   display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
   text-transform: uppercase; border-radius: 999px; padding: 2px 8px;
 }
-.lib-mark.is-done { background: #163325; color: var(--ok); }
+.lib-mark.is-mastered { background: #163325; color: var(--ok); }
+.lib-mark.is-passed { background: #1a2a22; color: #9bc9a0; }
 .lib-mark.is-todo { background: var(--bg-3); color: var(--muted); }
 .lib-mark.is-progress { background: #3a3216; color: #e6b84d; }
 .overflow-menu { position: relative; }
@@ -449,10 +450,13 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
   background: var(--bg); cursor: pointer;
 }
 .choice.is-on { border-color: var(--accent); background: #13241f; }
-/* After grading: green you were right, red you were not, amber the one you
-   missed. Amber is the teaching colour — it marks the answer, not a mistake. */
-.choice.is-correct { border-color: #7dce82; background: #10281c; }
-.choice.is-wrong { border-color: #e07a5f; background: #2c1613; }
+/* After grading: green you were right, coral you were not, amber the one you
+   missed on a diagnostic. Green must beat .is-on so a correct pick never looks
+   like a mistake. */
+.choice.is-on.is-correct,
+.choice.is-correct { border-color: var(--ok); background: #10281c; }
+.choice.is-on.is-wrong,
+.choice.is-wrong { border-color: var(--danger); background: #2c1613; }
 .choice.is-answer { border-color: var(--warn); background: #2b2211; }
 .choice input { width: auto; margin-top: 3px; }
 .choice .prose, .choice p { margin: 0; }
