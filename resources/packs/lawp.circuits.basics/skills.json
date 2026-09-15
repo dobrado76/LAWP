@@ -1,0 +1,4 @@
+[
+  { "id": "circuits.series.current", "title": "Current in a series loop", "prereqIds": [] },
+  { "id": "circuits.series.resistance", "title": "Resistance and brightness", "prereqIds": ["circuits.series.current"] }
+]

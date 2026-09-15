@@ -1,0 +1,29 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "click-changes-state",
+  "packId": "lawp.react.foundations",
+  "courseId": "one-app",
+  "moduleId": "state",
+  "title": "A click replaces state",
+  "skillIds": ["react.state"],
+  "estimatedMinutes": 18,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Next state is a new value\n\nReact state is replaced, not edited in place. `click(count)` returns `count + 1`. Prints should be `1` then `2`."
+    },
+    {
+      "type": "code",
+      "id": "next-count",
+      "engine": "react",
+      "entry": "App.js",
+      "files": [{ "path": "files/App.js", "role": "edit" }],
+      "checks": [
+        { "type": "stdout", "equals": "1\n2", "misconceptionId": "mutate-state" }
+      ],
+      "hintLadder": [{ "level": 1, "kind": "concept", "md": "return count + 1" }]
+    }
+  ]
+}

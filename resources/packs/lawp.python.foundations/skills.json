@@ -1,0 +1,6 @@
+[
+  { "id": "python.types.names", "title": "Names and values", "prereqIds": [] },
+  { "id": "python.call.move", "title": "Call a move", "prereqIds": ["python.types.names"] },
+  { "id": "python.control.if", "title": "Decisions", "prereqIds": ["python.types.names"] },
+  { "id": "python.io.stdio", "title": "Messages", "prereqIds": ["python.types.names"] }
+]

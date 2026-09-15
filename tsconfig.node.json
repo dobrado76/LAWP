@@ -16,8 +16,7 @@
     "noEmit": false,
     "emitDeclarationOnly": true,
     "outDir": "out/types-node",
-    "baseUrl": ".",
-    "types": [],
+    "types": ["node"],
     "paths": {
       "@shared/*": ["./src/shared/*"],
       "@main/*": ["./src/main/*"]
@@ -25,6 +24,7 @@
   },
   "include": [
     "electron.vite.config.ts",
+    "vitest.config.ts",
     "src/main/**/*.ts",
     "src/preload/**/*.ts",
     "src/shared/**/*.ts"

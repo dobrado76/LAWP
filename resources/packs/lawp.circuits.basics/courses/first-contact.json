@@ -1,0 +1,15 @@
+{
+  "id": "first-contact",
+  "title": "Cause and effect",
+  "level": "beginner",
+  "estimatedMinutes": 20,
+  "creationId": "my-circuit",
+  "skillIds": ["circuits.series.current"],
+  "modules": [
+    {
+      "id": "the-loop",
+      "title": "The loop",
+      "lessonIds": ["what-is-a-loop", "brighter-lamp", "why-the-limit", "transfer-fuse", "keep-your-circuit"]
+    }
+  ]
+}

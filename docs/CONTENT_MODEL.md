@@ -69,7 +69,7 @@ Two user-side shapes. `pack.json` on disk in `userData/packs/<packId>/` **must**
 
 | User `pack.json` | How it got there | Resolved catalog |
 | --- | --- | --- |
-| `overlay: true` | Standalone **lesson** zip, or Author “add lesson to bundled pack” | **Merge:** bundled pack is the base (tracks, courses, other lessons). User files overlay **by relative path**. A user `lessons/<id>/` replaces that lesson only. Missing user files fall through to bundled. Sibling bundled lessons **stay visible** |
+| `overlay: true` | Standalone **lesson** zip, or Author “add lesson to bundled pack” | **Merge at lesson grain:** bundled pack is the base (tracks, courses, other lessons). If `userData/.../lessons/<id>/` exists, that **entire lesson folder is atomic** — resolve **all** of that lesson’s files from the user folder only (no fall-through of leftover bundled tests/assets). Sibling bundled lessons **stay visible** |
 | `overlay: false` | Full **subject** zip, or a shell created because **no** bundled pack exists | **Replace:** ignore bundled tree for this `packId`. Confirm on install: “This hides the bundled pack until you remove the user copy” |
 | (no user dir) | — | Bundled pack as-is |
 
@@ -81,7 +81,7 @@ Two user-side shapes. `pack.json` on disk in `userData/packs/<packId>/` **must**
 
 **Full subject zip** (has `pack.json`): always install as `overlay: false` (confirm if a user dir or bundled pack already exists).
 
-`packs:get` / Library / Studio always see the **resolved** tree. Export lesson = that lesson folder. Export pack = resolved tree if overlay (or overlay-only if the author asks to share just their add-ons — v1: resolved tree so the zip is playable alone). Removing the user overlay directory restores the bundled pack in full.
+`packs:get` / Library / Studio always see the **resolved** tree. Export lesson = that user (or bundled) lesson folder. **Export pack** and **setup-bundle pack zips** = the same **resolved** tree (`overlay: false` in the zip’s `pack.json`) so the archive is playable alone and re-imports as a full pack. Do **not** zip a raw overlay directory (that would install as a hollow replacement). Removing the user overlay directory restores the bundled pack in full.
 
 Do **not** put `body.md` beside JSON. Do **not** put progress, notes, snapshots, or workspaces inside a pack or lesson folder.
 
@@ -318,7 +318,11 @@ type WorldV1 = {
     when: Property[]
     set: { target: string, key: string, value: ValueOrExpr }[]
   }[]
-  view: { kind: "graph" | "list" | "grid", assetMap?: Record<string, string> }
+  view: {
+    kind: "graph" | "list" | "grid"
+    assetMap?: Record<string, string>
+    grid?: { cols: number; rows: number }   // default 5×5 when kind is grid
+  }
 }
 
 type Property = {
@@ -336,6 +340,8 @@ type ValueOrExpr =
 
 `play` with `engine: "grid-js"` is a **view skin** of `world-v1` (`view.kind: "grid"`) plus fox/beacon assets — not a second platform.
 
+Graphical **code** lessons opt in with `play` on the `code` / `debug` block (D43). Learner Python/JS calls `Player.move` / `rotate` / `scale` / `say`. App stubs append a command log; **main** applies that log to `world-v1` (clamp to `view.grid`, default 5×5) and grades the resulting world. Parts with `solid: true` block a step (the player stays put). Parts with `collect: true` set `taken: true` when the player steps on their cell. Unknown methods or bad args write a `fault` command — `passed` is false. Studio draws tiles + `assetMap` sprites, axis labels, a facing readout, and a live checklist from `play.goal`. `play.guided: true` keeps compass copy visible (intro). Puzzle lessons omit `guided` and put the route on Hint. Missing asset → typed tile, no invented geometry. Circuits `view.kind: "graph"` is unchanged.
+
 #### `world-v1` semantics (normative)
 
 Implement these rules. The **brighter-lamp** example below is the conformance test.
@@ -343,13 +349,15 @@ Implement these rules. The **brighter-lamp** example below is the conformance te
 **Tick after each learner action**
 
 1. Apply the action (mutate parts/connections).
-2. Run `rules` **in listed order**. Each rule: if every `when` Property is true **against the world as it is now**, apply all of that rule’s `set` rows (still in order). Later rules **see** values written by earlier rules in the same tick.
+2. Clear `run.calcFault` at the **start** of the rule pass, then run `rules` **in listed order**. Each rule: if every `when` Property is true **against the world as it is now**, apply all of that rule’s `set` rows (still in order). Later rules **see** values written by earlier rules in the same tick. If any `ValueOrExpr` faults (below), set `run.calcFault` and skip that `set` row only.
 3. Evaluate `goal` and `constraints` on the resulting world. Record `constraintOk` (final) and `constraintEverFailed` (true if any tick this `runId` failed a constraint).
 4. Push a view model from `view` (below).
 
 **Paths.** `lamp.brightness` means `parts` id `lamp` → `props.brightness`. Missing part or key: the Property is **false**; a `set` **creates** the key on an existing part. `set` on a missing part is a no-op (do not throw).
 
-**ValueOrExpr.** `a` / `b` that are strings are paths; numbers are literals. Division by zero: **skip that `set` row**, do not throw, set `world.fault = "div-by-zero"` (string prop on a synthetic part id `_engine` or a flag on the run). Other arithmetic is ordinary IEEE-like numbers (integers in the example).
+**ValueOrExpr.** `a` / `b` that are strings are paths; numbers are literals. **v1 numbers are IEEE floats.** Division by zero (or non-finite result): skip that `set` row, do not throw, set **`run.calcFault = "div-by-zero"`** (a field on the **run** in main — not a synthetic `_engine` part, not a pack-visible world prop). Other arithmetic is ordinary IEEE floats.
+
+**Calculation fault (normative).** `run.calcFault` is `null` or `"div-by-zero"`. It is recomputed **each tick** (cleared at step 2, set if that tick faults). A later valid action that completes the rule pass with no fault **clears** it — stale derived props then update. **`passed` is always false while `run.calcFault !== null`**, even if leftover `current` / `brightness` still look like a win. Do not grade a faulted world as success.
 
 **Actions and payloads** (`run:activity` `payload` is optional; defaults from the action)
 
@@ -367,14 +375,15 @@ Unknown `actionId` → `validation`. Payload that fails the table → `validatio
 **Constraints vs Check**
 
 - Activity field `constraintMode`: `"final"` (default) | `"always"`.
-- **Grade / Check** uses the world **main holds for this `runId`** after the last tick. `passed` = goal satisfied **and** (`constraintMode === "final"` ? constraints hold now : `constraintEverFailed === false`).
+- **Grade / Check** uses the world **and** `calcFault` main holds for this `runId` after the last tick.
+- `passed` = `calcFault === null` **and** goal satisfied **and** (`constraintMode === "final"` ? constraints hold now : `constraintEverFailed === false`).
 - Intermediate over-limit with `"final"` can still pass if they turn the knob back; Why may still show `constraintEverFailed` + misconception.
 
 **View.** `view.kind: "graph"` draws each part as a node, each connection as an edge. `assetMap` keys: `"<type>"` or `"<type>@<key>=<value>"` (more specific wins). Missing asset: show `type` and all props as text. Bind brightness/position/labels **only** from `props` (`brightness`, `x`, `y`, `label` if present). Do not invent geometry.
 
 #### Reference cartridge: brighter-lamp
 
-Conformance: `run:start` copies `world` then runs **rules once with no action** (so derived props match). Then apply the transitions. Start state: `ohms=2`, `current=0.5`, `brightness=1`.
+Conformance: `run:start` copies `world` then runs **rules once with no action** (so derived props match). `calcFault` is `null`. Start: `ohms=2`, `current=0.5`, `brightness=1`. Experiments **must** include `predict` (this one does).
 
 ```json
 {
@@ -385,6 +394,16 @@ Conformance: `run:start` copies `world` then runs **rules once with no action** 
   "promptMd": "Make the lamp brighter without letting current go above 2.",
   "skillIds": ["circuits.series.current"],
   "constraintMode": "final",
+  "predict": {
+    "promptMd": "If you lower resistance, what happens to current?",
+    "kind": "mcq",
+    "choices": [
+      { "id": "up", "md": "Current rises" },
+      { "id": "down", "md": "Current falls", "misconceptionId": "ignores-current-limit" },
+      { "id": "same", "md": "Current stays the same" }
+    ],
+    "answer": "up"
+  },
   "world": {
     "parts": [
       { "id": "battery", "type": "battery", "props": { "cells": 1 } },
@@ -404,7 +423,7 @@ Conformance: `run:start` copies `world` then runs **rules once with no action** 
         "target": "resistor",
         "op": "set",
         "key": "ohms",
-        "values": [1, 2, 4]
+        "values": [0, 0.25, 1, 2, 4]
       }
     ],
     "rules": [
@@ -446,19 +465,20 @@ Conformance: `run:start` copies `world` then runs **rules once with no action** 
 }
 ```
 
-Lookup note: `cells=1`, `ohms=2` → current `0.5` after integer-or-float div (`1/2 = 0.5`). The `gte 1` rule is false, `lt 1` sets brightness `1`. **v1 numbers are IEEE floats.**
+`cells / ohms`: `1/2 = 0.5`, `1/1 = 1`, `1/0.25 = 4`, `1/4 = 0.25`, `1/0` → fault.
 
-**Expected transitions** (start: `ohms=2`, `current=0.5`, `brightness=1`)
+**Expected transitions** (from start unless “then”)
 
-| Action | After tick | `goalMet` | `constraintOk` | Notes |
-| --- | --- | --- | --- | --- |
-| `set-ohms` value `4` | `ohms=4`, `current=0.25`, `brightness=1` | false | true | Dimmer |
-| `set-ohms` value `1` | `ohms=1`, `current=1`, `brightness=2` | true | true | Pass: brighter, current `1 ≤ 2` |
-| (from start) `set-ohms` `1` then if we had cells=3… | — | — | — | Not in this world |
+| Step | Action | After tick | `goalMet` | `constraintOk` | `calcFault` | Grade `final` | Grade `always` |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| A | `set-ohms` `4` | `ohms=4`, `I=0.25`, `B=1` | false | true | null | fail | fail |
+| B | `set-ohms` `0.25` | `ohms=0.25`, `I=4`, `B=2` | true | **false** | null | fail (constraint) | fail; `constraintEverFailed`; misconception `ignores-current-limit` |
+| C | then `set-ohms` `1` | `ohms=1`, `I=1`, `B=2` | true | true | null | **pass** (recovered) | **fail** (ever-failed) |
+| D | from start, `set-ohms` `1` | `ohms=1`, `I=1`, `B=2` | true | true | null | **pass** | **pass** |
+| E | `set-ohms` `0` | `ohms=0`, `I` **unchanged**, `B` unchanged | (stale) | (stale) | `"div-by-zero"` | **fail** (fault) | **fail** (fault) |
+| F | then `set-ohms` `1` | `ohms=1`, `I=1`, `B=2` | true | true | null | **pass** (fault cleared) | fail if B occurred on this run; else pass |
 
-If an author sets `battery.cells` to `0` and ohms to `0`, `div` is skipped, `fault=div-by-zero`, previous `current` remains.
-
-`constraintMode: "always"`: if any tick had `current > 2`, Check fails even if the final knob is safe.
+Run two Check modes in tests: same actions B→C must pass under `constraintMode: "final"` and fail under `"always"`.
 
 Renderer shows `lamp` with `assets/lamp-bright.svg` when `brightness===2`.
 
@@ -478,6 +498,16 @@ Renderer shows `lamp` with `assets/lamp-bright.svg` when `brightness===2`.
   checks: CodeCheck[]
   hintLadder: Hint[]
   preview?: { kind: "none" | "iframe" }
+  promptMd?: string
+  play?: {
+    api: "player-v1"
+    playerId?: string          // default "fox"
+    world: WorldV1             // view.kind: "grid"
+    goal: { all?: Property[], any?: Property[], none?: Property[] }
+    constraints?: Property[]
+    scaleValues?: number[]
+    guided?: boolean          // intro: keep compass copy visible
+  }
 }
 
 type CodeCheck =
@@ -612,9 +642,11 @@ Activity-log truncation **must not** delete `grades[]` rows. Every `grade:block`
 
 **`taskRev` bump** (breaking task change on the lesson):
 
-- Copy `{ taskRev, best, bestEver, independentPass, masteredAt, grades }` into `evidence.prior[oldRev]`.
-- Set `evidence.taskRev` to the new rev. `independentPass = false`, `masteredAt` cleared, `status = retrying` if it was checked/mastered.
-- New `grades` / `best` start empty. Old activity-log lines keep their `taskRev`. Mastery for the new rev requires a new independent pass. Compare “this vs last” only among grades with the **current** `taskRev`.
+- Copy `{ taskRev, best, bestEver, fastest, independentPass, masteredAt, firstCheckedAt, grades }` into `evidence.prior[oldRev]`.
+- Set `evidence.taskRev` to the new rev.
+- **Clear every current-revision achievement field:** `grades = []`, `best = undefined`, `bestEver = undefined`, `fastest = undefined`, `independentPass = false`, `masteredAt` / `firstCheckedAt` cleared, `currentGradeId` / `previousGradeId` cleared. `status = retrying` if it was checked/mastered, else `not-started`.
+- Do **not** compare a new grade against `prior[oldRev].bestEver`. Old results stay readable only via `prior`.
+- Old activity-log lines keep their `taskRev`. Mastery for the new rev requires a new independent pass. Compare “this vs last” only among grades with the **current** `taskRev`.
 
 ### Attempt record
 

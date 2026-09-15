@@ -1,0 +1,20 @@
+{
+  "type": "activity",
+  "id": "new-decide",
+  "kind": "decide",
+  "engine": "world-v1",
+  "promptMd": "Pick the safer setting.",
+  "skillIds": [],
+  "world": {
+    "parts": [{ "id": "choice", "type": "generic", "props": { "pick": 0 } }],
+    "connections": [],
+    "actions": [
+      { "id": "pick", "label": "Choose", "target": "choice", "op": "set", "key": "pick", "values": [0, 1] }
+    ],
+    "rules": [],
+    "view": { "kind": "graph", "assetMap": {} }
+  },
+  "goal": { "all": [{ "path": "choice.pick", "op": "eq", "value": 1 }] },
+  "explainAfter": { "promptMd": "Safer does not always mean brighter." },
+  "hintLadder": [{ "level": 1, "kind": "concept", "md": "Safer does not always mean brighter." }]
+}

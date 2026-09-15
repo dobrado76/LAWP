@@ -1,0 +1,35 @@
+{
+  "type": "activity",
+  "id": "new-experiment",
+  "kind": "experiment",
+  "engine": "world-v1",
+  "promptMd": "Change one thing. Watch what happens.",
+  "skillIds": [],
+  "constraintMode": "final",
+  "predict": {
+    "promptMd": "What will happen?",
+    "kind": "mcq",
+    "choices": [
+      { "id": "a", "md": "Option A" },
+      { "id": "b", "md": "Option B" }
+    ],
+    "answer": "a"
+  },
+  "world": {
+    "parts": [
+      { "id": "a", "type": "generic", "props": { "value": 1 } }
+    ],
+    "connections": [],
+    "actions": [
+      { "id": "set-value", "label": "Set value", "target": "a", "op": "set", "key": "value", "values": [0, 1, 2] }
+    ],
+    "rules": [],
+    "view": { "kind": "graph", "assetMap": {} }
+  },
+  "goal": { "all": [{ "path": "a.value", "op": "eq", "value": 2 }] },
+  "constraints": [],
+  "explainAfter": { "promptMd": "What changed, and why?" },
+  "hintLadder": [
+    { "level": 1, "kind": "concept", "md": "Try one change, then Check." }
+  ]
+}

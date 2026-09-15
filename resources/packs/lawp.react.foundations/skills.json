@@ -1,0 +1,6 @@
+[
+  { "id": "react.component", "title": "Components", "prereqIds": [] },
+  { "id": "react.props", "title": "Props", "prereqIds": ["react.component"] },
+  { "id": "react.state", "title": "State", "prereqIds": ["react.props"] },
+  { "id": "react.lists", "title": "Lists", "prereqIds": ["react.state"] }
+]

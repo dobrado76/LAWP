@@ -1,0 +1,97 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "brighter-lamp",
+  "packId": "lawp.circuits.basics",
+  "courseId": "first-contact",
+  "moduleId": "the-loop",
+  "title": "Make the lamp brighter",
+  "skillIds": ["circuits.series.current"],
+  "estimatedMinutes": 8,
+  "taskRev": 1,
+  "creation": { "id": "my-circuit", "step": 1, "briefMd": "Tune the lamp without breaking the current cap." },
+  "mastery": { "requiresTransfer": true, "minCorrectIndependent": 1 },
+  "blocks": [
+    {
+      "type": "activity",
+      "id": "brighter-lamp",
+      "kind": "experiment",
+      "engine": "world-v1",
+      "promptMd": "Make the lamp brighter without letting current go above 2.",
+      "skillIds": ["circuits.series.current"],
+      "constraintMode": "final",
+      "predict": {
+        "promptMd": "If you lower resistance, what happens to current?",
+        "kind": "mcq",
+        "choices": [
+          { "id": "up", "md": "Current rises" },
+          { "id": "down", "md": "Current falls", "misconceptionId": "ignores-current-limit" },
+          { "id": "same", "md": "Current stays the same" }
+        ],
+        "answer": "up"
+      },
+      "world": {
+        "parts": [
+          { "id": "battery", "type": "battery", "props": { "cells": 1 } },
+          { "id": "resistor", "type": "resistor", "props": { "ohms": 2 } },
+          { "id": "lamp", "type": "lamp", "props": { "brightness": 1, "label": "Lamp" } },
+          { "id": "meter", "type": "meter", "props": { "current": 0.5 } }
+        ],
+        "connections": [
+          { "from": "battery", "to": "resistor" },
+          { "from": "resistor", "to": "lamp" },
+          { "from": "lamp", "to": "battery" }
+        ],
+        "actions": [
+          {
+            "id": "set-ohms",
+            "label": "Set resistance",
+            "target": "resistor",
+            "op": "set",
+            "key": "ohms",
+            "values": [0, 0.25, 1, 2, 4]
+          }
+        ],
+        "rules": [
+          {
+            "id": "i-from-lookup",
+            "when": [],
+            "set": [
+              { "target": "meter", "key": "current", "value": { "op": "div", "a": "battery.cells", "b": "resistor.ohms" } }
+            ]
+          },
+          {
+            "id": "bright-from-i",
+            "when": [{ "path": "meter.current", "op": "gte", "value": 1 }],
+            "set": [{ "target": "lamp", "key": "brightness", "value": 2 }]
+          },
+          {
+            "id": "dim-from-i",
+            "when": [{ "path": "meter.current", "op": "lt", "value": 1 }],
+            "set": [{ "target": "lamp", "key": "brightness", "value": 1 }]
+          }
+        ],
+        "view": {
+          "kind": "graph",
+          "assetMap": {
+            "lamp@brightness=1": "assets/lamp-dim.svg",
+            "lamp@brightness=2": "assets/lamp-bright.svg"
+          }
+        }
+      },
+      "goal": { "all": [{ "path": "lamp.brightness", "op": "eq", "value": 2 }] },
+      "constraints": [{ "path": "meter.current", "op": "lte", "value": 2 }],
+      "explainAfter": { "promptMd": "Why did brightness change? Current is cells ÷ resistance. Too little resistance and current overshoots the safe cap." },
+      "misconceptionMap": [
+        { "when": { "path": "meter.current", "op": "gt", "value": 2 }, "misconceptionId": "ignores-current-limit" }
+      ],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "Look at the meter, not only the lamp." },
+        { "level": 2, "kind": "concept", "md": "Current ≈ cells / ohms. One cell. Cap is 2." },
+        { "level": 3, "kind": "concept", "md": "Try ohms = 1. Avoid 0.25 if you want to stay under the cap." },
+        { "level": 4, "kind": "assist", "md": "Set resistance to 1, then Check." },
+        { "level": 5, "kind": "assist", "md": "ohms=1 → current=1 → brightness=2 and 1 ≤ 2." }
+      ]
+    }
+  ]
+}

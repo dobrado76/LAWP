@@ -1,0 +1,4 @@
+[
+  { "id": "double-equals-ok", "title": "Treats == as safe equality", "skillIds": ["js.values"] },
+  { "id": "map-mutates", "title": "Thinks map changes the original array", "skillIds": ["js.arrays"] }
+]

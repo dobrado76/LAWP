@@ -1,0 +1,14 @@
+[
+  {
+    "id": "ignores-current-limit",
+    "title": "Ignores the current limit (brighter at any cost)",
+    "skillIds": ["circuits.series.current"],
+    "followUpLessonId": "why-the-limit"
+  },
+  {
+    "id": "more-cells-always-brighter",
+    "title": "Assumes more cells always means brighter",
+    "skillIds": ["circuits.series.current"],
+    "diagnosticBlockId": "diag-cells"
+  }
+]

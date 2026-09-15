@@ -13,7 +13,7 @@ Envelope: `Promise<Result<T>>` unless noted as event.
 | `settings:export` | `{ includeCartridges?: boolean }` | save dialog → `lawp-settings.json` or `lawp-setup.zip`; `{ cancelled, path? }` |
 | `settings:import` | — | open dialog → merge after confirm; `{ cancelled, settings?, packsImported?: string[], skipped?: string[] }` |
 
-Export writes **`settingsSchema`** plus `schemaVersion` / `kind`. Strip `window-state`, `session`, and secrets (`safeStorage` keys) unless the user opts into “include secrets.” `includeCartridges: true` adds each `userData/packs/<packId>` as a zip inside a **setup bundle** (`kind: "setup"`). Bundled app demos are **not** copied (the other PC already has them if they installed LAWP). Learner progress is **never** included.
+Export writes **`settingsSchema`** plus `schemaVersion` / `kind`. Strip `window-state`, `session`, and secrets (`safeStorage` keys) unless the user opts into “include secrets.” `includeCartridges: true` builds a **setup bundle** (`kind: "setup"`) whose pack zips are produced by the **same resolved-pack exporter** as `packs:exportZip` (complete tree, `overlay: false` in the zip). Do **not** zip raw `userData/packs/<id>` overlay dirs (those are not playable full packs). Bundled-only demos with no user overlay/full pack are omitted (the other PC already has the app). Learner progress is **never** included.
 
 Import **merges**. Existing `settings.json` keys are replaced only after confirm. Existing `userData/packs/<packId>` is skipped or replaced only after confirm — never silent overwrite. **Drop `trustedExecutions` on import** (D39). If an imported Python path does not exist on this machine, keep the value but flag `runtime-missing` and re-detect when possible.
 
@@ -73,16 +73,16 @@ Reads default to the **current** learner. Writes from a run use the **`learnerId
 
 | Channel | In | Out |
 | --- | --- | --- |
-| `run:start` | `{ packId, lessonId, blockId }` | `{ runId, learnerId }` — copies activity `world` into the run; bind before spawn or activity step |
-| `run:code` | `{ runId, packId, lessonId, blockId, files: {path, contents}[], replaceLast?: boolean }` | `{ stdout, stderr, exitCode, timedOut, durationMs, compare? }` |
-| `run:activity` | `{ runId, packId, lessonId, blockId, actionId, payload? }` | `{ world, goalMet, constraintOk, constraintEverFailed, misconceptionIds?, compare? }` |
+| `run:start` | `{ packId, lessonId, blockId }` | `{ runId, learnerId, world? }` — copies activity `world` **or** code `play.world` into the run; bind before spawn or activity step |
+| `run:code` | `{ runId, packId, lessonId, blockId, files: {path, contents}[], replaceLast?: boolean }` | `{ stdout, stderr, exitCode, timedOut, durationMs, checks[], passed, world?, commands?, playFault?, goalMet?, constraintOk? }` |
+| `run:activity` | `{ runId, packId, lessonId, blockId, actionId, payload? }` | `{ world, goalMet, constraintOk, constraintEverFailed, calcFault: null \| "div-by-zero", misconceptionIds?, compare? }` |
 | `run:cancel` | `{ runId }` | ok |
-| `grade:block` | `{ runId, packId, lessonId, blockId, files?, answers?, replaceLast?: boolean }` | `{ passed, checks[], hintEligible, misconceptionIds?, diagnostic?, compare, snapshotId? }` |
+| `grade:block` | `{ runId, packId, lessonId, blockId, files?, answers?, replaceLast?: boolean }` | `{ passed, checks[], hintEligible, misconceptionIds?, diagnostic?, compare, snapshotId?, world?, commands?, playFault?, goalMet?, constraintOk? }` |
 | `hint:get` | `{ runId, packId, lessonId, blockId, level }` | `{ md, level, kind: "concept" \| "assist" }` records usage on **that** run |
 
 `run:code` / `grade:block` that would spawn without a matching **fingerprint** grant → `sandbox`.
 
-**Authoritative world:** `grade:block` for an `activity` **must not** accept a client `world`. Main grades the world it holds for `runId` (last `run:activity` tick, or the `run:start` copy if no tick). Unknown / foreign `runId` → `not-found`. `files` / `answers` are only for `code` / `check`. Snapshot stores main’s world, not a renderer-invented one.
+**Authoritative world:** `grade:block` for an `activity` **must not** accept a client `world`. Main grades the world it holds for `runId` (last `run:activity` tick, or the `run:start` copy if no tick). Play `code` blocks are the same idea: main applies the stub `play-log` to `play.world` and grades that result (D43). Unknown / foreign `runId` → `not-found`. `files` / `answers` are only for `code` / `check`. Snapshot stores main’s world, not a renderer-invented one.
 
 ## Author
 

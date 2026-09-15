@@ -1,0 +1,33 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "compare-is-not-assign",
+  "packId": "lawp.python.foundations",
+  "courseId": "repl-in-pocket",
+  "moduleId": "decisions",
+  "title": "Compare is not assign",
+  "skillIds": ["python.control.if"],
+  "estimatedMinutes": 15,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## `=` writes; `==` asks\n\nThe starter will not even run. Fix the `if` so it *asks* whether `flag` is true."
+    },
+    {
+      "type": "debug",
+      "id": "fix-compare",
+      "engine": "python",
+      "entry": "main.py",
+      "files": [{ "path": "files/main.py", "role": "edit" }],
+      "checks": [
+        { "type": "stdout", "equals": "yes", "misconceptionId": "assign-instead-of-compare" },
+        { "type": "ast", "query": "==", "misconceptionId": "assign-instead-of-compare" }
+      ],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "The error is about assignment in a place that wants a test." },
+        { "level": 2, "kind": "concept", "md": "Replace = with ==, or write `if flag:`." }
+      ]
+    }
+  ]
+}

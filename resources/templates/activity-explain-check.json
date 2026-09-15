@@ -1,0 +1,14 @@
+{
+  "type": "check",
+  "id": "new-explain-check",
+  "promptMd": "Why did that happen?",
+  "kind": "mcq",
+  "choices": [
+    { "id": "right", "md": "The correct reason" },
+    { "id": "wrong", "md": "A tempting wrong reason" }
+  ],
+  "answer": "right",
+  "explainMd": "State the rule in one sentence.",
+  "skillIds": [],
+  "hintLadder": [{ "level": 1, "kind": "concept", "md": "Name the quantity that changed." }]
+}

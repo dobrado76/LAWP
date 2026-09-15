@@ -1,0 +1,7 @@
+{
+  "id": "signal-log",
+  "title": "Signal log",
+  "briefMd": "A function that records beacon names. You will keep it.",
+  "exportKinds": ["folder", "zip"],
+  "steps": [{ "lessonId": "signal-log", "addsMd": "logBeacon(name) prints a line." }]
+}

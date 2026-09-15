@@ -1,0 +1,23 @@
+{
+  "type": "activity",
+  "id": "new-construct",
+  "kind": "construct",
+  "engine": "world-v1",
+  "promptMd": "Build a working loop from the parts.",
+  "skillIds": [],
+  "world": {
+    "parts": [
+      { "id": "battery", "type": "battery", "props": { "cells": 1 } },
+      { "id": "lamp", "type": "lamp", "props": { "on": 0 } }
+    ],
+    "connections": [],
+    "actions": [
+      { "id": "connect", "label": "Connect lamp", "target": "lamp", "op": "set", "key": "on", "values": [0, 1] }
+    ],
+    "rules": [],
+    "view": { "kind": "graph", "assetMap": {} }
+  },
+  "goal": { "all": [{ "path": "lamp.on", "op": "eq", "value": 1 }] },
+  "explainAfter": { "promptMd": "Why did the lamp stay dark until the path closed?" },
+  "hintLadder": [{ "level": 1, "kind": "concept", "md": "A loop needs a closed path." }]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "greeting-bot",
+  "title": "Greeting bot",
+  "briefMd": "A small program that greets someone by name. You will keep adding validation.",
+  "exportKinds": ["folder", "zip"],
+  "steps": [
+    { "lessonId": "say-it-once", "addsMd": "An f-string greeting." },
+    { "lessonId": "greeting-bot", "addsMd": "A reusable greeting with a name check." }
+  ]
+}

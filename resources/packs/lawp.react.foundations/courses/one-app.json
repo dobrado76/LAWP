@@ -1,0 +1,13 @@
+{
+  "id": "one-app",
+  "title": "One app that grows",
+  "level": "beginner",
+  "estimatedMinutes": 180,
+  "creationId": "keep-list",
+  "skillIds": ["react.component", "react.props", "react.state", "react.lists"],
+  "modules": [
+    { "id": "components", "title": "Components", "lessonIds": ["function-returns-ui", "props-flow-in"] },
+    { "id": "state", "title": "State", "lessonIds": ["click-changes-state", "list-needs-key"] },
+    { "id": "keep", "title": "Keep", "lessonIds": ["filter-the-list", "keep-the-app"] }
+  ]
+}

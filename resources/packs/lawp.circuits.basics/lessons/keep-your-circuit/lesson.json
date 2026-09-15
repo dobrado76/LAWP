@@ -1,0 +1,23 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "keep-your-circuit",
+  "packId": "lawp.circuits.basics",
+  "courseId": "first-contact",
+  "moduleId": "the-loop",
+  "title": "Keep your circuit",
+  "skillIds": ["circuits.series.current"],
+  "estimatedMinutes": 2,
+  "taskRev": 1,
+  "creation": { "id": "my-circuit", "step": 2, "briefMd": "Export the circuit you built." },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Yours to keep\n\nPassing **Make the lamp brighter** saved your world under this learner’s `creations/` folder. Use **Export creation** in the studio (or Settings will not include it — that is progress, not a pack).\n\nYou now have a circuit that can do something it could not at the start: sit at a bright, safe current."
+    },
+    {
+      "type": "reflect",
+      "promptMd": "In one sentence: why did lowering resistance make the lamp brighter, and why was 0.25 a bad idea?"
+    }
+  ]
+}

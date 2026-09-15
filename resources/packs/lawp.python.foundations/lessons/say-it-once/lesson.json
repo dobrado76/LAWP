@@ -1,0 +1,34 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "say-it-once",
+  "packId": "lawp.python.foundations",
+  "courseId": "repl-in-pocket",
+  "moduleId": "messages",
+  "title": "Say it once",
+  "skillIds": ["python.io.stdio"],
+  "estimatedMinutes": 15,
+  "taskRev": 1,
+  "creation": { "id": "greeting-bot", "step": 1, "briefMd": "A greeting that uses a name." },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Print is a tool\n\nThe program is the greeting. `print` is how you show it. Use the `name` value so changing the name changes the line."
+    },
+    {
+      "type": "code",
+      "id": "f-hello",
+      "engine": "python",
+      "entry": "main.py",
+      "files": [{ "path": "files/main.py", "role": "edit" }],
+      "checks": [
+        { "type": "stdout", "equals": "Hello, Ada!", "misconceptionId": "print-is-the-program" },
+        { "type": "ast", "query": "name" }
+      ],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "The output must include the name Ada from the variable." },
+        { "level": 2, "kind": "concept", "md": "print(f\"Hello, {name}!\")" }
+      ]
+    }
+  ]
+}

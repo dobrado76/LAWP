@@ -2,7 +2,7 @@
 
 **App:** LAWP (Learn Anything While Playing)  
 **Platform:** Windows-first Electron desktop  
-**Version of this spec:** 0.3.2 (overlay merge, fingerprint trust, world-v1 reference, ledger, IPC)
+**Version of this spec:** 0.3.3 (reference activity + resolved setup export + atomic lessons)
 
 ## Problem
 

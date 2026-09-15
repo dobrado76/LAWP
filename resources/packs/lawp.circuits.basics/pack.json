@@ -1,0 +1,14 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "lawp.circuits.basics",
+  "title": "Circuits: Cause and effect",
+  "description": "Predict, change a circuit, see the lamp, explain why. About 20 minutes.",
+  "subjects": ["science", "circuits"],
+  "engines": ["none"],
+  "capabilities": { "execute": "none", "network": false },
+  "version": "0.3.3",
+  "locale": "en",
+  "authors": ["LAWP"],
+  "tracks": ["first-contact"]
+}

@@ -1,0 +1,30 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "if-this-then-that",
+  "packId": "lawp.python.foundations",
+  "courseId": "repl-in-pocket",
+  "moduleId": "decisions",
+  "title": "If this, then that",
+  "skillIds": ["python.control.if"],
+  "estimatedMinutes": 20,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A branch is a choice\n\n`if score >= 50:` runs one path. The other path is `else`. Comparison (`>=`) is not assignment (`=`)."
+    },
+    {
+      "type": "code",
+      "id": "pass-mark",
+      "engine": "python",
+      "entry": "main.py",
+      "files": [{ "path": "files/main.py", "role": "edit" }],
+      "checks": [{ "type": "stdout", "equals": "pass" }],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "72 is at least 50." },
+        { "level": 2, "kind": "concept", "md": "if score >= 50: print(\"pass\")" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "triple-equals",
+  "packId": "lawp.javascript.foundations",
+  "courseId": "signals",
+  "moduleId": "values",
+  "title": "Triple equals",
+  "skillIds": ["js.values"],
+  "estimatedMinutes": 15,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## `===` does not convert\n\n`0 == \"\"` is true because `==` coerces. `0 === \"\"` is false. Print whether they are **not** strictly equal (true)."
+    },
+    {
+      "type": "code",
+      "id": "strict",
+      "engine": "javascript",
+      "entry": "main.js",
+      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "checks": [
+        { "type": "stdout", "equals": "true", "misconceptionId": "double-equals-ok" },
+        { "type": "ast", "query": "===" }
+      ],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "Use ===, then negate or compare to false." },
+        { "level": 2, "kind": "concept", "md": "console.log(0 === \"\" ? false : true) or console.log(!(0 === \"\")) wait — you want true because they are not equal: console.log(0 !== \"\")" }
+      ]
+    }
+  ]
+}

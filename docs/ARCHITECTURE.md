@@ -107,7 +107,7 @@ Files under userData (v1):
 
 Cartridges are shared across local learners. Progress is never stored next to `pack.json` or `lesson.json`. Project working copies belong under that learner’s `workspaces/`, not `userData/workspaces/` at the root (legacy path: do not use).
 
-**Runtime library (not a build-time catalog):** on each launch, main lists bundled `resources/packs` **plus** `userData/packs`. User `packId` wins. Launch, `npm run dist`, and the installer never copy bundled trees into `userData/packs` and never rewrite `settings.json` if it already exists (create defaults only when the file is missing).
+**Runtime library (not a build-time catalog):** on each launch, main **resolves** each `packId` (overlay merge vs full user pack — [CONTENT_MODEL.md](CONTENT_MODEL.md) D37). There is no blanket “user pack wins.” Launch, `npm run dist`, and the installer never copy bundled trees into `userData/packs` and never rewrite `settings.json` if it already exists (create defaults only when the file is missing).
 
 **Dev ≡ installed:** `npm run dev` and the installed exe resolve the same `%APPDATA%\LAWP`. About must show that path. Do not use Electron’s default unpackaged `userData` (`%APPDATA%\Electron`).
 
@@ -128,7 +128,7 @@ Persist `{ x, y, width, height, isMaximized }`.
 - **Session:** where you were in the studio — not part of settings export
 - **Window geometry:** `window-state.json` only; strip from settings export
 - **Learner progress:** `learners/<id>/` only; settings/setup export must not embed it
-- **Setup bundle (optional):** settings + zip copies of `userData/packs` only — see D38
+- **Setup bundle (optional):** settings + **resolved** pack zips (same exporter as Library export) — see D38
 
 ## Activities vs runners
 

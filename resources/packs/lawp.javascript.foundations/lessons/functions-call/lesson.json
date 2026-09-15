@@ -1,0 +1,27 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "functions-call",
+  "packId": "lawp.javascript.foundations",
+  "courseId": "signals",
+  "moduleId": "functions",
+  "title": "Call the function",
+  "skillIds": ["js.functions"],
+  "estimatedMinutes": 12,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A name is not a call\n\n`ping` is the function. `ping()` runs it and gives you `\"pong\"`."
+    },
+    {
+      "type": "code",
+      "id": "call-ping",
+      "engine": "javascript",
+      "entry": "main.js",
+      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "checks": [{ "type": "stdout", "equals": "pong" }],
+      "hintLadder": [{ "level": 1, "kind": "concept", "md": "console.log(ping())" }]
+    }
+  ]
+}

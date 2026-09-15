@@ -1,0 +1,33 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "list-needs-key",
+  "packId": "lawp.react.foundations",
+  "courseId": "one-app",
+  "moduleId": "state",
+  "title": "A list needs a key",
+  "skillIds": ["react.lists"],
+  "estimatedMinutes": 15,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Identity, not index if you can help it\n\nPretend each item is `{ key, label }`. Return `key:label` pairs joined by commas: `1:a,2:b`. Mention `key` in the source so the habit sticks."
+    },
+    {
+      "type": "code",
+      "id": "keyed",
+      "engine": "react",
+      "entry": "App.js",
+      "files": [{ "path": "files/App.js", "role": "edit" }],
+      "checks": [
+        { "type": "stdout", "equals": "1:a,2:b", "misconceptionId": "missing-key" },
+        { "type": "ast", "query": "key" }
+      ],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "Map [{key:1,label:\"a\"},{key:2,label:\"b\"}] or build that shape from the strings." },
+        { "level": 2, "kind": "assist", "md": "const data = [{key:1,label:\"a\"},{key:2,label:\"b\"}]; return data.map(i => i.key + \":\" + i.label).join(\",\")" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "signal-log",
+  "packId": "lawp.javascript.foundations",
+  "courseId": "signals",
+  "moduleId": "arrays",
+  "title": "Signal log",
+  "skillIds": ["js.functions", "js.arrays"],
+  "estimatedMinutes": 20,
+  "taskRev": 1,
+  "creation": { "id": "signal-log", "step": 1, "briefMd": "logBeacon returns a tagged line." },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A log you keep\n\n`logBeacon(name)` should return `beacon:name`. The two prints must be `beacon:north` then `beacon:east`."
+    },
+    {
+      "type": "code",
+      "id": "log-fn",
+      "engine": "javascript",
+      "entry": "main.js",
+      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "checks": [{ "type": "stdout", "equals": "beacon:north\nbeacon:east" }],
+      "hintLadder": [{ "level": 1, "kind": "concept", "md": "return `beacon:${name}`" }]
+    }
+  ]
+}

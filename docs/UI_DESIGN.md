@@ -46,9 +46,10 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 ## Studio
 
 - Left: Markdown explain + predict prompt
-- Right: **activity view** (`world-v1` graph/list/grid) **or** Monaco (code) **or** check UI
+- Right: **activity view** (`world-v1` graph/list/grid) **or** the shared `CodeEditor` (gutter, highlighting, click-to-error) **or** check UI
 - React: tabs for files + Preview pane
-- Footer: Act/Run, Check, Restart exercise, Hint (concept vs assist labelled)
+- Top studio bar: Back / title / **Run · Check · Hint · Restart** / Next (not a bottom footer)
+- Play grid: **SUCCESS / FAIL** overlay on the stage after Run — do not make the learner read Why to know the result
 - After Check: **This · Last · Best** (score + independent/assisted). Time is secondary. Link to **snapshot**
 - Check overflow: **Replace last run**
 - TOC overflow: Restart lesson, Restart chapter, Clear history…, Export creation

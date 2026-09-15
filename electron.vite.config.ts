@@ -1,8 +1,33 @@
-/** Placeholder so tsconfig.node.json has a real entry. Replace with electron-vite `defineConfig` during Phase 0. */
-const config = {
-  main: { entry: 'src/main/index.ts' },
-  preload: { entry: 'src/preload/index.ts' },
-  renderer: { root: 'src/renderer' }
-}
+import { resolve } from 'node:path'
+import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import react from '@vitejs/plugin-react'
 
-export default config
+export default defineConfig({
+  main: {
+    plugins: [externalizeDepsPlugin()],
+    resolve: {
+      alias: {
+        '@shared': resolve('src/shared'),
+        '@main': resolve('src/main')
+      }
+    }
+  },
+  preload: {
+    plugins: [externalizeDepsPlugin()],
+    resolve: {
+      alias: {
+        '@shared': resolve('src/shared')
+      }
+    }
+  },
+  renderer: {
+    root: 'src/renderer',
+    plugins: [react()],
+    resolve: {
+      alias: {
+        '@shared': resolve('src/shared'),
+        '@renderer': resolve('src/renderer')
+      }
+    }
+  }
+})

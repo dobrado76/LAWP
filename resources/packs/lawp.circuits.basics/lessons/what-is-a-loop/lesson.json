@@ -1,0 +1,18 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "what-is-a-loop",
+  "packId": "lawp.circuits.basics",
+  "courseId": "first-contact",
+  "moduleId": "the-loop",
+  "title": "A loop that can light",
+  "skillIds": ["circuits.series.current"],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A closed path\n\nA lamp lights only when charge can go **out** of the battery, through the parts, and **back**. That path is a series loop.\n\nResistance in the loop limits how much current flows. Lower resistance → more current → a brighter lamp — until something overheats. We will give you a **current limit of 2**."
+    }
+  ]
+}

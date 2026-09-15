@@ -1,0 +1,4 @@
+[
+  { "id": "assign-instead-of-compare", "title": "Uses = when the code needed a comparison", "skillIds": ["python.control.if"] },
+  { "id": "print-is-the-program", "title": "Treats print as the whole program", "skillIds": ["python.io.stdio"] }
+]

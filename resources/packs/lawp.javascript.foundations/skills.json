@@ -1,0 +1,5 @@
+[
+  { "id": "js.values", "title": "Values and equality", "prereqIds": [] },
+  { "id": "js.functions", "title": "Functions", "prereqIds": ["js.values"] },
+  { "id": "js.arrays", "title": "Arrays", "prereqIds": ["js.functions"] }
+]

@@ -1,0 +1,14 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "lawp.python.foundations",
+  "title": "Python: Think, then run",
+  "description": "Names, a grid walk, decisions, messages, and a greeting bot you keep.",
+  "subjects": ["programming", "python"],
+  "engines": ["python"],
+  "capabilities": { "execute": "python", "network": false },
+  "version": "0.3.3",
+  "locale": "en",
+  "authors": ["LAWP"],
+  "tracks": ["foundations"]
+}

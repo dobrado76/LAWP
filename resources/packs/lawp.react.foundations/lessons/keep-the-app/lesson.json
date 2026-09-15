@@ -1,0 +1,23 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "keep-the-app",
+  "packId": "lawp.react.foundations",
+  "courseId": "one-app",
+  "moduleId": "keep",
+  "title": "Keep the app",
+  "skillIds": ["react.lists"],
+  "estimatedMinutes": 10,
+  "taskRev": 1,
+  "creation": { "id": "keep-list", "step": 2, "briefMd": "Export the list you built." },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Yours to keep\n\nPassing **Filter the list** saved the creation. Use **Export creation** to take the folder or zip off this machine. That is the point of a continuing app: it can do something it could not at the start."
+    },
+    {
+      "type": "reflect",
+      "promptMd": "What new thing can the list do after the filter lesson?"
+    }
+  ]
+}

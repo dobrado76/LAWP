@@ -1,0 +1,10 @@
+{
+  "id": "keep-list",
+  "title": "Keep list",
+  "briefMd": "A list component that gains filter, then stays yours.",
+  "exportKinds": ["folder", "zip"],
+  "steps": [
+    { "lessonId": "filter-the-list", "addsMd": "Filter by text." },
+    { "lessonId": "keep-the-app", "addsMd": "Export the app folder." }
+  ]
+}

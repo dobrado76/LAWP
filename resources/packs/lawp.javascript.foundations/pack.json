@@ -1,0 +1,14 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "lawp.javascript.foundations",
+  "title": "JavaScript: Language of the web",
+  "description": "Values, equality, functions, arrays, and a signal log you keep.",
+  "subjects": ["programming", "javascript"],
+  "engines": ["javascript"],
+  "capabilities": { "execute": "javascript", "network": false },
+  "version": "0.3.3",
+  "locale": "en",
+  "authors": ["LAWP"],
+  "tracks": ["foundations"]
+}

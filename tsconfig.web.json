@@ -18,8 +18,7 @@
     "noEmit": false,
     "emitDeclarationOnly": true,
     "outDir": "out/types-web",
-    "baseUrl": ".",
-    "types": [],
+    "types": ["vite/client"],
     "paths": {
       "@shared/*": ["./src/shared/*"],
       "@renderer/*": ["./src/renderer/*"]

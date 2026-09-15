@@ -1,0 +1,31 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "filter-the-list",
+  "packId": "lawp.react.foundations",
+  "courseId": "one-app",
+  "moduleId": "keep",
+  "title": "Filter the list",
+  "skillIds": ["react.lists"],
+  "estimatedMinutes": 20,
+  "taskRev": 1,
+  "creation": { "id": "keep-list", "step": 1, "briefMd": "Filter items by a query." },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Keep what matches\n\n`filterList(items, q)` returns items that include `q`, joined by commas. For `l` that is `lamp,loop`."
+    },
+    {
+      "type": "code",
+      "id": "filter",
+      "engine": "react",
+      "entry": "App.js",
+      "files": [{ "path": "files/App.js", "role": "edit" }],
+      "checks": [
+        { "type": "stdout", "equals": "lamp,loop" },
+        { "type": "ast", "query": "filter" }
+      ],
+      "hintLadder": [{ "level": 1, "kind": "concept", "md": "items.filter(i => i.includes(q)).join(\",\")" }]
+    }
+  ]
+}

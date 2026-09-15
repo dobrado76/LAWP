@@ -56,7 +56,7 @@ Settings → About must show the resolved `userData` path so you can confirm **d
 | `%APPDATA%\LAWP\settings.json` | Prefs | **Untouched** |
 | `%APPDATA%\LAWP\learners\` | Progress | **Untouched** |
 
-The Library is `union(bundled, userData/packs)` at process start. Never freeze a pack id list into the renderer bundle.
+The Library is the **resolved** catalog (D37: overlay vs full pack), not a raw union and not “user always wins.” Never freeze a pack id list into the renderer bundle.
 
 ## Window state
 
@@ -88,6 +88,7 @@ Cursor/VS Code lists every `tsconfig*.json` as a project. Red badges appear when
 
 - Root `tsconfig.json` is **only** `{ "files": [], "references": [ { "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" } ] }`
 - **Do not `extends` any npm package.** Inline `compilerOptions`.
+- Do **not** set `baseUrl` (deprecated in TypeScript 6; `paths` work without it). This is what turns those two files red in the explorer.
 - Until `npm install`, use `"types": []` or omit `types` (do **not** require `@types/node` in the JSON or the file shows as error on a spec-only open)
 - After scaffold + install, you may set `"types": ["node"]` on the **node** config only
 - `skipLibCheck`: true

@@ -1,0 +1,30 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "types-you-can-see",
+  "packId": "lawp.python.foundations",
+  "courseId": "repl-in-pocket",
+  "moduleId": "values-and-names",
+  "title": "Types you can see",
+  "skillIds": ["python.types.names"],
+  "estimatedMinutes": 15,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Values have kinds\n\n`3` is an `int`. `\"3\"` is a `str`. `type(3).__name__` is a readable name for the kind."
+    },
+    {
+      "type": "code",
+      "id": "print-type",
+      "engine": "python",
+      "entry": "main.py",
+      "files": [{ "path": "files/main.py", "role": "edit" }],
+      "checks": [{ "type": "stdout", "equals": "int" }],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "Ask the value 3 what kind it is." },
+        { "level": 2, "kind": "concept", "md": "type(3).__name__ prints int." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "transfer-fuse",
+  "packId": "lawp.circuits.basics",
+  "courseId": "first-contact",
+  "moduleId": "the-loop",
+  "title": "A fuse in another story",
+  "skillIds": ["circuits.series.current"],
+  "estimatedMinutes": 4,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Transfer\n\nSame physics, new cover: a garden lamp and a fuse that blows above 2. Make it bright **and** keep the fuse."
+    },
+    {
+      "type": "activity",
+      "id": "garden-lamp",
+      "kind": "experiment",
+      "engine": "world-v1",
+      "promptMd": "Light the garden lamp brightly. Do not blow the fuse (current ≤ 2).",
+      "skillIds": ["circuits.series.current"],
+      "constraintMode": "always",
+      "predict": {
+        "promptMd": "If you pick ohms = 0.25, what happens to the fuse?",
+        "kind": "mcq",
+        "choices": [
+          { "id": "ok", "md": "It stays fine" },
+          { "id": "blow", "md": "It blows (current 4)" }
+        ],
+        "answer": "blow"
+      },
+      "world": {
+        "parts": [
+          { "id": "battery", "type": "battery", "props": { "cells": 1 } },
+          { "id": "resistor", "type": "resistor", "props": { "ohms": 2 } },
+          { "id": "lamp", "type": "lamp", "props": { "brightness": 1, "label": "Garden lamp" } },
+          { "id": "meter", "type": "meter", "props": { "current": 0.5 } }
+        ],
+        "connections": [
+          { "from": "battery", "to": "resistor" },
+          { "from": "resistor", "to": "lamp" },
+          { "from": "lamp", "to": "battery" }
+        ],
+        "actions": [
+          {
+            "id": "set-ohms",
+            "label": "Set resistance",
+            "target": "resistor",
+            "op": "set",
+            "key": "ohms",
+            "values": [0, 0.25, 1, 2, 4]
+          }
+        ],
+        "rules": [
+          {
+            "id": "i-from-lookup",
+            "when": [],
+            "set": [
+              { "target": "meter", "key": "current", "value": { "op": "div", "a": "battery.cells", "b": "resistor.ohms" } }
+            ]
+          },
+          {
+            "id": "bright-from-i",
+            "when": [{ "path": "meter.current", "op": "gte", "value": 1 }],
+            "set": [{ "target": "lamp", "key": "brightness", "value": 2 }]
+          },
+          {
+            "id": "dim-from-i",
+            "when": [{ "path": "meter.current", "op": "lt", "value": 1 }],
+            "set": [{ "target": "lamp", "key": "brightness", "value": 1 }]
+          }
+        ],
+        "view": { "kind": "graph", "assetMap": {} }
+      },
+      "goal": { "all": [{ "path": "lamp.brightness", "op": "eq", "value": 2 }] },
+      "constraints": [{ "path": "meter.current", "op": "lte", "value": 2 }],
+      "explainAfter": { "promptMd": "This lesson uses constraintMode always — blowing the fuse even once fails, even if you recover." },
+      "misconceptionMap": [
+        { "when": { "path": "meter.current", "op": "gt", "value": 2 }, "misconceptionId": "ignores-current-limit" }
+      ],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "Same math as before. The fuse remembers." },
+        { "level": 2, "kind": "concept", "md": "Go straight to ohms = 1. Do not visit 0.25." }
+      ]
+    }
+  ]
+}

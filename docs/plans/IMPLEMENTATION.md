@@ -2,12 +2,12 @@
 
 Work **only** in this repo. Phase 0 is already partially present (docs + tsconfig stubs + icon).
 
-Rules from Phase 1 onward ([CONTENT_MODEL.md](../CONTENT_MODEL.md), D25–D42):
+Rules from Phase 1 onward ([CONTENT_MODEL.md](../CONTENT_MODEL.md), D25–D43):
 
 - JSON cartridges, folder-per-lesson, zip install/export. Progress only under `learners/<id>/`.
 - Library is **runtime-resolved**: lesson zip **overlays** a bundled pack; a full pack zip replaces it (D37). Dist/installer never overwrite settings or user cartridges (D3).
 - Settings export/import (D38). Trust is a **fingerprint**, never imported (D39).
-- Grades **ledger** + activity log (D41). `world-v1` = brighter-lamp semantics (D40). IPC: save, assets, `runId` on hints/output, grade from main’s world (D42).
+- Grades **ledger** + activity log (D41). `world-v1` = brighter-lamp semantics (D40). IPC: save, assets, `runId` on hints/output, grade from main’s world (D42). Play API is app-owned `player-v1` applied in main (D43).
 - First learning milestone is **one 20-minute playable experience**, not a finished three-track catalog.
 - Cartridge JSON stays a small closed vocabulary so a human or a model can generate it from a template.
 
@@ -123,7 +123,7 @@ This is the product proof that LAWP is not “a code school with a fox skin.”
 - Certificates under the learner folder
 - Learner switcher mid-run does not steal the in-flight result
 - Accessibility; `typecheck` / `test` / `lint`
-- Tests: zip slip; cartridge/settings export has no `learners/`; evidence ledger survives log truncation; delete-last of the best uses remaining `grades[]` (D41); best ignores duration unless `speedMatters`; trust is fingerprint-bound and setup import grants none; overlay lesson does not hide bundled siblings; brighter-lamp transitions match CONTENT_MODEL; `grade:block` ignores client world; `hint:get` / `run:output` require `runId`; `world-v1` never calls `eval`; settings import does not write window-state
+- Tests: zip slip; cartridge/settings export has no `learners/`; setup pack zips are **resolved** (not raw overlays); evidence ledger survives log truncation; delete-last of the best uses remaining `grades[]` (D41); `taskRev` bump clears `bestEver`; best ignores duration unless `speedMatters`; trust is fingerprint-bound and setup import grants none; overlay lesson folder is atomic and does not hide bundled siblings; brighter-lamp table (B→C final pass / always fail; E fault fail; F clears fault); `grade:block` ignores client world; `hint:get` / `run:output` require `runId`; `world-v1` never calls `eval`; settings import does not write window-state
 
 ## Definition of done (product v1)
 
@@ -137,7 +137,7 @@ This is the product proof that LAWP is not “a code school with a fox skin.”
 - [ ] Restart keeps history; clear/overwrite are explicit
 - [ ] Overlay lesson install leaves other bundled lessons visible; full pack install hides bundled after confirm
 - [ ] Trust is per fingerprint; setup import does not grant spawn; capabilities must match lessons
-- [ ] brighter-lamp `world-v1` transitions pass
+- [ ] brighter-lamp transitions: success, over-limit + recovery (`final` vs `always`), calcFault then clear
 - [ ] `author:save` + `author:importAsset`; grade uses main’s world
 - [ ] Learning works offline; AI draft is Author-only and optional
 - [ ] No dependency on any other local project

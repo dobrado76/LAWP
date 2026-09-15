@@ -1,0 +1,14 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "lawp.react.foundations",
+  "title": "React: One app that grows",
+  "description": "Components, props, state, lists, and a filterable list you keep.",
+  "subjects": ["programming", "react"],
+  "engines": ["react"],
+  "capabilities": { "execute": "react", "network": false },
+  "version": "0.3.3",
+  "locale": "en",
+  "authors": ["LAWP"],
+  "tracks": ["foundations"]
+}

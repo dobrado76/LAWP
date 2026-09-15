@@ -1,0 +1,35 @@
+appId: com.lawp.app
+productName: LAWP
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+extraResources:
+  - from: resources/packs
+    to: packs
+    filter:
+      - "**/*"
+  - from: resources/templates
+    to: templates
+    filter:
+      - "**/*"
+  - from: resources/play
+    to: play
+    filter:
+      - "**/*"
+win:
+  icon: build/icon.png
+  target:
+    - nsis
+    - dir
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  createDesktopShortcut: true
+  shortcutName: LAWP
+electronLanguages:
+  - en-US
+artifactName: "${productName}-${version}-${os}-${arch}.${ext}"

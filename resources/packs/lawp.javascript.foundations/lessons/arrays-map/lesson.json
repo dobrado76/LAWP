@@ -1,0 +1,32 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "arrays-map",
+  "packId": "lawp.javascript.foundations",
+  "courseId": "signals",
+  "moduleId": "arrays",
+  "title": "Map makes a new list",
+  "skillIds": ["js.arrays"],
+  "estimatedMinutes": 18,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array. Print `ADA,GRACE`."
+    },
+    {
+      "type": "code",
+      "id": "upper-map",
+      "engine": "javascript",
+      "entry": "main.js",
+      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "checks": [
+        { "type": "stdout", "equals": "ADA,GRACE", "misconceptionId": "map-mutates" },
+        { "type": "ast", "query": "map" }
+      ],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "Use map, then join with a comma." }
+      ]
+    }
+  ]
+}

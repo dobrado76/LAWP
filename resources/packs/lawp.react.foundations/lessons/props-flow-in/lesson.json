@@ -1,0 +1,30 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "props-flow-in",
+  "packId": "lawp.react.foundations",
+  "courseId": "one-app",
+  "moduleId": "components",
+  "title": "Props flow in",
+  "skillIds": ["react.props"],
+  "estimatedMinutes": 15,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Data comes from outside\n\n`Badge` should return `props.label`. The call already passes `{ label: \"new\" }`."
+    },
+    {
+      "type": "code",
+      "id": "badge",
+      "engine": "react",
+      "entry": "App.js",
+      "files": [{ "path": "files/App.js", "role": "edit" }],
+      "checks": [
+        { "type": "stdout", "equals": "new" },
+        { "type": "ast", "query": "props" }
+      ],
+      "hintLadder": [{ "level": 1, "kind": "concept", "md": "return props.label" }]
+    }
+  ]
+}

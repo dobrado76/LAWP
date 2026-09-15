@@ -1,0 +1,27 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "values-and-typeof",
+  "packId": "lawp.javascript.foundations",
+  "courseId": "signals",
+  "moduleId": "values",
+  "title": "Values and typeof",
+  "skillIds": ["js.values"],
+  "estimatedMinutes": 12,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Kinds of values\n\n`typeof 3` is `\"number\"`. `typeof \"3\"` is `\"string\"`. Print the kind of the number 3."
+    },
+    {
+      "type": "code",
+      "id": "typeof-number",
+      "engine": "javascript",
+      "entry": "main.js",
+      "files": [{ "path": "files/main.js", "role": "edit" }],
+      "checks": [{ "type": "stdout", "equals": "number" }],
+      "hintLadder": [{ "level": 1, "kind": "concept", "md": "console.log(typeof 3)" }]
+    }
+  ]
+}

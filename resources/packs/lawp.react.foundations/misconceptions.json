@@ -1,0 +1,4 @@
+[
+  { "id": "mutate-state", "title": "Mutates an array instead of setting new state", "skillIds": ["react.state"] },
+  { "id": "missing-key", "title": "Renders a list without a stable key", "skillIds": ["react.lists"] }
+]

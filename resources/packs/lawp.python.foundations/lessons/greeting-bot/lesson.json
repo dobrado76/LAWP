@@ -1,0 +1,31 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "greeting-bot",
+  "packId": "lawp.python.foundations",
+  "courseId": "repl-in-pocket",
+  "moduleId": "messages",
+  "title": "Greeting bot",
+  "skillIds": ["python.io.stdio", "python.control.if"],
+  "estimatedMinutes": 25,
+  "taskRev": 1,
+  "creation": { "id": "greeting-bot", "step": 2, "briefMd": "A greet() you can reuse." },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Keep the bot\n\n`greet(name)` returns a string. Empty name → `Hello!`. Otherwise `Hello, Ada!`. Passing the two prints below must match exactly."
+    },
+    {
+      "type": "code",
+      "id": "greet-fn",
+      "engine": "python",
+      "entry": "main.py",
+      "files": [{ "path": "files/main.py", "role": "edit" }],
+      "checks": [{ "type": "stdout", "equals": "Hello, Ada!\nHello!" }],
+      "hintLadder": [
+        { "level": 1, "kind": "concept", "md": "Return a value. The prints are already there." },
+        { "level": 2, "kind": "concept", "md": "if not name: return \"Hello!\" else return f\"Hello, {name}!\"" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "type": "activity",
+  "id": "new-diagnose",
+  "kind": "diagnose",
+  "engine": "world-v1",
+  "promptMd": "Something is wrong. Find the broken part.",
+  "skillIds": [],
+  "world": {
+    "parts": [
+      { "id": "a", "type": "generic", "props": { "ok": 0 } },
+      { "id": "b", "type": "generic", "props": { "ok": 1 } }
+    ],
+    "connections": [{ "from": "a", "to": "b" }],
+    "actions": [
+      { "id": "toggle-a", "label": "Fix A", "target": "a", "op": "set", "key": "ok", "values": [0, 1] }
+    ],
+    "rules": [],
+    "view": { "kind": "graph", "assetMap": {} }
+  },
+  "goal": { "all": [{ "path": "a.ok", "op": "eq", "value": 1 }] },
+  "explainAfter": { "promptMd": "Which part was broken, and how did you know?" },
+  "hintLadder": [{ "level": 1, "kind": "concept", "md": "Compare A and B." }]
+}
