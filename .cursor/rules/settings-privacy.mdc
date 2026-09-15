@@ -1,0 +1,8 @@
+---
+description: Live settings.json is private
+alwaysApply: true
+---
+
+# settings.json is private
+
+Do not Read, Grep, or paste `%APPDATA%\LAWP\settings.json` (or `.dev-user-data/settings.json`) into chat. Edit schemas and defaults in-repo only.

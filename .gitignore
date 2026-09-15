@@ -1,0 +1,10 @@
+node_modules/
+out/
+release/
+dist/
+.dev-user-data/
+out/types-node/
+out/types-web/
+*.log
+.DS_Store
+Thumbs.db

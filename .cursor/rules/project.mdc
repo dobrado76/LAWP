@@ -1,0 +1,39 @@
+---
+description: LAWP project rules for agents
+alwaysApply: true
+---
+
+# LAWP
+
+This repo is **LAWP** (Learn Anything While Playing) — a standalone Windows Electron + React LMS.
+
+## Isolation
+
+- Do **not** import, copy from, or depend on any other application repo.
+- Specs live in `docs/`. Implement against those files. Update `docs/DECISIONS.md` when behavior is locked.
+
+## Architecture
+
+- Electron main owns packs (zip install/export), runners, learners, progress, settings, window state.
+- Renderer is React + Zustand; **no Node integration**.
+- Typed preload IPC + Zod; Result `{ ok, value } | { ok: false, error }`.
+- App state only under Electron `userData` (`%APPDATA%\LAWP` for both `npm run dev` and installed builds).
+
+## Must preserve
+
+- Window size, position, maximized state across sessions (`window-state.json`).
+- Shared AppData unless `LAWP_USER_DATA` or `LAWP_ISOLATED_USER_DATA=1`.
+- Custom app icon, never the default Electron icon.
+- Self-contained `tsconfig.json` / `tsconfig.node.json` / `tsconfig.web.json` (no missing `extends` packages).
+
+## Content
+
+- Generalized **JSON cartridges** (any subject): one folder per pack, one folder per lesson (`lesson.json` + `files/` + `assets/`). Install/export as `.zip`.
+- Progress only under `userData/learners/<id>/`, never inside a cartridge. Append every run/check; restart keeps history; clear/overwrite is explicit.
+- Original lessons only. Do not scrape or reproduce Codefinity materials.
+- v1 demo engines: Python, JavaScript, React.
+
+## Settings
+
+- Every new preference goes on `settingsSchema` so export/import round-trips it.
+- Strip window geometry from export.
