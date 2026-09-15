@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Two ways to make an object that shares a prototype."
 }

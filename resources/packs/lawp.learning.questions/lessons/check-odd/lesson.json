@@ -1,0 +1,50 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-odd",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Which does not belong?",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The odd one\n\nSame as pick-one. The prompt asks which item is not like the others."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "odd",
+      "promptMd": "Which does not belong with the fruits?",
+      "choices": [
+        {
+          "id": "apple",
+          "md": "Apple"
+        },
+        {
+          "id": "pear",
+          "md": "Pear"
+        },
+        {
+          "id": "hammer",
+          "md": "Hammer"
+        },
+        {
+          "id": "peach",
+          "md": "Peach"
+        }
+      ],
+      "answer": "hammer",
+      "explainMd": "A hammer is a tool, not a fruit.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Find the item that does not belong with the others."
+}

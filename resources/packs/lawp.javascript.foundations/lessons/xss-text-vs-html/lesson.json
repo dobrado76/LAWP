@@ -76,5 +76,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Put plain words in as text. Do not feed them as markup."
 }

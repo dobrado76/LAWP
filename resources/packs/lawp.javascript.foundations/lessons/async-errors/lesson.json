@@ -76,5 +76,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A rejected await belongs in try and catch, like a throw."
 }

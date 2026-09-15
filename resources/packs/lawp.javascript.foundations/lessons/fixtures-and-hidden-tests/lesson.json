@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Hidden tests use fixtures. Your file is the thing they call."
 }

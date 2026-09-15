@@ -1,0 +1,49 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-bank",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Drag words into the sentence",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One pile of words\n\nDrag a chip into each blank. Extra words stay in the bank."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "bank",
+      "promptMd": "A {{a}} holds many {{b}}.",
+      "pieces": [
+        {
+          "id": "list",
+          "md": "list"
+        },
+        {
+          "id": "values",
+          "md": "values"
+        },
+        {
+          "id": "loop",
+          "md": "loop"
+        }
+      ],
+      "answer": {
+        "a": "list",
+        "b": "values"
+      },
+      "explainMd": "A list holds many values. A loop is how you walk them, not what they are.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Drag words from a shared pile into the blanks."
+}

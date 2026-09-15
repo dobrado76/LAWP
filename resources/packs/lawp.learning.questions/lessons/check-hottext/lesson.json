@@ -1,0 +1,32 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-hottext",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Tap the word",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A word in a sentence\n\nTap the token that is wrong."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "hottext",
+      "promptMd": "The fox walked [[ok:east]] then [[bad:teleported]] to the beacon.",
+      "answer": "bad",
+      "explainMd": "The fox walks. It does not teleport.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Tap the word in the passage that is wrong or that proves the claim."
+}

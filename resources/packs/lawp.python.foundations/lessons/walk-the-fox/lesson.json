@@ -6,7 +6,9 @@
   "courseId": "repl-in-pocket",
   "moduleId": "on-the-grid",
   "title": "Walk the fox",
-  "skillIds": ["python.call.move"],
+  "skillIds": [
+    "python.call.move"
+  ],
   "estimatedMinutes": 15,
   "taskRev": 1,
   "blocks": [
@@ -20,8 +22,14 @@
       "promptMd": "The fox starts at (0, 0). After one `Player.move(\"east\")`, where is it?",
       "kind": "mcq",
       "choices": [
-        { "id": "same", "md": "Still at (0, 0)" },
-        { "id": "east", "md": "At (1, 0)" }
+        {
+          "id": "same",
+          "md": "Still at (0, 0)"
+        },
+        {
+          "id": "east",
+          "md": "At (1, 0)"
+        }
       ],
       "answer": "east"
     },
@@ -31,37 +39,86 @@
       "engine": "python",
       "entry": "main.py",
       "promptMd": "> Walk the fox onto the beacon at `(3, 2)`.",
-      "files": [{ "path": "files/main.py", "role": "edit" }],
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        }
+      ],
       "play": {
         "api": "player-v1",
         "playerId": "fox",
         "guided": true,
         "world": {
           "parts": [
-            { "id": "fox", "type": "fox", "props": { "x": 0, "y": 0, "rot": 0, "label": "Fox" } },
-            { "id": "beacon", "type": "beacon", "props": { "x": 3, "y": 2, "label": "Beacon" } }
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 3,
+                "y": 2,
+                "label": "Beacon"
+              }
+            }
           ],
           "connections": [],
           "actions": [],
           "rules": [],
           "view": {
             "kind": "grid",
-            "grid": { "cols": 5, "rows": 5 },
-            "assetMap": { "fox": "fox.svg", "beacon": "beacon.svg" }
+            "grid": {
+              "cols": 5,
+              "rows": 5
+            },
+            "assetMap": {
+              "fox": "fox.svg",
+              "beacon": "beacon.svg"
+            }
           }
         },
         "goal": {
           "all": [
-            { "path": "fox.x", "op": "eq", "value": 3 },
-            { "path": "fox.y", "op": "eq", "value": 2 }
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 3
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 2
+            }
           ]
         }
       },
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "Beacon is at x=3, y=2. One move changes one coordinate by 1." },
-        { "level": 2, "kind": "concept", "md": "You need three east calls and two south calls. Order does not matter." },
-        { "level": 4, "kind": "assist", "md": "Player.move(\"east\") three times, then Player.move(\"south\") twice." }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Beacon is at x=3, y=2. One move changes one coordinate by 1."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "You need three east calls and two south calls. Order does not matter."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Player.move(\"east\") three times, then Player.move(\"south\") twice."
+        }
       ]
     }
-  ]
+  ],
+  "description": "Call a step so the fox walks one cell on the grid."
 }

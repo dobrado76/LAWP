@@ -128,5 +128,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "Two names can point at the same object. A copy is a new one."
 }

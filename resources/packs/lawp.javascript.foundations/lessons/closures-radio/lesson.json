@@ -127,5 +127,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "A function can remember values from the place it was created."
 }

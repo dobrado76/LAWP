@@ -6,10 +6,16 @@
   "courseId": "first-contact",
   "moduleId": "the-loop",
   "title": "Keep your circuit",
-  "skillIds": ["circuits.series.current"],
+  "skillIds": [
+    "circuits.series.current"
+  ],
   "estimatedMinutes": 2,
   "taskRev": 1,
-  "creation": { "id": "my-circuit", "step": 2, "briefMd": "Export the circuit you built." },
+  "creation": {
+    "id": "my-circuit",
+    "step": 2,
+    "briefMd": "Export the circuit you built."
+  },
   "blocks": [
     {
       "type": "explain",
@@ -19,5 +25,6 @@
       "type": "reflect",
       "promptMd": "In one sentence: why did lowering resistance make the lamp brighter, and why was 0.25 a bad idea?"
     }
-  ]
+  ],
+  "description": "Keep the circuit you built and take it with you."
 }

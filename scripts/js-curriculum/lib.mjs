@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -6,12 +6,12 @@ export const PACK = 'lawp.javascript.foundations'
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'resources', 'packs', PACK, 'lessons')
 
 export const ASSETS = {
-  fox: 'fox.svg',
-  beacon: 'beacon.svg',
-  rock: 'rock.svg',
-  coin: 'coin.svg',
-  key: 'key.svg',
-  glint: 'glint.svg'
+  fox: 'fox.png',
+  beacon: 'beacon.png',
+  rock: 'rock.png',
+  coin: 'coin.png',
+  key: 'key.png',
+  glint: 'glint.png'
 }
 
 export function fox(x = 0, y = 0, extra = {}) {
@@ -215,31 +215,46 @@ export function reflect(id, promptMd) {
   return { type: 'reflect', id, promptMd }
 }
 
+const CARD_COPY = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'lesson-card-copy.json'), 'utf8')
+)
+
 export function writeLesson(doc, diskFiles) {
   const dir = join(ROOT, doc.id)
   mkdirSync(join(dir, 'files'), { recursive: true })
-  writeFileSync(join(dir, 'lesson.json'), JSON.stringify(doc, null, 2) + '\n')
+  const description = CARD_COPY[PACK]?.[doc.id]
+  writeFileSync(join(dir, 'lesson.json'), JSON.stringify(description ? { ...doc, description } : doc, null, 2) + '\n')
   for (const [name, contents] of Object.entries(diskFiles)) {
     writeFileSync(join(dir, 'files', name), contents.endsWith('\n') ? contents : contents + '\n')
   }
 }
 
 export function srcIncludes(...needles) {
-  return `const fs = require('fs')
-const assert = require('assert')
-const src = fs.readFileSync('main.js', 'utf8')
-${needles.map((n) => `assert.ok(src.includes(${JSON.stringify(n)}), 'expected source to include ' + ${JSON.stringify(n)})`).join('\n')}
+  return `;(function () {
+  const fs = require('fs')
+  const assert = require('assert')
+  const src = fs.readFileSync('main.js', 'utf8')
+  ${needles.map((n) => `assert.ok(src.includes(${JSON.stringify(n)}), 'expected source to include ' + ${JSON.stringify(n)})`).join('\n  ')}
+})()
 `
 }
 
 export function playLogOk(extra = '') {
-  return `const fs = require('fs')
-const assert = require('assert')
-const log = JSON.parse(fs.readFileSync('play-log.json', 'utf8'))
-assert.ok(Array.isArray(log) && log.length > 0, 'expected play commands')
-assert.ok(!log.some((row) => row.op === 'fault'), 'play log has a fault')
-${extra}
+  return `;(function () {
+  const fs = require('fs')
+  const assert = require('assert')
+  const log = JSON.parse(fs.readFileSync('play-log.json', 'utf8'))
+  assert.ok(Array.isArray(log) && log.length > 0, 'expected play commands')
+  assert.ok(!log.some((row) => row.op === 'fault'), 'play log has a fault')
+  ${extra}
+})()
 `
+}
+
+export const PAGE_STYLE = `html,body{margin:0}body{box-sizing:border-box;min-height:100%;font:16px/1.45 system-ui,"Segoe UI",sans-serif;color:#1c2430;background:#f3efe6;padding:16px 18px}.desk{background:#fff;border:1px solid #d8d1c3;border-radius:10px;padding:16px 18px;min-height:72px}.kicker{margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7a7468}h1{font-size:22px;line-height:1.25;margin:0 0 .4em}p,li{margin:0 0 8px}ul{margin:0;padding-left:1.2em;min-height:2em}ul:empty{list-style:none;padding:12px;border:1px dashed #d8d1c3;border-radius:8px;color:#9a9386}ul:empty::after{content:"No items yet"}input,button,select,textarea{font:inherit}input,textarea{padding:6px 8px;border:1px solid #c9c2b4;border-radius:6px;background:#fff}button{padding:6px 12px;border:1px solid #2a6b63;border-radius:6px;background:#1a3d38;color:#e8fff8;cursor:pointer}label{display:block;font-size:12px;color:#6b6458;margin:0 0 4px}`
+
+export function pageHtml(inner, kicker = 'Signal desk') {
+  return `<!doctype html><html><head><meta charset="utf-8"><style>${PAGE_STYLE}</style></head><body><div class="desk"><p class="kicker">${kicker}</p>${inner}</div></body></html>\n`
 }
 
 export function exportAssert(body) {

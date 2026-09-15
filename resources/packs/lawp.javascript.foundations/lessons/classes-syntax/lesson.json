@@ -130,5 +130,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "Class syntax is sugar over the same prototype story."
 }

@@ -18,6 +18,12 @@ export const bestValueSchema = z.object({
   attemptId: z.string().optional()
 })
 
+export const firstTrySchema = z.object({
+  passed: z.boolean(),
+  score: z.number(),
+  attemptId: z.string().optional()
+})
+
 export const lessonEvidenceSchema = z.object({
   status: z.enum(['not-started', 'in-progress', 'checked', 'mastered', 'retrying']),
   taskRev: z.number(),
@@ -27,6 +33,7 @@ export const lessonEvidenceSchema = z.object({
   independentPass: z.boolean().default(false),
   best: bestValueSchema.optional(),
   bestEver: bestValueSchema.optional(),
+  firstTries: z.record(firstTrySchema).default({}),
   prior: z.record(z.unknown()).optional(),
   fastest: z.object({ attemptId: z.string(), durationMs: z.number() }).optional(),
   previousGradeId: z.string().optional(),
@@ -59,6 +66,15 @@ export type GradeRow = z.infer<typeof gradeRowSchema>
 export type LessonEvidence = z.infer<typeof lessonEvidenceSchema>
 export type Attempt = z.infer<typeof attemptSchema>
 export type BestValue = z.infer<typeof bestValueSchema>
+export type FirstTry = z.infer<typeof firstTrySchema>
+
+/** First submit per block. A later pass does not change this. */
+export function firstTryTally(firstTries: Record<string, FirstTry> | undefined): { hits: number; total: number; score: number } {
+  const rows = Object.values(firstTries ?? {})
+  const hits = rows.filter((r) => r.passed).length
+  const total = rows.length
+  return { hits, total, score: total ? hits / total : 0 }
+}
 
 export function pickBest(grades: GradeRow[]): BestValue | undefined {
   if (grades.length === 0) return undefined

@@ -56,9 +56,11 @@ describe('best and ledger rules', () => {
       independentPass: true,
       best: { score: 1, assisted: false, taskRev: 1, attemptId: 'a' },
       bestEver: { score: 1, assisted: false, taskRev: 1, attemptId: 'a' },
-      misconceptionHits: []
+      misconceptionHits: [],
+      firstTries: { b: { passed: true, score: 1, attemptId: 'a' } }
     }
     const next = applyTaskRevBump(ev, 2)
+    expect(next.firstTries).toEqual({})
     expect(next.grades).toEqual([])
     expect(next.best).toBeUndefined()
     expect(next.bestEver).toBeUndefined()
@@ -101,6 +103,21 @@ describe('best and ledger rules', () => {
     ev = resetProgress(learner.id, 'p', 'lesson', 'delete-last', { lessonId: 'l' }, 1) as LessonEvidence
     expect(ev.grades.some((g) => g.attemptId === 'g2')).toBe(false)
     expect(ev.best?.attemptId).not.toBe('g2')
+  })
+
+  it('keeps the first try after a later pass', async () => {
+    const { recordGrade, loadEvidence } = await import('@main/progress/store')
+    const { resetSettingsCache } = await import('@main/settings/store')
+    const { ensureDefaultLearner } = await import('@main/learners/store')
+    const { firstTryTally } = await import('@shared/schemas/progress')
+    resetSettingsCache()
+    const learner = ensureDefaultLearner()
+    recordGrade(learner.id, 'p', 'first-try', 1, row({ attemptId: 'miss', score: 0 }), false, {})
+    recordGrade(learner.id, 'p', 'first-try', 1, row({ attemptId: 'fix', score: 1 }), false, {})
+    const ev = loadEvidence(learner.id, 'p', 'first-try', 1)
+    expect(ev.best?.score).toBe(1)
+    expect(ev.firstTries.b?.passed).toBe(false)
+    expect(firstTryTally(ev.firstTries)).toEqual({ hits: 0, total: 1, score: 0 })
   })
 })
 

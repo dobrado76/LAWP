@@ -1,0 +1,60 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-bins",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Sort into bins",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Buckets\n\nPut each current in Safe or Too much. The cap is 2."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "bins",
+      "promptMd": "Sort these currents. Cap is 2.",
+      "bins": [
+        {
+          "id": "safe",
+          "md": "Safe"
+        },
+        {
+          "id": "hot",
+          "md": "Too much"
+        }
+      ],
+      "pieces": [
+        {
+          "id": "one",
+          "md": "1"
+        },
+        {
+          "id": "four",
+          "md": "4"
+        },
+        {
+          "id": "half",
+          "md": "0.5"
+        }
+      ],
+      "answer": {
+        "one": "safe",
+        "four": "hot",
+        "half": "safe"
+      },
+      "explainMd": "4 is over the cap. 1 and 0.5 are under.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Sort the cards into buckets. Leftovers can stay out."
+}

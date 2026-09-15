@@ -76,5 +76,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Await pauses this function until a promise settles, then continues."
 }

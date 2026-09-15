@@ -6,7 +6,9 @@
   "courseId": "first-contact",
   "moduleId": "the-loop",
   "title": "Why the limit",
-  "skillIds": ["circuits.series.current"],
+  "skillIds": [
+    "circuits.series.current"
+  ],
   "estimatedMinutes": 3,
   "taskRev": 1,
   "blocks": [
@@ -20,17 +22,39 @@
       "promptMd": "You want a brighter lamp. Which move is safer in this one-cell loop?",
       "kind": "mcq",
       "choices": [
-        { "id": "zero", "md": "Set resistance to 0 so current is huge", "misconceptionId": "ignores-current-limit" },
-        { "id": "quarter", "md": "Set resistance to 0.25 (current 4)", "misconceptionId": "ignores-current-limit" },
-        { "id": "one", "md": "Set resistance to 1 (current 1, brighter, under the cap)" }
+        {
+          "id": "zero",
+          "md": "Set resistance to 0 so current is huge",
+          "misconceptionId": "ignores-current-limit"
+        },
+        {
+          "id": "quarter",
+          "md": "Set resistance to 0.25 (current 4)",
+          "misconceptionId": "ignores-current-limit"
+        },
+        {
+          "id": "one",
+          "md": "Set resistance to 1 (current 1, brighter, under the cap)"
+        }
       ],
       "answer": "one",
       "explainMd": "Brightness rose at ohms=1 without crossing 2. 0.25 looks brighter in a sloppy model but fails the constraint.",
-      "skillIds": ["circuits.series.current"],
+      "skillIds": [
+        "circuits.series.current"
+      ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "The cap is 2. Current = 1 / ohms." },
-        { "level": 2, "kind": "concept", "md": "1 / 0.25 = 4, which is over." }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The cap is 2. Current = 1 / ohms."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "1 / 0.25 = 4, which is over."
+        }
       ]
     }
-  ]
+  ],
+  "description": "Learn why too much current is a problem, and what a safe limit is for."
 }

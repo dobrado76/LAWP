@@ -6,10 +6,16 @@
   "courseId": "repl-in-pocket",
   "moduleId": "messages",
   "title": "Say it once",
-  "skillIds": ["python.io.stdio"],
+  "skillIds": [
+    "python.io.stdio"
+  ],
   "estimatedMinutes": 15,
   "taskRev": 1,
-  "creation": { "id": "greeting-bot", "step": 1, "briefMd": "A greeting that uses a name." },
+  "creation": {
+    "id": "greeting-bot",
+    "step": 1,
+    "briefMd": "A greeting that uses a name."
+  },
   "blocks": [
     {
       "type": "explain",
@@ -20,15 +26,36 @@
       "id": "f-hello",
       "engine": "python",
       "entry": "main.py",
-      "files": [{ "path": "files/main.py", "role": "edit" }],
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        }
+      ],
       "checks": [
-        { "type": "stdout", "equals": "Hello, Ada!", "misconceptionId": "print-is-the-program" },
-        { "type": "ast", "query": "name" }
+        {
+          "type": "stdout",
+          "equals": "Hello, Ada!",
+          "misconceptionId": "print-is-the-program"
+        },
+        {
+          "type": "ast",
+          "query": "name"
+        }
       ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "The output must include the name Ada from the variable." },
-        { "level": 2, "kind": "concept", "md": "print(f\"Hello, {name}!\")" }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The output must include the name Ada from the variable."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "print(f\"Hello, {name}!\")"
+        }
       ]
     }
-  ]
+  ],
+  "description": "Write a message once and reuse it instead of repeating yourself."
 }

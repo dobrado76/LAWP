@@ -1,0 +1,63 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-cloze",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Fill the blanks",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Dropdowns in a sentence\n\n`{{a}}` becomes a menu."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "cloze",
+      "promptMd": "A list is a {{a}} of {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "container",
+              "md": "container"
+            },
+            {
+              "id": "number",
+              "md": "number"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "values",
+              "md": "values"
+            },
+            {
+              "id": "files",
+              "md": "files"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "container",
+        "b": "values"
+      },
+      "explainMd": "A list is a container of values.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Fill each blank from a short list of words."
+}

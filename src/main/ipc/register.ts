@@ -9,7 +9,8 @@ import { activityBlockSchema, executableBlockSchema, lessonSchema } from '@share
 import { app } from 'electron'
 import { iconPath, releaseNotesPath, userDataRoot, userPacksRoot } from '../paths'
 import { extractMinorNotes, minorKey } from '@shared/versioning'
-import { lessonBlurb } from '@shared/catalog'
+import { gradeCheckAnswer, type CheckPrompt } from '@shared/check'
+import { cardDescription } from '@shared/catalog'
 import { exportSettingsDocument, grantTrust, hasTrust, loadSettings, updateSettings } from '../settings/store'
 import { loadSession, saveSession } from '../session/store'
 import {
@@ -37,7 +38,7 @@ import {
 import { clearDraft, loadDraft, saveDraft } from '../progress/drafts'
 import { applyActivity, cancelRun, getRun, gradeRunActivity, noteHint, recordPlay, startRunRecord } from '../activities/runs'
 import { evalProperty } from '../activities/world'
-import { listTemplates, createFromTemplate } from '../author/templates'
+import { listTemplates, createFromTemplate, writeLessonFile } from '../author/templates'
 import { safeJoin } from '../security/paths'
 import { executeCodeBlock } from '../runners/code'
 import { assertCanSpawn } from '../runners/trust'
@@ -190,18 +191,37 @@ export function registerIpc(): void {
       listPackIds()
         .map((id) => resolvePack(id))
         .filter((p): p is NonNullable<typeof p> => Boolean(p))
-        .map((p) => ({
-          id: p.manifest.id,
-          title: p.manifest.title,
-          description: p.manifest.description,
-          subjects: p.manifest.subjects,
-          engines: p.manifest.engines,
-          overlay: p.overlay,
-          source: p.source,
-          lessonCount: p.lessons.length,
-          execute: declaredExecute(p),
-          fingerprint: executableFingerprint(p)
-        }))
+        .map((p) => {
+          const ev = packProgress(
+            currentLearnerId(),
+            p.manifest.id,
+            p.lessons.map((l) => ({ id: l.id, taskRev: l.raw.taskRev }))
+          )
+          const doneCount = p.lessons.filter((l) => {
+            const s = ev[l.id]?.status
+            return s === 'checked' || s === 'mastered'
+          }).length
+          const started = p.lessons.some((l) => {
+            const s = ev[l.id]?.status
+            return Boolean(s && s !== 'not-started')
+          })
+          return {
+            id: p.manifest.id,
+            title: p.manifest.title,
+            description: p.manifest.description,
+            subjects: p.manifest.subjects,
+            category: p.manifest.category,
+            cover: p.manifest.cover,
+            engines: p.manifest.engines,
+            overlay: p.overlay,
+            source: p.source,
+            lessonCount: p.lessons.length,
+            doneCount,
+            started,
+            execute: declaredExecute(p),
+            fingerprint: executableFingerprint(p)
+          }
+        })
     )
   )
 
@@ -222,7 +242,7 @@ export function registerIpc(): void {
           taskRev: l.raw.taskRev,
           source: l.source,
           courseId: l.raw.courseId,
-          description: lessonBlurb(l.raw.blocks)
+          description: cardDescription({ ...l.raw, id: l.id })
         })),
         skills: p.skills,
         misconceptions: p.misconceptions,
@@ -493,12 +513,7 @@ export function registerIpc(): void {
           }
         }
         if (block && (block as { type: string }).type === 'check') {
-          const check = block as { answer?: unknown; choices?: { id: string; misconceptionId?: string }[] }
-          const passed = JSON.stringify(input.answers) === JSON.stringify(check.answer) || input.answers === check.answer
-          const misconceptionIds =
-            !passed && typeof input.answers === 'string'
-              ? check.choices?.filter((c) => c.id === input.answers && c.misconceptionId).map((c) => c.misconceptionId!) ?? []
-              : []
+          const { passed, misconceptionIds } = gradeCheckAnswer(block as CheckPrompt, input.answers)
           const ev = recordGrade(
             run.learnerId,
             input.packId,
@@ -607,17 +622,17 @@ export function registerIpc(): void {
   ipcMain.handle(IPC.authorCreate, (_e, input: { templateId: string; packId: string; lessonId: string }) =>
     wrap(() => createFromTemplate(input.templateId, input.packId, input.lessonId))
   )
+  ipcMain.handle(IPC.authorOpen, (_e, input: { packId: string; lessonId: string }) =>
+    wrap(() => {
+      const pack = resolvePack(input.packId)
+      const lesson = pack && lessonById(pack, input.lessonId)
+      if (!lesson) throw Object.assign(new Error('Lesson not found'), { code: 'not-found' })
+      return lesson.raw
+    })
+  )
   ipcMain.handle(IPC.authorSave, (_e, input: { packId: string; lessonId: string; lesson: unknown }) =>
     wrap(() => {
-      const parsed = lessonSchema.parse(input.lesson)
-      const pack = resolvePack(input.packId)
-      const destPack = join(userPacksRoot(), input.packId)
-      const dest = join(destPack, 'lessons', input.lessonId)
-      mkdirSync(dest, { recursive: true })
-      writeFileSync(join(dest, 'lesson.json'), JSON.stringify(parsed, null, 2), 'utf8')
-      if (pack && executableFingerprint(pack) !== executableFingerprint(resolvePack(input.packId)!)) {
-        revokeTrust(input.packId)
-      }
+      writeLessonFile(input.packId, input.lessonId, input.lesson)
       revokeTrust(input.packId)
       return { ok: true }
     })
@@ -628,7 +643,7 @@ export function registerIpc(): void {
     if (pick.canceled || !pick.filePaths[0]) return ok({ cancelled: true })
     const src = pick.filePaths[0]
     const ext = extname(src).toLowerCase()
-    const allow = ['.png', '.jpg', '.jpeg', '.svg', '.webp', '.webm', '.gif', '.json']
+    const allow = ['.png', '.jpg', '.jpeg', '.svg', '.webp', '.webm', '.gif', '.json', '.wav', '.mp3', '.ogg']
     if (!allow.includes(ext)) return err('validation', 'File type not allowed')
     const destDir = join(userPacksRoot(), input.packId, 'lessons', input.lessonId, 'assets')
     mkdirSync(destDir, { recursive: true })

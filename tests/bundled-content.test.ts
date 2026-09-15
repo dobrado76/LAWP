@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { LESSON_CARDS } from '@shared/lessonCards'
 import { lessonSchema, parseLessonBlocks } from '@shared/schemas/lesson'
 import { packManifestSchema } from '@shared/schemas/pack'
 
@@ -20,7 +21,8 @@ describe('bundled cartridges', () => {
         'lawp.circuits.basics',
         'lawp.python.foundations',
         'lawp.javascript.foundations',
-        'lawp.react.foundations'
+        'lawp.react.foundations',
+        'lawp.learning.questions'
       ])
     )
     for (const id of ids) {
@@ -34,6 +36,19 @@ describe('bundled cartridges', () => {
         expect(() => parseLessonBlocks(raw.blocks)).not.toThrow()
         expect(lesson.packId).toBe(id)
         expect(lesson.id).toBe(lessonId)
+        expect(lesson.description, `${id}/${lessonId}`).toMatch(/^[A-Z].*\.$/)
+        expect(lesson.description, `${id}/${lessonId}`).not.toMatch(/`/)
+        const card = LESSON_CARDS[lessonId]
+        expect(card, `${id}/${lessonId} card`).toBeDefined()
+        expect(card.description, `${id}/${lessonId} card`).toMatch(/^[A-Z].*\.$/)
+        expect(card.description, `${id}/${lessonId} card`).not.toMatch(/`/)
+        expect(card.icon, `${id}/${lessonId} icon`).toBeTruthy()
+        expect(card.tags.length, `${id}/${lessonId} tags`).toBeGreaterThan(0)
+        expect(card.tags.length, `${id}/${lessonId} tags`).toBeLessThanOrEqual(4)
+        for (const tag of card.tags) {
+          expect(tag, `${id}/${lessonId} tag`).toMatch(/^[a-zA-Z0-9][a-zA-Z0-9 /._-]*$/)
+          expect(tag, `${id}/${lessonId} tag`).not.toMatch(/`/)
+        }
       }
     }
   })

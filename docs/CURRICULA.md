@@ -262,3 +262,6 @@ Each course has:
 2. **Python Course 1** — same Why / progress / creation shells
 3. **JavaScript** — working-expert path (values through Node, DOM, tests) on the fox/beacon grid plus DOM/fetch harnesses
 4. **React** — continuing creation (preview is still Node-backed; see [STATUS.md](STATUS.md))
+5. **Question types** (`lawp.learning.questions`) — one lesson per `check` kind so widgets stay honest
+
+How to add a lesson: [AUTHORING.md](AUTHORING.md).

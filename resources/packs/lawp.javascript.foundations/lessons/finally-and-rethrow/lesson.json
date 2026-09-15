@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Work that must run after a try, even when you throw again."
 }

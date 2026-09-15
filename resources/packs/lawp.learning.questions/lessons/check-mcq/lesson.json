@@ -1,0 +1,46 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-mcq",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Pick one",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One answer\n\nOnly one choice is right."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "mcq",
+      "promptMd": "Which fruit is typically red when ripe?",
+      "choices": [
+        {
+          "id": "apple",
+          "md": "Apple"
+        },
+        {
+          "id": "banana",
+          "md": "Banana"
+        },
+        {
+          "id": "lime",
+          "md": "Lime"
+        }
+      ],
+      "answer": "apple",
+      "explainMd": "A ripe apple is often red. The others are not.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Pick the one choice that is right."
+}

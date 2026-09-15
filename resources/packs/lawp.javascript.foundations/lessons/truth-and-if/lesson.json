@@ -71,5 +71,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Some values act as no in a decision. An empty list is still a list."
 }

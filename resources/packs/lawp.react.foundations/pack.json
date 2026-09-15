@@ -5,6 +5,8 @@
   "title": "React: One app that grows",
   "description": "Components, props, state, lists, and a filterable list you keep.",
   "subjects": ["programming", "react"],
+  "category": "Programming",
+  "cover": "assets/cover.png",
   "engines": ["react"],
   "capabilities": { "execute": "react", "network": false },
   "version": "0.3.3",

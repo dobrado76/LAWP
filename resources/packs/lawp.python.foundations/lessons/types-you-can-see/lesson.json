@@ -6,7 +6,9 @@
   "courseId": "repl-in-pocket",
   "moduleId": "values-and-names",
   "title": "Types you can see",
-  "skillIds": ["python.types.names"],
+  "skillIds": [
+    "python.types.names"
+  ],
   "estimatedMinutes": 15,
   "taskRev": 1,
   "blocks": [
@@ -19,12 +21,31 @@
       "id": "print-type",
       "engine": "python",
       "entry": "main.py",
-      "files": [{ "path": "files/main.py", "role": "edit" }],
-      "checks": [{ "type": "stdout", "equals": "int" }],
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "int"
+        }
+      ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "Ask the value 3 what kind it is." },
-        { "level": 2, "kind": "concept", "md": "type(3).__name__ prints int." }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Ask the value 3 what kind it is."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "type(3).__name__ prints int."
+        }
       ]
     }
-  ]
+  ],
+  "description": "Numbers, text, and true or false are different kinds of value."
 }

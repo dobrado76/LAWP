@@ -5,6 +5,8 @@
   "title": "Circuits: Cause and effect",
   "description": "Predict, change a circuit, see the lamp, explain why. About 20 minutes.",
   "subjects": ["science", "circuits"],
+  "category": "Electricity",
+  "cover": "assets/cover.png",
   "engines": ["none"],
   "capabilities": { "execute": "none", "network": false },
   "version": "0.3.3",

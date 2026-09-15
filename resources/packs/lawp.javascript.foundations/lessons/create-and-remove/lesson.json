@@ -74,5 +74,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Make a node, put it in the tree, or take it out."
 }

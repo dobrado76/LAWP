@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Keep the items that match, or find the first one that does."
 }

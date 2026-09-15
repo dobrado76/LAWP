@@ -1,0 +1,49 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-select",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Choose the word",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A menu in the sentence\n\nSame idea as type-the-word, but you pick. More than one choice can be right."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "select",
+      "promptMd": "A list is a ________ of values.",
+      "choices": [
+        {
+          "id": "container",
+          "md": "container"
+        },
+        {
+          "id": "collection",
+          "md": "collection"
+        },
+        {
+          "id": "number",
+          "md": "number"
+        }
+      ],
+      "answer": [
+        "container",
+        "collection"
+      ],
+      "explainMd": "Container or collection both name what a list is. Number is a kind of value.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Choose the missing word from a menu in the sentence."
+}

@@ -18,7 +18,8 @@ import {
   exportAssert,
   srcIncludes,
   deskWorld,
-  deskGoal
+  deskGoal,
+  pageHtml
 } from './lib.mjs'
 
 export function lessonsC7C9() {
@@ -513,7 +514,7 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body><h1 id="title">Old radio</h1></body></html>`,
+      'index.html': pageHtml('<h1 id="title">Old radio</h1>', 'Heading'),
       'main.js': `// Change the heading node. Do not rewrite the HTML file as a string.\n`,
       'hidden.test.js': `assert.strictEqual(document.querySelector('#title').textContent, 'Signal desk')\n`
     }
@@ -552,8 +553,8 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body><p id="beacon-name">?</p></body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml('<label for="beacon-name">Beacon</label><p id="beacon-name">?</p>', 'Name'),
+      'main.js': `// Find #beacon-name, then set textContent.\n`,
       'hidden.test.js': `assert.strictEqual(document.querySelector('#beacon-name').textContent, 'North')\n`
     }
   })
@@ -591,8 +592,8 @@ assert.ok(waitAt >= 0 && waitAt < sayAt && sayAt < moveAt)
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body><ul id="list"></ul></body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml('<ul id="list"></ul>', 'Beacons'),
+      'main.js': `// Create an li, set its text, append it to #list.\n`,
       'hidden.test.js': `const items = [...document.querySelectorAll('#list li')].map((n) => n.textContent)
 assert.ok(items.includes('East'))
 `
@@ -632,11 +633,11 @@ assert.ok(items.includes('East'))
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body>
-<div id="outer"><button type="button" id="inner">Ping</button></div>
-<p id="out"></p>
-</body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml(
+        '<div id="outer"><button type="button" id="inner">Ping</button></div><p id="out"></p>',
+        'Click'
+      ),
+      'main.js': `// Listen on #outer. Write targetId>currentId into #out.\n`,
       'hidden.test.js': `document.querySelector('#inner').dispatchEvent(new MouseEvent('click', { bubbles: true }))
 assert.strictEqual(document.querySelector('#out').textContent, 'inner>outer')
 `
@@ -676,14 +677,11 @@ assert.strictEqual(document.querySelector('#out').textContent, 'inner>outer')
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body>
-<ul id="list">
-  <li><button type="button" data-name="North">N</button></li>
-  <li><button type="button" data-name="East">E</button></li>
-</ul>
-<p id="picked"></p>
-</body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml(
+        '<ul id="list"><li><button type="button" data-name="North">N</button></li><li><button type="button" data-name="East">E</button></li></ul><p id="picked"></p>',
+        'Pick a beacon'
+      ),
+      'main.js': `// One listener on #list. Set #picked from the button's data-name.\n`,
       'hidden.test.js': `document.querySelector('[data-name="East"]').dispatchEvent(new MouseEvent('click', { bubbles: true }))
 assert.strictEqual(document.querySelector('#picked').textContent, 'East')
 `
@@ -723,11 +721,8 @@ assert.strictEqual(document.querySelector('#picked').textContent, 'East')
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body>
-<input id="name" />
-<p id="echo"></p>
-</body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml('<label for="name">Name</label><input id="name" /><p id="echo"></p>', 'Echo'),
+      'main.js': `// On input of #name, copy .value into #echo.\n`,
       'hidden.test.js': `const el = document.querySelector('#name')
 el.value = 'Beacon'
 el.dispatchEvent(new Event('input', { bubbles: true }))
@@ -769,8 +764,8 @@ assert.strictEqual(document.querySelector('#echo').textContent, 'Beacon')
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body><button type="button" id="call">Call</button></body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml('<button type="button" id="call">Call</button>', 'Control'),
+      'main.js': `// Set the button's textContent to Call north.\n`,
       'hidden.test.js': `const b = document.querySelector('#call')
 assert.strictEqual(b.tagName, 'BUTTON')
 assert.strictEqual(b.textContent, 'Call north')
@@ -811,11 +806,11 @@ assert.strictEqual(b.textContent, 'Call north')
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body>
-<p id="raw" data-payload="<img src=x onerror=alert(1)>"></p>
-<p id="safe"></p>
-</body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml(
+        '<p id="raw" data-payload="&lt;img src=x onerror=alert(1)&gt;">Payload is on data-payload</p><p id="safe"></p>',
+        'Safe copy'
+      ),
+      'main.js': `// Copy data-payload onto #safe with textContent, not innerHTML.\n`,
       'hidden.test.js': `const safe = document.querySelector('#safe')
 assert.ok(safe.textContent.includes('onerror'))
 assert.strictEqual(safe.querySelector('img'), null)
@@ -857,15 +852,11 @@ assert.strictEqual(safe.querySelector('img'), null)
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body>
-<input id="q" />
-<ul id="list">
-  <li>North</li>
-  <li>East</li>
-  <li>West</li>
-</ul>
-</body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml(
+        '<label for="q">Filter</label><input id="q" /><ul id="list"><li>North</li><li>East</li><li>West</li></ul>',
+        'Beacons'
+      ),
+      'main.js': `// On input of #q, hide li nodes that do not include the query.\n`,
       'hidden.test.js': `const q = document.querySelector('#q')
 q.value = 'ea'
 q.dispatchEvent(new Event('input', { bubbles: true }))
@@ -909,12 +900,11 @@ assert.deepStrictEqual(vis, ['East'])
       ]
     }),
     files: {
-      'index.html': `<!doctype html><html><body>
-<p id="seeds">North,East,West</p>
-<input id="q" />
-<ul id="list"></ul>
-</body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml(
+        '<p id="seeds">North,East,West</p><label for="q">Filter</label><input id="q" /><ul id="list"></ul>',
+        'Board'
+      ),
+      'main.js': `// Build #list from #seeds, then filter with #q.\n`,
       'hidden.test.js': `assert.strictEqual(document.querySelectorAll('#list li').length, 3)
 const q = document.querySelector('#q')
 q.value = 'w'
@@ -1178,12 +1168,11 @@ module.exports = { race }
     }),
     files: {
       'catalog.json': `{ "items": [{ "name": "Beacon", "kind": "light" }, { "name": "Rock", "kind": "block" }] }\n`,
-      'index.html': `<!doctype html><html><body>
-<input id="q" value="bea" />
-<button type="button" id="go">Search</button>
-<ul id="results"></ul>
-</body></html>`,
-      'main.js': `\n`,
+      'index.html': pageHtml(
+        '<label for="q">Query</label><input id="q" value="bea" /> <button type="button" id="go">Search</button><ul id="results"></ul>',
+        'Catalog'
+      ),
+      'main.js': `// Click #go: fetch /catalog.json, put matching names into #results as li nodes.\n`,
       'hidden.test.js': `document.querySelector('#go').dispatchEvent(new MouseEvent('click', { bubbles: true }))
 await new Promise((r) => setTimeout(r, 30))
 const names = [...document.querySelectorAll('#results li')].map((n) => n.textContent)

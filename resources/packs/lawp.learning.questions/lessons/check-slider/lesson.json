@@ -1,0 +1,38 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-slider",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Estimate",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Close enough\n\nThe slider allows a band. About 5 is fine."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "slider",
+      "promptMd": "About how many fingers on one hand?",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "answer": {
+        "value": 5,
+        "tolerance": 1
+      },
+      "explainMd": "Five, plus or minus one, passes. This is for estimates, not for exact current.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Estimate a value on a range. Close enough still passes."
+}

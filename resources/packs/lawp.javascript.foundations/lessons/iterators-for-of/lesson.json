@@ -126,5 +126,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "A custom list of directions you can walk with a for-of loop."
 }

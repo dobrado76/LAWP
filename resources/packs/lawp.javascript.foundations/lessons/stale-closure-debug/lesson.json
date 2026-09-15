@@ -127,5 +127,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "The last direction keeps winning. Find why the old value stuck."
 }

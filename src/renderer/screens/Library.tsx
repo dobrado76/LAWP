@@ -1,6 +1,12 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { courseLessonIds, lessonPath, orderCatalog } from '@shared/catalog'
+import { lessonCard } from '@shared/lessonCards'
+import { groupPacks } from '@shared/packDisplay'
 import { IPC, invoke } from '../api'
+import { BackIcon, IconBtn } from '../ui/IconBtn'
+import { LessonIcon } from '../ui/LessonIcon'
+import { OverflowMenu } from '../ui/OverflowMenu'
+import { PackCard } from '../ui/PackCard'
 
 type PackSum = {
   id: string
@@ -10,6 +16,10 @@ type PackSum = {
   overlay: boolean
   lessonCount: number
   execute: string
+  category?: string
+  cover?: string
+  subjects?: string[]
+  engines?: string[]
 }
 
 type Course = {
@@ -17,6 +27,7 @@ type Course = {
   title: string
   level: 'beginner' | 'intermediate' | 'advanced'
   estimatedMinutes: number
+  diagnosticLessonId?: string
   modules: { id: string; title: string; lessonIds: string[] }[]
 }
 
@@ -35,6 +46,8 @@ type LessonStatus = 'not-started' | 'in-progress' | 'checked' | 'mastered' | 're
 
 type Filter = 'all' | 'todo' | 'done'
 
+const scrollCache: Record<string, number> = {}
+
 const COURSE_WHY: Record<string, string> = {
   placement: 'A short quiz. No lists yet — we only ask what you already expect.',
   values: 'What a value is: number, text, true/false. You need this before any array.',
@@ -47,7 +60,8 @@ const COURSE_WHY: Record<string, string> = {
   'the-page': 'A real document tree. Not tiles pretending to be tags.',
   'talking-servers': 'HTTP as messages. Mock fetch. No live network.',
   'the-process': 'Node: argv, files, paths, ESM.',
-  craft: 'Tests, hygiene, and the capstone kit.'
+  craft: 'Tests, hygiene, and the capstone kit.',
+  kinds: 'Every way a question can look. Play them to see how answering works.'
 }
 
 const COURSE_LOCK: Record<string, string> = {
@@ -88,9 +102,25 @@ function minutesLabel(n: number) {
   return `${n} min`
 }
 
-export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string) => void }) {
+function introLessonId(course: Course): string | undefined {
+  return course.diagnosticLessonId ?? (course.id === 'placement' ? courseLessonIds(course)[0] : undefined)
+}
+
+export function Library({
+  packId,
+  lessonId,
+  onOpen,
+  onSelectPack,
+  onBackToPacks
+}: {
+  packId?: string
+  lessonId?: string
+  onOpen: (packId: string, lessonId: string) => void
+  onSelectPack: (packId: string) => void
+  onBackToPacks: () => void
+}) {
   const [packs, setPacks] = useState<PackSum[]>([])
-  const [open, setOpen] = useState<string | null>(null)
+  const [open, setOpen] = useState<string | null>(packId ?? null)
   const [tree, setTree] = useState<{
     manifest?: { tracks: string[] }
     lessons: LessonSum[]
@@ -103,6 +133,9 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
   const [filter, setFilter] = useState<Filter>('all')
   const [skipAhead, setSkipAhead] = useState<Set<string>>(new Set())
   const [err, setErr] = useState('')
+  const pageRef = useRef<HTMLDivElement>(null)
+  const scrollReady = useRef(false)
+  const scrollTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   async function reload() {
     setPacks(await invoke<PackSum[]>(IPC.packsList))
@@ -111,17 +144,72 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
     void reload()
   }, [])
 
-  async function loadProgress(packId: string) {
-    const ev = await invoke<{ lessons: Record<string, { status: string }> }>(IPC.progressGet, { packId })
+  async function loadProgress(id: string) {
+    const ev = await invoke<{ lessons: Record<string, { status: string }> }>(IPC.progressGet, { packId: id })
     setProgress(ev.lessons ?? {})
   }
 
-  async function select(id: string) {
+  async function loadPack(id: string) {
     setOpen(id)
-    setFilter('all')
-    setSkipAhead(new Set())
     setTree(await invoke(IPC.packsGet, { packId: id }))
     await loadProgress(id)
+  }
+
+  useEffect(() => {
+    if (!packId) {
+      setOpen(null)
+      setTree(null)
+      return
+    }
+    if (open !== packId) {
+      setFilter('all')
+      setSkipAhead(new Set())
+    }
+    void loadPack(packId).catch(() => {
+      setOpen(null)
+      setTree(null)
+    })
+  }, [packId])
+
+  async function saveScroll() {
+    const id = open
+    const el = pageRef.current
+    if (!id || !el || !scrollReady.current) return
+    scrollCache[id] = el.scrollTop
+    const session = await invoke<{ libraryScroll?: Record<string, number> }>(IPC.sessionGet)
+    await invoke(IPC.sessionSet, { libraryScroll: { ...(session.libraryScroll ?? {}), [id]: el.scrollTop } })
+  }
+
+  useEffect(() => {
+    scrollReady.current = false
+    if (!open || !tree) return
+    let cancelled = false
+    void invoke<{ libraryScroll?: Record<string, number> }>(IPC.sessionGet).then((session) => {
+      if (cancelled) return
+      const y = scrollCache[open] ?? session.libraryScroll?.[open] ?? 0
+      requestAnimationFrame(() => {
+        const el = pageRef.current
+        if (!el) return
+        if (y > 0) el.scrollTop = y
+        else if (lessonId) {
+          el.querySelector(`[data-lesson-id="${lessonId}"]`)?.scrollIntoView({ block: 'center', inline: 'nearest' })
+        }
+        scrollReady.current = true
+      })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [open, tree, lessonId])
+
+  function onPageScroll() {
+    if (!scrollReady.current) return
+    clearTimeout(scrollTimer.current)
+    scrollTimer.current = setTimeout(() => void saveScroll(), 120)
+  }
+
+  function openLesson(id: string) {
+    void saveScroll().then(() => onOpen(open!, id))
   }
 
   const catalog = useMemo(() => {
@@ -140,28 +228,40 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
 
   const nextLesson = tree?.lessons.find((l) => l.id === nextId)
 
+  const pack = packs.find((p) => p.id === open)
+  const inPack = Boolean(packId || open)
+
   return (
-    <div className="page library-page">
+    <div className="page library-page" ref={pageRef} onScroll={onPageScroll}>
       <div className="lib-title-row">
-        <h1>Library</h1>
+        <div className="lib-title-lead">
+          {inPack ? (
+            <IconBtn label="All libraries" onClick={onBackToPacks}>
+              <BackIcon />
+            </IconBtn>
+          ) : null}
+          <h1>{inPack ? (pack?.title ?? 'Lessons') : 'Library'}</h1>
+        </div>
         <div className="lib-title-actions">
-          <button
-            className="btn primary"
-            onClick={() =>
-              void invoke(IPC.packsImportZip, {}).then(reload).catch((e: Error) => setErr(e.message))
-            }
-          >
-            Install from ZIP
-          </button>
-          {open && (
+          {!inPack && (
+            <button
+              className="btn primary"
+              onClick={() =>
+                void invoke(IPC.packsImportZip, {}).then(reload).catch((e: Error) => setErr(e.message))
+              }
+            >
+              Install from ZIP
+            </button>
+          )}
+          {inPack && open && (
             <button className="btn" onClick={() => void invoke(IPC.packsExportZip, { packId: open })}>
               Export pack ZIP
             </button>
           )}
-          {open && tree && tree.execute && tree.execute !== 'none' && !tree.trusted && (
+          {inPack && open && tree && tree.execute && tree.execute !== 'none' && !tree.trusted && (
             <button
               className="btn danger"
-              onClick={() => void invoke(IPC.trustGrant, { packId: open }).then(() => select(open))}
+              onClick={() => void invoke(IPC.trustGrant, { packId: open }).then(() => void loadPack(open))}
             >
               Trust this pack to run code
             </button>
@@ -169,25 +269,26 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
         </div>
       </div>
       {err && <p className="err">{err}</p>}
-      <div className="cards">
-        {packs.map((p) => (
-          <div
-            key={p.id}
-            className={`card${open === p.id ? ' is-selected' : ''}`}
-            onClick={() => void select(p.id)}
-          >
-            <h3>{p.title}</h3>
-            <p>{p.description}</p>
-            <p className="muted">
-              {p.source}
-              {p.overlay ? ' · overlay' : ''} · {p.lessonCount} lessons
-            </p>
-          </div>
-        ))}
-      </div>
-      {tree && open && catalog && (
+      {!inPack && (
+        <div className="pack-shelves">
+          {groupPacks(packs).map((shelf) => (
+            <section key={shelf.category} className="pack-shelf">
+              <header className="pack-shelf-head">
+                <p className="lib-level-kicker">{shelf.category}</p>
+                <h2>{shelf.category === 'Your packs' ? 'Packs you made' : shelf.category}</h2>
+              </header>
+              <div className="pack-grid">
+                {shelf.packs.map((p) => (
+                  <PackCard key={p.id} pack={p} onOpen={() => onSelectPack(p.id)} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
+      {inPack && !catalog && <p className="muted">Loading lessons…</p>}
+      {inPack && tree && open && catalog && (
         <div className="lib-pack">
-          <hr className="lib-split" />
           <div className="lib-pack-head">
             <div>
               <h2>Your path</h2>
@@ -217,8 +318,9 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
             </div>
           </div>
 
-          {nextLesson && (
-            <button type="button" className="lib-next" onClick={() => onOpen(open, nextLesson.id)}>
+          {nextLesson &&
+            !catalog.courses.some((c) => introLessonId(c) === nextLesson.id && filter !== 'done') && (
+            <button type="button" className="lib-next" onClick={() => openLesson(nextLesson.id)}>
               <span className="lib-level-kicker">{path.indexOf(nextLesson.id) === 0 ? 'Start here' : 'Play next'}</span>
               <strong>{nextLesson.title}</strong>
               <span className="muted">
@@ -286,6 +388,46 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
                         return [{ id, lesson, moduleTitle: mod.title, status, step: path.indexOf(id) + 1 }]
                       })
                     )
+                    const introId = introLessonId(course)
+                    if (introId && !courseOpen) {
+                      if (filter === 'done') return null
+                      return (
+                        <IntroRow
+                          key={course.id}
+                          course={course}
+                          lesson={tree.lessons.find((x) => x.id === introId)}
+                          status={progress[introId]?.status}
+                          next={introId === nextId}
+                          locked
+                          lockNote={
+                            COURSE_LOCK[course.id] ??
+                            (prevCourse
+                              ? `Locked. Finish “${prevCourse.title}” first.`
+                              : 'Locked until the step above is done.')
+                          }
+                          onSkip={() => setSkipAhead((s) => new Set(s).add(`course:${course.id}`))}
+                          packId={open}
+                          onOpen={() => openLesson(introId)}
+                          onChanged={() => void loadProgress(open)}
+                        />
+                      )
+                    }
+                    if (introId && courseOpen) {
+                      const intro = visible.find((v) => v.id === introId)
+                      if (!intro) return null
+                      return (
+                        <IntroRow
+                          key={course.id}
+                          course={course}
+                          lesson={intro.lesson}
+                          status={intro.status}
+                          next={intro.id === nextId}
+                          packId={open}
+                          onOpen={() => openLesson(intro.id)}
+                          onChanged={() => void loadProgress(open)}
+                        />
+                      )
+                    }
                     if (!courseOpen) {
                       if (filter === 'done') return null
                       return (
@@ -346,7 +488,8 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
                               minutes={lesson?.estimatedMinutes ?? 0}
                               moduleTitle={moduleTitle}
                               status={status}
-                              onOpen={() => onOpen(open, id)}
+                              current={id === lessonId}
+                              onOpen={() => openLesson(id)}
                               onChanged={() => void loadProgress(open)}
                             />
                           ))}
@@ -387,7 +530,8 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
                           minutes={lesson?.estimatedMinutes ?? 0}
                           moduleTitle={mod.title}
                           status={progress[id]?.status}
-                          onOpen={() => onOpen(open, id)}
+                          current={id === lessonId}
+                          onOpen={() => openLesson(id)}
                           onChanged={() => void loadProgress(open)}
                         />
                       )
@@ -395,8 +539,125 @@ export function Library({ onOpen }: { onOpen: (packId: string, lessonId: string)
                 </div>
               </section>
             ))}
+
+          {tree.lessons
+            .filter((l) => !path.includes(l.id))
+            .filter((l) => {
+              const status = progress[l.id]?.status
+              return filter === 'all' || (filter === 'done' ? isDone(status) : isTodo(status))
+            }).length > 0 && (
+            <section className="lib-level">
+              <header className="lib-level-head">
+                <p className="lib-level-kicker">Unfiled</p>
+                <h3>Lessons not yet on a course path — open them here, or add them to a course in Author.</h3>
+              </header>
+              <div className="lib-lesson-grid">
+                {tree.lessons
+                  .filter((l) => !path.includes(l.id))
+                  .filter((l) => {
+                    const status = progress[l.id]?.status
+                    return filter === 'all' || (filter === 'done' ? isDone(status) : isTodo(status))
+                  })
+                  .map((lesson) => (
+                    <LessonCard
+                      key={lesson.id}
+                      packId={open}
+                      lessonId={lesson.id}
+                      step={0}
+                      next={lesson.id === nextId}
+                      title={lesson.title}
+                      description={lesson.description ?? ''}
+                      minutes={lesson.estimatedMinutes}
+                      moduleTitle="Unfiled"
+                      status={progress[lesson.id]?.status}
+                      current={lesson.id === lessonId}
+                      onOpen={() => openLesson(lesson.id)}
+                      onChanged={() => void loadProgress(open)}
+                    />
+                  ))}
+              </div>
+            </section>
+          )}
         </div>
       )}
+    </div>
+  )
+}
+
+function lessonMenu(packId: string, lessonId: string, title: string, onChanged: () => void) {
+  return [
+    {
+      label: 'Export lesson',
+      onClick: () => void invoke(IPC.packsExportZip, { packId, lessonId })
+    },
+    {
+      label: 'Restart lesson',
+      onClick: () =>
+        void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'keep', lessonId }).then(onChanged)
+    },
+    {
+      label: 'Clear history',
+      danger: true,
+      onClick: () => {
+        if (!confirm(`Clear history for “${title}”? This drops the attempt log for this lesson.`)) return
+        void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'clear', lessonId }).then(onChanged)
+      }
+    }
+  ]
+}
+
+function IntroRow({
+  course,
+  lesson,
+  status,
+  next,
+  locked,
+  lockNote,
+  onSkip,
+  packId,
+  onOpen,
+  onChanged
+}: {
+  course: Course
+  lesson?: LessonSum
+  status?: LessonStatus
+  next: boolean
+  locked?: boolean
+  lockNote?: string
+  onSkip?: () => void
+  packId: string
+  onOpen: () => void
+  onChanged: () => void
+}) {
+  const id = lesson?.id ?? introLessonId(course) ?? course.id
+  const title = lesson?.title ?? course.title
+  const copy = lessonCard(id)
+  const m = mark(status)
+  return (
+    <div
+      data-lesson-id={id}
+      className={`lib-intro-row${locked ? ' is-locked' : ''}${next ? ' is-next' : ''}`}
+    >
+      <button type="button" className="lib-intro-main" onClick={onOpen} disabled={locked}>
+        <span className="lib-level-kicker">{next ? 'Start here' : course.title}</span>
+        <span className="lib-intro-title">
+          {copy ? <LessonIcon name={copy.icon} color={copy.color} size={18} /> : null}
+          <strong>{title}</strong>
+        </span>
+        <span className="muted">{COURSE_WHY[course.id] || copy?.description || lesson?.description || ''}</span>
+        {locked && lockNote ? <span className="lib-lock-note">{lockNote}</span> : null}
+      </button>
+      <div className="lib-intro-side">
+        <span className={`lib-mark is-${m.kind}`}>{m.label}</span>
+        {lesson?.estimatedMinutes ? <span className="muted">{minutesLabel(lesson.estimatedMinutes)}</span> : null}
+        {locked && onSkip ? (
+          <button type="button" className="btn" onClick={onSkip}>
+            Skip ahead
+          </button>
+        ) : (
+          <OverflowMenu items={lessonMenu(packId, id, title, onChanged)} />
+        )}
+      </div>
     </div>
   )
 }
@@ -411,6 +672,7 @@ function LessonCard({
   minutes,
   moduleTitle,
   status,
+  current,
   onOpen,
   onChanged
 }: {
@@ -423,98 +685,52 @@ function LessonCard({
   minutes: number
   moduleTitle: string
   status?: LessonStatus
+  current?: boolean
   onOpen: () => void
   onChanged: () => void
 }) {
+  const copy = lessonCard(lessonId)
+  const blurb = copy?.description ?? description
+  const tags = copy?.tags ?? []
   const m = mark(status)
   return (
-    <article className={`lib-lesson-card is-${m.kind}${next ? ' is-next' : ''}`}>
+    <article
+      data-lesson-id={lessonId}
+      className={`lib-lesson-card is-${m.kind}${next ? ' is-next' : ''}${current ? ' is-current' : ''}`}
+    >
+      <div className="lib-lesson-more">
+        <OverflowMenu items={lessonMenu(packId, lessonId, title, onChanged)} />
+      </div>
       <button type="button" className="lib-lesson-main" onClick={onOpen}>
-        <span className="lib-card-top">
-          <span className={`lib-mark is-${m.kind}`}>{m.label}</span>
-          {step > 0 ? <span className="lib-step">Step {step}</span> : null}
+        <span className="lib-lesson-head">
+          {copy ? <LessonIcon name={copy.icon} color={copy.color} /> : null}
+          <strong>{title}</strong>
         </span>
-        <strong>{title}</strong>
-        {description ? <p>{description}</p> : null}
-        <span className="muted">
-          {moduleTitle}
-          {minutes ? ` · ${minutesLabel(minutes)}` : ''}
+        <span className="lib-lesson-mid">
+          <span className={`lib-lesson-body${blurb ? '' : ' is-empty'}`}>
+            {blurb || 'Open to play this lesson.'}
+          </span>
+          {tags.length ? (
+            <span className="lib-lesson-tags">
+              {tags.map((tag) => (
+                <span key={tag} className="lib-lesson-tag">
+                  {tag}
+                </span>
+              ))}
+            </span>
+          ) : null}
+        </span>
+        <span className="lib-lesson-foot">
+          <span className="lib-lesson-foot-status">
+            <em className={`is-${m.kind}`}>{m.label}</em>
+            {step > 0 ? <span className="lib-lesson-step">{step}</span> : null}
+          </span>
+          <span className="lib-lesson-foot-meta">
+            <span className="lib-lesson-mod">{moduleTitle}</span>
+            {minutes ? <span className="lib-lesson-mins">{minutesLabel(minutes)}</span> : null}
+          </span>
         </span>
       </button>
-      <div className="lib-lesson-actions">
-        <IconBtn
-          label="Export lesson"
-          onClick={() => void invoke(IPC.packsExportZip, { packId, lessonId })}
-        >
-          <ExportIcon />
-        </IconBtn>
-        <IconBtn
-          label="Restart lesson"
-          onClick={() =>
-            void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'keep', lessonId }).then(onChanged)
-          }
-        >
-          <RestartIcon />
-        </IconBtn>
-        <IconBtn
-          label="Clear history"
-          danger
-          onClick={() => {
-            if (!confirm(`Clear history for “${title}”? This drops the attempt log for this lesson.`)) return
-            void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'clear', lessonId }).then(onChanged)
-          }}
-        >
-          <ClearIcon />
-        </IconBtn>
-      </div>
     </article>
-  )
-}
-
-function IconBtn({
-  label,
-  danger,
-  onClick,
-  children
-}: {
-  label: string
-  danger?: boolean
-  onClick: () => void
-  children: ReactNode
-}) {
-  return (
-    <button type="button" className={`btn icon-btn${danger ? ' danger' : ''}`} title={label} aria-label={label} onClick={onClick}>
-      {children}
-    </button>
-  )
-}
-
-function ExportIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M8 2.2 11.3 5.5h-2V9H6.7V5.5h-2L8 2.2Zm-5 8.3h10v3.3H3V10.5Zm1.2 1.2v.9h7.6v-.9H4.2Z"
-      />
-    </svg>
-  )
-}
-
-function RestartIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M8 2.5a5.5 5.5 0 1 1-4.7 2.6l1.1.7A4.2 4.2 0 1 0 8 3.8V6L11 3.2 8 .5V2.5Z"
-      />
-    </svg>
-  )
-}
-
-function ClearIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path fill="currentColor" d="M6.2 2h3.6l.4 1H14v1.2H2V3h3.8l.4-1ZM3.5 5.4h9l-.6 8.1H4.1L3.5 5.4Zm2.2 1.3v5.4h1.2V6.7H5.7Zm3.4 0v5.4h1.2V6.7H9.1Z" />
-    </svg>
   )
 }

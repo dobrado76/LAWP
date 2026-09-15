@@ -80,5 +80,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Keep a log scrubber you can run again."
 }

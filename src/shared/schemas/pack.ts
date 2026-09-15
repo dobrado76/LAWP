@@ -8,6 +8,8 @@ export const packManifestSchema = z.object({
   title: z.string().min(1),
   description: z.string().default(''),
   subjects: z.array(z.string()).default([]),
+  category: z.string().optional(),
+  cover: z.string().optional(),
   engines: z.array(z.enum(['none', 'python', 'javascript', 'react'])),
   overlay: z.boolean().optional(),
   capabilities: z

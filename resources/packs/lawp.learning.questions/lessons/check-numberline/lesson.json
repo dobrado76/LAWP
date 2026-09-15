@@ -1,0 +1,38 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-numberline",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Pin the number",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A line of ticks\n\nTap 3."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "numberline",
+      "promptMd": "Pin the number of sides on a triangle.",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "answer": {
+        "value": 3,
+        "tolerance": 0
+      },
+      "explainMd": "A triangle has three sides.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Pin the number on the line."
+}

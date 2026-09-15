@@ -126,5 +126,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "Wait for many promises together, or one after another on purpose."
 }

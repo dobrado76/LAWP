@@ -1,0 +1,55 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-match",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Connect each pair",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Left to right\n\nEach left term has one right meaning."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "match",
+      "promptMd": "Match the word to what it means.",
+      "left": [
+        {
+          "id": "len",
+          "md": "length"
+        },
+        {
+          "id": "idx",
+          "md": "index"
+        }
+      ],
+      "right": [
+        {
+          "id": "how",
+          "md": "how many items"
+        },
+        {
+          "id": "pos",
+          "md": "position of one item"
+        }
+      ],
+      "answer": {
+        "len": "how",
+        "idx": "pos"
+      },
+      "explainMd": "Length counts. Index locates.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Connect each item on the left to its pair on the right."
+}

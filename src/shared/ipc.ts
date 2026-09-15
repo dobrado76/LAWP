@@ -32,6 +32,7 @@ export const IPC = {
   hintGet: 'hint:get',
   authorTemplates: 'author:templates',
   authorCreate: 'author:create',
+  authorOpen: 'author:open',
   authorSave: 'author:save',
   authorImportAsset: 'author:importAsset',
   authorValidate: 'author:validate',

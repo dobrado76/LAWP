@@ -40,8 +40,16 @@ export function parsePlayLog(raw: unknown): PlayCommand[] {
   return out
 }
 
+export const GRID_MAX = 64
+export const GRID_CELL_PX = 80
+
+export function clampGrid(n: number): number {
+  if (!Number.isFinite(n)) return 5
+  return Math.max(1, Math.min(GRID_MAX, Math.trunc(n)))
+}
+
 export function gridSize(world: PlayWorld): { cols: number; rows: number } {
-  return { cols: world.view?.grid?.cols ?? 5, rows: world.view?.grid?.rows ?? 5 }
+  return { cols: clampGrid(world.view?.grid?.cols ?? 5), rows: clampGrid(world.view?.grid?.rows ?? 5) }
 }
 
 export function playerPart(world: PlayWorld, playerId: string) {

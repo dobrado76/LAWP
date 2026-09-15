@@ -1,0 +1,35 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-short",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Type the word",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A short string\n\nSpaces, capitals, and close spellings are accepted. List every word that should pass."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "short",
+      "promptMd": "A list is a ________ of values.",
+      "answer": [
+        "container",
+        "collection"
+      ],
+      "explainMd": "A list holds many values. Container or collection both pass.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Type a short word. Close spellings still pass."
+}

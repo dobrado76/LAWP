@@ -1,0 +1,36 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-fix",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Fix this",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Edit the line\n\nThe starter is wrong. Several finished sentences can be right, and close spellings pass."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "fix",
+      "promptMd": "Correct the sentence.",
+      "starter": "A list is a number of values.",
+      "answer": [
+        "A list is a container of values.",
+        "A list is a collection of values."
+      ],
+      "explainMd": "A list is a container or a collection of values. Number is a kind of value, not the list itself.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Edit the broken sentence until it is right."
+}

@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Fold a list into one value, and be able to say why."
 }

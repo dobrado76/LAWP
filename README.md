@@ -55,7 +55,7 @@ npm run dist
 
 **Keep work.** Creations live under your learner folder. Export a circuit or a project out of LAWP.
 
-**Author.** Template → edit `lesson.json` → validate → export zip. Library **Install from ZIP** / **Export ZIP** at pack or lesson grain.
+**Author.** Forms, not JSON: explain, every question type, playable worlds, code files. Validate, play in Studio, export zip. How-to: [docs/AUTHORING.md](docs/AUTHORING.md). Library **Install from ZIP** / **Export ZIP** at pack or lesson grain.
 
 **Stay local.** Several named learners on one PC. Progress never sits inside a cartridge.
 
@@ -78,7 +78,8 @@ What is in the build: [docs/STATUS.md](docs/STATUS.md). Locked behavior: [docs/D
 | [PRODUCT_SPEC.md](docs/PRODUCT_SPEC.md) | Surfaces, loop, non-goals |
 | [PEDAGOGY.md](docs/PEDAGOGY.md) | Mastery, hints, misconceptions |
 | [CONTENT_MODEL.md](docs/CONTENT_MODEL.md) | Cartridges, `world-v1`, progress |
-| [CURRICULA.md](docs/CURRICULA.md) | Circuits, Python, JavaScript, React |
+| [AUTHORING.md](docs/AUTHORING.md) | How to make a lesson in the app |
+| [CURRICULA.md](docs/CURRICULA.md) | Circuits, Python, JavaScript, React, question types |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Main / preload / renderer |
 | [IPC_CONTRACT.md](docs/IPC_CONTRACT.md) | Typed IPC |
 | [UI_DESIGN.md](docs/UI_DESIGN.md) | Studio chrome |

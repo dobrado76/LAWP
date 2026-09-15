@@ -130,5 +130,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "A function can take values in. Missing ones can have a fallback."
 }

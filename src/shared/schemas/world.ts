@@ -60,8 +60,9 @@ export const worldV1Schema = z.object({
     assetMap: z.record(z.string()).optional(),
     grid: z
       .object({
-        cols: z.number().int().positive().default(5),
-        rows: z.number().int().positive().default(5)
+        cols: z.number().int().min(1).max(64).default(5),
+        rows: z.number().int().min(1).max(64).default(5),
+        floor: z.string().min(1).optional()
       })
       .optional()
   })

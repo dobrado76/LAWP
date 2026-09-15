@@ -343,5 +343,6 @@
         ]
       }
     }
-  ]
+  ],
+  "description": "Collect every token, then stand on the beacon facing the right way."
 }

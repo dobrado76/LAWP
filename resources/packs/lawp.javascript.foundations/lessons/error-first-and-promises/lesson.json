@@ -80,5 +80,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Older file calls pass an error first. Newer ones return a promise."
 }

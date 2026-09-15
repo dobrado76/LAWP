@@ -1,0 +1,36 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-numeric",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Enter the number",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A number with a unit\n\nCurrent = 1 / ohms. Cap is 2."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "numeric",
+      "promptMd": "If resistance is 1, what is the current?",
+      "unit": "A",
+      "answer": {
+        "value": 1,
+        "tolerance": 0
+      },
+      "explainMd": "1 / 1 = 1 ampere.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Enter the number, with a unit if the question has one."
+}

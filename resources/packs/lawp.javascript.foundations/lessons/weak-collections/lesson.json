@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Notes that do not keep an object alive after you let it go."
 }

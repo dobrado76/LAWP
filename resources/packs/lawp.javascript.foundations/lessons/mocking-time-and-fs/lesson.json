@@ -71,5 +71,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Fake the clock and the disk so a test does not wait or write for real."
 }

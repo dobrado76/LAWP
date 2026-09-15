@@ -72,5 +72,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Join path parts safely. Do not walk above the folder you meant."
 }

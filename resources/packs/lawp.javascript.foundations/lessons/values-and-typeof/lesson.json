@@ -85,5 +85,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Every value has a kind: number, text, or true and false. You need this before any list."
 }

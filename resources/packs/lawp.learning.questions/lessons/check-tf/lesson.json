@@ -1,0 +1,32 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-tf",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "True or false",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two buttons\n\nStill a fact, not “how do you feel”."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "tf",
+      "promptMd": "A list’s length is how many items it holds.",
+      "answer": "true",
+      "explainMd": "Length counts items. Index is the position of one item.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Decide whether a closed fact is true or false."
+}

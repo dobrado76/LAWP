@@ -6,7 +6,9 @@
   "courseId": "repl-in-pocket",
   "moduleId": "values-and-names",
   "title": "Names hold values",
-  "skillIds": ["python.types.names"],
+  "skillIds": [
+    "python.types.names"
+  ],
   "estimatedMinutes": 15,
   "taskRev": 1,
   "blocks": [
@@ -19,13 +21,36 @@
       "id": "make-total",
       "engine": "python",
       "entry": "main.py",
-      "files": [{ "path": "files/main.py", "role": "edit" }],
-      "checks": [{ "type": "stdout", "equals": "7" }],
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "7"
+        }
+      ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "Compute 3 + 4 into a name, then print the name." },
-        { "level": 2, "kind": "concept", "md": "The last line should print a name, not a hardcoded 7 only." },
-        { "level": 4, "kind": "assist", "md": "total = 3 + 4 then print(total)" }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Compute 3 + 4 into a name, then print the name."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The last line should print a name, not a hardcoded 7 only."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "total = 3 + 4 then print(total)"
+        }
       ]
     }
-  ]
+  ],
+  "description": "A name holds a value you can use again later."
 }

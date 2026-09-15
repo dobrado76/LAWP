@@ -77,5 +77,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Make a new list from an old one. The original stays put."
 }

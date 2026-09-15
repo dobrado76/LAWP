@@ -132,5 +132,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "A table of functions is a set of commands you can call by name."
 }

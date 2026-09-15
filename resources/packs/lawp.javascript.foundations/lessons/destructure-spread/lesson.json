@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Pull fields out of a record, or copy them into a new one."
 }

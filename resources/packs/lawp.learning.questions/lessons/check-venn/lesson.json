@@ -1,0 +1,65 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-venn",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Place in the sets",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Overlap\n\nTwo sets: **fruit** and **red**. An apple belongs in both. A banana is fruit only. A fire truck is red only. An idea is neither fruit nor red."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "venn",
+      "promptMd": "Put each thing in fruit only, fruit and red, red only, or neither.",
+      "sets": [
+        {
+          "id": "fruit",
+          "md": "Fruit"
+        },
+        {
+          "id": "red",
+          "md": "Red"
+        }
+      ],
+      "pieces": [
+        {
+          "id": "apple",
+          "md": "Apple"
+        },
+        {
+          "id": "banana",
+          "md": "Banana"
+        },
+        {
+          "id": "truck",
+          "md": "Fire truck"
+        },
+        {
+          "id": "idea",
+          "md": "An idea"
+        }
+      ],
+      "answer": {
+        "apple": "both",
+        "banana": "fruit",
+        "truck": "red",
+        "idea": "out"
+      },
+      "explainMd": "An apple is a red fruit. A banana is fruit only. A fire truck is red only. An idea is neither.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Place each item in the left set, the right set, both, or neither."
+}

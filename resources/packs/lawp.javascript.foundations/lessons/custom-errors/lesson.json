@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Make your own error type so the catch can tell stories apart."
 }

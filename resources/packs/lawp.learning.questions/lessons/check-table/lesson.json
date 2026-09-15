@@ -1,0 +1,55 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-table",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Choose for each row",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Quotes change the type\n\n`42` (no quotes) is the number forty-two. `\"42\"` (quotes) is text that looks like 42. They are not the same kind of value."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "table",
+      "promptMd": "What kind of value is each of these?",
+      "rows": [
+        {
+          "id": "n",
+          "md": "`42`"
+        },
+        {
+          "id": "s",
+          "md": "`\"42\"`"
+        }
+      ],
+      "choices": [
+        {
+          "id": "num",
+          "md": "number"
+        },
+        {
+          "id": "str",
+          "md": "string"
+        }
+      ],
+      "answer": {
+        "n": "num",
+        "s": "str"
+      },
+      "explainMd": "No quotes → number. Quotes → string. The digits can be the same; the quotes decide the type.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Choose an answer for every row, using the same choices."
+}

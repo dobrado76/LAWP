@@ -76,5 +76,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A name is a box for a value. Some boxes you can refill. Some you cannot rebind."
 }

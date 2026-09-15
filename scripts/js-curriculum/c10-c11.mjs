@@ -958,7 +958,31 @@ assert.deepStrictEqual(m.walk([]), { x: 0, y: 0 })
           ],
           hintLadder: hints(
             'walk increments x/y. scrubLog uses Set + sort.',
-            { level: 4, kind: 'assist', md: 'See Hint 4 in the ladder — implement walk and scrubLog, import both in main.mjs.' }
+            {
+              level: 4,
+              kind: 'assist',
+              md: `walk.mjs:
+export function walk(dirs) {
+  let x = 0, y = 0
+  for (const d of dirs) {
+    if (d === "east") x += 1
+    if (d === "west") x -= 1
+    if (d === "south") y += 1
+    if (d === "north") y -= 1
+  }
+  return { x, y }
+}
+scrub.mjs:
+export function scrubLog(text) {
+  return [...new Set(String(text).split(/\\n/).map((s) => s.trim()).filter(Boolean))].sort().join("\\n")
+}
+main.mjs:
+import { walk } from "./walk.mjs"
+import { scrubLog } from "./scrub.mjs"
+const p = walk(["east", "east", "east", "south", "south"])
+console.log(p.x + "," + p.y)
+console.log(scrubLog("b\\na\\nb"))`
+            }
           )
         },
         reflect(

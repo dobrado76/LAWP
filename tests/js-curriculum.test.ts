@@ -6,7 +6,7 @@ import { courseSchema, packManifestSchema, trackSchema } from '@shared/schemas/p
 
 const packRoot = join(process.cwd(), 'resources', 'packs', 'lawp.javascript.foundations')
 
-const EXPECTED = [
+export const EXPECTED = [
   'js-placement',
   'values-and-typeof',
   'names-let-const',

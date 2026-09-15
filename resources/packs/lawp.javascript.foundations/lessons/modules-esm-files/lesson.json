@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Export a walker from one file and import it in another."
 }

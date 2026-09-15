@@ -80,5 +80,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A missing page is still a response. Only a broken network throws."
 }

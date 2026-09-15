@@ -1,0 +1,53 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-multi",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Pick every right answer",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Several can be true\n\nCheck every box that holds."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "multi",
+      "promptMd": "Which of these are numbers?",
+      "choices": [
+        {
+          "id": "n",
+          "md": "`42`"
+        },
+        {
+          "id": "s",
+          "md": "`\"42\"`"
+        },
+        {
+          "id": "t",
+          "md": "`true`"
+        },
+        {
+          "id": "z",
+          "md": "`0`"
+        }
+      ],
+      "answer": [
+        "n",
+        "z"
+      ],
+      "explainMd": "`42` and `0` are numbers. The quoted one is text. `true` is a boolean.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Check every box that is true. Missing one fails."
+}

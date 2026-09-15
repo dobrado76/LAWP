@@ -72,5 +72,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "An object can be asked to become a simple value. Know what it answers."
 }

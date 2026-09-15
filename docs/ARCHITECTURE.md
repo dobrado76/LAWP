@@ -99,7 +99,7 @@ Files under userData (v1):
 | --- | --- |
 | `settings.json` | prefs (zod), including `currentLearnerId` |
 | `window-state.json` | bounds + maximized |
-| `session.json` | last route, splits, open lesson (not learner progress) |
+| `session.json` | last route, splits, open lesson, library scroll per pack (not learner progress) |
 | `packs/` | **imported cartridges only** (same folder shape as `resources/packs`) |
 | `learners/<learnerId>/` | `profile.json` + `progress/` (evidence + attempts), `snapshots/`, `notes/`, `drafts/`, `workspaces/`, `creations/` |
 | `sandboxes/` | ephemeral runner cwd |

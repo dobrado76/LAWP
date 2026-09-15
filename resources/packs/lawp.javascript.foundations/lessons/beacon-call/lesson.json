@@ -132,5 +132,6 @@
         "guided": true
       }
     }
-  ]
+  ],
+  "description": "Walk the fox onto the beacon by calling a move, one cell at a time."
 }

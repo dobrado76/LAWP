@@ -74,5 +74,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "One listener on a parent can handle many children."
 }

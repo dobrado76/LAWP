@@ -354,5 +354,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A timeout waits until the current work is done, then it runs."
 }

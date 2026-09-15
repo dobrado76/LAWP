@@ -126,5 +126,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "A record holds named fields you can read and change."
 }

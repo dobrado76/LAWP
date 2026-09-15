@@ -6,7 +6,7 @@ A **cartridge** is a self-contained folder (or a `.zip` of that folder). The Lib
 
 ## Principles
 
-1. **JSON is the authoring format — and the AI format.** Manifests, tracks, courses, skills, misconceptions, creations, and lessons are JSON with a **small closed vocabulary**. An author or a model should be able to emit a valid lesson from a template without inventing keys or embedding code. Prose is a string field (`md`, `promptMd`). Binary media are files **referenced** from JSON.
+1. **JSON is the interchange format — and the AI format.** Humans use **Author** (forms; [AUTHORING.md](AUTHORING.md)). Manifests, tracks, courses, skills, misconceptions, creations, and lessons on disk are JSON with a **small closed vocabulary**. An author or a model should be able to emit a valid lesson from a template without inventing keys or embedding code. Prose is a string field (`md`, `promptMd`). Binary media are files **referenced** from JSON.
 2. **Flexible subject, rigid shape.** Any subject is a sequence of known block types plus one reusable **activity** engine (`world-v1`). Do not add per-subject runtimes or `eval` of pack strings. Unknown block `type` values **soft-fail** (“update the app”).
 3. **One folder, everything it needs.** Each subject-matter (pack) is an independent folder. Each lesson is an independent folder: `lesson.json` plus `files/`, `assets/`.
 4. **Cartridges are immutable at runtime.** Progress, notes, drafts, snapshots, and creations live under `userData/learners/<learnerId>/`.
@@ -141,6 +141,8 @@ Stable `kebab-case` ids, unique within a pack. Progress keys **`learnerId + pack
   title: string
   description: string
   subjects: string[]          // e.g. ["science", "circuits"] or ["programming"]
+  category?: string           // Library shelf: Electricity, Programming, Learning…
+  cover?: string              // pack-relative photo, default assets/cover.png
   engines: Array<"none" | "python" | "javascript" | "react">
   overlay?: boolean           // user copies only; see Resolve pack
   capabilities?: {            // must match lessons — see SECURITY
@@ -187,6 +189,7 @@ Stable `kebab-case` ids, unique within a pack. Progress keys **`learnerId + pack
   courseId?: string
   moduleId?: string
   title: string
+  description?: string        // Library card: one or two sentences, no code
   skillIds: string[]
   estimatedMinutes: number
   taskRev: number
@@ -243,21 +246,52 @@ Never jump to level 5 on first click. The Why panel can offer the next **concept
 
 ### `check`
 
+Closed kinds live in `src/shared/check.ts` (`CHECK_KINDS`). Adding a kind requires a grader case, an Author form, a Studio widget, **and** a lesson in pack `lawp.learning.questions`. Humans build these in Author — see [AUTHORING.md](AUTHORING.md).
+
 ```ts
 {
   type: "check"
   id: string
   promptMd: string
-  kind: "mcq" | "multi" | "short" | "numeric" | "cloze" | "match" | "order"
-  choices?: { id: string, md: string, misconceptionId?: string }[]
-  answer: unknown
+  kind: "mcq" | "multi" | "odd" | "tf" | "image" | "short" | "select" | "numeric" | "fix"
+      | "cloze" | "bank" | "match" | "order" | "place" | "hotspot" | "gorder"
+      | "bins" | "venn" | "hottext" | "table" | "tier" | "slider" | "numberline" | "listen"
+  choices?: { id: string, md: string, misconceptionId?: string, image?: string }[]
+  left?: Choice[]             // match
+  right?: Choice[]
+  blanks?: { id: string, choices?: Choice[] }[]   // cloze; prompt uses {{id}}
+  pieces?: Choice[]           // bank, place, bins, venn
+  bins?: Choice[]
+  sets?: Choice[]             // venn (two)
+  rows?: Choice[]             // table
+  reasons?: { id, md, when?: string[] }[]         // tier
+  slots?: { id, x, y, w?, h?, label? }[]          // place, hotspot, gorder (x/y in %)
+  image?: string              // assets/…
+  audio?: string              // listen
+  starter?: string            // fix
+  unit?: string
+  min?: number
+  max?: number
+  step?: number
+  answer: unknown             // see below
   explainMd?: string
   skillIds: string[]
-  diagnostic?: boolean        // ask this instead of declaring a misconception
+  diagnostic?: boolean
 }
 ```
 
-v1: main grades everything. Answers stay on disk.
+| Kind | `answer` |
+| --- | --- |
+| `mcq` `odd` `tf` `image` `hotspot` `hottext` `listen` | choice / slot / token id |
+| `select` | choice id, or accepted `string[]` of ids |
+| `multi` | `string[]` (order does not matter) |
+| `order` `gorder` | `string[]` (order matters) |
+| `match` `place` `cloze` `bank` `bins` `venn` `table` | `{ [leftOrBlankOrItem]: rightId }` |
+| `tier` | `{ choice, reason }` |
+| `short` `fix` | string or accepted `string[]` (folded + close spellings) |
+| `numeric` `slider` `numberline` | number or `{ value, tolerance? }` |
+
+`select` uses one dropdown (`________` or `{{a}}`) and `choices`. `cloze` / `bank` blanks in `promptMd` are `{{id}}`. `hottext` tokens are `[[id:word]]`. Main grades everything. Answers stay on disk and are stripped before the renderer.
 
 ### `predict` / `trace`
 
@@ -340,7 +374,7 @@ type ValueOrExpr =
 
 `play` with `engine: "grid-js"` is a **view skin** of `world-v1` (`view.kind: "grid"`) plus fox/beacon assets — not a second platform.
 
-Graphical **code** lessons opt in with `play` on the `code` / `debug` block (D43). Learner Python/JS calls `Player.move` / `rotate` / `scale` / `say` / `wait(ticks)`. App stubs append a command log; **main** applies that log to `world-v1` (clamp to `view.grid`, default 5×5) and grades the resulting world. `wait` does not move the fox; Studio replay delays that many ticks. Parts with `solid: true` block a step (the player stays put). Parts with `collect: true` set `taken: true` when the player steps on their cell. Unknown methods or bad args write a `fault` command — `passed` is false. Studio draws tiles + `assetMap` sprites, axis labels, a facing readout, and a live checklist from `play.goal`. `play.guided: true` keeps compass copy visible (intro). Puzzle lessons omit `guided` and put the route on Hint. Missing asset → typed tile, no invented geometry. Circuits `view.kind: "graph"` is unchanged.
+Graphical **code** lessons opt in with `play` on the `code` / `debug` block (D43). Learner Python/JS calls `Player.move` / `rotate` / `scale` / `say` / `wait(ticks)`. App stubs append a command log; **main** applies that log to `world-v1` (clamp to `view.grid`, default 5×5) and grades the resulting world. `wait` does not move the fox; Studio replay delays that many ticks. Parts with `solid: true` block a step (the player stays put). Parts with `collect: true` set `taken: true` when the player steps on their cell. Unknown methods or bad args write a `fault` command — `passed` is false. Studio draws a default floor (`view.grid.floor`, else stone), then kit **PNG** sprites from `assetMap` or the built-in play kit (`src/shared/playKit.ts`, `resources/play/assets`). Grid size is any rectangle **1–64** on each side. Cells stay at native bitmap size and **only scale down** so the whole board fits the pane. Axis labels, a facing readout, and a live checklist come from `play.goal`. `play.guided: true` keeps compass copy visible (intro). Puzzle lessons omit `guided` and put the route on Hint. Missing kit type → typed tile, no invented geometry. Circuits `view.kind: "graph"` is unchanged.
 
 #### `world-v1` semantics (normative)
 
@@ -641,12 +675,13 @@ Activity-log truncation **must not** delete `grades[]` rows. Every `grade:block`
 - **`best` is a stored value** `{ score, assisted, taskRev, attemptId? }`. After each ledger mutation: if `grades[]` is empty, clear `best`. Else set `best` to the D30 winner among **remaining `grades[]`**. Deleting the attempt that was best therefore yields the next-best **still in the ledger**, not a ghost from a discarded log line.
 - High-water: if you need “best I ever did” after the 50th grade evicts an old row, keep `bestEver` as a **copy of the value** (score, assisted, taskRev) updated only when a new grade **beats** it (D30). `bestEver` is **not** cleared when `grades[]` evicts a row. `bestEver` **is** cleared on `history: clear`, or when delete/replace removes the attempt **and** `bestEver.attemptId` matches **and** no remaining `grades[]` row equals that value — then set `bestEver` to the D30 winner of `grades[]` (or clear).
 - UI “Best” = `best` (from current ledger / current `taskRev`). Show `bestEver` as “best on record” if it differs.
+- **First-try score** (end-of-path Congratulations) = `firstTries`: the first submit per check block. A later correct answer does not raise it to 100%. Persist this map so a trimmed `grades[]` cannot forget a miss.
 
 **`taskRev` bump** (breaking task change on the lesson):
 
-- Copy `{ taskRev, best, bestEver, fastest, independentPass, masteredAt, firstCheckedAt, grades }` into `evidence.prior[oldRev]`.
+- Copy `{ taskRev, best, bestEver, fastest, independentPass, masteredAt, firstCheckedAt, firstTries, grades }` into `evidence.prior[oldRev]`.
 - Set `evidence.taskRev` to the new rev.
-- **Clear every current-revision achievement field:** `grades = []`, `best = undefined`, `bestEver = undefined`, `fastest = undefined`, `independentPass = false`, `masteredAt` / `firstCheckedAt` cleared, `currentGradeId` / `previousGradeId` cleared. `status = retrying` if it was checked/mastered, else `not-started`.
+- **Clear every current-revision achievement field:** `grades = []`, `best = undefined`, `bestEver = undefined`, `firstTries = {}`, `fastest = undefined`, `independentPass = false`, `masteredAt` / `firstCheckedAt` cleared, `currentGradeId` / `previousGradeId` cleared. `status = retrying` if it was checked/mastered, else `not-started`.
 - Do **not** compare a new grade against `prior[oldRev].bestEver`. Old results stay readable only via `prior`.
 - Old activity-log lines keep their `taskRev`. Mastery for the new rev requires a new independent pass. Compare “this vs last” only among grades with the **current** `taskRev`.
 
@@ -687,6 +722,7 @@ type LessonEvidence = {
   independentPass: boolean
   best?: { score: number, assisted: boolean, taskRev: number, attemptId?: string }
   bestEver?: { score: number, assisted: boolean, taskRev: number, attemptId?: string }
+  firstTries: Record<string, { passed: boolean, score: number, attemptId?: string }>  // first submit per block; later pass does not overwrite
   prior?: Record<string, unknown>  // old taskRev snapshots
   fastest?: { attemptId: string, durationMs: number }
   previousGradeId?: string

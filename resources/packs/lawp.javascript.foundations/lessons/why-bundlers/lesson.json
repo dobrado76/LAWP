@@ -34,5 +34,6 @@
       "answer": "graph",
       "explainMd": "You can also ship native ESM with import maps. The gap is still: the browser is not Node’s module loader."
     }
-  ]
+  ],
+  "description": "A bundler packs modules for the page. Know why that step exists."
 }

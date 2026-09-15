@@ -74,5 +74,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A click rises through the tree unless you stop it."
 }

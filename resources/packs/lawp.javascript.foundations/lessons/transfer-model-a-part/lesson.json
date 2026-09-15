@@ -76,5 +76,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Model a part as an object with the same rules you just learned."
 }

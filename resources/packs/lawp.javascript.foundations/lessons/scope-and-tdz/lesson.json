@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A name is only alive in its block. Using it too early is a fault."
 }

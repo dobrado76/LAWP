@@ -78,5 +78,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Build a small log of signals you can keep working on."
 }

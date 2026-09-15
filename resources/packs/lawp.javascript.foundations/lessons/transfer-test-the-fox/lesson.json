@@ -76,5 +76,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Write tests for a walk so a later change cannot silently break it."
 }

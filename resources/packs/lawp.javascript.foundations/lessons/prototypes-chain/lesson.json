@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A missing field is looked up on the object behind this one."
 }

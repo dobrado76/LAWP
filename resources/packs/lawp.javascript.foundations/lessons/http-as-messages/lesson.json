@@ -35,5 +35,6 @@
       "answer": "not-found",
       "explainMd": "fetch only throws on network failure or abort. 404 is a normal response with res.ok === false."
     }
-  ]
+  ],
+  "description": "A request and a response are messages, not magic."
 }

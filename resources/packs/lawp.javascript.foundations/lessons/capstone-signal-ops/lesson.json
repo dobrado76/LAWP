@@ -86,7 +86,7 @@
         {
           "level": 4,
           "kind": "assist",
-          "md": "See Hint 4 in the ladder — implement walk and scrubLog, import both in main.mjs."
+          "md": "walk.mjs:\nexport function walk(dirs) {\n  let x = 0, y = 0\n  for (const d of dirs) {\n    if (d === \"east\") x += 1\n    if (d === \"west\") x -= 1\n    if (d === \"south\") y += 1\n    if (d === \"north\") y -= 1\n  }\n  return { x, y }\n}\nscrub.mjs:\nexport function scrubLog(text) {\n  return [...new Set(String(text).split(/\\n/).map((s) => s.trim()).filter(Boolean))].sort().join(\"\\n\")\n}\nmain.mjs:\nimport { walk } from \"./walk.mjs\"\nimport { scrubLog } from \"./scrub.mjs\"\nconst p = walk([\"east\", \"east\", \"east\", \"south\", \"south\"])\nconsole.log(p.x + \",\" + p.y)\nconsole.log(scrubLog(\"b\\na\\nb\"))"
         }
       ]
     },
@@ -95,5 +95,6 @@
       "id": "why-writeup",
       "promptMd": "In a few sentences: why can a test prove `walk` without looking at the fox? When would you still want the stage?"
     }
-  ]
+  ],
+  "description": "Put the path together: walk, records, the page, and tests."
 }

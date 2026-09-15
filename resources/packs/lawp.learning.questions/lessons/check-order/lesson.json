@@ -1,0 +1,50 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-order",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Put these in order",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Sequence\n\nUse Up and Down. First step at the top."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "order",
+      "promptMd": "Order the steps for a safe lamp.",
+      "choices": [
+        {
+          "id": "cap",
+          "md": "Know the current cap"
+        },
+        {
+          "id": "set",
+          "md": "Change resistance"
+        },
+        {
+          "id": "see",
+          "md": "Watch brightness and current"
+        }
+      ],
+      "answer": [
+        "cap",
+        "set",
+        "see"
+      ],
+      "explainMd": "Know the limit before you turn the knob.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Put the steps in the order they should happen."
+}

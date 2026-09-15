@@ -1,3 +1,4 @@
+import { lessonCardDescription } from './lessonCards'
 import type { Course, PackManifest, Track } from './schemas/pack'
 
 export type CatalogTrack = { id: string; courseIds: string[] }
@@ -66,17 +67,44 @@ export function orderResolved<T extends { manifest: PackManifest; tracks: Track[
   return { ...pack, ...ordered }
 }
 
+export function cardDescription(lesson: { id?: string; description?: string; blocks?: unknown[] }): string {
+  if (lesson.id) {
+    const catalog = lessonCardDescription(lesson.id)
+    if (catalog) return catalog
+  }
+  const authored = lesson.description?.trim()
+  if (authored) return authored
+  return lessonBlurb(lesson.blocks ?? [])
+}
+
 export function lessonBlurb(blocks: unknown[]): string {
   const explain = (blocks as { type?: string; md?: string }[]).find((b) => b.type === 'explain')
   if (!explain?.md) return ''
-  const lines = explain.md
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`]+`/g, '')
-    .replace(/^#+\s+/gm, '')
-    .replace(/[*_]/g, '')
-    .split('\n')
-    .map((s) => s.trim())
-    .filter((s) => s && !s.startsWith('-') && !s.startsWith('|') && !s.startsWith('>'))
-  const text = lines[1] ?? lines[0] ?? ''
-  return text.length > 200 ? `${text.slice(0, 197)}…` : text
+  const chunks = explain.md.replace(/```[\s\S]*?```/g, '\n').split(/\n\s*\n/)
+  for (const chunk of chunks) {
+    const prose = chunk
+      .split('\n')
+      .map((s) => s.trim())
+      .filter((s) => s && !/^#{1,3}\s/.test(s) && !/^[-*]\s/.test(s) && !s.startsWith('|') && !s.startsWith('>'))
+      .join(' ')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/[*_]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+    if (prose) return completeSentences(prose)
+  }
+  return ''
+}
+
+/** Card copy should end on a sentence, not a mid-line slice. */
+export function completeSentences(text: string, max = 220): string {
+  if (!text) return ''
+  const parts = text.match(/[^.!?]+[.!?](?:["')\]]+)?|[^.!?]+$/g)?.map((s) => s.trim()).filter(Boolean) ?? [text]
+  let out = ''
+  for (const part of parts) {
+    const next = out ? `${out} ${part}` : part
+    if (out && next.length > max) break
+    out = next
+  }
+  return out
 }

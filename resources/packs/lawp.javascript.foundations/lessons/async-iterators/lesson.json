@@ -76,5 +76,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Walk a stream of steps as each one arrives."
 }

@@ -5,16 +5,19 @@
 ## In the app
 
 - Shell: Home, Library, Studio, Author, Settings; local learners; last lesson in session
-- Runtime Library: bundled `resources/packs` + `%APPDATA%\LAWP\packs` (overlay lesson zip vs full pack zip, D37). Tutorial path, not a dump by difficulty (D44)
+- Runtime Library: bundled `resources/packs` + `%APPDATA%\LAWP\packs` (overlay lesson zip vs full pack zip, D37). Pack cards by category with cover, progress, and status; then that pack’s lessons (scroll restored). Tutorial path, not a dump by difficulty (D44). Diagnostic courses are a compact intro row; lesson housekeeping sits in an overflow menu. Lesson cards use authored prose plus a Lucide icon (color on the icon only)
 - Settings export/import and optional setup bundle (D38). Trust is a **fingerprint**; import never grants spawn (D39)
 - Shared AppData for dev and installed builds (D3); window restore (D4); custom icon (D20)
 - **Circuits** (`lawp.circuits.basics`): `world-v1` experiment, Why / misconceptions, hints, transfer, kept creation + export
 - **Python** and **JavaScript** code lessons: spawn in a temp sandbox, stdout / AST / assert checks, Why, hints
-- **JavaScript expert path** (`lawp.javascript.foundations`): placement through Node, DOM, fetch, tests, and a multi-file capstone (~80–100 h). Hidden `js-assert` on every code lesson
-- **`player-v1` grid:** `Player.move` / `rotate` / `scale` / `say` / `wait(ticks)`; main applies `play-log.json` and grades that world (D43). ESM boot, happy-dom DOM grade in main, mock `fetch` from fixtures
+- **JavaScript expert path** (`lawp.javascript.foundations`): placement through Node, DOM, fetch, tests, and a multi-file capstone (~80–100 h). Hidden `js-assert` on every code lesson. DOM lessons preview a styled page in the iframe (grade still happy-dom in main)
+- **`player-v1` grid:** `Player.move` / `rotate` / `scale` / `say` / `wait(ticks)`; main applies `play-log.json` and grades that world (D43). Built-in play kit (floors, terrain, items, characters, hazards) under `resources/play/assets`; Author picks pieces; Studio paints a floor tile on every cell
+- Author: form-first lesson maker (every check kind, world parts/actions/rules, code files, **play-kit picker** on grid worlds). Save, validate, import picture/audio, play in Studio, export zip. JSON inspector is optional. How-to: [AUTHORING.md](AUTHORING.md)
 - Studio editor: CodeMirror, language lint, Player autocomplete; learner **drafts** under `learners/<id>/drafts/`
+- Studio bar: Back / Next / Hint / Restart are icons with tooltips. After a correct Submit, that same control becomes Next in place (incorrect keeps Submit so they can retry). Last lesson: **Return to library** plus Congratulations and a first-try score; Correct / Incorrect shows in the left pane
 - Progress: activity log, grades ledger, snapshots on Check, restart keeps history (D28, D41)
-- Author: templates, save, import asset, validate, export zip. Preview uses the saved lesson. Optional AI draft exists as a channel; it stays unused until an endpoint is configured
+- Library lessons: longer authored card blurbs (no code), takeaway pills, and a Lucide icon per lesson; placement / diagnostic courses are a compact intro row; export / restart / clear live in an overflow menu
+- **Question types** pack (`lawp.learning.questions`): one playable lesson per `check` kind (D45), including **Choose the word** (`select`). Pack copy is learner-facing
 
 ## Current limits
 
@@ -23,7 +26,7 @@ These surfaces exist in schema or as thin shells. They are not a second product 
 | Area | Honest state |
 | --- | --- |
 | React pack | Lessons load; learner JS runs through **Node**, not a sandboxed iframe preview |
-| Author | JSON workbench + templates, not a full visual CMS |
+| Author | Forms cover shipped block and check kinds; not a drag-canvas CMS |
 | Python catalog | Course 1 material; not an expert-length catalog |
 | JS catalog | Expert path is authored; React stays a separate pack |
 | Practice / Play HUD | Practice queue exists; daily quest, XP, certificates are not a live loop |

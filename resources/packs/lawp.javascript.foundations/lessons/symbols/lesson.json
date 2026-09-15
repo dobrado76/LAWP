@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A unique key that will not clash with ordinary names."
 }

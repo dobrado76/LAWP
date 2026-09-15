@@ -39,8 +39,8 @@ export function App() {
 
   function go(next: Route, extra?: { packId?: string; lessonId?: string }) {
     setRoute(next)
-    if (extra?.packId) setPackId(extra.packId)
-    if (extra?.lessonId) setLessonId(extra.lessonId)
+    if (extra && 'packId' in extra) setPackId(extra.packId || undefined)
+    if (extra && 'lessonId' in extra) setLessonId(extra.lessonId || undefined)
     void invoke(IPC.sessionSet, { route: next, ...extra })
   }
 
@@ -58,16 +58,29 @@ export function App() {
         </button>
       </nav>
       {route === 'home' && <Home onOpen={(p, l) => go('studio', { packId: p, lessonId: l })} />}
-      {route === 'library' && <Library onOpen={(p, l) => go('studio', { packId: p, lessonId: l })} />}
+      {route === 'library' && (
+        <Library
+          packId={packId}
+          lessonId={lessonId}
+          onOpen={(p, l) => go('studio', { packId: p, lessonId: l })}
+          onSelectPack={(p) => go('library', { packId: p, lessonId: '' })}
+          onBackToPacks={() => go('library', { packId: '', lessonId: '' })}
+        />
+      )}
       {route === 'studio' && packId && lessonId && (
-        <Studio packId={packId} lessonId={lessonId} onPickLesson={(l) => go('studio', { packId, lessonId: l })} />
+        <Studio
+          packId={packId}
+          lessonId={lessonId}
+          onPickLesson={(l) => go('studio', { packId, lessonId: l })}
+          onDone={() => go('library', { packId, lessonId })}
+        />
       )}
       {route === 'studio' && (!packId || !lessonId) && (
         <div className="page">
           <p>Pick a lesson from the Library.</p>
         </div>
       )}
-      {route === 'author' && <Author />}
+      {route === 'author' && <Author onOpen={(p, l) => go('studio', { packId: p, lessonId: l })} />}
       {route === 'settings' && <Settings userDataPath={info.userDataPath ?? ''} version={info.version} />}
       {route === 'practice' && <Practice onOpen={(p, l) => go('studio', { packId: p, lessonId: l })} />}
       {showNotes && notes ? <ReleaseNotes notes={notes} onDismiss={dismissNotes} /> : null}

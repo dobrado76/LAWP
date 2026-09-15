@@ -130,5 +130,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "Keep going while a condition is true. Stop when you have a reason."
 }

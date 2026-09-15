@@ -34,5 +34,6 @@
       "answer": "browser",
       "explainMd": "A server can send Access-Control-Allow-Origin. The browser decides whether page JS may read the body."
     }
-  ]
+  ],
+  "description": "The browser decides whether page code may read another origin."
 }

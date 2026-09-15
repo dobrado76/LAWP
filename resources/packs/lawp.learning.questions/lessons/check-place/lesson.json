@@ -1,0 +1,81 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-place",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Place each piece",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Drop on the diagram\n\nDrag Header, Article, and Footer onto the page."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "place",
+      "promptMd": "Label the page.",
+      "image": "assets/page.svg",
+      "slots": [
+        {
+          "id": "top",
+          "x": 50,
+          "y": 15,
+          "w": 70,
+          "h": 16,
+          "label": "Top"
+        },
+        {
+          "id": "mid",
+          "x": 50,
+          "y": 52,
+          "w": 70,
+          "h": 30,
+          "label": "Middle"
+        },
+        {
+          "id": "bot",
+          "x": 50,
+          "y": 87,
+          "w": 70,
+          "h": 12,
+          "label": "Bottom"
+        }
+      ],
+      "pieces": [
+        {
+          "id": "header",
+          "md": "Header"
+        },
+        {
+          "id": "body",
+          "md": "Article"
+        },
+        {
+          "id": "footer",
+          "md": "Footer"
+        },
+        {
+          "id": "side",
+          "md": "Sidebar"
+        }
+      ],
+      "answer": {
+        "top": "header",
+        "mid": "body",
+        "bot": "footer"
+      },
+      "explainMd": "Header on top, article in the middle, footer at the bottom. Sidebar is leftover.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Drag each piece onto the right spot on a diagram."
+}

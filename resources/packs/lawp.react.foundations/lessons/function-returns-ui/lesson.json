@@ -6,7 +6,9 @@
   "courseId": "one-app",
   "moduleId": "components",
   "title": "A component is a function",
-  "skillIds": ["react.component"],
+  "skillIds": [
+    "react.component"
+  ],
   "estimatedMinutes": 12,
   "taskRev": 1,
   "blocks": [
@@ -19,9 +21,26 @@
       "id": "app-hello",
       "engine": "react",
       "entry": "App.js",
-      "files": [{ "path": "files/App.js", "role": "edit" }],
-      "checks": [{ "type": "stdout", "equals": "hello" }],
-      "hintLadder": [{ "level": 1, "kind": "concept", "md": "return \"hello\"" }]
+      "files": [
+        {
+          "path": "files/App.js",
+          "role": "edit"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "hello"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "return \"hello\""
+        }
+      ]
     }
-  ]
+  ],
+  "description": "A component is a function that returns what should appear on the page."
 }

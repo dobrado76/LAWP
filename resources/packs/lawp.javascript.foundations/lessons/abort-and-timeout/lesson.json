@@ -79,5 +79,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Cancel a request on purpose when you have waited long enough."
 }

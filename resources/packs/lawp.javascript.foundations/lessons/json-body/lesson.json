@@ -79,5 +79,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Reading a body as data can fail. Handle the bad text."
 }

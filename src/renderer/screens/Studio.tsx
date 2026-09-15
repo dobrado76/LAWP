@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { applyPlayCommands, facingName, propertyHolds, type PlayCommand, type PlayProp } from '@shared/play'
+import { defaultCheckValue, type CheckKind, type CheckPrompt } from '@shared/check'
+import { firstTryTally, type FirstTry } from '@shared/schemas/progress'
+import { applyPlayCommands, facingName, GRID_CELL_PX, clampGrid, propertyHolds, type PlayCommand, type PlayProp } from '@shared/play'
+import { DEFAULT_FLOOR, playKitLayerRank, playKitPiece, playKitSrc } from '@shared/playKit'
 import { IPC, invoke } from '../api'
+import { CheckPanel } from '../checks/CheckPanel'
 import { CodeEditor } from '../editor/CodeEditor'
 import { md } from '../md'
+import { BackIcon, CheckVerdict, HintIcon, IconBtn, NextIcon, RestartIcon } from '../ui/IconBtn'
 
 type Block = Record<string, unknown> & { type: string; id?: string; md?: string; promptMd?: string }
 type LessonSum = { id: string; title: string }
@@ -10,18 +15,20 @@ type WorldPart = { id: string; type: string; props: Record<string, string | numb
 type World = {
   parts: WorldPart[]
   connections?: { from: string; to: string }[]
-  view?: { kind?: string; assetMap?: Record<string, string>; grid?: { cols?: number; rows?: number } }
+  view?: { kind?: string; assetMap?: Record<string, string>; grid?: { cols?: number; rows?: number; floor?: string } }
 }
 type PlayCmd = PlayCommand
 
 export function Studio({
   packId,
   lessonId,
-  onPickLesson
+  onPickLesson,
+  onDone
 }: {
   packId: string
   lessonId: string
   onPickLesson: (id: string) => void
+  onDone: () => void
 }) {
   const [lesson, setLesson] = useState<{ title: string; blocks: Block[]; creation?: { id: string } } | null>(null)
   const [tree, setTree] = useState<{
@@ -39,8 +46,13 @@ export function Studio({
   const [hint, setHint] = useState('')
   const [hintLevel, setHintLevel] = useState(0)
   const [predict, setPredict] = useState('')
-  const [checkAns, setCheckAns] = useState('')
+  const [checkAns, setCheckAns] = useState<Record<string, unknown>>({})
+  const [checkResult, setCheckResult] = useState<Record<string, 'pass' | 'fail'>>({})
+  const [firstTry, setFirstTry] = useState<Record<string, 'pass' | 'fail'>>({})
   const [evidence, setEvidence] = useState('')
+  const [progress, setProgress] = useState<
+    Record<string, { status: string; best?: { score: number; assisted: boolean }; firstTries?: Record<string, FirstTry> }>
+  >({})
   const [files, setFiles] = useState<{ path: string; contents: string }[]>([])
   const [output, setOutput] = useState('')
   const [banner, setBanner] = useState<{ kind: 'success' | 'fail'; title: string } | null>(null)
@@ -62,6 +74,21 @@ export function Studio({
     return workGen.current === gen
   }
 
+  async function refreshProgress(gen = workGen.current) {
+    const ev = await invoke<{
+      lessons: Record<string, { status: string; best?: { score: number; assisted: boolean }; firstTries?: Record<string, FirstTry> }>
+    }>(IPC.progressGet, { packId })
+    if (!stillHere(gen)) return
+    setProgress(ev.lessons)
+    const e = ev.lessons[lessonId]
+    setEvidence(e ? `${e.status}${e.best ? ` · best ${Math.round(e.best.score * 100)}%` : ''}` : '')
+  }
+
+  function advanceOrDone() {
+    if (nextId) onPickLesson(nextId)
+    else onDone()
+  }
+
   async function load(gen = workGen.current) {
     setDraftReady(false)
     const l = await invoke<{ title: string; blocks: Block[]; creation?: { id: string } }>(IPC.packsLesson, { packId, lessonId })
@@ -74,13 +101,7 @@ export function Studio({
     }>(IPC.packsGet, { packId })
     if (!stillHere(gen)) return
     setTree(packed)
-    const ev = await invoke<{ lessons: Record<string, { status: string; best?: { score: number; assisted: boolean } }> }>(
-      IPC.progressGet,
-      { packId }
-    )
-    if (!stillHere(gen)) return
-    const e = ev.lessons[lessonId]
-    setEvidence(e ? `${e.status}${e.best ? ` · best ${Math.round(e.best.score * 100)}%` : ''}` : '')
+    await refreshProgress(gen)
     const act = l.blocks.find((b) => b.type === 'activity')
     const codeBlock = l.blocks.find((b) => b.type === 'code' || b.type === 'debug')
     const startId = act?.id ?? codeBlock?.id ?? l.blocks.find((b) => b.id)?.id
@@ -123,7 +144,9 @@ export function Studio({
     setStatus('')
     setCompare('')
     setPredict('')
-    setCheckAns('')
+    setCheckAns({})
+    setCheckResult({})
+    setFirstTry({})
     setWhy('')
     setBanner(null)
     setDraftReady(true)
@@ -179,11 +202,13 @@ export function Studio({
   const playerId = code?.play?.playerId ?? 'fox'
   const viewKind = world?.view?.kind ?? activity?.world?.view?.kind
   const isGrid = viewKind === 'grid'
-  const checks = (lesson?.blocks.filter((b) => b.type === 'check') ?? []) as (Block & {
-    choices?: { id: string; md: string }[]
-    promptMd: string
-    explainMd?: string
-  })[]
+  const checks: CheckPrompt[] = (lesson?.blocks.filter((b) => b.type === 'check') ?? []).map((b) => ({
+    ...(b as unknown as CheckPrompt),
+    id: String(b.id ?? 'check'),
+    kind: ((b as { kind?: CheckKind }).kind ?? 'mcq') as CheckKind,
+    promptMd: String(b.promptMd ?? '')
+  }))
+  const checkOnly = checks.length > 0 && !activity && !code
   const playable = Boolean(activity || code || checks.length)
 
   async function act(actionId: string, value?: string | number) {
@@ -253,7 +278,7 @@ export function Studio({
     setHint(`### Hint ${next}\n\n${h.md}`)
   }
 
-  async function gradeCheck(block: Block) {
+  async function gradeCheck(block: CheckPrompt) {
     const gen = workGen.current
     const id = runId ?? (await invoke<{ runId: string }>(IPC.runStart, { packId, lessonId, blockId: block.id })).runId
     if (!stillHere(gen)) return
@@ -264,13 +289,26 @@ export function Studio({
       packId,
       lessonId,
       blockId: block.id,
-      answers: checkAns
+      answers: checkAns[block.id] ?? defaultCheckValue(block)
     })
     if (!stillHere(gen)) return
     setStatus(r.passed ? 'Correct' : 'Not quite')
+    setCheckResult((prev) => ({ ...prev, [block.id]: r.passed ? 'pass' : 'fail' }))
+    setFirstTry((prev) => (block.id in prev ? prev : { ...prev, [block.id]: r.passed ? 'pass' : 'fail' }))
     const names = (r.misconceptionIds ?? []).map((i) => tree?.misconceptions.find((m) => m.id === i)?.title ?? i)
     setWhy(names.join(', ') || (r.passed ? String(block.explainMd ?? 'Yes.') : 'Try again.'))
     setBanner({ kind: r.passed ? 'success' : 'fail', title: r.passed ? 'SUCCESS' : 'FAIL' })
+    if (r.passed) void refreshProgress(gen)
+  }
+
+  function setCheckValue(id: string, next: unknown) {
+    setCheckAns((prev) => ({ ...prev, [id]: next }))
+    setCheckResult((prev) => {
+      if (!(id in prev)) return prev
+      const copy = { ...prev }
+      delete copy[id]
+      return copy
+    })
   }
 
   function formatRunOutput(r: { stdout?: string; stderr?: string; timedOut?: boolean; exitCode?: number }) {
@@ -420,18 +458,13 @@ export function Studio({
           </button>
         </>
       )}
-      {checks.map((ch) => (
-        <button key={ch.id} className="btn primary" onClick={() => void gradeCheck(ch)}>
-          Submit
-        </button>
-      ))}
       {playable && (
-        <button className="btn" disabled={hintLevel >= 5} onClick={() => void askHint()}>
-          Hint{hintLevel ? ` ${hintLevel}/5` : ''}
-        </button>
+        <IconBtn label={hintLevel ? `Hint ${hintLevel}/5` : 'Hint'} disabled={hintLevel >= 5} onClick={() => void askHint()}>
+          <HintIcon />
+        </IconBtn>
       )}
-      <button
-        className="btn"
+      <IconBtn
+        label="Restart lesson"
         onClick={() => {
           workGen.current += 1
           replayGen.current += 1
@@ -441,8 +474,8 @@ export function Studio({
           void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'keep', lessonId }).then(() => load(gen))
         }}
       >
-        Restart
-      </button>
+        <RestartIcon />
+      </IconBtn>
       {lesson?.creation && (
         <button className="btn" onClick={() => void invoke(IPC.creationExport, { packId, creationId: lesson.creation!.id, kind: 'zip' })}>
           Export
@@ -454,9 +487,9 @@ export function Studio({
   return (
     <div className="page studio-page">
       <header className="studio-bar">
-        <button className="btn" disabled={!prevId} onClick={() => prevId && onPickLesson(prevId)}>
-          Back
-        </button>
+        <IconBtn label="Previous lesson" disabled={!prevId} onClick={() => prevId && onPickLesson(prevId)}>
+          <BackIcon />
+        </IconBtn>
         <div className="studio-bar-title">
           <strong>{lesson?.title ?? 'Lesson'}</strong>
           <span className="muted">
@@ -465,9 +498,9 @@ export function Studio({
           </span>
         </div>
         {actions}
-        <button className="btn" disabled={!nextId} onClick={() => nextId && onPickLesson(nextId)}>
-          Next
-        </button>
+        <IconBtn label={nextId ? 'Next lesson' : 'Return to library'} onClick={advanceOrDone}>
+          <NextIcon />
+        </IconBtn>
       </header>
 
       <div className="studio">
@@ -496,18 +529,28 @@ export function Studio({
               dangerouslySetInnerHTML={{ __html: md(String(code.promptMd ?? '> Edit the file, then **Run**.')) }}
             />
           )}
-          {checks.map((ch) => (
-            <div key={ch.id} className="check-block">
-              <h2>Check</h2>
-              <div className="prose" dangerouslySetInnerHTML={{ __html: md(ch.promptMd) }} />
-              {ch.choices?.map((c) => (
-                <label key={c.id} className="choice">
-                  <input type="radio" name="chk" checked={checkAns === c.id} onChange={() => setCheckAns(c.id)} />
-                  <span dangerouslySetInnerHTML={{ __html: md(c.md) }} />
-                </label>
-              ))}
-            </div>
-          ))}
+          {!checkOnly &&
+            checks.map((ch) => (
+              <CheckPanel
+                key={ch.id}
+                check={ch}
+                value={checkAns[ch.id]}
+                onChange={(next) => setCheckValue(ch.id, next)}
+                packId={packId}
+                lessonId={lessonId}
+                onSubmit={() => void gradeCheck(ch)}
+                onNext={advanceOrDone}
+                nextLabel={nextId ? 'Next' : 'Return to library'}
+                result={checkResult[ch.id] ?? null}
+              />
+            ))}
+          {checks.map((ch) => {
+            const r = checkResult[ch.id]
+            return r ? <CheckVerdict key={`${ch.id}-verdict`} result={r} /> : null
+          })}
+          {!nextId && checks.some((ch) => checkResult[ch.id] === 'pass') ? (
+            <LessonComplete progress={progress} lessonId={lessonId} lessonOrder={lessonOrder} firstTry={firstTry} />
+          ) : null}
           {hint && <div className="callout hint" dangerouslySetInnerHTML={{ __html: md(hint) }} />}
           {why && <div className="callout why-inline" dangerouslySetInnerHTML={{ __html: md(why) }} />}
           {compare && <p className="compare">{compare}</p>}
@@ -583,6 +626,21 @@ export function Studio({
             />
           ))}
           {output ? <pre className="output">{output}</pre> : null}
+          {checkOnly &&
+            checks.map((ch) => (
+              <CheckPanel
+                key={ch.id}
+                check={ch}
+                value={checkAns[ch.id]}
+                onChange={(next) => setCheckValue(ch.id, next)}
+                packId={packId}
+                lessonId={lessonId}
+                onSubmit={() => void gradeCheck(ch)}
+                onNext={advanceOrDone}
+                nextLabel={nextId ? 'Next' : 'Return to library'}
+                result={checkResult[ch.id] ?? null}
+              />
+            ))}
           {!playable && nextId && (
             <div className="empty-work">
               <p>Read the idea on the left. Then continue.</p>
@@ -591,10 +649,66 @@ export function Studio({
               </button>
             </div>
           )}
-          {!playable && !nextId && <p className="muted">This lesson is reading only.</p>}
+          {!playable && !nextId && (
+            <div className="empty-work">
+              <p>This lesson is reading only.</p>
+              <button className="btn primary" onClick={onDone}>
+                Return to library
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
+    </div>
+  )
+}
+
+function LessonComplete({
+  progress,
+  lessonId,
+  lessonOrder,
+  firstTry
+}: {
+  progress: Record<string, { status: string; best?: { score: number }; firstTries?: Record<string, FirstTry> }>
+  lessonId: string
+  lessonOrder: string[]
+  firstTry: Record<string, 'pass' | 'fail'>
+}) {
+  let hits = 0
+  let total = 0
+  for (const id of lessonOrder.length ? lessonOrder : [lessonId]) {
+    const stored = { ...(progress[id]?.firstTries ?? {}) }
+    if (id === lessonId) {
+      for (const [blockId, result] of Object.entries(firstTry)) {
+        if (!stored[blockId]) stored[blockId] = { passed: result === 'pass', score: result === 'pass' ? 1 : 0 }
+      }
+    }
+    const tally = firstTryTally(stored)
+    hits += tally.hits
+    total += tally.total
+  }
+  const scorePct = total ? Math.round((hits / total) * 100) : 0
+  const pathDone = lessonOrder.filter((id) => {
+    const s = progress[id]?.status
+    return s === 'checked' || s === 'mastered'
+  }).length
+  const pathTotal = lessonOrder.length
+  const selfDone = progress[lessonId]?.status === 'checked' || progress[lessonId]?.status === 'mastered'
+  const shownDone = selfDone ? pathDone : Math.min(pathTotal, pathDone + 1)
+  return (
+    <div className="lesson-complete">
+      <p className="check-kicker">Lesson complete</p>
+      <strong>Congratulations!</strong>
+      <p className="lesson-complete-score">
+        Score {scorePct}%
+        {total ? ` · ${hits} of ${total} first try` : ''}
+      </p>
+      {pathTotal > 1 ? (
+        <p className="muted">
+          {shownDone} of {pathTotal} lessons on this path
+        </p>
+      ) : null}
     </div>
   )
 }
@@ -709,10 +823,11 @@ function spriteUrl(packId: string, lessonId: string, map: Record<string, string>
       break
     }
   }
-  if (!mapped) return null
-  if (mapped.startsWith('lawp-play://') || mapped.startsWith('lawp-pack://')) return mapped
+  if (!mapped) return playKitSrc(part.type)
+  if (mapped.startsWith('lawp-pack://')) return mapped
   if (mapped.startsWith('assets/')) return `lawp-pack://${packId}/lessons/${lessonId}/${mapped}`
-  return `lawp-play://assets/${mapped}`
+  const file = mapped.replace(/^lawp-play:\/\/assets\//, '').replace(/\.svg$/i, '.png')
+  return `lawp-play://assets/${file}`
 }
 
 function stepPlay(world: World, cmd: PlayCmd, playerId: string): World {
@@ -757,7 +872,20 @@ function DomPreview({
   js: string
   fixtures: Record<string, string>
 }) {
-  const boot = `<script>
+  const chrome = `<style>
+html,body{margin:0}
+body{box-sizing:border-box;min-height:100%;font:16px/1.45 system-ui,"Segoe UI",sans-serif;color:#1c2430;background:#f3efe6;padding:16px 18px}
+h1{font-size:22px;line-height:1.25;margin:0 0 .45em}
+h2,h3{font-size:16px;margin:0 0 .4em}
+p,li,label{font-size:15px}
+ul{margin:.4em 0;padding-left:1.2em;min-height:1.6em}
+ul:empty{list-style:none;padding:12px;border:1px dashed #cfc6b6;border-radius:8px;color:#8f8778}
+ul:empty::after{content:"No items yet"}
+input,button,select,textarea{font:inherit}
+input,textarea{padding:6px 8px;border:1px solid #c9c2b4;border-radius:6px;background:#fff}
+button{padding:6px 12px;border:1px solid #2a6b63;border-radius:6px;background:#1a3d38;color:#e8fff8}
+</style>`
+  const boot = `${chrome}<script>
 const FIX = ${JSON.stringify(fixtures)};
 window.fetch = function(url) {
   const href = String(url);
@@ -790,19 +918,37 @@ function GridStage({
   lessonId: string
   banner: { kind: 'success' | 'fail'; title: string } | null
 }) {
-  const cols = world.view?.grid?.cols ?? 5
-  const rows = world.view?.grid?.rows ?? 5
+  const cols = clampGrid(world.view?.grid?.cols ?? 5)
+  const rows = clampGrid(world.view?.grid?.rows ?? 5)
+  const fit = useRef<HTMLDivElement>(null)
+  const [zoom, setZoom] = useState(1)
+  useEffect(() => {
+    const el = fit.current
+    if (!el) return
+    const measure = () => {
+      const gutter = 20
+      const aw = Math.max(0, el.clientWidth - gutter)
+      const ah = Math.max(0, el.clientHeight)
+      const z = Math.min(1, aw / (cols * GRID_CELL_PX), ah / (rows * GRID_CELL_PX))
+      setZoom(Number.isFinite(z) && z > 0 ? z : 1)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [cols, rows])
+  const cell = GRID_CELL_PX * zoom
+  const boardW = cols * cell
+  const boardH = rows * cell
   const map = world.view?.assetMap
+  const floorSrc = playKitSrc(world.view?.grid?.floor ?? DEFAULT_FLOOR)
   const cells = Array.from({ length: rows * cols }, (_, i) => {
     const x = i % cols
     const y = Math.floor(i / cols)
     const here = world.parts
       .filter((p) => Number(p.props.x ?? 0) === x && Number(p.props.y ?? 0) === y)
       .filter((p) => p.props.taken !== true)
-      .sort((a, b) => {
-        const rank = (p: WorldPart) => (p.type === 'fox' || p.type === 'player' ? 2 : p.props.solid === true ? 0 : 1)
-        return rank(a) - rank(b)
-      })
+      .sort((a, b) => playKitLayerRank(a.type) - playKitLayerRank(b.type))
     return { x, y, here }
   })
   const player =
@@ -810,6 +956,7 @@ function GridStage({
   const px = typeof player?.props.x === 'number' ? player.props.x : 0
   const py = typeof player?.props.y === 'number' ? player.props.y : 0
   const prot = typeof player?.props.rot === 'number' ? player.props.rot : 0
+  const axisStep = cell < 18 ? 8 : 1
   return (
     <div className="stage-wrap">
       <div className="stage-hud">
@@ -821,26 +968,39 @@ function GridStage({
           {prot}° {facingName(prot)}
         </span>
       </div>
-      <div className="stage-board">
-        <div className="stage-x" style={{ ['--cols' as string]: cols }}>
+      <div className="stage-fit" ref={fit}>
+      <div className="stage-board" style={{ width: boardW + 20 }}>
+        <div className="stage-x" style={{ ['--cols' as string]: cols, width: boardW + 20 }}>
           <span />
           {Array.from({ length: cols }, (_, x) => (
-            <span key={x}>{x}</span>
+            <span key={x}>{x % axisStep === 0 || x === cols - 1 ? x : ''}</span>
           ))}
         </div>
         <div className="stage-mid">
-          <div className="stage-y" style={{ ['--rows' as string]: rows }}>
+          <div className="stage-y" style={{ ['--rows' as string]: rows, height: boardH }}>
             {Array.from({ length: rows }, (_, y) => (
-              <span key={y}>{y}</span>
+              <span key={y}>{y % axisStep === 0 || y === rows - 1 ? y : ''}</span>
             ))}
           </div>
           <div className="stage-frame">
-          <div className="stage" style={{ ['--cols' as string]: cols, ['--rows' as string]: rows }}>
+          <div
+            className="stage"
+            style={{
+              ['--cols' as string]: cols,
+              ['--rows' as string]: rows,
+              width: boardW,
+              height: boardH
+            }}
+          >
             <div className="stage-grid">
               {cells.map(({ x, y, here }) => (
                 <div key={`${x}-${y}`} className="stage-cell">
+                  {floorSrc ? <img className="stage-floor" src={floorSrc} alt="" /> : null}
                   {here.map((p) => {
                     const src = spriteUrl(packId, lessonId, map, p)
+                    if (playKitPiece(p.type)?.layer === 'floor') {
+                      return src ? <img key={p.id} className="stage-floor" src={src} alt="" /> : null
+                    }
                     const rot = Number(p.props.rot ?? 0)
                     const scale = Number(p.props.scale ?? 1)
                     const isPlayer = p.type === 'fox' || p.type === 'player'
@@ -869,6 +1029,7 @@ function GridStage({
           )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

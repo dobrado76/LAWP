@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Text can be a plain string or a template that fills in values."
 }

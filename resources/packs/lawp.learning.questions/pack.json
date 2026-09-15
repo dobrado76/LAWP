@@ -1,0 +1,27 @@
+{
+  "kind": "pack",
+  "schemaVersion": 1,
+  "id": "lawp.learning.questions",
+  "title": "Question types",
+  "description": "Pick, match, sort, listen, and more — every way a question can look. Play them to see how answering works.",
+  "subjects": [
+    "learning"
+  ],
+  "category": "Learning",
+  "cover": "assets/cover.png",
+  "engines": [
+    "none"
+  ],
+  "capabilities": {
+    "execute": "none",
+    "network": false
+  },
+  "version": "0.1.0",
+  "locale": "en",
+  "authors": [
+    "LAWP"
+  ],
+  "tracks": [
+    "kinds"
+  ]
+}

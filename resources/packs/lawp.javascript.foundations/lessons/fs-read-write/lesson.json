@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Read and write a text file on disk."
 }

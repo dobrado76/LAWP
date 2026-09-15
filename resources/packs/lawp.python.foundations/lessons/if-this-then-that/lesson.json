@@ -6,7 +6,9 @@
   "courseId": "repl-in-pocket",
   "moduleId": "decisions",
   "title": "If this, then that",
-  "skillIds": ["python.control.if"],
+  "skillIds": [
+    "python.control.if"
+  ],
   "estimatedMinutes": 20,
   "taskRev": 1,
   "blocks": [
@@ -19,12 +21,31 @@
       "id": "pass-mark",
       "engine": "python",
       "entry": "main.py",
-      "files": [{ "path": "files/main.py", "role": "edit" }],
-      "checks": [{ "type": "stdout", "equals": "pass" }],
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "pass"
+        }
+      ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "72 is at least 50." },
-        { "level": 2, "kind": "concept", "md": "if score >= 50: print(\"pass\")" }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "72 is at least 50."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "if score >= 50: print(\"pass\")"
+        }
       ]
     }
-  ]
+  ],
+  "description": "A decision picks one path when a check is true."
 }

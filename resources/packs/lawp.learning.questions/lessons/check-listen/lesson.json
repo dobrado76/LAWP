@@ -1,0 +1,47 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-listen",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Listen, then pick",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A clip, then a choice\n\nPlay the sound. Count the beeps."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "listen",
+      "promptMd": "How many beeps are in the clip?",
+      "audio": "assets/clip.wav",
+      "choices": [
+        {
+          "id": "one",
+          "md": "One"
+        },
+        {
+          "id": "two",
+          "md": "Two"
+        },
+        {
+          "id": "three",
+          "md": "Three"
+        }
+      ],
+      "answer": "three",
+      "explainMd": "Three short tones.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Play the clip, then pick what you heard."
+}

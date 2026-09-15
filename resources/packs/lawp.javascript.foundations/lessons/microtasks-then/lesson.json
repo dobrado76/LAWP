@@ -355,5 +355,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A then callback runs before the next timeout. They are not the same tray."
 }

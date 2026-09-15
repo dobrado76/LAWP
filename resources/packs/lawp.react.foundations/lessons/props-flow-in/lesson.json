@@ -6,7 +6,9 @@
   "courseId": "one-app",
   "moduleId": "components",
   "title": "Props flow in",
-  "skillIds": ["react.props"],
+  "skillIds": [
+    "react.props"
+  ],
   "estimatedMinutes": 15,
   "taskRev": 1,
   "blocks": [
@@ -19,12 +21,30 @@
       "id": "badge",
       "engine": "react",
       "entry": "App.js",
-      "files": [{ "path": "files/App.js", "role": "edit" }],
-      "checks": [
-        { "type": "stdout", "equals": "new" },
-        { "type": "ast", "query": "props" }
+      "files": [
+        {
+          "path": "files/App.js",
+          "role": "edit"
+        }
       ],
-      "hintLadder": [{ "level": 1, "kind": "concept", "md": "return props.label" }]
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "new"
+        },
+        {
+          "type": "ast",
+          "query": "props"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "return props.label"
+        }
+      ]
     }
-  ]
+  ],
+  "description": "Values flow into a component from the outside."
 }

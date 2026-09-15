@@ -130,5 +130,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "Time a walk on the grid using what you just learned about waiting."
 }

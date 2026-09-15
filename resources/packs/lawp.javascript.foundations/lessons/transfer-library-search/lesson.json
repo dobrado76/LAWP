@@ -84,5 +84,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Search a fixture of records the way a library search would."
 }

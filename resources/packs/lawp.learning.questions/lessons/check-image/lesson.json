@@ -1,0 +1,49 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-image",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Pick the picture",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The answer is a picture\n\nTap the circle."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "image",
+      "promptMd": "Which shape is a circle?",
+      "choices": [
+        {
+          "id": "c",
+          "md": "Circle",
+          "image": "assets/circle.svg"
+        },
+        {
+          "id": "s",
+          "md": "Square",
+          "image": "assets/square.svg"
+        },
+        {
+          "id": "t",
+          "md": "Triangle",
+          "image": "assets/tri.svg"
+        }
+      ],
+      "answer": "c",
+      "explainMd": "The circle is round.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Tap the picture that matches the prompt."
+}

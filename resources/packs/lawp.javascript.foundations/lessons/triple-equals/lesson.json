@@ -77,5 +77,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Strict equality compares value and kind. Loose equality will surprise you."
 }

@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Arrange the world, act, then assert what must be true."
 }

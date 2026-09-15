@@ -71,5 +71,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Two module styles. Know which file is which."
 }

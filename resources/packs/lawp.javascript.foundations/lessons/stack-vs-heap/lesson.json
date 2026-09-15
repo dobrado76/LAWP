@@ -52,5 +52,6 @@
       "answer": "inner",
       "explainMd": "The running function is on top. outer waits under it until inner returns."
     }
-  ]
+  ],
+  "description": "Calls sit on a stack. Objects live on the heap until nothing points at them."
 }

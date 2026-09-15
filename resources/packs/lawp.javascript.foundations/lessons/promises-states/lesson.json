@@ -72,5 +72,6 @@
       ],
       "timeoutMs": 4000
     }
-  ]
+  ],
+  "description": "A promise is pending, kept, or broken. It does not change again."
 }

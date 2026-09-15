@@ -14,7 +14,8 @@
     "dist:nobump": "electron-vite build && electron-builder --win --config electron-builder.yml --publish never",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run",
-    "icons": "node scripts/icons.mjs"
+    "icons": "node scripts/icons.mjs",
+    "play-kit": "node scripts/play-kit.mjs"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
@@ -31,6 +32,7 @@
     "acorn": "^8.18.0",
     "adm-zip": "^0.5.16",
     "happy-dom": "^20.14.5",
+    "lucide-react": "^1.46.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zod": "^3.24.2",

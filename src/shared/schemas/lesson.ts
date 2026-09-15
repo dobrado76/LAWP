@@ -1,5 +1,13 @@
 import { z } from 'zod'
+import { CHECK_KINDS } from '../check'
 import { propertySchema, worldV1Schema } from './world'
+
+export const checkChoiceSchema = z.object({
+  id: z.string(),
+  md: z.string(),
+  misconceptionId: z.string().optional(),
+  image: z.string().optional()
+})
 
 export const hintSchema = z.object({
   level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
@@ -26,10 +34,46 @@ export const checkBlockSchema = z.object({
   type: z.literal('check'),
   id: z.string(),
   promptMd: z.string(),
-  kind: z.enum(['mcq', 'multi', 'short', 'numeric', 'cloze', 'match', 'order']),
-  choices: z
-    .array(z.object({ id: z.string(), md: z.string(), misconceptionId: z.string().optional() }))
+  kind: z.enum(CHECK_KINDS),
+  choices: z.array(checkChoiceSchema).optional(),
+  left: z.array(checkChoiceSchema).optional(),
+  right: z.array(checkChoiceSchema).optional(),
+  blanks: z
+    .array(z.object({ id: z.string(), choices: z.array(checkChoiceSchema).optional() }))
     .optional(),
+  slots: z
+    .array(
+      z.object({
+        id: z.string(),
+        x: z.number(),
+        y: z.number(),
+        w: z.number().optional(),
+        h: z.number().optional(),
+        label: z.string().optional()
+      })
+    )
+    .optional(),
+  pieces: z.array(checkChoiceSchema).optional(),
+  bins: z.array(checkChoiceSchema).optional(),
+  sets: z.array(checkChoiceSchema).optional(),
+  rows: z.array(checkChoiceSchema).optional(),
+  reasons: z
+    .array(
+      z.object({
+        id: z.string(),
+        md: z.string(),
+        when: z.array(z.string()).optional(),
+        misconceptionId: z.string().optional()
+      })
+    )
+    .optional(),
+  image: z.string().optional(),
+  audio: z.string().optional(),
+  starter: z.string().optional(),
+  unit: z.string().optional(),
+  min: z.number().optional(),
+  max: z.number().optional(),
+  step: z.number().optional(),
   answer: z.unknown(),
   explainMd: z.string().optional(),
   skillIds: z.array(z.string()).default([]),
@@ -185,6 +229,7 @@ export const lessonSchema = z.object({
   courseId: z.string().optional(),
   moduleId: z.string().optional(),
   title: z.string().min(1),
+  description: z.string().optional(),
   skillIds: z.array(z.string()).default([]),
   estimatedMinutes: z.number().positive(),
   taskRev: z.number().int().positive(),

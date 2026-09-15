@@ -204,5 +204,6 @@
         "js.dom"
       ]
     }
-  ]
+  ],
+  "description": "A short quiz about what you already expect JavaScript to do. Wrong answers do not lock you out."
 }

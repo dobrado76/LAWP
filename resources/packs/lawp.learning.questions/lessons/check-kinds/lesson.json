@@ -1,0 +1,21 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-kinds",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "What this pack is",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The inventory\n\nEach next lesson is one way a question can look. Pick, type, drag, or listen — then see how the app grades it.\n\n- **mcq** — Pick one. One right answer. Use this for a single fact.\n- **multi** — Pick every right answer. Several boxes can be true. Missing one fails.\n- **odd** — Which does not belong?. Same widget as pick-one. The odd item is the answer.\n- **tf** — True or false. Two buttons. Still a closed fact, not an opinion.\n- **image** — Pick the picture. Choices can be images. Import assets in Author.\n- **short** — Type the word. A short string. Case and extra spaces do not matter. Close spellings pass.\n- **select** — Choose the word. Same sentence as type-the-word, but the blank is a dropdown.\n- **numeric** — Enter the number. A number, optional unit and tolerance.\n- **fix** — Fix this. Edit the broken sentence. Several accepted lines; close spellings pass.\n- **cloze** — Fill the blanks. A sentence with {{a}} dropdowns.\n- **bank** — Drag words into the sentence. One shared pile of words. Drag into {{a}} blanks.\n- **match** — Connect each pair. Each left item maps to one right item.\n- **order** — Put these in order. Priorities, steps, or lines of code.\n- **place** — Place each piece. Drag chips onto slots on a diagram.\n- **hotspot** — Tap the right spot. Click a region on the picture. No dragging.\n- **gorder** — Number the steps on the picture. Tap slots in the order they should happen.\n- **bins** — Sort into bins. Many cards, a few buckets, leftover distractors allowed.\n- **venn** — Place in the sets. Left, right, both, or neither.\n- **hottext** — Tap the word. A passage. Tap the token that is wrong or that proves the claim.\n- **table** — Choose for each row. Same choices down a column.\n- **tier** — Choose, then say why. Two-step diagnostic. Both parts must match.\n- **slider** — Estimate. A range. Tolerance on the answer decides pass.\n- **numberline** — Pin the number. Tap a tick on the line.\n- **listen** — Listen, then pick. Play the clip, then choose. This clip is three beeps.\n\nWhen you add a kind: add it to `CHECK_KINDS` in `src/shared/check.ts`, grade it, draw it, add a lesson here, and run the tests. Author can build every kind from forms — you do not write JSON by hand."
+    }
+  ],
+  "description": "Try every way a question can look, then see how answering works."
+}

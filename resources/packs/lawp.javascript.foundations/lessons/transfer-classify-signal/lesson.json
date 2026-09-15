@@ -82,5 +82,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Use kinds of values to label a signal in a new story."
 }

@@ -77,5 +77,6 @@
         "LAWP_FLAG": "scrub"
       }
     }
-  ]
+  ],
+  "description": "A program can read the words you typed and the environment around it."
 }

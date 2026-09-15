@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Turn a record into text and back again without losing the shape."
 }

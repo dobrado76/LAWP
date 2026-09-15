@@ -6,10 +6,16 @@
   "courseId": "one-app",
   "moduleId": "keep",
   "title": "Keep the app",
-  "skillIds": ["react.lists"],
+  "skillIds": [
+    "react.lists"
+  ],
   "estimatedMinutes": 10,
   "taskRev": 1,
-  "creation": { "id": "keep-list", "step": 2, "briefMd": "Export the list you built." },
+  "creation": {
+    "id": "keep-list",
+    "step": 2,
+    "briefMd": "Export the list you built."
+  },
   "blocks": [
     {
       "type": "explain",
@@ -19,5 +25,6 @@
       "type": "reflect",
       "promptMd": "What new thing can the list do after the filter lesson?"
     }
-  ]
+  ],
+  "description": "Keep the list you built and take it with you."
 }

@@ -6,10 +6,16 @@
   "courseId": "one-app",
   "moduleId": "keep",
   "title": "Filter the list",
-  "skillIds": ["react.lists"],
+  "skillIds": [
+    "react.lists"
+  ],
   "estimatedMinutes": 20,
   "taskRev": 1,
-  "creation": { "id": "keep-list", "step": 1, "briefMd": "Filter items by a query." },
+  "creation": {
+    "id": "keep-list",
+    "step": 1,
+    "briefMd": "Filter items by a query."
+  },
   "blocks": [
     {
       "type": "explain",
@@ -20,12 +26,30 @@
       "id": "filter",
       "engine": "react",
       "entry": "App.js",
-      "files": [{ "path": "files/App.js", "role": "edit" }],
-      "checks": [
-        { "type": "stdout", "equals": "lamp,loop" },
-        { "type": "ast", "query": "filter" }
+      "files": [
+        {
+          "path": "files/App.js",
+          "role": "edit"
+        }
       ],
-      "hintLadder": [{ "level": 1, "kind": "concept", "md": "items.filter(i => i.includes(q)).join(\",\")" }]
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "lamp,loop"
+        },
+        {
+          "type": "ast",
+          "query": "filter"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "items.filter(i => i.includes(q)).join(\",\")"
+        }
+      ]
     }
-  ]
+  ],
+  "description": "Show only the items that match what the learner asked for."
 }

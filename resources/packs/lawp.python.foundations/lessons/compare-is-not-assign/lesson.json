@@ -6,7 +6,9 @@
   "courseId": "repl-in-pocket",
   "moduleId": "decisions",
   "title": "Compare is not assign",
-  "skillIds": ["python.control.if"],
+  "skillIds": [
+    "python.control.if"
+  ],
   "estimatedMinutes": 15,
   "taskRev": 1,
   "blocks": [
@@ -19,15 +21,37 @@
       "id": "fix-compare",
       "engine": "python",
       "entry": "main.py",
-      "files": [{ "path": "files/main.py", "role": "edit" }],
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        }
+      ],
       "checks": [
-        { "type": "stdout", "equals": "yes", "misconceptionId": "assign-instead-of-compare" },
-        { "type": "ast", "query": "==", "misconceptionId": "assign-instead-of-compare" }
+        {
+          "type": "stdout",
+          "equals": "yes",
+          "misconceptionId": "assign-instead-of-compare"
+        },
+        {
+          "type": "ast",
+          "query": "==",
+          "misconceptionId": "assign-instead-of-compare"
+        }
       ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "The error is about assignment in a place that wants a test." },
-        { "level": 2, "kind": "concept", "md": "Replace = with ==, or write `if flag:`." }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The error is about assignment in a place that wants a test."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Replace = with ==, or write `if flag:`."
+        }
       ]
     }
-  ]
+  ],
+  "description": "Asking whether two things are equal is not the same as giving a name a value."
 }

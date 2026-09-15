@@ -5,6 +5,8 @@
   "title": "JavaScript: Working expert",
   "description": "A fox-and-beacon path from first values to language internals, the DOM, Node I/O, tests, and security. Predict, prove, explain.",
   "subjects": ["programming", "javascript"],
+  "category": "Programming",
+  "cover": "assets/cover.png",
   "engines": ["javascript"],
   "capabilities": { "execute": "javascript", "network": false },
   "version": "0.4.0",

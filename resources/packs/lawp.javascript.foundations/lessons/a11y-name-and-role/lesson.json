@@ -74,5 +74,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A control needs a name and a role a screen reader can use."
 }

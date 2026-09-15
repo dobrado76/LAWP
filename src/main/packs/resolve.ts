@@ -125,11 +125,19 @@ export function resolvePack(packId: string): ResolvedPack | null {
     if (idx >= 0) lessons[idx] = overlayLesson
     else lessons.push(overlayLesson)
   }
+  const extra = loadSidecars(user!)
+  const byId = <T extends { id: string }>(base: T[], more: T[]) => {
+    const map = new Map(base.map((x) => [x.id, x]))
+    for (const item of more) map.set(item.id, item)
+    return [...map.values()]
+  }
   return finish({
     ...base,
     source: 'merged',
     overlay: true,
     lessons,
+    tracks: byId(base.tracks, extra.tracks),
+    courses: byId(base.courses, extra.courses),
     manifest: { ...base.manifest, overlay: true }
   })
 }

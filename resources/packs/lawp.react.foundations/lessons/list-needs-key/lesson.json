@@ -6,7 +6,9 @@
   "courseId": "one-app",
   "moduleId": "state",
   "title": "A list needs a key",
-  "skillIds": ["react.lists"],
+  "skillIds": [
+    "react.lists"
+  ],
   "estimatedMinutes": 15,
   "taskRev": 1,
   "blocks": [
@@ -19,15 +21,36 @@
       "id": "keyed",
       "engine": "react",
       "entry": "App.js",
-      "files": [{ "path": "files/App.js", "role": "edit" }],
+      "files": [
+        {
+          "path": "files/App.js",
+          "role": "edit"
+        }
+      ],
       "checks": [
-        { "type": "stdout", "equals": "1:a,2:b", "misconceptionId": "missing-key" },
-        { "type": "ast", "query": "key" }
+        {
+          "type": "stdout",
+          "equals": "1:a,2:b",
+          "misconceptionId": "missing-key"
+        },
+        {
+          "type": "ast",
+          "query": "key"
+        }
       ],
       "hintLadder": [
-        { "level": 1, "kind": "concept", "md": "Map [{key:1,label:\"a\"},{key:2,label:\"b\"}] or build that shape from the strings." },
-        { "level": 2, "kind": "assist", "md": "const data = [{key:1,label:\"a\"},{key:2,label:\"b\"}]; return data.map(i => i.key + \":\" + i.label).join(\",\")" }
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Map [{key:1,label:\"a\"},{key:2,label:\"b\"}] or build that shape from the strings."
+        },
+        {
+          "level": 2,
+          "kind": "assist",
+          "md": "const data = [{key:1,label:\"a\"},{key:2,label:\"b\"}]; return data.map(i => i.key + \":\" + i.label).join(\",\")"
+        }
       ]
     }
-  ]
+  ],
+  "description": "Each item in a list needs a stable key so updates stay honest."
 }

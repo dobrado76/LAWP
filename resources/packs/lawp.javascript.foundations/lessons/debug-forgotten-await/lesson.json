@@ -147,5 +147,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "The walk finishes too soon. Find the missing wait."
 }

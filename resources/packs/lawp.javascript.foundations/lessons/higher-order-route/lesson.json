@@ -127,5 +127,6 @@
         }
       }
     }
-  ]
+  ],
+  "description": "Pass a function into another function so the walk can change."
 }

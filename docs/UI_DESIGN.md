@@ -36,13 +36,16 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 
 ## Library
 
-- Cards for installed subject-matters (packs)
+- First screen: illustrated pack cards grouped by category (Electricity, Programming, Learning…). Each card shows cover art, a status tag (Not started / In progress / Complete), and `2/8  (25%)`. Opening a pack is a **second screen** of lessons. Back returns to the pack list
+- Return to library from Studio opens that pack’s lesson list (not the pack list) and restores scroll
 - After a pack: a numbered **tutorial path** (chapter → course → lesson). **Play next**. Later courses stay locked until the one above is done; **Skip ahead** if you want
 - Do not dump every “beginner” lesson into one grid — values and the first commands come before lists
+- Lesson cards: height follows the blurb; every card on a row matches the tallest. Darker title bar and thin footer; lighter body with a 2–3 sentence blurb; takeaway pills pin to the bottom above the footer. Title bar has a relevant Lucide icon (color on the icon only). Footer is one line: status + step, then module · minutes. The 2px border clips the inner bands to the same radius.
 - Filters: all / to do / done
 - Primary action: **Install from ZIP** (subject *or* lesson). Copy explains that a zip is one folder of JSON + files
 - Per pack: **Export ZIP**, open in Library tree
-- Per lesson: **Export lesson ZIP**, **Restart lesson** (keep history), **Clear lesson history** (stronger confirm)
+- Per lesson: overflow menu for **Export lesson ZIP**, **Restart lesson** (keep history), **Clear lesson history** (stronger confirm). Titles and progress stay on the card.
+- A course with `diagnosticLessonId` (placement quiz) is a compact intro row, not a tall card grid, so the first teaching lessons sit higher
 - Invalid zip: which file / Zod path / zip safety rule failed; rest of library unchanged
 
 ## Studio
@@ -50,8 +53,9 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 - Left: Markdown explain + predict prompt
 - Right: **activity view** (`world-v1` graph/list/grid) **or** the shared `CodeEditor` (gutter, highlighting, click-to-error) **or** check UI
 - React: tabs for files + Preview pane
-- Top studio bar: Back / title / **Run · Check · Hint · Restart** / Next (not a bottom footer)
-- Play grid: **SUCCESS / FAIL** overlay on the stage after Run — do not make the learner read Why to know the result
+- Top studio bar: icon Back / title / Run · Check · icon Hint · icon Restart / icon Next (tooltips). After a **correct** Submit, that same control becomes Next; an incorrect grade keeps Submit so they can change the answer and try again. On the last lesson the control is **Return to library** (never a dead Next), and the left pane shows Congratulations plus a first-try score (wrong then fixed is not 100%)
+- Grade result lives in the **left** teach pane: large green check **Correct!** or red X **Incorrect!** — so the right-hand Submit control can become Next without moving
+- Play grid: stone (or authored) floor on every cell, then kit sprites (fox, items, terrain). **SUCCESS / FAIL** overlay on the stage after Run — do not make the learner read Why to know the result
 - After Check: **This · Last · Best** (score + independent/assisted). Time is secondary. Link to **snapshot**
 - Check overflow: **Replace last run**
 - TOC overflow: Restart lesson, Restart chapter, Clear history…, Export creation
@@ -60,10 +64,10 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 
 ## Author
 
-- Template picker
-- Form fields + asset drop + live preview (same block renderer as Studio)
-- Validate issues list (paths, ids, rules)
-- Export ZIP
+- Start: New or Open (pack cards, lesson title). Work: outline + one block + Details panel
+- **Add a block** palette (Explain / Question kinds / world / code), not a type dropdown
+- Top bar: title, Save, Play (Ctrl+S). JSON stays in Details
+- How-to: [AUTHORING.md](AUTHORING.md)
 - Optional “Draft with AI” (disabled until an endpoint is configured)
 
 ## Practice

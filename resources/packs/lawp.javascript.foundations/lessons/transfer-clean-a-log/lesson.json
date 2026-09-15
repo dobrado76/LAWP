@@ -80,5 +80,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Clean a names log using files and the process."
 }

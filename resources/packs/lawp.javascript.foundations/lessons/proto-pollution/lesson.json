@@ -72,5 +72,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Do not let outside data write into the shared object behind every record."
 }

@@ -5,6 +5,8 @@
   "title": "Python: Think, then run",
   "description": "Names, a grid walk, decisions, messages, and a greeting bot you keep.",
   "subjects": ["programming", "python"],
+  "category": "Programming",
+  "cover": "assets/cover.png",
   "engines": ["python"],
   "capabilities": { "execute": "python", "network": false },
   "version": "0.3.3",

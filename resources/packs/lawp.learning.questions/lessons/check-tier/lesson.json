@@ -1,0 +1,62 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "check-tier",
+  "packId": "lawp.learning.questions",
+  "courseId": "kinds",
+  "moduleId": "all",
+  "title": "Choose, then say why",
+  "skillIds": [
+    "check.kinds"
+  ],
+  "estimatedMinutes": 3,
+  "taskRev": 1,
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two steps\n\nPick the move, then the reason. Both must be right."
+    },
+    {
+      "type": "check",
+      "id": "q",
+      "kind": "tier",
+      "promptMd": "The lamp is dim. The cap is 2. What is the safer move?",
+      "choices": [
+        {
+          "id": "ok",
+          "md": "Lower resistance a little"
+        },
+        {
+          "id": "no",
+          "md": "Set resistance to 0",
+          "misconceptionId": "ignores-current-limit"
+        }
+      ],
+      "reasons": [
+        {
+          "id": "cap",
+          "md": "Current must stay under the cap.",
+          "when": [
+            "ok"
+          ]
+        },
+        {
+          "id": "bright",
+          "md": "Zero ohms is always brighter.",
+          "when": [
+            "no"
+          ]
+        }
+      ],
+      "answer": {
+        "choice": "ok",
+        "reason": "cap"
+      },
+      "explainMd": "A little less resistance raises brightness. Zero ohms blows the cap.",
+      "skillIds": [
+        "check.kinds"
+      ]
+    }
+  ],
+  "description": "Pick an answer, then pick the reason that matches it."
+}

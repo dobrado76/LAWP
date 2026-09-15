@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { applyPlayLog, parsePlayLog, type PlayCommand } from '@main/play/commands'
-import { facingName, propertyHolds } from '@shared/play'
+import { clampGrid, facingName, GRID_MAX, propertyHolds } from '@shared/play'
 import type { WorldV1 } from '@shared/schemas/world'
 import { lessonSchema, parseLessonBlocks } from '@shared/schemas/lesson'
 
@@ -27,6 +27,15 @@ const onBeacon = {
     { path: 'fox.y' as const, op: 'eq' as const, value: 2 }
   ]
 }
+
+describe('grid size', () => {
+  it('clamps authored size to 1–64', () => {
+    expect(clampGrid(0)).toBe(1)
+    expect(clampGrid(5)).toBe(5)
+    expect(clampGrid(64)).toBe(GRID_MAX)
+    expect(clampGrid(99)).toBe(64)
+  })
+})
 
 describe('player-v1 apply', () => {
   it('move east increments fox x', () => {
@@ -194,9 +203,9 @@ describe('play lessons', () => {
       const code = blocks.find((b) => (b as { type?: string }).type === 'code') as { play?: { api?: string } }
       expect(code.play?.api).toBe('player-v1')
     }
-    expect(existsSync(resolve('resources/play/assets/fox.svg'))).toBe(true)
-    expect(existsSync(resolve('resources/play/assets/beacon.svg'))).toBe(true)
-    expect(existsSync(resolve('resources/play/assets/rock.svg'))).toBe(true)
+    expect(existsSync(resolve('resources/play/assets/fox.png'))).toBe(true)
+    expect(existsSync(resolve('resources/play/assets/beacon.png'))).toBe(true)
+    expect(existsSync(resolve('resources/play/assets/rock.png'))).toBe(true)
   })
 
   it('keyed-beacon solution passes and skipping the key fails', () => {

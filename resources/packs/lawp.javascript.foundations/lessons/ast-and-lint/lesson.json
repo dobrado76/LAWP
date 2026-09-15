@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "A linter reads the shape of the code, not only the text."
 }

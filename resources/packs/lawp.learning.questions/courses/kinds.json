@@ -1,0 +1,42 @@
+{
+  "id": "kinds",
+  "title": "The inventory",
+  "level": "beginner",
+  "estimatedMinutes": 70,
+  "skillIds": [
+    "check.kinds"
+  ],
+  "modules": [
+    {
+      "id": "all",
+      "title": "Kinds",
+      "lessonIds": [
+        "check-kinds",
+        "check-mcq",
+        "check-multi",
+        "check-odd",
+        "check-tf",
+        "check-image",
+        "check-short",
+        "check-select",
+        "check-numeric",
+        "check-fix",
+        "check-cloze",
+        "check-bank",
+        "check-match",
+        "check-order",
+        "check-place",
+        "check-hotspot",
+        "check-gorder",
+        "check-bins",
+        "check-venn",
+        "check-hottext",
+        "check-table",
+        "check-tier",
+        "check-slider",
+        "check-numberline",
+        "check-listen"
+      ]
+    }
+  ]
+}

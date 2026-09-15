@@ -74,5 +74,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Find a node, then change the text it shows."
 }

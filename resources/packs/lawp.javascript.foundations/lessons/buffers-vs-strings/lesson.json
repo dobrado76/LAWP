@@ -75,5 +75,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Bytes are not the same as text. Decode them on purpose."
 }

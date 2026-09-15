@@ -51,8 +51,25 @@ export function loadEvidence(learnerId: string, packId: string, lessonId: string
   if (ev.taskRev !== taskRev) {
     ev = applyTaskRevBump(ev, taskRev)
     saveEvidence(learnerId, packId, lessonId, ev)
+    return ev
   }
-  return ev
+  const filled = backfillFirstTries(ev)
+  if (Object.keys(filled.firstTries).length !== Object.keys(ev.firstTries).length) {
+    saveEvidence(learnerId, packId, lessonId, filled)
+  }
+  return filled
+}
+
+function backfillFirstTries(ev: LessonEvidence): LessonEvidence {
+  if (Object.keys(ev.firstTries).length) return ev
+  const oldest = [...ev.grades].sort((a, b) => a.at.localeCompare(b.at))
+  const firstTries = { ...ev.firstTries }
+  for (const g of oldest) {
+    if (!firstTries[g.blockId]) {
+      firstTries[g.blockId] = { passed: g.passed, score: g.score, attemptId: g.attemptId }
+    }
+  }
+  return { ...ev, firstTries }
 }
 
 export function applyTaskRevBump(ev: LessonEvidence, newRev: number): LessonEvidence {
@@ -65,6 +82,7 @@ export function applyTaskRevBump(ev: LessonEvidence, newRev: number): LessonEvid
     independentPass: ev.independentPass,
     masteredAt: ev.masteredAt,
     firstCheckedAt: ev.firstCheckedAt,
+    firstTries: ev.firstTries,
     grades: ev.grades
   }
   const wasDone = ev.status === 'checked' || ev.status === 'mastered'
@@ -73,6 +91,7 @@ export function applyTaskRevBump(ev: LessonEvidence, newRev: number): LessonEvid
     taskRev: newRev,
     grades: [],
     independentPass: false,
+    firstTries: {},
     prior
   })
 }
@@ -139,6 +158,9 @@ export function recordGrade(
     ev.bestEver = best
   } else if (!ev.bestEver && best) {
     ev.bestEver = best
+  }
+  if (!ev.firstTries[row.blockId]) {
+    ev.firstTries[row.blockId] = { passed: row.passed, score: row.score, attemptId: row.attemptId }
   }
   ev.currentGradeId = ev.grades.at(-1)?.attemptId
   ev.previousGradeId = ev.grades.length > 1 ? ev.grades.at(-2)?.attemptId : undefined
