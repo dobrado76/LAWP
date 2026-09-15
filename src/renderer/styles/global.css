@@ -36,6 +36,50 @@ body {
 .btn.danger { border-color: var(--danger); color: var(--danger); }
 .nav .spacer { flex: 1; }
 .nav .hud { color: var(--muted); font-size: 13px; }
+.nav button.notes-launch {
+  background: transparent; border: none; padding: 4px 0; color: var(--muted); cursor: pointer;
+}
+.nav button.notes-launch:hover { color: var(--accent); }
+.notes-backdrop {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  padding: 28px 20px;
+  background: #07090ecc;
+}
+.notes-card {
+  display: flex; flex-direction: column;
+  width: min(440px, 100%); max-height: min(84vh, 720px);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px #0008;
+  overflow: hidden;
+}
+.notes-head {
+  flex: 0 0 auto;
+  padding: 22px 24px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.notes-kicker {
+  margin: 0 0 6px; font-size: 12px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+}
+.notes-card h1 { font-size: 26px; letter-spacing: -0.03em; margin: 0 0 4px; }
+.notes-head .muted { margin: 0; font-size: 13px; }
+.notes-body {
+  flex: 1; min-height: 0; overflow: auto;
+  padding: 16px 24px 8px;
+}
+.notes-body h3 { margin-top: 16px; }
+.notes-body h3:first-child { margin-top: 0; }
+.notes-body p { color: var(--text); }
+.notes-foot {
+  flex: 0 0 auto;
+  display: flex; justify-content: flex-end;
+  padding: 12px 24px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-2);
+}
 
 .page { flex: 1; min-height: 0; overflow: auto; padding: 20px 24px; }
 .page.studio-page {
@@ -349,7 +393,7 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .code-status.is-ok { color: var(--ok); }
 .code-status .code-lang { color: var(--muted); }
 .author-editor { min-height: 380px; display: flex; flex-direction: column; margin-top: 12px; }
-.output { max-height: 28%; margin: 0; }
+.output { max-height: 28%; margin: 8px 0 0; white-space: pre-wrap; }
 .fault { color: var(--danger); font-weight: 600; }
 .ok { color: var(--ok); }
 .muted { color: var(--muted); font-size: 13px; }

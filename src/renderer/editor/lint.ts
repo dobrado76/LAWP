@@ -265,12 +265,87 @@ function lezerIssues(state: EditorState): EditorIssue[] {
   return issues
 }
 
-function playerApiIssues(state: EditorState): EditorIssue[] {
+/** True where the source is real code — not a comment or string. */
+export function isCodeIndex(src: string, index: number, language: EditorLanguage): boolean {
+  return codeMask(src, language)[index] === 1
+}
+
+function codeMask(src: string, language: EditorLanguage): Uint8Array {
+  const mask = new Uint8Array(src.length)
+  let i = 0
+  const eatLine = () => {
+    const nl = src.indexOf('\n', i)
+    i = nl === -1 ? src.length : nl + 1
+  }
+  while (i < src.length) {
+    const c = src[i]!
+    const n = src[i + 1]
+    if (language === 'python') {
+      if (c === '#') {
+        eatLine()
+        continue
+      }
+      if (src.startsWith('"""', i) || src.startsWith("'''", i)) {
+        const q = src.slice(i, i + 3)
+        const end = src.indexOf(q, i + 3)
+        i = end === -1 ? src.length : end + 3
+        continue
+      }
+    } else {
+      if (c === '/' && n === '/') {
+        eatLine()
+        continue
+      }
+      if (c === '/' && n === '*') {
+        const end = src.indexOf('*/', i + 2)
+        i = end === -1 ? src.length : end + 2
+        continue
+      }
+    }
+    if (c === '"' || c === "'" || (language !== 'python' && c === '`')) {
+      const q = c
+      i += 1
+      while (i < src.length) {
+        if (src[i] === '\\') {
+          i += 2
+          continue
+        }
+        if (language !== 'python' && q === '`' && src.startsWith('${', i)) {
+          i += 2
+          let depth = 1
+          while (i < src.length && depth > 0) {
+            if (src[i] === '{') depth += 1
+            else if (src[i] === '}') depth -= 1
+            if (depth > 0) {
+              mask[i] = 1
+              i += 1
+            }
+          }
+          i += 1
+          continue
+        }
+        if (src[i] === q) {
+          i += 1
+          break
+        }
+        i += 1
+      }
+      continue
+    }
+    mask[i] = 1
+    i += 1
+  }
+  return mask
+}
+
+function playerApiIssues(state: EditorState, language: EditorLanguage): EditorIssue[] {
   const src = state.doc.toString()
+  const mask = codeMask(src, language)
   const issues: EditorIssue[] = []
   const call = /\bPlayer\.([A-Za-z_]\w*)\s*(\()?/g
   let m: RegExpExecArray | null
   while ((m = call.exec(src))) {
+    if (mask[m.index] !== 1) continue
     const name = m[1]!
     const from = m.index
     const identTo = from + m[0].length
@@ -331,7 +406,7 @@ export function collectIssues(state: EditorState, ctx: LintContext): EditorIssue
     if (unclosed.length === 0) parse.push(...lezerIssues(state))
   } else parse.push(...lezerIssues(state))
 
-  const api = ctx.api === 'player-v1' ? playerApiIssues(state) : []
+  const api = ctx.api === 'player-v1' ? playerApiIssues(state, ctx.language) : []
   const apiLines = new Set(api.map((issue) => issue.line))
   const filteredParse = api.length
     ? parse.filter((issue) => !(issue.incomplete && apiLines.has(issue.line)))

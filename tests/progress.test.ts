@@ -12,7 +12,7 @@ vi.mock('electron', () => ({
     setPath: () => undefined,
     isPackaged: false,
     getAppPath: () => process.cwd(),
-    getVersion: () => '0.3.3'
+    getVersion: () => '0.2.0'
   }
 }))
 
@@ -101,5 +101,24 @@ describe('best and ledger rules', () => {
     ev = resetProgress(learner.id, 'p', 'lesson', 'delete-last', { lessonId: 'l' }, 1) as LessonEvidence
     expect(ev.grades.some((g) => g.attemptId === 'g2')).toBe(false)
     expect(ev.best?.attemptId).not.toBe('g2')
+  })
+})
+
+describe('learner drafts', () => {
+  it('saves, restores, and clears per lesson', async () => {
+    const { resetSettingsCache } = await import('@main/settings/store')
+    const { ensureDefaultLearner } = await import('@main/learners/store')
+    const { saveDraft, loadDraft, clearDraft } = await import('@main/progress/drafts')
+    const { resetProgress } = await import('@main/progress/store')
+    resetSettingsCache()
+    const learner = ensureDefaultLearner()
+    saveDraft(learner.id, 'pack.a', 'lesson-1', [{ path: 'files/main.js', contents: 'Player.move("east")' }])
+    expect(loadDraft(learner.id, 'pack.a', 'lesson-1').files[0]?.contents).toContain('east')
+    expect(loadDraft(learner.id, 'pack.a', 'lesson-2').files).toEqual([])
+    resetProgress(learner.id, 'pack.a', 'lesson', 'keep', { lessonId: 'lesson-1' }, 1)
+    expect(loadDraft(learner.id, 'pack.a', 'lesson-1').files).toEqual([])
+    saveDraft(learner.id, 'pack.a', 'lesson-1', [{ path: 'files/main.js', contents: 'x' }])
+    clearDraft(learner.id, 'pack.a', 'lesson-1')
+    expect(loadDraft(learner.id, 'pack.a', 'lesson-1').files).toEqual([])
   })
 })

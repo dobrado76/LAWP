@@ -2,7 +2,7 @@
 
 Standalone **Electron + React** desktop app. Clear process boundaries; **no Node APIs in the renderer**.
 
-This document is self-contained. Implement from here, not from any other repository.
+This document is self-contained. There is no parent repository.
 
 ## Process model
 
@@ -29,7 +29,7 @@ Main (settings, session, packs, progress, runners, window state)
 | Window bounds | Main `windowState` |
 | Session (last lesson, splits, buffers) | Main `session` |
 
-## Repository layout (target)
+## Repository layout
 
 ```
 src/
@@ -45,7 +45,7 @@ src/
 │  ├─ author/               templates, validate, optional draft
 │  ├─ learners/
 │  ├─ progress/             log + evidence + snapshots under learners/<id>/
-│  ├─ runners/              python.ts, javascript.ts, react.ts
+│  ├─ runners/              code spawn (Python / Node) + trust
 │  ├─ security/             path + spawn guards
 │  └─ logging/
 ├─ preload/                 window.lawp
@@ -83,9 +83,9 @@ Codes: `validation`, `not-found`, `timeout`, `runtime-missing`, `sandbox`, `canc
 
 `%APPDATA%\LAWP`
 
-Implementation sketch:
+Main pins the path before anything else touches disk:
 
-1. Very first lines of main: `configureUserData()`
+1. First lines of main: `configureUserData()`
 2. `app.getPath('appData')` + folder name `LAWP` (not `Electron`, not `lawp` lowercase unless you set it once and never change)
 3. `app.setPath('userData', resolved)` **before** `app.ready` stores, `singleInstanceLock`, or `BrowserWindow`
 4. Env:

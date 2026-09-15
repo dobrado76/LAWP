@@ -25,7 +25,7 @@ Change only with an explicit amendment. Prefer editing this table over silent dr
 | D19 | Play XP cannot be farmed (caps). **No XP tax on conceptual hints.** Tax or withhold mastery credit only for assist/reveal | Play serves learning; asking “why” is not a cheat |
 | D20 | `productName` / AppUserModelID **LAWP**; custom **icon** for window, taskbar, installer | Not the Electron atom |
 | D21 | TypeScript project is **three configs**, self-contained, **no** `@electron-toolkit/tsconfig` extends (that package missing = red files in the tree) | Clean IDE on a fresh clone |
-| D22 | electron-vite + electron-builder; `npm run dist` emits `release/` | Familiar scripts |
+| D22 | electron-vite + electron-builder; `npm run dist` bumps **PATCH** then emits `release/`. `npm run dist:nobump` emits without changing the version | Familiar scripts; every shipped build is a new patch |
 | D23 | Optional OpenAI-compatible **Author draft** (and later tutor): keys in `safeStorage`, never sent pack paths automatically. Not required to learn | Privacy; AI stays out of the learner loop |
 | D24 | Pack answers may live on disk (local-first). “Exam mode” if ever added still grades in main | Honest about local apps |
 | D25 | **Each lesson is its own folder** (`lesson.json` + `files/` + `assets/`). Each subject-matter is a pack folder that only *lists* those lessons. No `body.md` sidecar; prose lives in JSON strings | Install, zip, and share one unit without hunting the repo |

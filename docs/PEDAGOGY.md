@@ -2,7 +2,7 @@
 
 LAWP teaches through **playable practice with mastery evidence**. Fun is a consequence of clear goals, fast cycles, and visible skill — not of slot-machine rewards.
 
-## Learning science to implement (practical, not academic cosplay)
+## Learning science in the product (practical, not academic cosplay)
 
 | Idea | In product |
 | --- | --- |

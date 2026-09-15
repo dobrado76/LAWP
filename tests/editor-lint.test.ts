@@ -89,6 +89,13 @@ describe('player-v1 diagnostics', () => {
     expect(issues[0]?.message).toMatch(/north/)
     expect(issues[0]?.message).toMatch(/south/)
   })
+
+  it('ignores Player calls inside comments and strings', () => {
+    const commented = collectIssues(js('Player.move("south")\n// Player.jump()\n'), ctx)
+    expect(commented.some((i) => /jump/.test(i.message))).toBe(false)
+    const quoted = collectIssues(js('const s = "Player.jump()"\nPlayer.move("east")\n'), ctx)
+    expect(quoted.some((i) => /jump/.test(i.message))).toBe(false)
+  })
 })
 
 describe('player-v1 completions', () => {

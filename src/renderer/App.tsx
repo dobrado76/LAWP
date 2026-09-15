@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { IPC, invoke } from './api'
+import { ReleaseNotes } from './components/ReleaseNotes'
 import { Home } from './screens/Home'
 import { Library } from './screens/Library'
 import { Studio } from './screens/Studio'
@@ -14,6 +15,8 @@ export function App() {
   const [packId, setPackId] = useState<string>()
   const [lessonId, setLessonId] = useState<string>()
   const [info, setInfo] = useState<{ userDataPath?: string; version?: string }>({})
+  const [notes, setNotes] = useState<{ version: string; minor: string; markdown: string } | null>(null)
+  const [showNotes, setShowNotes] = useState(false)
 
   useEffect(() => {
     void invoke<{ userDataPath: string; version: string }>(IPC.appInfo).then(setInfo)
@@ -22,7 +25,17 @@ export function App() {
       if (s.packId) setPackId(s.packId)
       if (s.lessonId) setLessonId(s.lessonId)
     })
+    void invoke<{ version: string; minor: string; markdown: string; unseen: boolean }>(IPC.appReleaseNotes).then((r) => {
+      if (!r.markdown) return
+      setNotes({ version: r.version, minor: r.minor, markdown: r.markdown })
+      if (r.unseen) setShowNotes(true)
+    })
   }, [])
+
+  function dismissNotes() {
+    setShowNotes(false)
+    if (notes) void invoke(IPC.sessionSet, { lastReleaseNotesMinor: notes.minor })
+  }
 
   function go(next: Route, extra?: { packId?: string; lessonId?: string }) {
     setRoute(next)
@@ -40,7 +53,9 @@ export function App() {
           </button>
         ))}
         <div className="spacer" />
-        <span className="hud">LAWP {info.version}</span>
+        <button type="button" className="hud notes-launch" onClick={() => notes && setShowNotes(true)}>
+          LAWP {info.version}
+        </button>
       </nav>
       {route === 'home' && <Home onOpen={(p, l) => go('studio', { packId: p, lessonId: l })} />}
       {route === 'library' && <Library onOpen={(p, l) => go('studio', { packId: p, lessonId: l })} />}
@@ -53,8 +68,9 @@ export function App() {
         </div>
       )}
       {route === 'author' && <Author />}
-      {route === 'settings' && <Settings userDataPath={info.userDataPath ?? ''} />}
+      {route === 'settings' && <Settings userDataPath={info.userDataPath ?? ''} version={info.version} />}
       {route === 'practice' && <Practice onOpen={(p, l) => go('studio', { packId: p, lessonId: l })} />}
+      {showNotes && notes ? <ReleaseNotes notes={notes} onDismiss={dismissNotes} /> : null}
     </div>
   )
 }

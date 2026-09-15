@@ -39,6 +39,14 @@ export function playStubsRoot(): string {
   return join(playRoot(), 'stubs')
 }
 
+export function releaseNotesPath(): string {
+  if (app.isPackaged) {
+    const packed = join(process.resourcesPath, 'RELEASE_NOTES.md')
+    if (existsSync(packed)) return packed
+  }
+  return join(app.getAppPath(), 'RELEASE_NOTES.md')
+}
+
 export function iconPath(): string {
   const ico = join(app.getAppPath(), 'build', 'icon.ico')
   const png = join(app.getAppPath(), 'build', 'icon.png')

@@ -714,7 +714,7 @@ Restarting Alice never touches Bob. A run started as Alice still **writes as Ali
 
 ## Authoring workbench (in-app)
 
-Not a deferred “full CMS.” v1 ships a **lightweight workbench**:
+A **lightweight workbench** (not a full CMS):
 
 1. Create a lesson from a **template** (`resources/templates/<templateId>.json`)
 2. Edit prompts, answers, hints, assets, `world-v1`, misconception links

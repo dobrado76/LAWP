@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { IPC, invoke } from '../api'
 import type { Settings } from '@shared/schemas/settings'
 
-export function Settings({ userDataPath }: { userDataPath: string }) {
+export function Settings({ userDataPath, version }: { userDataPath: string; version?: string }) {
   const [s, setS] = useState<Settings | null>(null)
   const [learners, setLearners] = useState<{ id: string; displayName: string }[]>([])
   const [name, setName] = useState('')
@@ -20,7 +20,7 @@ export function Settings({ userDataPath }: { userDataPath: string }) {
   return (
     <div className="page">
       <h1>Settings</h1>
-      <p className="muted">About · userData (dev and installed must match)</p>
+      <p className="muted">About · LAWP {version ?? ''} · userData (dev and installed must match)</p>
       <pre>{userDataPath}</pre>
       <label>Theme</label>
       <select

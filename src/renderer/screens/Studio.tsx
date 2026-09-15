@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { applyPlayCommands, facingName, propertyHolds, type PlayCommand, type PlayProp } from '@shared/play'
 import { IPC, invoke } from '../api'
 import { CodeEditor } from '../editor/CodeEditor'
+import { md } from '../md'
 
 type Block = Record<string, unknown> & { type: string; id?: string; md?: string; promptMd?: string }
 type LessonSum = { id: string; title: string }
@@ -43,6 +44,9 @@ export function Studio({
   const [files, setFiles] = useState<{ path: string; contents: string }[]>([])
   const [output, setOutput] = useState('')
   const [banner, setBanner] = useState<{ kind: 'success' | 'fail'; title: string } | null>(null)
+  const [draftReady, setDraftReady] = useState(false)
+  const workGen = useRef(0)
+  const runIdRef = useRef<string | undefined>(undefined)
 
   const lessonOrder = useMemo(() => {
     const fromCourse = tree?.courses.flatMap((c) => c.modules.flatMap((m) => m.lessonIds)) ?? []
@@ -54,40 +58,65 @@ export function Studio({
   const nextId = idx >= 0 && idx < lessonOrder.length - 1 ? lessonOrder[idx + 1] : undefined
   const lessonTitle = (id: string) => tree?.lessons.find((l) => l.id === id)?.title ?? id
 
-  async function load() {
+  function stillHere(gen: number) {
+    return workGen.current === gen
+  }
+
+  async function load(gen = workGen.current) {
+    setDraftReady(false)
     const l = await invoke<{ title: string; blocks: Block[]; creation?: { id: string } }>(IPC.packsLesson, { packId, lessonId })
+    if (!stillHere(gen)) return
     setLesson(l)
-    setTree(await invoke(IPC.packsGet, { packId }))
+    const packed = await invoke<{
+      lessons: LessonSum[]
+      courses: { modules: { lessonIds: string[] }[] }[]
+      misconceptions: { id: string; title: string }[]
+    }>(IPC.packsGet, { packId })
+    if (!stillHere(gen)) return
+    setTree(packed)
     const ev = await invoke<{ lessons: Record<string, { status: string; best?: { score: number; assisted: boolean } }> }>(
       IPC.progressGet,
       { packId }
     )
+    if (!stillHere(gen)) return
     const e = ev.lessons[lessonId]
     setEvidence(e ? `${e.status}${e.best ? ` · best ${Math.round(e.best.score * 100)}%` : ''}` : '')
     const act = l.blocks.find((b) => b.type === 'activity')
-    const code = l.blocks.find((b) => b.type === 'code' || b.type === 'debug')
-    const startId = act?.id ?? code?.id ?? l.blocks.find((b) => b.id)?.id
+    const codeBlock = l.blocks.find((b) => b.type === 'code' || b.type === 'debug')
+    const startId = act?.id ?? codeBlock?.id ?? l.blocks.find((b) => b.id)?.id
     if (startId) {
       const started = await invoke<{ runId: string; world?: World }>(IPC.runStart, {
         packId,
         lessonId,
         blockId: startId
       })
+      if (!stillHere(gen)) return
       setRunId(started.runId)
+      runIdRef.current = started.runId
       setWorld(started.world ?? null)
       setStartWorld(started.world ?? null)
     } else {
       setRunId(undefined)
+      runIdRef.current = undefined
       setWorld(null)
       setStartWorld(null)
     }
-    if (code && Array.isArray(code.files)) {
-      setFiles(
-        (code.files as { path: string; role: string; contents?: string }[])
-          .filter((f) => f.role === 'edit')
-          .map((f) => ({ path: f.path, contents: f.contents ?? '' }))
-      )
-    } else setFiles([])
+    const starters =
+      codeBlock && Array.isArray(codeBlock.files)
+        ? (codeBlock.files as { path: string; role: string; contents?: string }[])
+            .filter((f) => f.role === 'edit')
+            .map((f) => ({ path: f.path, contents: f.contents ?? '' }))
+        : []
+    let nextFiles = starters
+    if (starters.length) {
+      const draft = await invoke<{ files: { path: string; contents: string }[] }>(IPC.draftsGet, { packId, lessonId })
+      if (!stillHere(gen)) return
+      if (draft.files.length) {
+        nextFiles = starters.map((f) => draft.files.find((d) => d.path === f.path) ?? f)
+      }
+    }
+    if (!stillHere(gen)) return
+    setFiles(nextFiles)
     setOutput('')
     setHint('')
     setHintLevel(0)
@@ -97,12 +126,30 @@ export function Studio({
     setCheckAns('')
     setWhy('')
     setBanner(null)
+    setDraftReady(true)
   }
 
   useEffect(() => {
-    void load()
+    const gen = ++workGen.current
+    replayGen.current += 1
+    setDraftReady(false)
+    void load(gen)
+    return () => {
+      workGen.current += 1
+      replayGen.current += 1
+      const id = runIdRef.current
+      if (id) void invoke(IPC.runCancel, { runId: id }).catch(() => undefined)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [packId, lessonId])
+
+  useEffect(() => {
+    if (!draftReady || !files.length) return
+    const t = setTimeout(() => {
+      void invoke(IPC.draftsSave, { packId, lessonId, files }).catch(() => undefined)
+    }, 400)
+    return () => clearTimeout(t)
+  }, [files, draftReady, packId, lessonId])
 
   const activity = lesson?.blocks.find((b) => b.type === 'activity') as
     | (Block & {
@@ -139,6 +186,7 @@ export function Studio({
 
   async function act(actionId: string, value?: string | number) {
     if (!runId) return
+    const gen = workGen.current
     const r = await invoke<{
       world: typeof world
       goalMet: boolean
@@ -146,6 +194,7 @@ export function Studio({
       calcFault: string | null
       misconceptionIds: string[]
     }>(IPC.runActivity, { runId, actionId, payload: value !== undefined ? { value } : undefined })
+    if (!stillHere(gen)) return
     setWorld(r.world)
     const names = r.misconceptionIds.map((id) => tree?.misconceptions.find((m) => m.id === id)?.title ?? id).join(', ')
     setWhy(
@@ -163,6 +212,7 @@ export function Studio({
 
   async function checkActivity() {
     if (!runId || !activity?.id) return
+    const gen = workGen.current
     if (activity.predict && !predict) {
       setStatus('Predict first')
       setWhy('Answer the predict question on the left, then change the circuit.')
@@ -172,6 +222,7 @@ export function Studio({
       passed: boolean
       compare?: { current?: { score: number }; previous?: { score: number }; best?: { score: number; assisted: boolean } }
     }>(IPC.gradeBlock, { runId, packId, lessonId, blockId: activity.id })
+    if (!stillHere(gen)) return
     const c = r.compare
     setCompare(
       c
@@ -186,6 +237,7 @@ export function Studio({
   async function askHint() {
     const blockId = activity?.id ?? code?.id ?? checks[0]?.id
     if (!runId || !blockId) return
+    const gen = workGen.current
     const next = Math.min(5, hintLevel + 1)
     const h = await invoke<{ md: string; kind: string }>(IPC.hintGet, {
       runId,
@@ -194,13 +246,17 @@ export function Studio({
       blockId,
       level: next
     })
+    if (!stillHere(gen)) return
     setHintLevel(next)
     setHint(`### Hint ${next}\n\n${h.md}`)
   }
 
   async function gradeCheck(block: Block) {
+    const gen = workGen.current
     const id = runId ?? (await invoke<{ runId: string }>(IPC.runStart, { packId, lessonId, blockId: block.id })).runId
+    if (!stillHere(gen)) return
     setRunId(id)
+    runIdRef.current = id
     const r = await invoke<{ passed: boolean; misconceptionIds?: string[] }>(IPC.gradeBlock, {
       runId: id,
       packId,
@@ -208,10 +264,20 @@ export function Studio({
       blockId: block.id,
       answers: checkAns
     })
+    if (!stillHere(gen)) return
     setStatus(r.passed ? 'Correct' : 'Not quite')
     const names = (r.misconceptionIds ?? []).map((i) => tree?.misconceptions.find((m) => m.id === i)?.title ?? i)
     setWhy(names.join(', ') || (r.passed ? String(block.explainMd ?? 'Yes.') : 'Try again.'))
     setBanner({ kind: r.passed ? 'success' : 'fail', title: r.passed ? 'SUCCESS' : 'FAIL' })
+  }
+
+  function formatRunOutput(r: { stdout?: string; stderr?: string; timedOut?: boolean; exitCode?: number }) {
+    const parts: string[] = []
+    if (r.stdout?.trim()) parts.push(r.stdout.replace(/\s+$/, ''))
+    if (r.stderr?.trim()) parts.push(r.stderr.replace(/\s+$/, ''))
+    if (r.exitCode !== undefined && r.exitCode !== 0) parts.push(`(exit ${r.exitCode})`)
+    if (r.timedOut) parts.push('(timed out)')
+    return parts.join('\n')
   }
 
   async function showPlayResult(r: {
@@ -221,11 +287,12 @@ export function Studio({
     stdout?: string
     stderr?: string
     timedOut?: boolean
+    exitCode?: number
     passed?: boolean
     goalMet?: boolean
   }) {
     setBanner(null)
-    setOutput((r.stdout || r.stderr || '') + (r.timedOut ? '\n(timed out)' : ''))
+    setOutput(formatRunOutput(r))
     const gen = ++replayGen.current
     const origin = startWorld ?? code?.play?.world ?? null
     if (origin && r.commands?.length) {
@@ -236,6 +303,10 @@ export function Studio({
     if (replayGen.current === gen && r.world) setWorld(r.world)
     if (r.playFault) {
       setWhy(r.playFault)
+      setBanner({ kind: 'fail', title: 'FAIL' })
+    } else if (r.exitCode !== undefined && r.exitCode !== 0) {
+      const crash = r.stderr?.trim().split('\n').find((line) => line.trim()) ?? 'The program stopped with an error. Read the output.'
+      setWhy(crash)
       setBanner({ kind: 'fail', title: 'FAIL' })
     } else if (r.passed) {
       setWhy('')
@@ -248,11 +319,13 @@ export function Studio({
 
   async function runCode() {
     if (!runId || !code?.id) return
+    const gen = workGen.current
     try {
       const r = await invoke<{
         stdout: string
         stderr: string
         timedOut: boolean
+        exitCode?: number
         world?: World
         commands?: PlayCmd[]
         playFault?: string | null
@@ -265,26 +338,45 @@ export function Studio({
         blockId: code.id,
         files
       })
+      if (!stillHere(gen)) return
       await showPlayResult(r)
-      if (code.play) setStatus(r.playFault ? 'Fault' : r.passed ? 'On the beacon' : r.goalMet ? 'Ready to check' : '')
+      if (!stillHere(gen)) return
+      if (code.play) {
+        setStatus(
+          r.playFault
+            ? 'Fault'
+            : r.exitCode && r.exitCode !== 0
+              ? 'Crashed'
+              : r.passed
+                ? 'On the beacon'
+                : r.goalMet
+                  ? 'Ready to check'
+                  : ''
+        )
+      }
     } catch (e) {
+      if (!stillHere(gen)) return
       setStatus((e as Error).message)
     }
   }
 
   async function gradeCode() {
     if (!runId || !code?.id) return
+    const gen = workGen.current
     const r = await invoke<{
       passed: boolean
       stdout?: string
       stderr?: string
+      exitCode?: number
       world?: World
       commands?: PlayCmd[]
       playFault?: string | null
       goalMet?: boolean
       compare?: { current?: { score: number }; previous?: { score: number }; best?: { score: number } }
     }>(IPC.gradeBlock, { runId, packId, lessonId, blockId: code.id, files })
+    if (!stillHere(gen)) return
     await showPlayResult(r)
+    if (!stillHere(gen)) return
     setStatus(r.passed ? 'Passed' : 'Not yet')
     const c = r.compare
     setCompare(
@@ -338,7 +430,14 @@ export function Studio({
       )}
       <button
         className="btn"
-        onClick={() => void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'keep', lessonId }).then(load)}
+        onClick={() => {
+          workGen.current += 1
+          replayGen.current += 1
+          const id = runIdRef.current
+          if (id) void invoke(IPC.runCancel, { runId: id }).catch(() => undefined)
+          const gen = workGen.current
+          void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'keep', lessonId }).then(() => load(gen))
+        }}
       >
         Restart
       </button>
@@ -465,7 +564,7 @@ export function Studio({
               }}
             />
           ))}
-          {output && !isGrid ? <pre className="output">{output}</pre> : null}
+          {output ? <pre className="output">{output}</pre> : null}
           {!playable && nextId && (
             <div className="empty-work">
               <p>Read the idea on the left. Then continue.</p>
@@ -719,64 +818,4 @@ function GridStage({
       </div>
     </div>
   )
-}
-
-function md(s: string): string {
-  const inline = (t: string) =>
-    t
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-  const out: string[] = []
-  let list: 'ul' | 'ol' | null = null
-  const close = () => {
-    if (list) {
-      out.push(`</${list}>`)
-      list = null
-    }
-  }
-  for (const line of s.replaceAll('\r\n', '\n').split('\n')) {
-    const heading = line.match(/^(#{1,3})\s+(.+)$/)
-    if (heading) {
-      close()
-      const n = heading[1]!.length
-      out.push(`<h${n}>${inline(heading[2]!)}</h${n}>`)
-      continue
-    }
-    const quote = line.match(/^>\s?(.*)$/)
-    if (quote) {
-      close()
-      out.push(`<blockquote>${inline(quote[1]!)}</blockquote>`)
-      continue
-    }
-    const ul = line.match(/^[-*]\s+(.+)$/)
-    if (ul) {
-      if (list !== 'ul') {
-        close()
-        out.push('<ul>')
-        list = 'ul'
-      }
-      out.push(`<li>${inline(ul[1]!)}</li>`)
-      continue
-    }
-    const ol = line.match(/^\d+\.\s+(.+)$/)
-    if (ol) {
-      if (list !== 'ol') {
-        close()
-        out.push('<ol>')
-        list = 'ol'
-      }
-      out.push(`<li>${inline(ol[1]!)}</li>`)
-      continue
-    }
-    if (line.trim() === '') {
-      close()
-      continue
-    }
-    close()
-    out.push(`<p>${inline(line)}</p>`)
-  }
-  close()
-  return out.join('')
 }

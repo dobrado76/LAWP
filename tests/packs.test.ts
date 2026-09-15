@@ -14,7 +14,7 @@ vi.mock('electron', () => ({
     setPath: () => undefined,
     isPackaged: false,
     getAppPath: () => process.cwd(),
-    getVersion: () => '0.3.3'
+    getVersion: () => '0.2.0'
   }
 }))
 

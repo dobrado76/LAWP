@@ -10,7 +10,8 @@ This repo is **LAWP** (Learn Anything While Playing) — a standalone Windows El
 ## Isolation
 
 - Do **not** import, copy from, or depend on any other application repo.
-- Specs live in `docs/`. Implement against those files. Update `docs/DECISIONS.md` when behavior is locked.
+- Specs live in `docs/`. Match those files. Update `docs/DECISIONS.md` when behavior is locked.
+- Append notable work to `CHANGELOG.md`. A **MINOR** version bump also rewrites `RELEASE_NOTES.md` (delta since last minor). `npm run dist` bumps PATCH; `npm run dist:nobump` does not.
 
 ## Architecture
 
@@ -32,7 +33,7 @@ This repo is **LAWP** (Learn Anything While Playing) — a standalone Windows El
 - Progress: bounded activity log + durable evidence + snapshots under `userData/learners/<id>/`. Restart keeps history.
 - Why panel + misconceptions; conceptual hints free; imported code packs untrusted until allowed.
 - Original lessons only. Do not scrape or reproduce Codefinity materials.
-- First demo: circuits 20-minute spike; then Python, JavaScript, React.
+- Bundled demos: circuits, then Python, JavaScript, React.
 
 ## Settings
 

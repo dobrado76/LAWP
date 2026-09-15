@@ -7,6 +7,8 @@ export type Session = {
   packId?: string
   lessonId?: string
   splits?: { toc: number; studio: number }
+  /** Last `MAJOR.MINOR` whose release notes the user dismissed. */
+  lastReleaseNotesMinor?: string
 }
 
 const defaults: Session = { route: 'home' }

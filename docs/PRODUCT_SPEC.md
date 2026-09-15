@@ -2,7 +2,7 @@
 
 **App:** LAWP (Learn Anything While Playing)  
 **Platform:** Windows-first Electron desktop  
-**Version of this spec:** 0.3.3 (reference activity + resolved setup export + atomic lessons)
+**App / spec version:** 0.2.0 (`MAJOR.MINOR.PATCH` in `package.json`)
 
 ## Problem
 
@@ -138,16 +138,14 @@ Better than Codefinity:
 - A general physics engine or treating imported executable packs as safe without an explicit trust step
 - Scrape or reproduce Codefinity course text, videos, or tasks (original curricula)
 
-## Success criteria (v1 demo)
-
-A new user can, without an account:
+## What a new user can do (no account)
 
 1. Launch, see the last window size/position/maximized state
 2. Finish the **~20 minute circuits** session: experiment, Why after a miss, transfer, keep/export a creation
 3. Author (or load) that lesson from a template, validate, export zip, play the zip
 4. Continue a Python lesson, fail, see a misconception or diagnostic, pass independently
-5. Skip a JS chapter via diagnostic; play a `world-v1` grid level
-6. Grow a React creation across lessons and export it
+5. Play a JavaScript `world-v1` grid lesson (fox / beacon)
+6. Open the React pack (lessons run as Node today; iframe preview is a current limit — [STATUS.md](STATUS.md))
 7. Close, reopen via `npm run dev` **or** the installed build, same `%APPDATA%\LAWP` (settings, packs, progress, window)
 8. Run `npm run dist` / reinstall: settings and previously installed cartridges still there
 9. Export setup, import on a second machine (or after confirm-merge): same prefs and user library

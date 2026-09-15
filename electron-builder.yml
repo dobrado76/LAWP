@@ -19,6 +19,8 @@ extraResources:
     to: play
     filter:
       - "**/*"
+  - from: RELEASE_NOTES.md
+    to: RELEASE_NOTES.md
 win:
   icon: build/icon.png
   target:

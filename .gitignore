@@ -8,3 +8,4 @@ out/types-web/
 *.log
 .DS_Store
 Thumbs.db
+/LAWP.code-workspace

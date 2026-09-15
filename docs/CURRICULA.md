@@ -1,6 +1,6 @@
 # Demonstration curricula
 
-v1 ships **four original tracks**. The first is **not** programming: it proves the teaching loop and `world-v1` before Python/JS/React exist. Depth over breadth. Do **not** clone Codefinity chapter titles or exercises.
+**Four original tracks.** The first is **not** programming: circuits prove the teaching loop and `world-v1`. Depth over breadth. Do **not** clone Codefinity chapter titles or exercises.
 
 Estimated hours are learner-facing ranges, not marketing.
 
@@ -16,7 +16,7 @@ Estimated hours are learner-facing ranges, not marketing.
 
 Predict how a simple series circuit behaves. Change it, **see** the lamp, explain why. Keep a circuit as a creation and export it.
 
-### The 20-minute spike (implement first)
+### The 20-minute session
 
 | Beat | Block | Notes |
 | --- | --- | --- |
@@ -90,9 +90,9 @@ Project: clean a messy names list (fixtures in pack).
 Modules as files; simple classes (when state is natural); when *not* to use classes.  
 Project: text adventure (rooms dict, parser). Mastery = new room added by learner without breaking tests.
 
-### Out of v1 Python (leave as pack TODOs)
+### Not in this Python pack
 
-NumPy/pandas/ML. Mention in Library as “future pack”, do not stub empty courses.
+NumPy / pandas / ML. Do not stub empty courses for them.
 
 ### Runtime notes
 
@@ -201,10 +201,9 @@ Each course has:
 - Authored misconceptions on common wrong answers
 - Original prose at ~grade-8 clarity, no slang walls, no hustle-bro copy
 
-## Authoring order when implementing
+## Pack order (as shipped)
 
-1. **Circuits 20-minute spike** + Author template/export round-trip (prove “anything” + playable subject)
-2. Python Course 1 (prove a code engine on the same Why / progress / creation shells)
-3. JS Course 1 + `world-v1` grid view
-4. React Course 1 as a continuing creation
-5. Fill remaining courses behind the same shells
+1. **Circuits** — playable non-code + Author zip round-trip
+2. **Python Course 1** — same Why / progress / creation shells
+3. **JavaScript** — values, functions, `world-v1` grid
+4. **React** — continuing creation (preview is still Node-backed; see [STATUS.md](STATUS.md))

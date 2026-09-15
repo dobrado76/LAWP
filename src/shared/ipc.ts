@@ -20,6 +20,9 @@ export const IPC = {
   progressSnapshot: 'progress:snapshot',
   progressNote: 'progress:note',
   progressReset: 'progress:reset',
+  draftsGet: 'drafts:get',
+  draftsSave: 'drafts:save',
+  draftsClear: 'drafts:clear',
   practiceNext: 'practice:next',
   runStart: 'run:start',
   runCode: 'run:code',
@@ -39,6 +42,7 @@ export const IPC = {
   creationExport: 'creation:export',
   trustGrant: 'trust:grant',
   appInfo: 'app:info',
+  appReleaseNotes: 'app:releaseNotes',
   runOutput: 'run:output',
   progressChanged: 'progress:changed'
 } as const

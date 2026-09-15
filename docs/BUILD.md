@@ -1,20 +1,27 @@
 # Build, profile, icons, TypeScript
 
-## Scripts (target)
+## Scripts
 
 ```json
 {
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "dist": "electron-vite build && electron-builder --win --config electron-builder.yml --publish never",
+    "dist": "node scripts/bump-patch.mjs && electron-vite build && electron-builder …",
+    "dist:nobump": "electron-vite build && electron-builder …",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run"
   }
 }
 ```
 
+App version is `package.json` `version` (`MAJOR.MINOR.PATCH`). `npm run dist` **increments PATCH** (and the matching `package-lock.json` root fields) then builds. `npm run dist:nobump` builds without changing the version. Bump **MINOR** yourself for user-visible capability and rewrite [RELEASE_NOTES.md](../RELEASE_NOTES.md); the app shows that file once. `electron-builder` artifacts use `${version}`.
+
 Put installers and unpackaged output in **`release/`** (gitignored). `npm run dist` **must** use the same `%APPDATA%\LAWP` as `npm run dev`. The installer must **not** write into AppData, seed or overwrite `packs/`, or reset `settings.json`.
+
+## GitHub Release (tags only)
+
+[`.github/workflows/build-windows.yml`](../.github/workflows/build-windows.yml) runs on `v*` tags (and optional `workflow_dispatch` for check-only). It typechecks, tests, then `npm run dist:nobump` and attaches `release/LAWP-*.exe` to the GitHub Release. It does **not** upload workflow artifacts. Push a tag that matches `package.json` (for example `v0.2.0`).
 
 ## Shared AppData (required)
 
@@ -66,7 +73,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md). File: `userData/window-state.json`.
 
 Source art: `build/icon.png` (1024-class square, no wordmark).
 
-On scaffold:
+Icon pipeline:
 
 1. Keep `build/icon.png` as the master
 2. `npm run icons` (sharp or `@electron/packager` icon-gen) → `build/icon.ico` (256/128/64/48/32/16)
@@ -89,14 +96,14 @@ Cursor/VS Code lists every `tsconfig*.json` as a project. Red badges appear when
 - Root `tsconfig.json` is **only** `{ "files": [], "references": [ { "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" } ] }`
 - **Do not `extends` any npm package.** Inline `compilerOptions`.
 - Do **not** set `baseUrl` (deprecated in TypeScript 6; `paths` work without it). This is what turns those two files red in the explorer.
-- Until `npm install`, use `"types": []` or omit `types` (do **not** require `@types/node` in the JSON or the file shows as error on a spec-only open)
-- After scaffold + install, you may set `"types": ["node"]` on the **node** config only
+- Until `npm install`, use `"types": []` or omit `types` (do **not** require `@types/node` in the JSON or the file shows as error on a cold open)
+- After install, `"types": ["node"]` on the **node** config only
 - `skipLibCheck`: true
-- `include` must list files that **exist** (stubs shipped in this bootstrap)
+- `include` must list files that **exist**
 - `noEmit`: true for day-to-day IDE (emit is electron-vite’s job). If you use `composite: true` for references, set `outDir` under `out/types-node` and `out/types-web` (gitignored) so TS can emit `.d.ts` when `tsc -b` runs — or skip composite and drop `references` if the IDE still complains. **Preferred v1:** composite + outDir + existing stubs.
 - Do not add a fourth `tsconfig.eslint.json` unless include is valid
 
-This bootstrap already contains the three JSON files plus stub `.ts` so opening the folder **before** implementation does not mark those configs as broken.
+The three JSON files plus stub `.ts` stay valid in the IDE before `npm install`.
 
 ## electron.vite.config.ts
 
@@ -106,7 +113,7 @@ Aliases: `@shared`, `@renderer` matching tsconfig `paths`.
 
 ## Node / Electron versions
 
-Pin Electron to a current stable at scaffold time; Node types aligned with Electron’s Node. `engines` field optional.
+Electron is pinned in `package.json`. Node types match Electron’s Node. `engines` is optional.
 
 ## Tests
 

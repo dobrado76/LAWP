@@ -7,7 +7,8 @@ import { err, ok, type Result } from '@shared/result'
 import { settingsSchema } from '@shared/schemas/settings'
 import { activityBlockSchema, executableBlockSchema, lessonSchema } from '@shared/schemas/lesson'
 import { app } from 'electron'
-import { iconPath, userDataRoot, userPacksRoot } from '../paths'
+import { iconPath, releaseNotesPath, userDataRoot, userPacksRoot } from '../paths'
+import { extractMinorNotes, minorKey } from '@shared/versioning'
 import { exportSettingsDocument, grantTrust, hasTrust, loadSettings, updateSettings } from '../settings/store'
 import { loadSession, saveSession } from '../session/store'
 import {
@@ -32,6 +33,7 @@ import {
   resetProgress,
   saveCreation
 } from '../progress/store'
+import { clearDraft, loadDraft, saveDraft } from '../progress/drafts'
 import { applyActivity, cancelRun, getRun, gradeRunActivity, noteHint, recordPlay, startRunRecord } from '../activities/runs'
 import { evalProperty } from '../activities/world'
 import { listTemplates, createFromTemplate } from '../author/templates'
@@ -60,6 +62,19 @@ export function registerIpc(): void {
       isPackaged: app.isPackaged,
       icon: iconPath()
     }))
+  )
+  ipcMain.handle(IPC.appReleaseNotes, () =>
+    wrap(() => {
+      const version = app.getVersion()
+      const minor = minorKey(version)
+      const seen = loadSession().lastReleaseNotesMinor
+      let markdown = ''
+      const path = releaseNotesPath()
+      if (existsSync(path)) {
+        markdown = extractMinorNotes(readFileSync(path, 'utf8'), version)
+      }
+      return { version, minor, markdown, unseen: Boolean(markdown) && seen !== minor }
+    })
   )
 
   ipcMain.handle(IPC.settingsGet, () => wrap(() => loadSettings()))
@@ -317,6 +332,21 @@ export function registerIpc(): void {
       })
   )
 
+  ipcMain.handle(IPC.draftsGet, (_e, input: { packId: string; lessonId: string }) =>
+    wrap(() => loadDraft(currentLearnerId(), input.packId, input.lessonId))
+  )
+  ipcMain.handle(
+    IPC.draftsSave,
+    (_e, input: { packId: string; lessonId: string; files: { path: string; contents: string }[] }) =>
+      wrap(() => saveDraft(currentLearnerId(), input.packId, input.lessonId, input.files ?? []))
+  )
+  ipcMain.handle(IPC.draftsClear, (_e, input: { packId: string; lessonId: string }) =>
+    wrap(() => {
+      clearDraft(currentLearnerId(), input.packId, input.lessonId)
+      return { ok: true }
+    })
+  )
+
   ipcMain.handle(IPC.practiceNext, () =>
     wrap(() => {
       const items: { packId: string; lessonId: string; reason: string }[] = []
@@ -541,6 +571,7 @@ export function registerIpc(): void {
             playFault: out.play?.fault ?? null,
             goalMet: out.play?.goalMet,
             constraintOk: out.play?.constraintOk,
+            exitCode: out.exitCode,
             compare: { current: ev.grades.at(-1), previous: ev.grades.at(-2), best: ev.best },
             misconceptionIds,
             snapshotId: attemptId

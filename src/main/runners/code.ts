@@ -158,7 +158,8 @@ export async function executeCodeBlock(
       scaleValues: play.scaleValues
     })
   }
-  const passed = (playOut ? playOut.passed : checks.every((c) => c.ok)) && !result.timedOut
+  const processOk = result.exitCode === 0 && !result.timedOut
+  const passed = (playOut ? playOut.passed : checks.every((c) => c.ok)) && processOk
   return { ...result, checks, passed, play: playOut }
 }
 

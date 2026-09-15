@@ -11,6 +11,7 @@ import {
   type LessonEvidence
 } from '@shared/schemas/progress'
 import { learnerDir } from '../learners/store'
+import { clearDraft, clearPackDrafts } from './drafts'
 
 const MAX_ATTEMPTS = 200
 const MAX_GRADES = 50
@@ -173,11 +174,13 @@ export function resetProgress(
     if (existsSync(root)) rmSync(root, { recursive: true, force: true })
     const snaps = join(learnerDir(learnerId), 'snapshots', packId)
     if (existsSync(snaps)) rmSync(snaps, { recursive: true, force: true })
+    clearPackDrafts(learnerId, packId)
     return { ok: true }
   }
   const lessonId = ids.lessonId
   if (!lessonId) return { ok: true }
   if (history === 'keep') {
+    clearDraft(learnerId, packId, lessonId)
     const ev = loadEvidence(learnerId, packId, lessonId, taskRev)
     ev.status = ev.status === 'not-started' ? 'not-started' : 'retrying'
     saveEvidence(learnerId, packId, lessonId, ev)
@@ -209,6 +212,7 @@ export function resetProgress(
     saveEvidence(learnerId, packId, lessonId, ev)
     return ev
   }
+  clearDraft(learnerId, packId, lessonId)
   const ev = lessonEvidenceSchema.parse({ status: 'not-started', taskRev, grades: [] })
   saveEvidence(learnerId, packId, lessonId, ev)
   saveAttempts(learnerId, packId, lessonId, [])

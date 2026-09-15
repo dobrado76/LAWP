@@ -65,6 +65,9 @@ Reads default to the **current** learner. Writes from a run use the **`learnerId
 | `progress:snapshot` | `{ packId, lessonId, attemptId }` | `{ files?: { path, contents }[], answers?: unknown, world?: unknown }` |
 | `progress:note` | `{ packId, lessonId, text }` | ok |
 | `progress:reset` | `{ packId, scope: "block" \| "lesson" \| "module" \| "course" \| "pack", history?: "keep" \| "delete-last" \| "clear", lessonId?, moduleId?, courseId?, blockId?, keepNotes?: boolean }` | snapshot |
+| `drafts:get` | `{ packId, lessonId }` | `{ files: { path, contents }[], updatedAt }` from `learners/<id>/drafts/` |
+| `drafts:save` | `{ packId, lessonId, files }` | same; 256 KiB / file, 32 files |
+| `drafts:clear` | `{ packId, lessonId }` | `{ ok: true }` |
 | `practice:next` | — | queue items[] (misconception follow-ups first) |
 
 `progress:reset` `history` defaults to **`keep`** (restart/redo). `clear` deletes the attempt log, snapshots, and grades ledger in scope. `delete-last` drops the newest attempt from the log **and** the grades ledger, then derives current/previous/best from remaining ledger rows (D41). Activity-log truncation must not delete ledger rows.
@@ -118,12 +121,13 @@ Events (main → renderer):
 | Channel | In | Out |
 | --- | --- | --- |
 | `app:info` | — | `{ version, userDataPath, isPackaged }` |
+| `app:releaseNotes` | — | `{ version, minor, markdown, unseen }` — `RELEASE_NOTES.md` section for this `MAJOR.MINOR`; `unseen` if session has not dismissed it |
 
-`userDataPath` is for display in Settings → About (helps confirm D3). Do not expose arbitrary fs.
+`userDataPath` is for display in Settings → About (helps confirm D3). Do not expose arbitrary fs. `app:releaseNotes` reads the bundled `RELEASE_NOTES.md` (repo root in dev). Dismiss stores `lastReleaseNotesMinor` on `session.json`, not settings export.
 
 ## Rules
 
 - No generic `fs:read` / `fs:write` from the renderer
-- Editor buffers persist via `session:set` (size-capped) or learner `drafts/`
+- Editor buffers persist under `learners/<id>/drafts/<packId>/<lessonId>.json` via `drafts:save` / `drafts:get`. Restart (`progress:reset` history `keep`) and `drafts:clear` restore lesson starters. Grade snapshots are a separate inspect trail — they do not replace the working draft.
 - All paths in payloads are **lesson-relative** (`files/main.py`), never `C:\...`
 - Cap `files[]` size (e.g. 256 KiB per file, 32 files)
