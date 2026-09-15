@@ -1,5 +1,9 @@
 # LAWP
 
+[![Download Latest Release](https://img.shields.io/github/v/release/dobrado76/LAWP?label=Download%20Latest%20Executables)](https://github.com/dobrado76/LAWP/releases/latest)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
+
+
 **Learn Anything While Playing** — a local Windows learning studio.
 
 Short lessons. A world you can change. Instant consequence. Then *why*. No account, no subscription, no other repo.
