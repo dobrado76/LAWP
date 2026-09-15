@@ -66,7 +66,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "If acc is empty, return the dir. Else return acc + \"-\" + dir."
+          "md": "The starter joins with a comma. The lesson asks you to build the same idea with an accumulator."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`reduce` carries one value across the list: the running path so far, plus the next direction."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "If the accumulator is still empty, the answer is just the direction; otherwise add `\"-\"` before it."
         },
         {
           "level": 4,

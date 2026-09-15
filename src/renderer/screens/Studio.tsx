@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { defaultCheckValue, type CheckKind, type CheckPrompt } from '@shared/check'
-import { firstTryTally, type FirstTry } from '@shared/schemas/progress'
+import { firstTryTally, type BlockState, type FirstTry } from '@shared/schemas/progress'
+import { filesHash, isInfraError, type SubmissionOut } from '@shared/submission'
 import { applyPlayCommands, facingName, GRID_CELL_PX, clampGrid, playObjectiveItems, type PlayCommand, type PlayProp } from '@shared/play'
 import { DEFAULT_FLOOR, playKitLayerRank, playKitPiece, playKitSrc } from '@shared/playKit'
 import { IPC, invoke } from '../api'
-import { CheckPanel, GradeCta } from '../checks/CheckPanel'
+import { draftLessonKey, draftMatchesLesson, filesForLesson } from '@shared/draftBind'
+import { CheckPanel, GradeCta, lessonWorkVerdict, unansweredChecks } from '../checks/CheckPanel'
 import { CodeEditor } from '../editor/CodeEditor'
 import { inspectPage } from '../editor/pageSource'
 import { md } from '../md'
@@ -19,42 +21,15 @@ type World = {
   view?: { kind?: string; assetMap?: Record<string, string>; grid?: { cols?: number; rows?: number; floor?: string } }
 }
 type PlayCmd = PlayCommand
-type ConsoleState = { stdout: string; stderr: string; extra: string; ran: boolean }
+type ConsoleState = { text: string; ran: boolean }
 
-const emptyConsole: ConsoleState = { stdout: '', stderr: '', extra: '', ran: false }
+const emptyConsole: ConsoleState = { text: '', ran: false }
 
-function takeConsole(r: { stdout?: string; stderr?: string; timedOut?: boolean; exitCode?: number }): ConsoleState {
-  const extra: string[] = []
-  if (r.exitCode !== undefined && r.exitCode !== 0) extra.push(`(exit ${r.exitCode})`)
-  if (r.timedOut) extra.push('(timed out)')
-  return {
-    stdout: r.stdout?.replace(/\s+$/, '') ?? '',
-    stderr: r.stderr?.replace(/\s+$/, '') ?? '',
-    extra: extra.join('\n'),
-    ran: true
-  }
-}
-
-function CodeConsole({ stdout, stderr, extra, ran }: ConsoleState) {
-  const blank = ran && !stdout && !stderr && !extra
+function CodeConsole({ text }: ConsoleState) {
   return (
     <div className="code-console" role="log" aria-label="Console">
       <div className="code-console-bar">Console</div>
-      <pre className="code-console-body">
-        {!ran ? (
-          <span className="code-console-empty">Press Run to see console.log and errors.</span>
-        ) : blank ? (
-          <span className="code-console-empty">No output</span>
-        ) : (
-          <>
-            {stdout ? <span className="code-console-out">{stdout}</span> : null}
-            {stdout && (stderr || extra) ? '\n' : null}
-            {stderr ? <span className="code-console-err">{stderr}</span> : null}
-            {stderr && extra ? '\n' : null}
-            {extra ? <span className="code-console-err">{extra}</span> : null}
-          </>
-        )}
-      </pre>
+      <pre className="code-console-body">{text}</pre>
     </div>
   )
 }
@@ -72,6 +47,7 @@ export function Studio({
 }) {
   const [lesson, setLesson] = useState<{ title: string; blocks: Block[]; creation?: { id: string } } | null>(null)
   const [tree, setTree] = useState<{
+    manifest?: { title?: string }
     lessons: LessonSum[]
     courses: { modules: { lessonIds: string[] }[] }[]
     misconceptions: { id: string; title: string }[]
@@ -88,18 +64,35 @@ export function Studio({
   const [predict, setPredict] = useState('')
   const [checkAns, setCheckAns] = useState<Record<string, unknown>>({})
   const [checkResult, setCheckResult] = useState<Record<string, 'pass' | 'fail'>>({})
+  const [attempted, setAttempted] = useState<Record<string, boolean>>({})
   const [firstTry, setFirstTry] = useState<Record<string, 'pass' | 'fail'>>({})
   const [evidence, setEvidence] = useState('')
   const [progress, setProgress] = useState<
-    Record<string, { status: string; best?: { score: number; assisted: boolean }; firstTries?: Record<string, FirstTry> }>
+    Record<
+      string,
+      {
+        status: string
+        best?: { score: number; assisted: boolean }
+        firstTries?: Record<string, FirstTry>
+        blockState?: Record<string, BlockState>
+      }
+    >
   >({})
   const [files, setFiles] = useState<{ path: string; contents: string }[]>([])
+  const [boundKey, setBoundKey] = useState('')
   const [consoleOut, setConsoleOut] = useState<ConsoleState>(emptyConsole)
   const [banner, setBanner] = useState<{ kind: 'success' | 'fail'; title: string } | null>(null)
   const [draftReady, setDraftReady] = useState(false)
   const [inspectHit, setInspectHit] = useState<{ selector: string; all: boolean } | null>(null)
   const [taskResult, setTaskResult] = useState<'pass' | 'fail' | null>(null)
+  const [canExport, setCanExport] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [runNote, setRunNote] = useState('')
+  const [passHash, setPassHash] = useState<string | null>(null)
   const workGen = useRef(0)
+  const draftHold = useRef(false)
+  /** State, not a ref: the Submit gate is computed from it during render. */
+  const [touched, setTouched] = useState<Set<string>>(new Set())
   const runIdRef = useRef<string | undefined>(undefined)
 
   const lessonOrder = useMemo(() => {
@@ -118,12 +111,21 @@ export function Studio({
 
   async function refreshProgress(gen = workGen.current) {
     const ev = await invoke<{
-      lessons: Record<string, { status: string; best?: { score: number; assisted: boolean }; firstTries?: Record<string, FirstTry> }>
+      lessons: Record<
+        string,
+        {
+          status: string
+          best?: { score: number; assisted: boolean }
+          firstTries?: Record<string, FirstTry>
+          blockState?: Record<string, BlockState>
+        }
+      >
     }>(IPC.progressGet, { packId })
-    if (!stillHere(gen)) return
+    if (!stillHere(gen)) return undefined
     setProgress(ev.lessons)
     const e = ev.lessons[lessonId]
     setEvidence(e ? `${e.status}${e.best ? ` · best ${Math.round(e.best.score * 100)}%` : ''}` : '')
+    return e
   }
 
   function advanceOrDone() {
@@ -131,19 +133,61 @@ export function Studio({
     else onDone()
   }
 
-  async function load(gen = workGen.current) {
+  /**
+   * Reopening a lesson restores every block the learner attempted, right or
+   * wrong. A finished task only shows its pass while the editor still holds the
+   * text that earned it.
+   */
+  function hydrate(
+    state: Record<string, BlockState> | undefined,
+    startFiles: { path: string; contents: string }[],
+    opts: { taskIds: string[]; hasCode: boolean }
+  ) {
+    const rows = state ?? {}
+    const answers: Record<string, unknown> = {}
+    const results: Record<string, 'pass' | 'fail'> = {}
+    const seen: Record<string, boolean> = {}
+    const touchedNow = new Set<string>()
+    const startHash = filesHash(startFiles)
+    let task: 'pass' | null = null
+    let hash: string | null = null
+    for (const [id, row] of Object.entries(rows)) {
+      if (!row?.attempted) continue
+      seen[id] = true
+      if (opts.taskIds.includes(id)) {
+        if (row.passed && (!opts.hasCode || row.passingFilesHash === startHash)) {
+          task = 'pass'
+          hash = startHash
+        }
+        continue
+      }
+      touchedNow.add(id)
+      if (row.answer !== undefined) answers[id] = row.answer
+      results[id] = row.passed ? 'pass' : 'fail'
+    }
+    setTouched(touchedNow)
+    setCheckAns(answers)
+    setCheckResult(results)
+    setAttempted(seen)
+    setTaskResult(task)
+    setPassHash(hash)
+  }
+
+  async function load(gen = workGen.current, opts?: { ignoreDraft?: boolean }) {
     setDraftReady(false)
+    setBoundKey('')
     const l = await invoke<{ title: string; blocks: Block[]; creation?: { id: string } }>(IPC.packsLesson, { packId, lessonId })
     if (!stillHere(gen)) return
     setLesson(l)
     const packed = await invoke<{
+      manifest?: { title?: string }
       lessons: LessonSum[]
       courses: { modules: { lessonIds: string[] }[] }[]
       misconceptions: { id: string; title: string }[]
     }>(IPC.packsGet, { packId })
     if (!stillHere(gen)) return
     setTree(packed)
-    await refreshProgress(gen)
+    const evRow = await refreshProgress(gen)
     const act = l.blocks.find((b) => b.type === 'activity')
     const codeBlock = l.blocks.find((b) => b.type === 'code' || b.type === 'debug')
     const startId = act?.id ?? codeBlock?.id ?? l.blocks.find((b) => b.id)?.id
@@ -171,27 +215,36 @@ export function Studio({
             .map((f) => ({ path: f.path, contents: f.contents ?? '' }))
         : []
     let nextFiles = starters
-    if (starters.length) {
+    if (starters.length && !opts?.ignoreDraft) {
       const draft = await invoke<{ files: { path: string; contents: string }[] }>(IPC.draftsGet, { packId, lessonId })
       if (!stillHere(gen)) return
-      if (draft.files.length) {
-        nextFiles = starters.map((f) => draft.files.find((d) => d.path === f.path) ?? f)
-      }
+      nextFiles = filesForLesson(starters, draft.files)
     }
     if (!stillHere(gen)) return
     setFiles(nextFiles)
+    setBoundKey(draftLessonKey(packId, lessonId))
     setConsoleOut(emptyConsole)
     setHint('')
     setHintLevel(0)
     setStatus('')
     setCompare('')
     setPredict('')
-    setCheckAns({})
-    setCheckResult({})
     setFirstTry({})
     setWhy('')
+    setRunNote('')
     setBanner(null)
     setTaskResult(null)
+    hydrate(evRow?.blockState, nextFiles, {
+      taskIds: [act?.id, codeBlock?.id].filter((x): x is string => Boolean(x)),
+      hasCode: Boolean(codeBlock)
+    })
+    if (l.creation) {
+      const kept = await invoke<{ exists: boolean }>(IPC.creationGet, { packId, creationId: l.creation.id })
+      if (!stillHere(gen)) return
+      setCanExport(kept.exists)
+    } else {
+      setCanExport(false)
+    }
     setDraftReady(true)
   }
 
@@ -199,9 +252,16 @@ export function Studio({
     const gen = ++workGen.current
     replayGen.current += 1
     setDraftReady(false)
+    setBoundKey('')
     setFiles([])
     setInspectHit(null)
     setTaskResult(null)
+    setCanExport(false)
+    setPassHash(null)
+    setAttempted({})
+    setSubmitting(false)
+    setRunNote('')
+    setTouched(new Set())
     void load(gen)
     return () => {
       workGen.current += 1
@@ -213,12 +273,20 @@ export function Studio({
   }, [packId, lessonId])
 
   useEffect(() => {
+    if (draftHold.current) return
     if (!draftReady || !files.length) return
+    if (!draftMatchesLesson(boundKey, packId, lessonId)) return
+    const snapshot = { packId, lessonId, files }
     const t = setTimeout(() => {
-      void invoke(IPC.draftsSave, { packId, lessonId, files }).catch(() => undefined)
+      if (draftHold.current) return
+      void invoke(IPC.draftsSave, snapshot).catch(() => undefined)
     }, 400)
-    return () => clearTimeout(t)
-  }, [files, draftReady, packId, lessonId])
+    return () => {
+      clearTimeout(t)
+      if (draftHold.current) return
+      void invoke(IPC.draftsSave, snapshot).catch(() => undefined)
+    }
+  }, [files, draftReady, boundKey, packId, lessonId])
 
   const activity = lesson?.blocks.find((b) => b.type === 'activity') as
     | (Block & {
@@ -257,15 +325,168 @@ export function Studio({
   const checkOnly = checks.length > 0 && !activity && !code
   const playable = Boolean(activity || code || checks.length)
   const nextLabel = nextId ? 'Next' : 'Return to library'
-  const pendingCheck = checks.find((ch) => checkResult[ch.id] !== 'pass')
-  const taskPending = Boolean((code || activity) && taskResult !== 'pass')
-  const ctaResult = pendingCheck ? (checkResult[pendingCheck.id] ?? null) : taskResult
-  const canAdvance = !pendingCheck && !taskPending
+  const gradedChecks = checks.filter((ch) => (ch as { diagnostic?: boolean }).diagnostic !== true)
+  const diagnosticsPending = checks.some(
+    (ch) => (ch as { diagnostic?: boolean }).diagnostic === true && !attempted[ch.id]
+  )
+  /**
+   * Whether the code is right is only knowable by running it, but an
+   * unanswered question is visible from here — so Submit waits rather than
+   * spending an attempt on a blank. Same `isAttemptedAnswer` rule main grades
+   * with, so the button and the grader never disagree.
+   */
+  const unanswered = unansweredChecks(checks, checkAns, touched)
+  const submitBlocked = unanswered.length > 0 || Boolean(activity?.predict && !predict)
+  const currentHash = useMemo(() => filesHash(files), [files])
+  /** A pass belongs to the text that earned it, not to whatever is in the editor now. */
+  const hashOk = !code || !files.length || passHash === currentHash
+  /**
+   * Same rule for answers: change one after grading and the CTA goes back to
+   * Submit, so a learner who reads the review can act on it. Diagnostics need
+   * this most — they are not in `gradedChecks`, so nothing else notices.
+   */
+  const answersDirty = checks.some((ch) => attempted[ch.id] && !checkResult[ch.id])
+  const pendingCheck = gradedChecks.find((ch) => checkResult[ch.id] !== 'pass')
+  const taskPending = Boolean((code || activity) && (taskResult !== 'pass' || !hashOk))
+  const ctaResult = diagnosticsPending
+    ? null
+    : lessonWorkVerdict({
+        checkResults: gradedChecks.map((ch) => checkResult[ch.id] ?? null),
+        taskResult: hashOk ? taskResult : null,
+        hasTask: Boolean(code || activity)
+      })
+  const canAdvance = !pendingCheck && !taskPending && !diagnosticsPending && !answersDirty
 
-  function submitWork() {
-    if (pendingCheck) void gradeCheck(pendingCheck)
-    else if (code) void gradeCode()
-    else if (activity) void checkActivity()
+  function pct(score?: number): string {
+    return score === undefined ? '—' : `${Math.round(score * 100)}%`
+  }
+
+  function applySubmission(r: SubmissionOut, sentHash: string): Promise<void> | void {
+    const gen = workGen.current
+    const results: Record<string, 'pass' | 'fail'> = {}
+    const seen: Record<string, boolean> = {}
+    for (const b of r.blocks) {
+      seen[b.blockId] = b.attempted
+      if (b.kind === 'check') results[b.blockId] = b.passed ? 'pass' : 'fail'
+    }
+    setCheckResult((prev) => ({ ...prev, ...results }))
+    setAttempted((prev) => ({ ...prev, ...seen }))
+    setFirstTry((prev) => {
+      const out = { ...prev }
+      for (const b of r.blocks) if (!(b.blockId in out)) out[b.blockId] = b.passed ? 'pass' : 'fail'
+      return out
+    })
+    const task = r.blocks.find((b) => b.kind === 'code' || b.kind === 'activity')
+    if (task) setTaskResult(task.passed ? 'pass' : 'fail')
+    if (r.outcome === 'pass') setPassHash(sentHash)
+    setStatus(r.outcome === 'pass' ? 'Passed' : 'Not yet')
+    setCompare(`This ${pct(r.compare?.current?.score)} · Last ${pct(r.compare?.previous?.score)} · Best ${pct(r.compare?.best?.score)}`)
+
+    const finish = () => {
+      if (!stillHere(gen)) return
+      const names = r.blocks
+        .flatMap((b) => b.misconceptionIds)
+        .map((id) => tree?.misconceptions.find((m) => m.id === id)?.title ?? id)
+      if (r.unanswered.length) {
+        setWhy(
+          r.unanswered.length === 1
+            ? 'One question is still unanswered. Answer it, then submit.'
+            : `${r.unanswered.length} questions are still unanswered. Answer them, then submit.`
+        )
+      } else if (names.length) {
+        setWhy(names.join(', '))
+      } else if (r.outcome === 'pass') {
+        // A check's own explanation now sits under its choices; only the
+        // activity's after-word has nowhere else to go.
+        const explain = activity?.explainAfter?.promptMd
+        if (explain) setWhy(String(explain))
+      } else if (!r.code) {
+        setWhy('Not quite. Look again, then submit.')
+      }
+      void refreshProgress(gen)
+      if (r.outcome === 'pass' && lesson?.creation) {
+        void invoke<{ exists: boolean }>(IPC.creationGet, { packId, creationId: lesson.creation.id })
+          .then((kept) => {
+            if (stillHere(gen)) setCanExport(kept.exists)
+          })
+          .catch(() => undefined)
+      }
+    }
+
+    if (r.code) {
+      const out = r.code
+      return showPlayResult(
+        {
+          world: out.world as World | undefined,
+          commands: out.commands as PlayCmd[] | undefined,
+          playFault: out.playFault,
+          stdout: out.stdout,
+          stderr: out.stderr,
+          timedOut: out.timedOut,
+          exitCode: out.exitCode,
+          passed: task?.passed,
+          goalMet: out.goalMet
+        },
+        { fillConsole: true }
+      ).then(finish)
+    }
+    if (r.activity) {
+      setWorld((r.activity.world as World) ?? null)
+      setBanner({ kind: task?.passed ? 'success' : 'fail', title: task?.passed ? 'SUCCESS' : 'FAIL' })
+    }
+    finish()
+  }
+
+  /**
+   * One Submit: freeze the answers and files, grade them once, commit together.
+   * A second click while this runs joins the first attempt instead of starting
+   * another.
+   */
+  async function submitWork() {
+    if (submitting) return
+    if (activity?.predict && !predict) {
+      setStatus('Predict first')
+      setWhy('Answer the predict question on the left, then change the circuit.')
+      return
+    }
+    // The keyboard shortcut reaches this too, so the gate lives here, not only
+    // on the button.
+    if (unanswered.length) {
+      setStatus('Answer first')
+      setWhy(answerFirstNote(unanswered.length, checkOnly))
+      return
+    }
+    const gen = workGen.current
+    const snapshot = files.map((f) => ({ path: f.path, contents: f.contents }))
+    const answers: Record<string, unknown> = {}
+    for (const ch of checks) answers[ch.id] = checkAns[ch.id] ?? defaultCheckValue(ch)
+    const sentHash = filesHash(snapshot)
+    setSubmitting(true)
+    setRunNote('')
+    try {
+      const r = await invoke<SubmissionOut>(IPC.submitLesson, {
+        runId,
+        packId,
+        lessonId,
+        submissionId: crypto.randomUUID(),
+        filesHash: sentHash,
+        files: snapshot,
+        answers,
+        touched: [...touched]
+      })
+      if (!stillHere(gen)) return
+      await applySubmission(r, sentHash)
+    } catch (e) {
+      if (!stillHere(gen)) return
+      const er = e as Error & { code?: string }
+      setRunNote(
+        isInfraError(er.code)
+          ? `This attempt could not run, so nothing was graded. ${er.message}`
+          : er.message
+      )
+    } finally {
+      if (stillHere(gen)) setSubmitting(false)
+    }
   }
 
   async function act(actionId: string, value?: string | number) {
@@ -295,35 +516,6 @@ export function Studio({
     setStatus(r.calcFault ? 'Fault' : r.goalMet && r.constraintOk ? 'Ready to check' : '')
   }
 
-  async function checkActivity() {
-    if (!runId || !activity?.id) return
-    const gen = workGen.current
-    if (activity.predict && !predict) {
-      setStatus('Predict first')
-      setWhy('Answer the predict question on the left, then change the circuit.')
-      return
-    }
-    const r = await invoke<{
-      passed: boolean
-      compare?: { current?: { score: number }; previous?: { score: number }; best?: { score: number; assisted: boolean } }
-    }>(IPC.gradeBlock, { runId, packId, lessonId, blockId: activity.id })
-    if (!stillHere(gen)) return
-    const c = r.compare
-    setCompare(
-      c
-        ? `This ${Math.round((c.current?.score ?? 0) * 100)}% · Last ${c.previous ? `${Math.round(c.previous.score * 100)}%` : '—'} · Best ${c.best ? `${Math.round(c.best.score * 100)}%` : '—'}`
-        : ''
-    )
-    setStatus(r.passed ? 'Passed' : 'Not yet')
-    setWhy(r.passed ? activity.explainAfter?.promptMd ?? 'That worked.' : why || 'Try another resistance.')
-    setBanner({ kind: r.passed ? 'success' : 'fail', title: r.passed ? 'SUCCESS' : 'FAIL' })
-    setTaskResult(r.passed ? 'pass' : 'fail')
-    if (activity.id) {
-      setFirstTry((prev) => (activity.id! in prev ? prev : { ...prev, [activity.id!]: r.passed ? 'pass' : 'fail' }))
-    }
-    if (r.passed) void refreshProgress(gen)
-  }
-
   async function askHint() {
     const blockId = activity?.id ?? code?.id ?? checks[0]?.id
     if (!runId || !blockId) return
@@ -341,30 +533,8 @@ export function Studio({
     setHint(`### Hint ${next}\n\n${h.md}`)
   }
 
-  async function gradeCheck(block: CheckPrompt) {
-    const gen = workGen.current
-    const id = runId ?? (await invoke<{ runId: string }>(IPC.runStart, { packId, lessonId, blockId: block.id })).runId
-    if (!stillHere(gen)) return
-    setRunId(id)
-    runIdRef.current = id
-    const r = await invoke<{ passed: boolean; misconceptionIds?: string[] }>(IPC.gradeBlock, {
-      runId: id,
-      packId,
-      lessonId,
-      blockId: block.id,
-      answers: checkAns[block.id] ?? defaultCheckValue(block)
-    })
-    if (!stillHere(gen)) return
-    setStatus(r.passed ? 'Correct' : 'Not quite')
-    setCheckResult((prev) => ({ ...prev, [block.id]: r.passed ? 'pass' : 'fail' }))
-    setFirstTry((prev) => (block.id in prev ? prev : { ...prev, [block.id]: r.passed ? 'pass' : 'fail' }))
-    const names = (r.misconceptionIds ?? []).map((i) => tree?.misconceptions.find((m) => m.id === i)?.title ?? i)
-    setWhy(names.join(', ') || (r.passed ? String(block.explainMd ?? 'Yes.') : 'Try again.'))
-    setBanner({ kind: r.passed ? 'success' : 'fail', title: r.passed ? 'SUCCESS' : 'FAIL' })
-    if (r.passed) void refreshProgress(gen)
-  }
-
   function setCheckValue(id: string, next: unknown) {
+    setTouched((prev) => (prev.has(id) ? prev : new Set(prev).add(id)))
     setCheckAns((prev) => ({ ...prev, [id]: next }))
     setCheckResult((prev) => {
       if (!(id in prev)) return prev
@@ -386,9 +556,11 @@ export function Studio({
       passed?: boolean
       goalMet?: boolean
     },
-    silent = false
+    opts?: { preview?: boolean; fillConsole?: boolean }
   ) {
-    setConsoleOut(takeConsole(r))
+    if (opts?.fillConsole) {
+      setConsoleOut({ text: (r.stdout ?? '').replace(/\s+$/, ''), ran: true })
+    }
     const gen = ++replayGen.current
     const origin = startWorld ?? code?.play?.world ?? null
     if (origin && r.commands?.length) {
@@ -397,15 +569,18 @@ export function Studio({
       })
     }
     if (replayGen.current === gen && r.world) setWorld(r.world)
-    if (silent) return
     setBanner(null)
+    const harnessFail = /AssertionError|_assert_boot|hidden\.test|ERR_ASSERTION/.test(r.stderr ?? '')
     if (r.playFault) {
       setWhy(r.playFault)
       setBanner({ kind: 'fail', title: 'FAIL' })
-    } else if (r.exitCode !== undefined && r.exitCode !== 0) {
-      const crash = r.stderr?.trim().split('\n').find((line) => line.trim()) ?? 'The program stopped with an error. Read the console.'
+    } else if (r.exitCode !== undefined && r.exitCode !== 0 && !harnessFail) {
+      const crash =
+        r.stderr?.trim().split('\n').find((line) => line.trim()) ?? 'The program stopped with an error.'
       setWhy(crash)
       setBanner({ kind: 'fail', title: 'FAIL' })
+    } else if (opts?.preview && !code?.play) {
+      setWhy('')
     } else if (r.passed) {
       setWhy('')
       setBanner({ kind: 'success', title: 'SUCCESS' })
@@ -415,7 +590,7 @@ export function Studio({
     }
   }
 
-  async function runCode(opts?: { silent?: boolean }) {
+  async function runCode() {
     if (!runId || !code?.id) return
     const gen = workGen.current
     try {
@@ -437,8 +612,8 @@ export function Studio({
         files
       })
       if (!stillHere(gen)) return
-      await showPlayResult(r, opts?.silent)
-      if (!stillHere(gen) || opts?.silent) return
+      await showPlayResult(r, { preview: true, fillConsole: true })
+      if (!stillHere(gen)) return
       if (code.play) {
         setStatus(
           r.playFault
@@ -454,40 +629,8 @@ export function Studio({
       }
     } catch (e) {
       if (!stillHere(gen)) return
-      const message = (e as Error).message
-      setConsoleOut({ stdout: '', stderr: message, extra: '', ran: true })
-      if (!opts?.silent) setStatus(message)
+      setStatus((e as Error).message)
     }
-  }
-
-  async function gradeCode() {
-    if (!runId || !code?.id) return
-    const gen = workGen.current
-    const r = await invoke<{
-      passed: boolean
-      stdout?: string
-      stderr?: string
-      exitCode?: number
-      world?: World
-      commands?: PlayCmd[]
-      playFault?: string | null
-      goalMet?: boolean
-      compare?: { current?: { score: number }; previous?: { score: number }; best?: { score: number } }
-    }>(IPC.gradeBlock, { runId, packId, lessonId, blockId: code.id, files })
-    if (!stillHere(gen)) return
-    await showPlayResult(r)
-    if (!stillHere(gen)) return
-    setStatus(r.passed ? 'Passed' : 'Not yet')
-    setTaskResult(r.passed ? 'pass' : 'fail')
-    const taskId = code.id ?? 'code'
-    setFirstTry((prev) => (taskId in prev ? prev : { ...prev, [taskId]: r.passed ? 'pass' : 'fail' }))
-    if (r.passed) void refreshProgress(gen)
-    const c = r.compare
-    setCompare(
-      c
-        ? `This ${Math.round((c.current?.score ?? 0) * 100)}% · Last ${c.previous ? `${Math.round(c.previous.score * 100)}%` : '—'} · Best ${c.best ? `${Math.round(c.best.score * 100)}%` : '—'}`
-        : ''
-    )
   }
 
   useEffect(() => {
@@ -496,20 +639,14 @@ export function Studio({
         e.preventDefault()
         if (e.shiftKey) {
           if (canAdvance) advanceOrDone()
-          else submitWork()
+          else void submitWork()
         } else if (code) void runCode()
-        else if (activity) void checkActivity()
+        else void submitWork()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   })
-
-  useEffect(() => {
-    if (!draftReady || !code?.id || !runId) return
-    void runCode({ silent: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draftReady, runId, lessonId])
 
   const actions = (
     <div className="studio-bar-actions">
@@ -526,18 +663,36 @@ export function Studio({
       <IconBtn
         label="Restart lesson"
         onClick={() => {
+          draftHold.current = true
           workGen.current += 1
           replayGen.current += 1
           const id = runIdRef.current
           if (id) void invoke(IPC.runCancel, { runId: id }).catch(() => undefined)
           const gen = workGen.current
-          void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'keep', lessonId }).then(() => load(gen))
+          setFiles([])
+          setBoundKey('')
+          setDraftReady(false)
+          void invoke(IPC.progressReset, { packId, scope: 'lesson', history: 'keep', lessonId })
+            .then(() => load(gen, { ignoreDraft: true }))
+            .finally(() => {
+              draftHold.current = false
+            })
         }}
       >
         <RestartIcon />
       </IconBtn>
-      {lesson?.creation && (
-        <button className="btn" onClick={() => void invoke(IPC.creationExport, { packId, creationId: lesson.creation!.id, kind: 'zip' })}>
+      {canExport && lesson?.creation && (
+        <button
+          className="btn"
+          title="Export your kept work as a zip"
+          onClick={() => {
+            void invoke<{ cancelled?: boolean }>(IPC.creationExport, {
+              packId,
+              creationId: lesson.creation!.id,
+              kind: 'zip'
+            }).catch((e) => setStatus((e as Error).message))
+          }}
+        >
           Export
         </button>
       )}
@@ -557,8 +712,23 @@ export function Studio({
             {evidence ? ` · ${evidence}` : ''}
           </span>
         </div>
+        {tree?.manifest?.title ? <div className="studio-bar-pack">{tree.manifest.title}</div> : null}
         {actions}
-        <IconBtn label={nextId ? 'Next lesson' : 'Return to library'} onClick={advanceOrDone}>
+        <IconBtn
+          label={
+            canAdvance || !playable
+              ? nextId
+                ? 'Next lesson'
+                : 'Return to library'
+              : 'Skip ahead — this lesson stays unfinished'
+          }
+          onClick={() => {
+            if (playable && !canAdvance) {
+              void invoke(IPC.progressSkip, { packId, lessonId }).catch(() => undefined)
+            }
+            advanceOrDone()
+          }}
+        >
           <NextIcon />
         </IconBtn>
       </header>
@@ -599,12 +769,14 @@ export function Studio({
                 result={checkResult[ch.id] ?? null}
               />
             ))}
-          {checks.map((ch) => {
-            const r = checkResult[ch.id]
-            return r ? <CheckVerdict key={`${ch.id}-verdict`} result={r} /> : null
-          })}
-          {taskResult ? <CheckVerdict result={taskResult} /> : null}
-          {!nextId && (taskResult === 'pass' || checks.some((ch) => checkResult[ch.id] === 'pass')) ? (
+          {checkOnly && checks.length === 1 && checkResult[checks[0]!.id] ? (
+            <CheckVerdict result={checkResult[checks[0]!.id]!} />
+          ) : null}
+          {checkOnly && checks.length > 1 ? (
+            <CheckTally checks={checks} results={checkResult} diagnostic={checks.every((ch) => (ch as { diagnostic?: boolean }).diagnostic)} />
+          ) : null}
+          {!checkOnly && ctaResult ? <CheckVerdict result={ctaResult} /> : null}
+          {!nextId && canAdvance ? (
             <LessonComplete progress={progress} lessonId={lessonId} lessonOrder={lessonOrder} firstTry={firstTry} />
           ) : null}
           {hint && <div className="callout hint" dangerouslySetInnerHTML={{ __html: md(hint) }} />}
@@ -652,7 +824,7 @@ export function Studio({
               </div>
             </div>
           ))}
-          {draftReady && code?.preview?.kind === 'iframe' && (
+          {draftReady && boundKey === draftLessonKey(packId, lessonId) && code?.preview?.kind === 'iframe' && (
             <PageBoard
               key={lessonId}
               html={code.files?.find((f) => f.path.endsWith('.html'))?.contents ?? ''}
@@ -674,11 +846,11 @@ export function Studio({
               )}
             />
           )}
-          {draftReady && files.length > 0 && (
+          {draftReady && boundKey === draftLessonKey(packId, lessonId) && files.length > 0 && (
             <div className="code-work">
               {files.map((f) => (
                 <CodeEditor
-                  key={f.path}
+                  key={`${lessonId}:${f.path}`}
                   path={f.path}
                   value={f.contents}
                   engine={code?.engine}
@@ -712,11 +884,14 @@ export function Studio({
                 result={checkResult[ch.id] ?? null}
               />
             ))}
+          {runNote && <p className="run-note">{runNote}</p>}
           {playable && (
             <GradeCta
               result={ctaResult}
               canAdvance={canAdvance}
-              onSubmit={submitWork}
+              busy={submitting}
+              blockedReason={submitBlocked ? answerFirstNote(unanswered.length, checkOnly) : undefined}
+              onSubmit={() => void submitWork()}
               onNext={advanceOrDone}
               nextLabel={nextLabel}
             />
@@ -742,6 +917,49 @@ export function Studio({
 
     </div>
   )
+}
+
+/**
+ * One score line for a multi-question lesson. A column of eight identical
+ * Correct / Incorrect banners says nothing: the banners are not attached to the
+ * questions they judge, so the learner cannot tell which five were wrong.
+ */
+function CheckTally({
+  checks,
+  results,
+  diagnostic
+}: {
+  checks: CheckPrompt[]
+  results: Record<string, 'pass' | 'fail'>
+  diagnostic: boolean
+}) {
+  const graded = checks.filter((ch) => results[ch.id])
+  if (!graded.length) return null
+  const right = graded.filter((ch) => results[ch.id] === 'pass').length
+  const wrong = graded.length - right
+  return (
+    <div className={`check-tally${wrong ? '' : ' is-clean'}`} role="status">
+      <p className="check-tally-score">
+        <span className="is-right">{right} correct</span>
+        {wrong ? <span className="is-wrong">{wrong} to review</span> : null}
+      </p>
+      <p className="muted">
+        {wrong
+          ? 'Each question on the right shows your pick, the answer in amber, and why it is the answer. Change any answer and submit again.'
+          : 'Every question right.'}
+      </p>
+      {diagnostic && wrong ? (
+        <p className="muted">Nothing is locked. This only marks which lessons to take slowly.</p>
+      ) : null}
+    </div>
+  )
+}
+
+/** Checks sit in the teach pane unless the lesson is nothing but checks. */
+function answerFirstNote(count: number, inline: boolean): string {
+  const where = inline ? 'above' : 'on the left'
+  if (count === 0) return `Answer the predict question ${where} first.`
+  return count === 1 ? `Answer the question ${where} first.` : `Answer the ${count} questions ${where} first.`
 }
 
 function LessonComplete({
@@ -917,6 +1135,8 @@ function PageBoard({
 }) {
   const [tab, setTab] = useState<'preview' | 'html' | 'css'>('preview')
   const [hits, setHits] = useState(0)
+  const fixturesKey = JSON.stringify(fixtures)
+  const stableFixtures = useMemo(() => fixtures, [fixturesKey])
   const page = useMemo(() => inspectPage(html), [html])
   const tabs: Array<{ id: 'preview' | 'html' | 'css'; label: string }> = [
     { id: 'preview', label: 'Preview' },
@@ -955,7 +1175,7 @@ function PageBoard({
       </div>
       <div className={`page-board-stage${tab === 'preview' ? ' is-preview' : ' is-source'}`}>
         <div className={tab === 'preview' ? 'is-shown' : 'is-kept'}>
-          <DomFrame html={html} js={js} fixtures={fixtures} inspect={inspect} onHits={setHits} />
+          <DomFrame html={html} js={js} fixtures={stableFixtures} inspect={inspect} onHits={setHits} />
         </div>
         {tab === 'html' ? (
           <CodeEditor language="html" path="files/index.html" value={page.html || html} readOnly onChange={() => undefined} />
@@ -1067,6 +1287,11 @@ function DomFrame({
     const iframe = ref.current
     if (!iframe) return
     let cancelled = false
+    let loaded = false
+    const onLoad = () => {
+      loaded = true
+    }
+    iframe.addEventListener('load', onLoad)
     const paint = () => {
       if (cancelled || !ref.current) return
       if (urlRef.current) URL.revokeObjectURL(urlRef.current)
@@ -1076,9 +1301,14 @@ function DomFrame({
       ref.current.src = url
     }
     paint()
-    const retry = window.setTimeout(paint, 60)
+    // Only repaint if the first load never landed. Repainting a live page would
+    // throw away typed input and listeners mid-inspection.
+    const retry = window.setTimeout(() => {
+      if (!loaded) paint()
+    }, 60)
     return () => {
       cancelled = true
+      iframe.removeEventListener('load', onLoad)
       window.clearTimeout(retry)
       if (urlRef.current) {
         URL.revokeObjectURL(urlRef.current)
@@ -1089,7 +1319,7 @@ function DomFrame({
 
   useEffect(() => {
     tellSelect()
-  }, [inspect?.selector, src])
+  }, [inspect?.selector, inspect?.all])
 
   useEffect(() => {
     function onMsg(ev: MessageEvent) {

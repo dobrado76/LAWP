@@ -148,6 +148,11 @@
     "measure-then-change": "Measure first. Change one thing. Measure again.",
     "jsdoc-contracts": "A short comment can be a checklist of what a function owes.",
     "transfer-test-the-fox": "Write tests for a walk so a later change cannot silently break it.",
-    "capstone-signal-ops": "Put the path together: walk, records, the page, and tests."
+    "capstone-signal-ops": "Put the path together: walk, records, the page, and tests.",
+    "optional-chaining": "Reach through a record that may be missing without crashing. The question mark dot stops at the first gap, and it is not a default.",
+    "switch-dispatch": "One command name picks between many branches. Grouped labels share a body on purpose, and a missing stop runs the next branch by accident.",
+    "object-key-iteration": "Walk a record by its own keys, its values, or both. The older loop also hands you inherited keys.",
+    "promise-combinators": "Waiting for a group is three questions. Require every part, report what each part did, or take whichever answer lands first.",
+    "regex-lines": "A pattern pulls fields out of a log line and squeezes the spacing. Without the global flag it fixes only the first match."
   }
 }

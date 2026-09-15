@@ -67,6 +67,7 @@
         }
       ],
       "answer": "false",
+      "explainMd": "`===` compares kind first. A number and a string are different kinds, so it answers `false` without looking at the contents. Only `==` converts one side before comparing, which is why `0 == \"\"` is `true` and why you will be told to avoid it.",
       "diagnostic": true,
       "skillIds": [
         "js.values"
@@ -88,6 +89,7 @@
         }
       ],
       "answer": "stop",
+      "explainMd": "`if` does not ask \"is there a value here\", it asks \"is this value truthy\". `0` is one of the six falsy values (`0`, `\"\"`, `null`, `undefined`, `NaN`, `false`), so the `else` branch runs. This is why counting code that tests `if (count)` silently skips zero.",
       "diagnostic": true,
       "skillIds": [
         "js.flow"
@@ -114,6 +116,7 @@
         }
       ],
       "answer": "3",
+      "explainMd": "`make()` ran once, so `n` was created once. The arrow function returned from it keeps a hold on that same `n` — not a copy of its value. Two earlier calls made it 1 then 2, so this call makes it `3`. Call `make()` a second time and you get a fresh, separate counter.",
       "diagnostic": true,
       "skillIds": [
         "js.closures"
@@ -136,6 +139,7 @@
         }
       ],
       "answer": "1",
+      "explainMd": "`map` builds and returns a new array; it never writes into the one you called it on. `xs` still holds `[1]` and `ys` holds `[2]`. The methods that do change the original are the ones like `push`, `sort`, and `splice`.",
       "diagnostic": true,
       "skillIds": [
         "js.arrays"
@@ -157,6 +161,7 @@
         }
       ],
       "answer": "pending",
+      "explainMd": "A promise is in exactly one of three states: **pending** while the work is unfinished, then **fulfilled** with a value or **rejected** with a reason. A callback is not a state — it is one way of being told the work ended. The state is what lets you hand the unfinished result around before it exists.",
       "diagnostic": true,
       "skillIds": [
         "js.async"
@@ -178,6 +183,7 @@
         }
       ],
       "answer": "globalish",
+      "explainMd": "`this` is decided by how a function is *called*, not where it was written. Called bare, with nothing before the dot, sloppy mode falls back to the global object; `\"use strict\"` (and every ES module) leaves it `undefined` instead. Call the same function as `obj.greet()` and `this` is `obj`.",
       "diagnostic": true,
       "skillIds": [
         "js.this"
@@ -199,6 +205,7 @@
         }
       ],
       "answer": "node",
+      "explainMd": "The page is a tree of objects, not text. `querySelector` hands back the first matching element as a live object you can read and change — or `null` when nothing matches, which is why unchecked results throw \"cannot read properties of null\". Use `querySelectorAll` when you want every match.",
       "diagnostic": true,
       "skillIds": [
         "js.dom"

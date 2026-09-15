@@ -60,7 +60,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Mutate the shared array, then walk it. The lesson is that both names see south."
+          "md": "The comment marks the missing line: `also` has to gain a south step."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`also` and `shared` are two names for one list, so pushing through either name changes both."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`also.push(\"south\")` adds the step; the loop below already walks `shared`."
         },
         {
           "level": 4,

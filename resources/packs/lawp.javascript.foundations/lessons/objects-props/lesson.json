@@ -58,7 +58,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "for (let i = 0; i < route.east; i++) Player.move(\"east\")"
+          "md": "The record already holds both counts. The starter moves east once and ignores them."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Read `route.east` and `route.south`, and loop that many times for each heading."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`for (let i = 0; i < route.east; i++) Player.move(\"east\")` walks the east leg."
         },
         {
           "level": 4,

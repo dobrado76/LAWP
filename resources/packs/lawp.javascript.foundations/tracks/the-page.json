@@ -2,5 +2,5 @@
   "id": "the-page",
   "title": "The page",
   "courseIds": ["the-page", "talking-servers"],
-  "intro": "Tutorial 4. A real document tree — not tiles. Then mock fetch. No internet."
+  "intro": "A real document tree — not tiles. Then mock fetch. No internet."
 }

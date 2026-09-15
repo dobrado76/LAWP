@@ -9,7 +9,6 @@ import { activityBlockSchema, executableBlockSchema, lessonSchema } from '@share
 import { app } from 'electron'
 import { iconPath, releaseNotesPath, userDataRoot, userPacksRoot } from '../paths'
 import { extractMinorNotes, minorKey } from '@shared/versioning'
-import { gradeCheckAnswer, type CheckPrompt } from '@shared/check'
 import { cardDescription } from '@shared/catalog'
 import { exportSettingsDocument, grantTrust, hasTrust, loadSettings, updateSettings } from '../settings/store'
 import { loadSession, saveSession } from '../session/store'
@@ -31,18 +30,20 @@ import {
   loadEvidence,
   loadSnapshot,
   packProgress,
-  recordGrade,
-  resetProgress,
-  saveCreation
+  resetProgress
 } from '../progress/store'
 import { clearDraft, loadDraft, saveDraft } from '../progress/drafts'
-import { applyActivity, cancelRun, getRun, gradeRunActivity, noteHint, recordPlay, startRunRecord } from '../activities/runs'
-import { evalProperty } from '../activities/world'
+import { applyActivity, cancelRun, getRun, noteHint, recordPlay, startRunRecord } from '../activities/runs'
 import { listTemplates, createFromTemplate, writeLessonFile } from '../author/templates'
 import { safeJoin } from '../security/paths'
 import { executeCodeBlock } from '../runners/code'
 import { assertCanSpawn } from '../runners/trust'
 import type { CodeBlock } from '../runners/types'
+import { submitLesson } from '../grading/submit'
+import type { SubmissionPayload } from '@shared/submission'
+
+/** One submission per learner and lesson at a time; a second click joins the first. */
+const inFlightSubmits = new Map<string, Promise<Result<unknown>>>()
 
 function wrap<T>(fn: () => T | Promise<T>): Promise<Result<T>> {
   return Promise.resolve()
@@ -435,168 +436,33 @@ export function registerIpc(): void {
     })
   )
 
-  ipcMain.handle(
-    IPC.gradeBlock,
-    (_e, input: {
-      runId: string
-      packId: string
-      lessonId: string
-      blockId: string
-      answers?: unknown
-      files?: { path: string; contents: string }[]
-      replaceLast?: boolean
-      world?: unknown
-    }) =>
-      wrap(async () => {
-        void input.world
-        const run = getRun(input.runId)
-        if (!run) throw Object.assign(new Error('Run not found'), { code: 'not-found' })
-        const pack = resolvePack(input.packId)
-        const lesson = pack && lessonById(pack, input.lessonId)
-        if (!lesson) throw Object.assign(new Error('Lesson not found'), { code: 'not-found' })
-        const block = (lesson.raw.blocks as { type?: string; id?: string }[]).find((b) => b.id === input.blockId)
-        const attemptId = randomUUID()
-        if (block && (block as { type: string }).type === 'activity') {
-          const g = gradeRunActivity(input.runId)
-          if (!g) throw Object.assign(new Error('No activity run'), { code: 'not-found' })
-          const parsed = activityBlockSchema.safeParse(block)
-          const misconceptionIds =
-            parsed.success
-              ? parsed.data.misconceptionMap?.filter((m) => evalProperty(g.world, m.when)).map((m) => m.misconceptionId) ?? []
-              : []
-          const score = g.passed ? 1 : g.goalMet ? 0.5 : 0
-          const ev = recordGrade(
-            run.learnerId,
-            input.packId,
-            input.lessonId,
-            lesson.raw.taskRev,
-            {
-              attemptId,
-              at: new Date().toISOString(),
-              blockId: input.blockId,
-              taskRev: lesson.raw.taskRev,
-              score,
-              assisted: run.assisted,
-              revealed: run.revealed,
-              passed: g.passed
-            },
-            input.replaceLast === true,
-            { world: g.world, calcFault: g.calcFault },
-            misconceptionIds
-          )
-          appendAttempt(run.learnerId, input.packId, input.lessonId, {
-            id: attemptId,
-            runId: run.runId,
-            learnerId: run.learnerId,
-            at: new Date().toISOString(),
-            blockId: input.blockId,
-            kind: 'grade',
-            taskRev: lesson.raw.taskRev,
-            passed: g.passed,
-            score,
-            assisted: run.assisted,
-            revealed: run.revealed,
-            snapshotId: attemptId,
-            misconceptionIds
-          })
-          if (g.passed) {
-            saveCreation(run.learnerId, input.packId, lesson.raw.creation?.id ?? 'my-circuit', g.world)
-          }
-          return {
-            passed: g.passed,
-            goalMet: g.goalMet,
-            constraintOk: g.constraintOk,
-            calcFault: g.calcFault,
-            compare: { current: ev.grades.at(-1), previous: ev.grades.at(-2), best: ev.best },
-            snapshotId: attemptId,
-            misconceptionIds
-          }
-        }
-        if (block && ((block as { type: string }).type === 'check' || (block as { type: string }).type === 'predict')) {
-          const { passed, misconceptionIds } = gradeCheckAnswer(block as CheckPrompt, input.answers)
-          const ev = recordGrade(
-            run.learnerId,
-            input.packId,
-            input.lessonId,
-            lesson.raw.taskRev,
-            {
-              attemptId,
-              at: new Date().toISOString(),
-              blockId: input.blockId,
-              taskRev: lesson.raw.taskRev,
-              score: passed ? 1 : 0,
-              assisted: run.assisted,
-              revealed: run.revealed,
-              passed
-            },
-            input.replaceLast === true,
-            { answers: input.answers },
-            misconceptionIds
-          )
-          return {
-            passed,
-            compare: { current: ev.grades.at(-1), previous: ev.grades.at(-2), best: ev.best },
-            misconceptionIds,
-            snapshotId: attemptId
-          }
-        }
-        const code = block ? executableBlockSchema.safeParse(block) : null
-        if (code?.success) {
-          assertCanSpawn(pack!)
-          const out = await executeCodeBlock(lesson.folder, code.data as CodeBlock, input.files ?? [])
-          const misconceptionIds = out.checks.filter((c) => !c.ok && c.misconceptionId).map((c) => c.misconceptionId!)
-          if (out.play) recordPlay(run.runId, out.play)
-          const ev = recordGrade(
-            run.learnerId,
-            input.packId,
-            input.lessonId,
-            lesson.raw.taskRev,
-            {
-              attemptId,
-              at: new Date().toISOString(),
-              blockId: input.blockId,
-              taskRev: lesson.raw.taskRev,
-              score: out.passed ? 1 : 0,
-              assisted: run.assisted,
-              revealed: run.revealed,
-              passed: out.passed
-            },
-            input.replaceLast === true,
-            {
-              files: input.files,
-              stdout: out.stdout,
-              stderr: out.stderr,
-              world: out.play?.world,
-              playFault: out.play?.fault ?? null,
-              commands: out.play?.commands
-            },
-            misconceptionIds
-          )
-          if (out.passed && lesson.raw.creation) {
-            saveCreation(run.learnerId, input.packId, lesson.raw.creation.id, {
-              files: input.files,
-              world: out.play?.world
-            })
-          }
-          return {
-            passed: out.passed,
-            checks: out.checks,
-            stdout: out.stdout,
-            stderr: out.stderr,
-            timedOut: out.timedOut,
-            world: out.play?.world,
-            commands: out.play?.commands,
-            playFault: out.play?.fault ?? null,
-            goalMet: out.play?.goalMet,
-            constraintOk: out.play?.constraintOk,
-            exitCode: out.exitCode,
-            compare: { current: ev.grades.at(-1), previous: ev.grades.at(-2), best: ev.best },
-            misconceptionIds,
-            snapshotId: attemptId
-          }
-        }
-        throw Object.assign(new Error('Unsupported block'), { code: 'validation' })
+  ipcMain.handle(IPC.submitLesson, (_e, input: SubmissionPayload) => {
+    const learnerId = currentLearnerId()
+    const key = `${learnerId}|${input.packId}|${input.lessonId}`
+    const running = inFlightSubmits.get(key)
+    if (running) return running
+    const job = wrap(() => submitLesson(learnerId, input)).finally(() => {
+      inFlightSubmits.delete(key)
+    })
+    inFlightSubmits.set(key, job)
+    return job
+  })
+
+  ipcMain.handle(IPC.progressSkip, (_e, input: { packId: string; lessonId: string }) =>
+    wrap(() => {
+      const pack = resolvePack(input.packId)
+      const lesson = pack && lessonById(pack, input.lessonId)
+      appendAttempt(currentLearnerId(), input.packId, input.lessonId, {
+        id: randomUUID(),
+        runId: 'skip',
+        learnerId: currentLearnerId(),
+        at: new Date().toISOString(),
+        blockId: input.lessonId,
+        kind: 'skip',
+        taskRev: lesson?.raw.taskRev ?? 1
       })
+      return { ok: true }
+    })
   )
 
   ipcMain.handle(IPC.hintGet, (_e, input: { runId: string; packId: string; lessonId: string; blockId: string; level: number }) =>
@@ -700,16 +566,17 @@ export function registerIpc(): void {
     })
   )
   ipcMain.handle(IPC.creationExport, async (_e, input: { packId: string; creationId: string; kind: 'folder' | 'zip' }) => {
-    const win = BrowserWindow.getFocusedWindow()
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
     const dir = creationDir(currentLearnerId(), input.packId, input.creationId)
     if (!existsSync(dir)) return err('not-found', 'No creation yet — finish the experiment first')
+    if (!win) return err('not-found', 'No window to export from')
     if (input.kind === 'folder') {
-      const pick = await dialog.showOpenDialog(win!, { properties: ['openDirectory'] })
+      const pick = await dialog.showOpenDialog(win, { properties: ['openDirectory'] })
       if (pick.canceled || !pick.filePaths[0]) return ok({ cancelled: true })
       cpSync(dir, join(pick.filePaths[0], input.creationId), { recursive: true })
       return ok({ cancelled: false, path: join(pick.filePaths[0], input.creationId) })
     }
-    const pick = await dialog.showSaveDialog(win!, { defaultPath: `${input.creationId}.zip` })
+    const pick = await dialog.showSaveDialog(win, { defaultPath: `${input.creationId}.zip` })
     if (pick.canceled || !pick.filePath) return ok({ cancelled: true })
     exportLessonFolder(dir, pick.filePath)
     return ok({ cancelled: false, path: pick.filePath })
@@ -728,7 +595,7 @@ export function registerIpc(): void {
         const parsed = block ? executableBlockSchema.safeParse(block) : null
         if (!parsed?.success) throw Object.assign(new Error('Not a code block'), { code: 'validation' })
         assertCanSpawn(pack)
-        const out = await executeCodeBlock(lesson.folder, parsed.data as CodeBlock, input.files ?? [])
+        const out = await executeCodeBlock(lesson.folder, parsed.data as CodeBlock, input.files ?? [], { grade: false })
         if (out.play) recordPlay(run.runId, out.play)
         return {
           stdout: out.stdout,

@@ -4,7 +4,7 @@
   "level": "intermediate",
   "estimatedMinutes": 480,
   "creationId": "log-scrubber",
-  "skillIds": ["js.node.fs", "js.modules"],
+  "skillIds": ["js.node.fs", "js.modules", "js.text"],
   "modules": [
     {
       "id": "io",
@@ -14,7 +14,15 @@
     {
       "id": "style",
       "title": "Module style and a tool",
-      "lessonIds": ["cjs-vs-esm-node", "error-first-and-promises", "transfer-clean-a-log", "creation-log-scrubber"]
+      "lessonIds": [
+        "cjs-vs-esm-node",
+        "why-bundlers",
+        "modules-esm-files",
+        "error-first-and-promises",
+        "regex-lines",
+        "transfer-clean-a-log",
+        "creation-log-scrubber"
+      ]
     }
   ]
 }

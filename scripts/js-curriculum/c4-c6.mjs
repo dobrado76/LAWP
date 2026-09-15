@@ -142,8 +142,16 @@ module.exports = { readyLabel }
 const go = makeMover("east")
 module.exports = { makeMover }
 `,
-      'hidden.test.js': exportAssert(`assert.strictEqual(typeof m.makeMover('south'), 'function')
-`) + playLogOk()
+      'hidden.test.js':
+        exportAssert(`assert.strictEqual(typeof m.makeMover('south'), 'function')
+assert.strictEqual(m.makeMover.length, 1, 'makeMover takes the heading as a parameter')
+`) +
+        playLogOk(`const moves = log.filter((row) => row.op === 'move')
+assert.ok(moves.length >= 3, 'call the returned function three times')
+assert.ok(moves.every((row) => row.dir === 'east'), 'every step comes from the radio you tuned')
+const src = fs.readFileSync('main.js', 'utf8')
+assert.ok(!/Player\\.move\\(\\s*["']east["']\\s*\\)/.test(src), 'move through the closure, not a hard-coded heading')
+`)
     }
   })
 
@@ -908,7 +916,7 @@ assert.ok(!Object.hasOwn(c, 'kind'))
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods.\n\n`go` lives on `Route.prototype`. Two instances share the same function.\n\nThe fox builds `new Route("east")` and calls `go` three times. The heading lives on the instance; the walk method is shared.'
+          '## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods.\n\n`go` lives on `Route.prototype`. Two instances share the same function.\n\n`class Patrol extends Route` links the two prototypes. Inside `Patrol`, `super(dir)` runs the parent constructor — you must call it before you touch `this` — and `super.go()` calls the parent method you are wrapping instead of replacing.\n\nThe fox builds `new Route("east")` and calls `go` three times. The heading lives on the instance; the walk method is shared.'
         ),
         predict(
           'class-proto',

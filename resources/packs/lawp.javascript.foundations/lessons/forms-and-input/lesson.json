@@ -15,7 +15,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## The live value\n\nThe `input` event fires as the person types. Read `event.target.value` (or the input’s `.value`). That string is the live field, not `innerHTML`.\n\nCopy it into `#echo`. On the echo plate, each letter the fox types should appear on the line below as it is typed."
+      "md": "## The live value\n\nThe `input` event fires as the person types. Read `event.target.value` (or the input’s `.value`). That string is the live field, not `innerHTML`.\n\nFor a whole form at once, `new FormData(formEl)` collects every named control: `data.get(\"name\")` reads one field and `Object.fromEntries(data)` turns the lot into a plain record. Controls without a `name` attribute are not collected, which is the usual reason a field goes missing.\n\nCopy it into `#echo`. On the echo plate, each letter the fox types should appear on the line below as it is typed."
     },
     {
       "type": "predict",

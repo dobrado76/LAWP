@@ -2,5 +2,5 @@
   "id": "the-process",
   "title": "The process",
   "courseIds": ["the-process"],
-  "intro": "Tutorial 5. Node: flags, files, paths, and modules."
+  "intro": "Node: flags, files, paths, modules, and the text tools that clean a log."
 }

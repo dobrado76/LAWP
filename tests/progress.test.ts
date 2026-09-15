@@ -119,6 +119,157 @@ describe('best and ledger rules', () => {
     expect(ev.firstTries.b?.passed).toBe(false)
     expect(firstTryTally(ev.firstTries)).toEqual({ hits: 0, total: 1, score: 0 })
   })
+
+  it('does not master a lesson until every required block has passed', async () => {
+    const { recordGrade, loadEvidence } = await import('@main/progress/store')
+    const { resetSettingsCache } = await import('@main/settings/store')
+    const { ensureDefaultLearner } = await import('@main/learners/store')
+    const { lessonCompletion, requiredBlockIds } = await import('@shared/schemas/progress')
+    expect(requiredBlockIds([{ type: 'explain' }, { type: 'check', id: 'q1' }, { type: 'code', id: 'walk' }])).toEqual([
+      'q1',
+      'walk'
+    ])
+    expect(
+      lessonCompletion([row({ attemptId: 'a', score: 1, blockId: 'q1' })], 1, ['q1', 'walk'])
+    ).toBe('incomplete')
+    resetSettingsCache()
+    const learner = ensureDefaultLearner()
+    const need = ['q1', 'walk']
+    recordGrade(learner.id, 'p', 'multi', 1, row({ attemptId: 'q', score: 1, blockId: 'q1' }), false, {}, [], need)
+    let ev = loadEvidence(learner.id, 'p', 'multi', 1)
+    expect(ev.status).toBe('in-progress')
+    recordGrade(learner.id, 'p', 'multi', 1, row({ attemptId: 'w', score: 1, blockId: 'walk' }), false, {}, [], need)
+    ev = loadEvidence(learner.id, 'p', 'multi', 1)
+    expect(ev.status).toBe('mastered')
+  })
+
+  it('treats an assisted full pass as checked, not mastered', async () => {
+    const { recordGrade, loadEvidence } = await import('@main/progress/store')
+    const { resetSettingsCache } = await import('@main/settings/store')
+    const { ensureDefaultLearner } = await import('@main/learners/store')
+    resetSettingsCache()
+    const learner = ensureDefaultLearner()
+    const need = ['q1', 'walk']
+    recordGrade(
+      learner.id,
+      'p',
+      'assist-done',
+      1,
+      row({ attemptId: 'q', score: 1, blockId: 'q1', assisted: true }),
+      false,
+      {},
+      [],
+      need
+    )
+    recordGrade(learner.id, 'p', 'assist-done', 1, row({ attemptId: 'w', score: 1, blockId: 'walk' }), false, {}, [], need)
+    const ev = loadEvidence(learner.id, 'p', 'assist-done', 1)
+    expect(ev.status).toBe('checked')
+    expect(ev.independentPass).toBe(false)
+  })
+})
+
+describe('durable evidence', () => {
+  it('keeps older passes after the grade ledger has rolled over', async () => {
+    const { recordSubmission, loadEvidence } = await import('@main/progress/store')
+    const { resetSettingsCache } = await import('@main/settings/store')
+    const { ensureDefaultLearner } = await import('@main/learners/store')
+    resetSettingsCache()
+    const learner = ensureDefaultLearner()
+    const required = { pass: ['q1', 'task'], attempt: [] }
+    const commit = (id: string, results: { blockId: string; passed: boolean }[]) =>
+      recordSubmission(learner.id, 'p', 'rolloff', 1, {
+        submissionId: id,
+        at: new Date().toISOString(),
+        results: results.map((r) => ({
+          ...r,
+          score: r.passed ? 1 : 0,
+          attempted: true,
+          assisted: false,
+          revealed: false
+        })),
+        required,
+        snapshot: {}
+      })
+    commit('first', [{ blockId: 'q1', passed: true }])
+    for (let i = 0; i < 60; i++) {
+      commit(`retry${i}`, [{ blockId: 'task', passed: false }])
+    }
+    const ev = loadEvidence(learner.id, 'p', 'rolloff', 1)
+    expect(ev.grades.length).toBe(50)
+    expect(ev.grades.some((g) => g.blockId === 'q1')).toBe(false)
+    expect(ev.blockState.q1?.passed).toBe(true)
+    const done = commit('last', [{ blockId: 'task', passed: true }])
+    expect(done.status).toBe('mastered')
+  })
+
+  it('separates current score, completion, and mastery', async () => {
+    const { recordSubmission, loadEvidence } = await import('@main/progress/store')
+    const { ensureDefaultLearner } = await import('@main/learners/store')
+    const learner = ensureDefaultLearner()
+    const required = { pass: ['a', 'b'], attempt: ['d'] }
+    const at = new Date().toISOString()
+    recordSubmission(learner.id, 'p', 'split', 1, {
+      submissionId: 's1',
+      at,
+      results: [
+        { blockId: 'a', passed: true, score: 1, attempted: true, assisted: false, revealed: false },
+        { blockId: 'b', passed: false, score: 0, attempted: true, assisted: false, revealed: false },
+        { blockId: 'd', passed: false, score: 0, attempted: true, assisted: false, revealed: false }
+      ],
+      required,
+      snapshot: {}
+    })
+    let ev = loadEvidence(learner.id, 'p', 'split', 1)
+    expect(ev.currentScore).toBeCloseTo(2 / 3)
+    expect(ev.status).toBe('in-progress')
+    recordSubmission(learner.id, 'p', 'split', 1, {
+      submissionId: 's2',
+      at,
+      results: [{ blockId: 'b', passed: true, score: 1, attempted: true, assisted: true, revealed: false }],
+      required,
+      snapshot: {}
+    })
+    ev = loadEvidence(learner.id, 'p', 'split', 1)
+    expect(ev.currentScore).toBe(1)
+    expect(ev.status).toBe('checked')
+    expect(ev.independentPass).toBe(false)
+  })
+
+  it('rebuilds block state for evidence saved before it existed', async () => {
+    const { saveEvidence, loadEvidence } = await import('@main/progress/store')
+    const { lessonEvidenceSchema } = await import('@shared/schemas/progress')
+    const { ensureDefaultLearner } = await import('@main/learners/store')
+    const learner = ensureDefaultLearner()
+    const legacy = lessonEvidenceSchema.parse({
+      status: 'checked',
+      taskRev: 1,
+      grades: [row({ attemptId: 'old', score: 1, blockId: 'q1' })],
+      firstTries: { q1: { passed: true, score: 1 } }
+    })
+    delete (legacy as { blockState?: unknown }).blockState
+    saveEvidence(learner.id, 'p', 'legacy', legacy as never)
+    const ev = loadEvidence(learner.id, 'p', 'legacy', 1)
+    expect(ev.blockState.q1?.passed).toBe(true)
+    expect(ev.blockState.q1?.independentPass).toBe(true)
+  })
+})
+
+describe('draft lesson binding', () => {
+  it('refuses to save files under a different lesson id', async () => {
+    const { draftLessonKey, draftMatchesLesson } = await import('@shared/draftBind')
+    const key = draftLessonKey('pack.a', 'return-not-print')
+    expect(draftMatchesLesson(key, 'pack.a', 'return-not-print')).toBe(true)
+    expect(draftMatchesLesson(key, 'pack.a', 'beacon-call')).toBe(false)
+    expect(draftMatchesLesson('', 'pack.a', 'beacon-call')).toBe(false)
+  })
+
+  it('restart ignores a polluted draft and keeps the starter', async () => {
+    const { filesForLesson } = await import('@shared/draftBind')
+    const starters = [{ path: 'files/main.js', contents: 'Player.move("east")\n' }]
+    const draft = [{ path: 'files/main.js', contents: 'console.log("locked")\n' }]
+    expect(filesForLesson(starters, draft)).toEqual(draft)
+    expect(filesForLesson(starters, draft, true)).toEqual(starters)
+  })
 })
 
 describe('learner drafts', () => {

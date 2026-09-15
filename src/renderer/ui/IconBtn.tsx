@@ -70,6 +70,17 @@ export function HintIcon() {
   )
 }
 
+export function SettingsIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M6.4 1.2h3.2l.3 1.4a5 5 0 0 1 1.3.7l1.3-.6 1.6 2.8-1.1 1c.1.4.2.8.2 1.2s-.1.8-.2 1.2l1.1 1-1.6 2.8-1.3-.6a5 5 0 0 1-1.3.7l-.3 1.4H6.4l-.3-1.4a5 5 0 0 1-1.3-.7l-1.3.6L1.9 9.9l1.1-1A5 5 0 0 1 2.8 7.6c0-.4.1-.8.2-1.2l-1.1-1 1.6-2.8 1.3.6a5 5 0 0 1 1.3-.7l.3-1.4ZM8 5.5A2.1 2.1 0 1 0 8 9.7 2.1 2.1 0 0 0 8 5.5Z"
+      />
+    </svg>
+  )
+}
+
 export function RestartIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">

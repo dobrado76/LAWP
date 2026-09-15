@@ -36,8 +36,10 @@ protocol.registerSchemesAsPrivileged([
 
 function createWindow(): void {
   const bounds = windowConstructorOptions()
+  const title = `LAWP ${app.getVersion()}`
   const win = new BrowserWindow({
     ...bounds,
+    title,
     minWidth: 960,
     minHeight: 640,
     icon: iconPath(),
@@ -51,6 +53,10 @@ function createWindow(): void {
     }
   })
   win.setMenuBarVisibility(false)
+  win.on('page-title-updated', (e) => {
+    e.preventDefault()
+    win.setTitle(title)
+  })
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
   win.webContents.on('will-navigate', (e) => {
     e.preventDefault()

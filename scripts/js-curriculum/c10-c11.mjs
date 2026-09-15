@@ -324,7 +324,7 @@ module.exports = { lastLine }
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## Two module systems\n\n`require` and `module.exports` are CommonJS. `import` and `export` are ESM. Node treats a file as ESM when it ends in `.mjs` or when `package.json` says `"type": "module"`.\n\nThis lesson is ESM. Export `ping` and print `pong`. Do not write `module.exports` here — the hidden test imports from `main.mjs`.\n\nThe desk’s walk helper ships as `.mjs` so the scrubber can `import { ping }` without a `require` dance.'
+          '## Two module systems\n\n`require` and `module.exports` are CommonJS. `import` and `export` are ESM. Node treats a file as ESM when it ends in `.mjs` or when `package.json` says `"type": "module"`.\n\nStatic `import` is hoisted and resolved before the file runs. When a module is only sometimes needed — a rarely used tool, a heavy dependency — `await import(\"./tool.mjs\")` loads it on demand and resolves to the namespace.\n\nThis lesson is ESM. Export `ping` and print `pong`. Do not write `module.exports` here — the hidden test imports from `main.mjs`.\n\nThe desk’s walk helper ships as `.mjs` so the scrubber can `import { ping }` without a `require` dance.'
         ),
         predict(
           'which-file',
@@ -434,6 +434,74 @@ module.exports = { load }
 `,
       'hidden.test.js': asyncAssert(`  const v = await m.load()
   assert.strictEqual(v, 'north')
+`)
+    }
+  })
+
+  out.push({
+    doc: lesson({
+      id: 'regex-lines',
+      courseId: 'the-process',
+      moduleId: 'style',
+      title: 'Patterns over log lines',
+      skillIds: ['js.text'],
+      estimatedMinutes: 22,
+      blocks: [
+        explain(
+          '## A pattern is a tiny parser\n\nA log line looks like `[WARN]   beacon   down`. You want the level and the message, without the noise.\n\n- `/\\s+/` means one or more whitespace characters.\n- `^` and `$` anchor the pattern to the start and end of the line.\n- Parentheses **capture**: `/^\\[(\\w+)\\]\\s*(.*)$/` keeps the level in group 1 and the rest in group 2.\n- `exec` returns `null` when nothing matched, or an array whose slots 1 and 2 are those groups.\n\n`"a  b  c".replace(/\\s+/, " ")` fixes only the **first** run of spaces. Add the `g` flag — `/\\s+/g` — to fix every run. That missing `g` is the bug people ship most.\n\nRegex is for lines and fields. It is the wrong tool for HTML; you already have a document tree for that.'
+        ),
+        predict(
+          'replace-one',
+          '`"a  b  c".replace(/\\s+/, "-")` gives…',
+          [
+            { id: 'all', md: '`a-b-c`', misconceptionId: 'replace-replaces-all' },
+            { id: 'first', md: '`a-b  c` — only the first run changed' },
+            { id: 'none', md: '`a  b  c`' }
+          ],
+          'first'
+        ),
+        cloze(
+          'pattern-parts',
+          'In `/^\\[(\\w+)\\]\\s*(.*)$/`, the parentheses {{a}} that part of the match, and `^` {{b}}.',
+          [
+            { id: 'a', choices: ['capture', 'delete', 'repeat'] },
+            { id: 'b', choices: ['anchors to the start', 'means not', 'matches a caret'] }
+          ],
+          { a: 'capture', b: 'anchors to the start' },
+          { explainMd: 'Groups come back as slots 1, 2, … on the exec result. Anchors stop the pattern from matching in the middle of a longer line.' }
+        ),
+        tf(
+          'exec-null',
+          '`exec` throws when the line does not match the pattern.',
+          false,
+          { explainMd: 'It returns null. Check for null before reading the capture groups, or you will read a property of null.' }
+        ),
+        stdoutCode({
+          id: 'tidy-line',
+          prompt:
+            '> `tidy(line)` turns `"[WARN]   beacon   down  "` into `"warn: beacon down"`. A line with no `[LEVEL]` tag gets the level `info`. Print `tidy("[WARN]   beacon   down  ")`.',
+          equals: 'warn: beacon down',
+          hidden: true,
+          hints: ladder(
+            'Two jobs: pull the level out of the brackets, and squeeze the runs of spaces in the message.',
+            '`/^\\[(\\w+)\\]\\s*(.*)$/.exec(line)` gives you the level and the rest, or `null` when there is no tag.',
+            'Collapse spacing with the global flag: `text.replace(/\\s+/g, " ").trim()`.',
+            'function tidy(line) {\n  const match = /^\\[(\\w+)\\]\\s*(.*)$/.exec(line.trim())\n  const level = match ? match[1].toLowerCase() : "info"\n  const message = (match ? match[2] : line).replace(/\\s+/g, " ").trim()\n  return `${level}: ${message}`\n}\nconsole.log(tidy("[WARN]   beacon   down  "))\nmodule.exports = { tidy }'
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `function tidy(line) {
+  return line.trim().toLowerCase()
+}
+console.log(tidy("[WARN]   beacon   down  "))
+module.exports = { tidy }
+`,
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.tidy('[WARN]   beacon   down  '), 'warn: beacon down')
+assert.strictEqual(m.tidy('[ERROR] lost'), 'error: lost')
+assert.strictEqual(m.tidy('plain    message'), 'info: plain message')
+assert.strictEqual(m.tidy('  [info]  ok  '), 'info: ok')
 `)
     }
   })
@@ -647,9 +715,9 @@ module.exports = { walkLength }
           hidden: true,
           extraFiles: [{ path: 'files/cases.json', role: 'fixture' }],
           hints: ladder(
-            'Parse `cases.json`. Each row has `dirs` and `n`.',
-            'Assert `walkLength(c.dirs)` equals `c.n` for every row.',
-            'JSON.parse the fixture, assert each n.',
+            'Two jobs: make `walkLength` correct, and prove it against every row in `cases.json` rather than one example you typed.',
+            'Read the fixture with `fs`, `JSON.parse` it, and assert `walkLength(c.dirs)` equals `c.n` for each row.',
+            '`for (const c of rows) assert.strictEqual(walkLength(c.dirs), c.n)` fails loudly on the first bad row.',
             'const fs = require("fs")\nconst assert = require("assert")\nfunction walkLength(dirs) { return dirs.length }\nfor (const c of JSON.parse(fs.readFileSync("cases.json", "utf8"))) {\n  assert.strictEqual(walkLength(c.dirs), c.n)\n}\nconsole.log("ok")\nmodule.exports = { walkLength }'
           )
         })
@@ -658,13 +726,15 @@ module.exports = { walkLength }
     files: {
       'cases.json': `[{ "dirs": ["east"], "n": 1 }, { "dirs": ["east", "south"], "n": 2 }]\n`,
       'main.js': `function walkLength(dirs) {
-  return dirs.length
+  return 0
 }
 console.log("ok")
 module.exports = { walkLength }
 `,
-      'hidden.test.js': exportAssert(`assert.strictEqual(m.walkLength(['a', 'b', 'c']), 3)
-`)
+      'hidden.test.js':
+        exportAssert(`assert.strictEqual(m.walkLength(['a', 'b', 'c']), 3)
+assert.strictEqual(m.walkLength([]), 0)
+`) + srcIncludes('cases.json', 'assert')
     }
   })
 
@@ -937,9 +1007,15 @@ assert.ok(!/[^!=]==[^=]/.test(src), 'do not use ==')
 console.log(safeMerge({}, { name: "n" }).name)
 module.exports = { safeMerge }
 `,
-      'hidden.test.js': exportAssert(`const out = m.safeMerge({ a: 1 }, JSON.parse('{"__proto__":{"polluted":true},"name":"n"}'))
+      'hidden.test.js': exportAssert(`const target = { a: 1 }
+const out = m.safeMerge(target, JSON.parse('{"__proto__":{"polluted":true},"name":"n"}'))
 assert.strictEqual(out.name, 'n')
+assert.strictEqual(out.a, 1)
 assert.strictEqual({}.polluted, undefined)
+assert.strictEqual(out.polluted, undefined, 'the merged object inherited a polluted prototype')
+assert.strictEqual(Object.prototype.hasOwnProperty.call(out, '__proto__'), false)
+m.safeMerge(target, { b: 2 })
+assert.strictEqual(target.b, undefined, 'safeMerge must return a fresh object, not edit the target')
 `)
     }
   })
@@ -954,7 +1030,7 @@ assert.strictEqual({}.polluted, undefined)
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Time a loop; do not guess\n\n`performance.now()` (or `Date.now()`) before and after a loop tells you how long it took. Guessing “this feels slow” is not a measurement.\n\nThis lesson asks for the **count** you measured (`1000`), not a clever faster algorithm. Run the loop. Increment `n`. Print `n`.\n\nThe desk timed a thousand fox steps before anyone rewrote the walker. Change the path after you have a number, not because the loop looked long.'
+          '## Count the work before you rewrite it\n\nWall-clock timing with `Date.now()` is noisy: the same loop gives a different answer on every run. A **counted** measurement is reproducible, and it is usually the number you actually wanted — how much work does each approach do?\n\nTwo ways to look for duplicates in a list of `n` items:\n\n- Nested loops compare every pair: `n * (n - 1) / 2` comparisons.\n- A `Set` visits each item once: `n` steps.\n\nDo not take those formulas on faith. Run both, increment a counter inside each, and report what the counters say. For `n = 5` that is `loops:10 set:5`.\n\nThe desk counted before anyone rewrote the walker. Change the path once you have a number.'
         ),
         predict(
           'guess',
@@ -973,26 +1049,31 @@ assert.strictEqual({}.polluted, undefined)
         ),
         stdoutCode({
           id: 'count-loop',
-          prompt: '> Loop 1000 times, increment `n`, print `n`.',
-          equals: '1000',
+          prompt:
+            '> `report(n)` builds a list of `n` items, runs both searches with a counter in each, and returns `loops:<pairs> set:<steps>`. Print `report(5)` (`loops:10 set:5`).',
+          equals: 'loops:10 set:5',
           hidden: true,
           hints: ladder(
-            'Start `n` at `0`. Add one, a thousand times.',
-            'A `for` loop with `i < 1000` runs the body 1000 times.',
-            'for (let i = 0; i < 1000; i++) n++',
-            'function count() {\n  let n = 0\n  for (let i = 0; i < 1000; i++) n += 1\n  return n\n}\nconsole.log(count())\nmodule.exports = { count }'
+            'Two counters, two loops. Neither number should be written by hand — they must come out of the runs.',
+            'The nested pass compares each item with the ones after it, so the inner loop starts at `i + 1`.',
+            'The Set pass is one loop: add each item and increment the counter once per item.',
+            'function report(n) {\n  const list = Array.from({ length: n }, (_, i) => i)\n  let pairs = 0\n  for (let i = 0; i < list.length; i++) {\n    for (let j = i + 1; j < list.length; j++) pairs += 1\n  }\n  let steps = 0\n  const seen = new Set()\n  for (const item of list) {\n    steps += 1\n    seen.add(item)\n  }\n  return `loops:${pairs} set:${steps}`\n}\nconsole.log(report(5))\nmodule.exports = { report }'
           )
         })
       ]
     }),
     files: {
-      'main.js': `function count() {
-  return 10
+      'main.js': `function report(n) {
+  const list = Array.from({ length: n }, (_, i) => i)
+  return "loops:0 set:0"
 }
-console.log(count())
-module.exports = { count }
+console.log(report(5))
+module.exports = { report }
 `,
-      'hidden.test.js': exportAssert(`assert.strictEqual(m.count(), 1000)
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.report(5), 'loops:10 set:5')
+assert.strictEqual(m.report(4), 'loops:6 set:4')
+assert.strictEqual(m.report(1), 'loops:0 set:1')
+assert.strictEqual(m.report(0), 'loops:0 set:0')
 `)
     }
   })

@@ -109,7 +109,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "if (value) is enough. 0 is falsy."
+          "md": "The starter always answers `open`. The value that arrives should decide."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`if (value)` is enough on its own: `0` and `\"\"` are falsy, `[]` and `\"0\"` are truthy."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`return value ? \"yes\" : \"no\"` picks between two strings in one line."
         },
         {
           "level": 4,

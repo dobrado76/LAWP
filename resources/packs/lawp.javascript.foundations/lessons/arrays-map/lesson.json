@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array. Print `ADA,GRACE`.\n\nThen walk: map `\"E\"`/`\"S\"` labels into `\"east\"`/`\"south\"` and move those dirs to (2, 1)."
+      "md": "## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array of the same length, with each item transformed. The list you started from is untouched — that is the whole point, and the hidden test checks it.\n\nHere you map two lowercase names to uppercase and join them: `ADA,GRACE`."
     },
     {
       "type": "predict",
@@ -68,7 +68,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Use map, then join with a comma."
+          "md": "The starter joins the names but never changes them, so the letters stay lowercase."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`map` builds a new list from the old one; `join` turns that new list into text."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`[\"a\"].map((s) => s.toUpperCase())` is `[\"A\"]`, and the original list is untouched."
         },
         {
           "level": 4,

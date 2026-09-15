@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A name is not a call\n\n`ping` is the function. `ping()` runs it and gives you `\"pong\"`. Printing the function itself is not the same as printing its result."
+      "md": "## A name is not a call\n\n`ping` is the function. `ping()` runs it and gives you `\"pong\"`. Printing the function itself is not the same as printing its result.\n\nThe last line, `module.exports = { ping }`, is how the checker reaches your function. Leave it there and ignore it for now — it is harness plumbing, not syntax you need yet. Modules get taught properly in the Node track."
     },
     {
       "type": "predict",
@@ -63,7 +63,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Parentheses run the function: ping()"
+          "md": "The file prints a question mark. Nothing has called `ping` yet."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Parentheses run the function: `ping()`. Without them you are holding the function itself."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`console.log(add(2, 2))` prints `4`; `console.log(add)` prints the function source."
         },
         {
           "level": 4,

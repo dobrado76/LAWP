@@ -62,6 +62,8 @@ export type CheckPrompt = {
   kind: CheckKind
   promptMd: string
   explainMd?: string
+  /** Measured, not gated: the learner moves on either way, so the review reveals the answer. */
+  diagnostic?: boolean
   choices?: CheckChoice[]
   left?: CheckChoice[]
   right?: CheckChoice[]
@@ -325,6 +327,17 @@ export function gradeCheckAnswer(check: CheckPrompt, given: unknown): { passed: 
   return { passed, misconceptionIds }
 }
 
+/**
+ * The choice ids that count as the answer, for the kinds whose answer *is* a
+ * choice. Empty for kinds answered by typing, ordering, or filling a map — a
+ * review pane can only highlight a choice it can point at.
+ */
+export function correctChoiceIds(check: CheckPrompt): string[] {
+  if (typeof check.answer === 'string') return [check.answer]
+  if (Array.isArray(check.answer)) return check.answer.filter((x): x is string => typeof x === 'string')
+  return []
+}
+
 function isCorrectChoice(check: CheckPrompt, id: string): boolean {
   if (typeof check.answer === 'string') return check.answer === id
   if (Array.isArray(check.answer)) return check.answer.includes(id)
@@ -344,6 +357,27 @@ export function defaultCheckValue(check: CheckPrompt): unknown {
   if (NUM.includes(check.kind)) return check.min ?? ''
   if (check.kind === 'fix') return check.starter ?? ''
   return ''
+}
+
+function isEmptyAnswer(given: unknown): boolean {
+  if (given === undefined || given === null || given === '') return true
+  if (Array.isArray(given)) return given.length === 0
+  if (typeof given === 'object') {
+    const vals = Object.values(given as Record<string, unknown>)
+    return vals.length === 0 || vals.every((v) => v === '' || v === undefined || v === null)
+  }
+  return false
+}
+
+/**
+ * An answer counts as attempted when the learner touched the control or moved
+ * it off its default. `order`, `numeric`, and `fix` start on a value that can
+ * be right, so those rely on the touched flag.
+ */
+export function isAttemptedAnswer(check: CheckPrompt, given: unknown, touched = false): boolean {
+  if (touched) return true
+  if (isEmptyAnswer(given)) return false
+  return JSON.stringify(given ?? null) !== JSON.stringify(defaultCheckValue(check) ?? null)
 }
 
 export function tfChoices(check: CheckPrompt): CheckChoice[] {

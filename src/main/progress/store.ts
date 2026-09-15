@@ -1,16 +1,22 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import {
   attemptSchema,
   beatsBest,
+  blockStateFromGrades,
   lessonEvidenceSchema,
+  lessonCompletionFrom,
+  lessonScore,
   pickBest,
   type Attempt,
+  type BlockState,
   type GradeRow,
-  type LessonEvidence
+  type LessonEvidence,
+  type LessonRequirements
 } from '@shared/schemas/progress'
 import { learnerDir } from '../learners/store'
+import { safeJoin } from '../security/paths'
 import { clearDraft, clearPackDrafts } from './drafts'
 
 const MAX_ATTEMPTS = 200
@@ -53,11 +59,20 @@ export function loadEvidence(learnerId: string, packId: string, lessonId: string
     saveEvidence(learnerId, packId, lessonId, ev)
     return ev
   }
-  const filled = backfillFirstTries(ev)
-  if (Object.keys(filled.firstTries).length !== Object.keys(ev.firstTries).length) {
+  const filled = backfillBlockState(backfillFirstTries(ev))
+  if (
+    Object.keys(filled.firstTries).length !== Object.keys(ev.firstTries).length ||
+    Object.keys(filled.blockState).length !== Object.keys(ev.blockState).length
+  ) {
     saveEvidence(learnerId, packId, lessonId, filled)
   }
   return filled
+}
+
+/** Evidence written before durable block state existed still has its passes. */
+function backfillBlockState(ev: LessonEvidence): LessonEvidence {
+  if (Object.keys(ev.blockState).length || !ev.grades.length) return ev
+  return { ...ev, blockState: blockStateFromGrades(ev.grades, ev.firstTries, ev.taskRev) }
 }
 
 function backfillFirstTries(ev: LessonEvidence): LessonEvidence {
@@ -83,6 +98,7 @@ export function applyTaskRevBump(ev: LessonEvidence, newRev: number): LessonEvid
     masteredAt: ev.masteredAt,
     firstCheckedAt: ev.firstCheckedAt,
     firstTries: ev.firstTries,
+    blockState: ev.blockState,
     grades: ev.grades
   }
   const wasDone = ev.status === 'checked' || ev.status === 'mastered'
@@ -90,6 +106,7 @@ export function applyTaskRevBump(ev: LessonEvidence, newRev: number): LessonEvid
     status: wasDone ? 'retrying' : 'not-started',
     taskRev: newRev,
     grades: [],
+    blockState: {},
     independentPass: false,
     firstTries: {},
     prior
@@ -135,6 +152,90 @@ export function recordMisconceptions(
   return ev
 }
 
+/** Bounded ledger append plus the durable block record that outlives it. */
+function applyRow(
+  ev: LessonEvidence,
+  row: GradeRow,
+  replaceLast: boolean,
+  extra?: { attempted?: boolean; answer?: unknown; passingFilesHash?: string }
+): void {
+  if (replaceLast && ev.grades.length > 0) {
+    ev.grades[ev.grades.length - 1] = row
+  } else {
+    ev.grades.push(row)
+    if (ev.grades.length > MAX_GRADES) ev.grades = ev.grades.slice(-MAX_GRADES)
+  }
+  const prev = ev.blockState[row.blockId]
+  const fresh = !prev || prev.taskRev !== row.taskRev
+  const independent = row.passed && !row.assisted && !row.revealed
+  const next: BlockState = {
+    taskRev: row.taskRev,
+    attempted: extra?.attempted ?? true,
+    passed: (!fresh && prev!.passed) || row.passed,
+    bestScore: Math.max(fresh ? 0 : prev!.bestScore, row.score),
+    assisted: row.assisted,
+    independentPass: (!fresh && prev!.independentPass) || independent,
+    firstTryPassed: fresh ? row.passed : prev!.firstTryPassed ?? row.passed,
+    at: row.at
+  }
+  const answer = extra?.answer
+  if (answer !== undefined) next.answer = answer
+  else if (!fresh && prev!.answer !== undefined) next.answer = prev!.answer
+  const hash = row.passed ? extra?.passingFilesHash : undefined
+  if (hash) next.passingFilesHash = hash
+  else if (!fresh && prev!.passingFilesHash && !row.passed) next.passingFilesHash = prev!.passingFilesHash
+  ev.blockState[row.blockId] = next
+  if (!ev.firstTries[row.blockId]) {
+    ev.firstTries[row.blockId] = { passed: row.passed, score: row.score, attemptId: row.attemptId }
+  }
+}
+
+/** Score, completion, and mastery are three separate readings of the same state. */
+function settle(ev: LessonEvidence, required: LessonRequirements, at: string): void {
+  const best = pickBest(ev.grades.filter((g) => g.taskRev === ev.taskRev))
+  const last = ev.grades.at(-1)
+  ev.best = best
+  if (
+    best &&
+    last &&
+    beatsBest(
+      {
+        ...last,
+        score: best.score,
+        assisted: best.assisted,
+        taskRev: best.taskRev,
+        attemptId: best.attemptId ?? last.attemptId
+      },
+      ev.bestEver
+    )
+  ) {
+    ev.bestEver = best
+  } else if (!ev.bestEver && best) {
+    ev.bestEver = best
+  }
+  ev.currentGradeId = ev.grades.at(-1)?.attemptId
+  ev.previousGradeId = ev.grades.length > 1 ? ev.grades.at(-2)?.attemptId : undefined
+  ev.currentScore = lessonScore(ev.blockState, ev.taskRev, required)
+  const done = lessonCompletionFrom(ev.blockState, ev.taskRev, required)
+  if (done === 'mastered') {
+    ev.status = 'mastered'
+    ev.independentPass = true
+    ev.firstCheckedAt = ev.firstCheckedAt ?? at
+    ev.masteredAt = ev.masteredAt ?? at
+  } else if (done === 'checked') {
+    if (ev.status !== 'mastered') ev.status = 'checked'
+    ev.firstCheckedAt = ev.firstCheckedAt ?? at
+  } else if (ev.status === 'not-started' || ev.status === 'retrying') {
+    ev.status = 'in-progress'
+  }
+}
+
+function writeSnapshot(learnerId: string, packId: string, lessonId: string, attemptId: string, snapshot: unknown): void {
+  const dir = snapshotDir(learnerId, packId, lessonId, attemptId)
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(join(dir, 'snapshot.json'), JSON.stringify(snapshot, null, 2), 'utf8')
+}
+
 export function recordGrade(
   learnerId: string,
   packId: string,
@@ -143,43 +244,72 @@ export function recordGrade(
   row: GradeRow,
   replaceLast: boolean,
   snapshot: unknown,
-  misconceptionIds: string[] = []
+  misconceptionIds: string[] = [],
+  requiredBlockIds: string[] = []
 ): LessonEvidence {
-  let ev = loadEvidence(learnerId, packId, lessonId, taskRev)
-  if (replaceLast && ev.grades.length > 0) {
-    ev.grades[ev.grades.length - 1] = row
-  } else {
-    ev.grades.push(row)
-    if (ev.grades.length > MAX_GRADES) ev.grades = ev.grades.slice(-MAX_GRADES)
-  }
-  const best = pickBest(ev.grades.filter((g) => g.taskRev === taskRev))
-  ev.best = best
-  if (best && beatsBest({ ...row, score: best.score, assisted: best.assisted, taskRev: best.taskRev, attemptId: best.attemptId ?? row.attemptId, at: row.at, blockId: row.blockId, revealed: row.revealed, passed: row.passed }, ev.bestEver)) {
-    ev.bestEver = best
-  } else if (!ev.bestEver && best) {
-    ev.bestEver = best
-  }
-  if (!ev.firstTries[row.blockId]) {
-    ev.firstTries[row.blockId] = { passed: row.passed, score: row.score, attemptId: row.attemptId }
-  }
-  ev.currentGradeId = ev.grades.at(-1)?.attemptId
-  ev.previousGradeId = ev.grades.length > 1 ? ev.grades.at(-2)?.attemptId : undefined
-  if (row.passed) {
-    ev.status = 'checked'
-    ev.firstCheckedAt = ev.firstCheckedAt ?? row.at
-    if (!row.assisted && !row.revealed) {
-      ev.independentPass = true
-      ev.status = 'mastered'
-      ev.masteredAt = ev.masteredAt ?? row.at
-    }
-  } else if (ev.status === 'not-started') {
-    ev.status = 'in-progress'
-  }
+  const ev = loadEvidence(learnerId, packId, lessonId, taskRev)
+  applyRow(ev, row, replaceLast)
+  settle(ev, { pass: requiredBlockIds.length ? requiredBlockIds : [row.blockId], attempt: [] }, row.at)
   recordMisconceptions(ev, misconceptionIds)
   saveEvidence(learnerId, packId, lessonId, ev)
-  const dir = snapshotDir(learnerId, packId, lessonId, row.attemptId)
-  mkdirSync(dir, { recursive: true })
-  writeFileSync(join(dir, 'snapshot.json'), JSON.stringify(snapshot, null, 2), 'utf8')
+  writeSnapshot(learnerId, packId, lessonId, row.attemptId, snapshot)
+  return ev
+}
+
+export type SubmissionBlockResult = {
+  blockId: string
+  passed: boolean
+  score: number
+  attempted: boolean
+  assisted: boolean
+  revealed: boolean
+  answer?: unknown
+  misconceptionIds?: string[]
+}
+
+/**
+ * One submission, one commit. Every block result from a single Submit lands
+ * together so evidence never shows half an attempt.
+ */
+export function recordSubmission(
+  learnerId: string,
+  packId: string,
+  lessonId: string,
+  taskRev: number,
+  input: {
+    submissionId: string
+    at: string
+    filesHash?: string
+    results: SubmissionBlockResult[]
+    required: LessonRequirements
+    snapshot: unknown
+  }
+): LessonEvidence {
+  const ev = loadEvidence(learnerId, packId, lessonId, taskRev)
+  const misconceptions: string[] = []
+  for (const r of input.results) {
+    applyRow(
+      ev,
+      {
+        attemptId: input.submissionId,
+        at: input.at,
+        blockId: r.blockId,
+        taskRev,
+        score: r.score,
+        assisted: r.assisted,
+        revealed: r.revealed,
+        passed: r.passed
+      },
+      false,
+      { attempted: r.attempted, answer: r.answer, passingFilesHash: input.filesHash }
+    )
+    misconceptions.push(...(r.misconceptionIds ?? []))
+  }
+  ev.lastSubmissionId = input.submissionId
+  settle(ev, input.required, input.at)
+  recordMisconceptions(ev, misconceptions)
+  saveEvidence(learnerId, packId, lessonId, ev)
+  writeSnapshot(learnerId, packId, lessonId, input.submissionId, input.snapshot)
   return ev
 }
 
@@ -205,6 +335,13 @@ export function resetProgress(
     clearDraft(learnerId, packId, lessonId)
     const ev = loadEvidence(learnerId, packId, lessonId, taskRev)
     ev.status = ev.status === 'not-started' ? 'not-started' : 'retrying'
+    if (Object.keys(ev.blockState).length) {
+      const prior = { ...(ev.prior ?? {}) }
+      prior[`${taskRev}:restart:${new Date().toISOString()}`] = { blockState: ev.blockState }
+      ev.prior = prior
+      ev.blockState = {}
+      ev.currentScore = 0
+    }
     saveEvidence(learnerId, packId, lessonId, ev)
     appendAttempt(learnerId, packId, lessonId, {
       id: randomUUID(),
@@ -229,6 +366,7 @@ export function resetProgress(
     if (ev.bestEver && last && ev.bestEver.attemptId === last.id) {
       ev.bestEver = pickBest(ev.grades)
     }
+    ev.blockState = blockStateFromGrades(ev.grades, ev.firstTries, ev.taskRev)
     ev.currentGradeId = ev.grades.at(-1)?.attemptId
     ev.previousGradeId = ev.grades.length > 1 ? ev.grades.at(-2)?.attemptId : undefined
     saveEvidence(learnerId, packId, lessonId, ev)
@@ -255,10 +393,42 @@ export function packProgress(learnerId: string, packId: string, lessons: { id: s
   return out
 }
 
-export function saveCreation(learnerId: string, packId: string, creationId: string, world: unknown): string {
+export function saveCreation(
+  learnerId: string,
+  packId: string,
+  creationId: string,
+  payload: { files?: { path: string; contents: string }[]; world?: unknown; lessonId?: string }
+): string {
   const dir = join(learnerDir(learnerId), 'creations', packId, creationId)
   mkdirSync(dir, { recursive: true })
-  writeFileSync(join(dir, 'world.json'), JSON.stringify(world, null, 2), 'utf8')
+  // The export is meant to be opened, read, and run — so the learner's own files
+  // land as files, not as strings inside a wrapper.
+  const written: string[] = []
+  for (const file of payload.files ?? []) {
+    const rel = file.path.replace(/^files\//, '')
+    const target = safeJoin(dir, rel)
+    if (!target) continue
+    mkdirSync(dirname(target), { recursive: true })
+    writeFileSync(target, file.contents, 'utf8')
+    written.push(rel)
+  }
+  if (payload.world !== undefined) writeFileSync(join(dir, 'world.json'), JSON.stringify(payload.world, null, 2), 'utf8')
+  writeFileSync(
+    join(dir, 'creation.json'),
+    JSON.stringify(
+      {
+        creationId,
+        packId,
+        lessonId: payload.lessonId,
+        savedAt: new Date().toISOString(),
+        files: written,
+        hasWorld: payload.world !== undefined
+      },
+      null,
+      2
+    ),
+    'utf8'
+  )
   return dir
 }
 

@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Text in, object out\n\n`JSON.parse` reads a string. Bad text throws. `JSON.stringify` writes a string. A fixture file in this lesson is `signal.json` — parse it and print the `name` field."
+      "md": "## Text in, object out, text again\n\n`JSON.parse` turns a string into an object. Bad text throws a `SyntaxError` — there is no quiet `{}` fallback. `JSON.stringify` goes the other way.\n\nHere the JSON arrives as a string already, held in `raw`. Reading files comes later, in the Node track; today the only question is what the text becomes.\n\nA round-trip is not always lossless: `undefined`, functions, and `Map` values do not survive `stringify`."
     },
     {
       "type": "predict",
@@ -34,11 +34,19 @@
       "answer": "throw"
     },
     {
+      "type": "check",
+      "id": "stringify-undefined",
+      "kind": "tf",
+      "promptMd": "`JSON.stringify({ a: undefined })` keeps the `a` field.",
+      "answer": "false",
+      "explainMd": "It gives `{}`. Fields set to undefined, and functions, are dropped on the way out."
+    },
+    {
       "type": "code",
-      "id": "read-fixture",
+      "id": "read-signal",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Parse `signal.json` and print the `name` field (`north`).",
+      "promptMd": "> `readName(text)` parses the JSON in `text` and returns the `name` field. Print `readName(raw)` (`north`).",
       "files": [
         {
           "path": "files/main.js",
@@ -47,16 +55,16 @@
         {
           "path": "files/hidden.test.js",
           "role": "hidden-test"
-        },
-        {
-          "path": "files/signal.json",
-          "role": "fixture"
         }
       ],
       "checks": [
         {
           "type": "stdout",
           "equals": "north"
+        },
+        {
+          "type": "ast",
+          "query": "JSON.parse"
         },
         {
           "type": "js-assert"
@@ -66,12 +74,22 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "fs.readFileSync(\"signal.json\", \"utf8\") then JSON.parse."
+          "md": "The starter hands the raw text straight back, so you are printing JSON instead of a name."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`JSON.parse(text)` gives you an object; after that it is an ordinary field read."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`JSON.parse('{\"kind\":\"beacon\"}').kind` is `\"beacon\"`."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "const fs = require(\"fs\")\nfunction readName() {\n  return JSON.parse(fs.readFileSync(\"signal.json\", \"utf8\")).name\n}\nconsole.log(readName())\nmodule.exports = { readName }"
+          "md": "const raw = '{ \"name\": \"north\", \"kind\": \"beacon\" }'\nfunction readName(text) {\n  return JSON.parse(text).name\n}\nconsole.log(readName(raw))\nmodule.exports = { readName }"
         }
       ]
     }

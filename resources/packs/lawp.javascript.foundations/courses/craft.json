@@ -14,7 +14,7 @@
     {
       "id": "ship",
       "title": "Ship with judgment",
-      "lessonIds": ["why-bundlers", "modules-esm-files", "proto-pollution", "measure-then-change", "jsdoc-contracts", "transfer-test-the-fox", "capstone-signal-ops"]
+      "lessonIds": ["proto-pollution", "measure-then-change", "jsdoc-contracts", "transfer-test-the-fox", "capstone-signal-ops"]
     }
   ]
 }

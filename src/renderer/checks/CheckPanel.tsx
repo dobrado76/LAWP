@@ -1,7 +1,9 @@
 import { useState, type DragEvent, type ReactNode } from 'react'
 import {
   CHECK_KIND_LABEL,
+  correctChoiceIds,
   defaultCheckValue,
+  isAttemptedAnswer,
   packAssetUrl,
   splitCloze,
   splitHottext,
@@ -9,15 +11,40 @@ import {
   tfChoices,
   type CheckPrompt
 } from '@shared/check'
-import { md } from '../md'
+import { md, mdInline } from '../md'
 import { DownIcon, IconBtn, UpIcon } from '../ui/IconBtn'
 
 type Choice = { id: string; md: string; image?: string }
 
 export function gradeCtaMode(result: 'pass' | 'fail' | null, canAdvance: boolean): 'submit' | 'next' | 'none' {
   if (result === 'pass' && canAdvance) return 'next'
-  if (result !== 'pass') return 'submit'
-  return 'none'
+  return 'submit'
+}
+
+/** Lesson-level verdict: Correct only when every required check and the code/activity task have passed. */
+export function lessonWorkVerdict(opts: {
+  checkResults: Array<'pass' | 'fail' | null>
+  taskResult: 'pass' | 'fail' | null
+  hasTask: boolean
+}): 'pass' | 'fail' | null {
+  const checksDone = opts.checkResults.every((r) => r === 'pass')
+  const checksFailed = opts.checkResults.some((r) => r === 'fail')
+  const taskDone = !opts.hasTask || opts.taskResult === 'pass'
+  if (checksDone && taskDone) return 'pass'
+  if (checksFailed || opts.taskResult === 'fail') return 'fail'
+  return null
+}
+
+/**
+ * The questions still waiting for an answer. Uses the same rule main grades
+ * with, so a disabled Submit and a rejected submission can never disagree.
+ */
+export function unansweredChecks(
+  checks: CheckPrompt[],
+  answers: Record<string, unknown>,
+  touched: ReadonlySet<string>
+): CheckPrompt[] {
+  return checks.filter((ch) => !isAttemptedAnswer(ch, answers[ch.id], touched.has(ch.id)))
 }
 
 export function GradeCta({
@@ -25,13 +52,18 @@ export function GradeCta({
   canAdvance,
   onSubmit,
   onNext,
-  nextLabel
+  nextLabel,
+  busy = false,
+  blockedReason
 }: {
   result: 'pass' | 'fail' | null
   canAdvance: boolean
   onSubmit: () => void
   onNext: () => void
   nextLabel: string
+  busy?: boolean
+  /** Set when the lesson can already be seen to be unsubmittable, e.g. a question with no answer. */
+  blockedReason?: string
 }) {
   const mode = gradeCtaMode(result, canAdvance)
   if (mode === 'next') {
@@ -43,9 +75,18 @@ export function GradeCta({
   }
   if (mode === 'submit') {
     return (
-      <button type="button" className="btn primary check-cta" onClick={onSubmit}>
-        Submit
-      </button>
+      <>
+        <button
+          type="button"
+          className="btn primary check-cta"
+          onClick={onSubmit}
+          disabled={busy || Boolean(blockedReason)}
+          title={blockedReason}
+        >
+          {busy ? 'Checking…' : 'Submit'}
+        </button>
+        {blockedReason && !busy ? <p className="check-cta-note">{blockedReason}</p> : null}
+      </>
     )
   }
   return null
@@ -79,8 +120,10 @@ export function CheckPanel({
   const kind = check.kind
   const current = value === undefined ? defaultCheckValue(check) : value
   const hidePrompt = kind === 'cloze' || kind === 'bank' || kind === 'hottext' || kind === 'select'
+  const graded = result !== null
+  const answers = revealsAnswer(check, result) || result === 'pass' ? correctChoiceIds(check) : []
   return (
-    <div className="check-panel">
+    <div className={`check-panel${graded ? ` is-${result}` : ''}`}>
       <p className="check-kicker">{CHECK_KIND_LABEL[kind]}</p>
       {!hidePrompt && <div className="prose" dangerouslySetInnerHTML={{ __html: md(check.promptMd) }} />}
       {kind === 'mcq' || kind === 'odd' || kind === 'listen' ? (
@@ -94,6 +137,8 @@ export function CheckPanel({
             packId={packId}
             lessonId={lessonId}
             multiple={false}
+            answers={answers}
+            graded={graded}
             selected={typeof current === 'string' ? [current] : []}
             onToggle={(id) => onChange(id)}
           />
@@ -107,6 +152,8 @@ export function CheckPanel({
           lessonId={lessonId}
           multiple={false}
           pictures
+          answers={answers}
+          graded={graded}
           selected={typeof current === 'string' ? [current] : []}
           onToggle={(id) => onChange(id)}
         />
@@ -117,7 +164,7 @@ export function CheckPanel({
             <button
               key={c.id}
               type="button"
-              className={`btn${current === c.id ? ' primary' : ''}`}
+              className={`btn${current === c.id ? ' primary' : ''}${markChoice(c.id, current === c.id, answers, graded)}`}
               onClick={() => onChange(c.id)}
             >
               {c.md}
@@ -132,6 +179,8 @@ export function CheckPanel({
           packId={packId}
           lessonId={lessonId}
           multiple
+          answers={answers}
+          graded={graded}
           selected={Array.isArray(current) ? (current as string[]) : []}
           onToggle={(id) => {
             const have = new Set(Array.isArray(current) ? (current as string[]) : [])
@@ -216,6 +265,7 @@ export function CheckPanel({
       ) : null}
       {kind === 'bins' ? <Bins check={check} value={asMap(current)} onChange={onChange} /> : null}
       {kind === 'venn' ? <Venn check={check} value={asMap(current)} onChange={onChange} /> : null}
+      {result ? <CheckReview check={check} result={result} /> : null}
       {showCta && onSubmit && onNext ? (
         <GradeCta result={result} canAdvance={canAdvance} onSubmit={onSubmit} onNext={onNext} nextLabel={nextLabel ?? 'Next'} />
       ) : null}
@@ -248,6 +298,20 @@ function asTier(v: unknown): { choice: string; reason: string } {
   return { choice, reason }
 }
 
+/**
+ * Once a question is graded, the choices carry the verdict: green on a right
+ * pick, red on a wrong one, amber on the answer the learner missed. They stay
+ * clickable — seeing the answer is worth nothing if you cannot then try it.
+ */
+function markChoice(id: string, picked: boolean, answers: string[], graded: boolean): string {
+  if (!graded) return ''
+  const isAnswer = answers.includes(id)
+  if (isAnswer && picked) return ' is-correct'
+  if (isAnswer) return ' is-answer'
+  if (picked) return ' is-wrong'
+  return ''
+}
+
 function ChoiceList({
   name,
   choices,
@@ -256,7 +320,9 @@ function ChoiceList({
   onToggle,
   pictures,
   packId,
-  lessonId
+  lessonId,
+  answers = [],
+  graded = false
 }: {
   name: string
   choices: Choice[]
@@ -266,19 +332,64 @@ function ChoiceList({
   pictures?: boolean
   packId: string
   lessonId: string
+  answers?: string[]
+  graded?: boolean
 }) {
   return (
     <div className={`check-choices${pictures ? ' is-pictures' : ''}`}>
       {choices.map((c) => {
         const on = selected.includes(c.id)
         return (
-          <label key={c.id} className={`choice${on ? ' is-on' : ''}${c.image ? ' has-pic' : ''}`}>
+          <label
+            key={c.id}
+            className={`choice${on ? ' is-on' : ''}${c.image ? ' has-pic' : ''}${markChoice(c.id, on, answers, graded)}`}
+          >
             <input type={multiple ? 'checkbox' : 'radio'} name={name} checked={on} onChange={() => onToggle(c.id)} />
             {c.image ? <img src={packAssetUrl(packId, lessonId, c.image)} alt="" /> : null}
             <span dangerouslySetInnerHTML={{ __html: md(c.md) }} />
           </label>
         )
       })}
+    </div>
+  )
+}
+
+/**
+ * A wrong answer is only told the answer when the learner will not get another
+ * honest run at it — a diagnostic, which they leave either way. On a graded
+ * question they retry, so the hint ladder does this job and the review says
+ * only that it was wrong.
+ */
+export function revealsAnswer(check: CheckPrompt, result: 'pass' | 'fail' | null): boolean {
+  return result === 'fail' && check.diagnostic === true
+}
+
+/**
+ * What the learner keeps from a graded question: the verdict, the answer spelled
+ * out when it is theirs to see, and why it is the answer. Being shown the right
+ * box without being told why teaches the box, not the idea.
+ */
+function CheckReview({ check, result }: { check: CheckPrompt; result: 'pass' | 'fail' }) {
+  const reveal = revealsAnswer(check, result)
+  const named = reveal
+    ? correctChoiceIds(check)
+        .map((id) => (check.choices ?? tfChoices(check)).find((c) => c.id === id)?.md)
+        .filter((x): x is string => Boolean(x))
+    : []
+  const explain = result === 'pass' || reveal ? check.explainMd : undefined
+  return (
+    <div className={`check-review is-${result}`}>
+      <p className="check-review-line">
+        {result === 'pass' ? 'Correct' : 'Not this one'}
+        {named.length ? (
+          <>
+            {' — the answer is '}
+            <span className="check-review-answer" dangerouslySetInnerHTML={{ __html: mdInline(named.join(', ')) }} />
+          </>
+        ) : null}
+        {result === 'fail' && !reveal ? ' — change your pick and submit again, or take a hint' : null}
+      </p>
+      {explain ? <div className="prose" dangerouslySetInnerHTML={{ __html: md(explain) }} /> : null}
     </div>
   )
 }

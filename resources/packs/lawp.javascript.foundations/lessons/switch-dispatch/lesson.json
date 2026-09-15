@@ -1,0 +1,212 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.flow",
+    "js.functions"
+  ],
+  "id": "switch-dispatch",
+  "courseId": "signals",
+  "moduleId": "loops",
+  "title": "One command name, many branches",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## `switch` routes a command\n\nA dispatch table reads one value and picks a branch. `switch (cmd)` compares with `===`, runs the matching `case`, and keeps running **into the next case** until it meets `break`.\n\nThat fall-through is a feature when you group spellings:\n\n```\ncase \"east\":\ncase \"e\":\n  Player.move(\"east\")\n  break\n```\n\nBoth labels share one body. Forgetting `break` on a branch that has its own body is the classic bug: the fox does two things for one command. `default` catches anything you did not plan for."
+    },
+    {
+      "type": "predict",
+      "id": "no-break",
+      "promptMd": "A `case \"east\"` moves east but has no `break`. The next case moves south. What happens on `\"east\"`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "east",
+          "md": "Only the east move runs"
+        },
+        {
+          "id": "both",
+          "md": "East runs, then south runs too",
+          "misconceptionId": "switch-without-break"
+        },
+        {
+          "id": "error",
+          "md": "JavaScript refuses to run it"
+        }
+      ],
+      "answer": "both"
+    },
+    {
+      "type": "check",
+      "id": "default-case",
+      "promptMd": "The plan contains `\"beep\"`, which no case names. With a `default` branch that calls `Player.say(\"skip\")`, what happens?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "crash",
+          "md": "The program throws on the unknown command"
+        },
+        {
+          "id": "skip",
+          "md": "The default branch runs and the fox says `skip`"
+        },
+        {
+          "id": "last",
+          "md": "The last case runs instead",
+          "misconceptionId": "switch-without-break"
+        }
+      ],
+      "answer": "skip",
+      "explainMd": "`default` is the branch for everything you did not list. Without it, an unknown command is silently ignored."
+    },
+    {
+      "type": "code",
+      "id": "dispatch-plan",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> Walk the plan with a `switch`. `east` and `e` both go east, `south` goes south, and anything else falls to `default` and says `skip`. Beacon is at (2, 2).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "ast",
+          "query": "switch"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The plan is already in the file. Loop it and branch on each command."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`switch (cmd)` with one `case` per command name, and `break` at the end of each body."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Two labels stacked with no body between them share the branch below: `case \"east\":` then `case \"e\":` then the move."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "const plan = [\"east\", \"east\", \"south\", \"south\", \"beep\"]\nfor (const cmd of plan) {\n  switch (cmd) {\n    case \"east\":\n    case \"e\":\n      Player.move(\"east\")\n      break\n    case \"south\":\n      Player.move(\"south\")\n      break\n    default:\n      Player.say(\"skip\")\n  }\n}"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "beacon",
+              "type": "beacon",
+              "props": {
+                "x": 2,
+                "y": 2,
+                "label": "Beacon"
+              }
+            },
+            {
+              "id": "t1",
+              "type": "tree",
+              "props": {
+                "x": 5,
+                "y": 1,
+                "solid": true
+              }
+            },
+            {
+              "id": "barrel",
+              "type": "barrel",
+              "props": {
+                "x": 6,
+                "y": 3
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-grass"
+            },
+            "assetMap": {
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "fox.say",
+              "op": "eq",
+              "value": "skip"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "description": "One command name picks between many branches. Grouped labels share a body on purpose, and a missing stop runs the next branch by accident."
+}

@@ -1,0 +1,116 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "js.values",
+    "js.objects"
+  ],
+  "id": "optional-chaining",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "Reach into a record that may be missing",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## `?.` asks first\n\n`signal.beacon.name` throws the moment `signal.beacon` is `undefined`. `signal?.beacon?.name` stops at the first missing link and hands back `undefined` instead of throwing.\n\n`?.` does **not** supply a default. It only avoids the crash. Pair it with `??` when you want a fallback:\n\n```\nsignal?.beacon?.name ?? \"unknown\"\n```\n\nThere are two more forms: `fn?.()` calls only if `fn` exists, and `list?.[0]` indexes only if `list` exists."
+    },
+    {
+      "type": "predict",
+      "id": "chain-missing",
+      "promptMd": "`const s = {}` — what is `s?.beacon?.name`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "throws",
+          "md": "It throws a TypeError"
+        },
+        {
+          "id": "undef",
+          "md": "`undefined` — the chain stopped early"
+        },
+        {
+          "id": "empty",
+          "md": "`\"\"` — it becomes an empty string",
+          "misconceptionId": "optional-chain-defaults"
+        }
+      ],
+      "answer": "undef"
+    },
+    {
+      "type": "check",
+      "id": "chain-not-default",
+      "promptMd": "A beacon reads `{ name: \"\", power: 0 }`. Which expression keeps both real readings instead of hiding them?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "or",
+          "md": "`b?.name || \"unknown\"` and `b?.power || 1`",
+          "misconceptionId": "or-eats-zero"
+        },
+        {
+          "id": "nullish",
+          "md": "`b?.name ?? \"unknown\"` and `b?.power ?? 1`"
+        },
+        {
+          "id": "chain",
+          "md": "`b?.name` alone supplies the default",
+          "misconceptionId": "optional-chain-defaults"
+        }
+      ],
+      "answer": "nullish",
+      "explainMd": "`\"\"` and `0` are real readings. `||` throws them away; `??` only steps in for `null` or `undefined`. `?.` never supplies a default at all."
+    },
+    {
+      "type": "code",
+      "id": "beacon-name",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `beaconName(signal)` returns the beacon name. Missing signal or missing beacon gives `\"unknown\"`, but an empty name stays empty. Print `beaconName({ beacon: { name: \"north\" } })`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "north"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Reading `.beacon.name` on an empty object throws. You need the chain to stop instead."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`?.` returns undefined at the first missing link. `??` then fills in the fallback."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`const label = record?.inner?.label ?? \"none\"` reads two levels and defaults only when something was missing."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function beaconName(signal) {\n  return signal?.beacon?.name ?? \"unknown\"\n}\nconsole.log(beaconName({ beacon: { name: \"north\" } }))\nmodule.exports = { beaconName }"
+        }
+      ]
+    }
+  ],
+  "description": "Reach through a record that may be missing without crashing. The question mark dot stops at the first gap, and it is not a default."
+}

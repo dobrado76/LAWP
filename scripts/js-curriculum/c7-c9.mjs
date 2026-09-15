@@ -24,6 +24,8 @@ import {
   exportAssert,
   deskWorld,
   deskGoal,
+  timeoutDeskWorld,
+  timeoutDeskGoal,
   pageHtml
 } from './lib.mjs'
 
@@ -95,13 +97,13 @@ export function lessonsC7C9() {
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Sync, then the timeout tray\n\n`setTimeout(fn, 0)` does **not** mean “run now.” It means “put `fn` on the macrotask queue.” Sync work on the stack finishes first. Only then does the desk look at the timeout tray.\n\nOn the desk: light **1 Sync**, then later **3 timeout**. The `then` lamp is a different tray (next lesson). If you fire the timeout while sync is still running, the desk records a fault.'
+          '## Sync, then the timeout tray\n\n`setTimeout(fn, 0)` does **not** mean “run now.” It means “put `fn` on the macrotask queue.” Sync work on the stack finishes first. Only then does the desk look at the timeout tray.\n\nThis desk has two lamps: **1 Sync work** and **2 setTimeout(fn, 0)**. Light them in that order. Firing the timeout while the sync lamp is dark records a fault, because that is not an order the runtime can produce.\n\nThe third tray — `promise.then` — arrives in the next lesson, and it does not wait its turn behind timeouts.'
         ),
         activityBlock({
           id: 'desk-sync-timeout',
           kind: 'experiment',
           skillIds: ['js.async'],
-          prompt: 'Light sync first, then the timeout. Leave `then` off for this lesson. Wrong order sets a fault.',
+          prompt: 'Two trays, in order: run the sync call, then fire the timeout. Firing the timeout first sets a fault.',
           predict: {
             promptMd: 'Does `setTimeout(fn, 0)` run before the current call stack finishes?',
             kind: 'mcq',
@@ -111,14 +113,15 @@ export function lessonsC7C9() {
             ],
             answer: 'no'
           },
-          world: deskWorld(),
-          goal: { all: [at('sync', 'on', 1), at('macro', 'on', 1), at('desk', 'fault', 0)] },
+          world: timeoutDeskWorld(),
+          goal: timeoutDeskGoal,
           constraints: [at('desk', 'fault', 0)],
           explainAfter: 'Timeouts are macrotasks. They wait until the stack is clear.',
           hints: hints(
-            'Press Run the sync call, then Fire the timeout. Skip then for now — but the desk still wants then between them if you use the full order…',
-            { level: 2, kind: 'concept', md: 'This desk’s full legal order is sync → then → timeout. For this lesson, light then as well so the timeout is legal — then treat that lamp as “queue gap.”' },
-            { level: 4, kind: 'assist', md: 'Sync, then Flush promise.then, then Fire the timeout.' }
+            'The desk has exactly two buttons. One of them has to go first.',
+            { level: 2, kind: 'concept', md: 'Sync work runs on the stack that is already going. The timeout waits for a tray that is only served once that stack is empty.' },
+            { level: 3, kind: 'concept', md: 'Firing the timeout while the sync lamp is dark is the fault this desk records.' },
+            { level: 4, kind: 'assist', md: 'Press Run the sync call, then Fire the timeout.' }
           ),
           misconceptionMap: [{ when: at('desk', 'fault', 1), misconceptionId: 'then-and-timeout-same-queue' }]
         }),
@@ -399,7 +402,91 @@ module.exports = { readKey }
 }
 go()
 `,
-      'hidden.test.js': playLogOk(`assert.ok(log.filter((row) => row.op === 'wait').length >= 1)
+      'hidden.test.js': playLogOk(`const waits = log.filter((row) => row.op === 'wait')
+assert.ok(waits.length >= 3, 'the yard expects three waits, not one')
+const ops = log.map((row) => row.op)
+const moves = log.filter((row) => row.op === 'move' && row.dir === 'east')
+assert.ok(moves.length >= 3, 'walk east onto the beacon after the waits')
+assert.ok(ops.lastIndexOf('wait') < ops.indexOf('move'), 'finish the waiting before the walking')
+`)
+    }
+  })
+
+  out.push({
+    doc: lesson({
+      id: 'promise-combinators',
+      courseId: 'event-loop',
+      moduleId: 'async-code',
+      title: 'all, allSettled, and race',
+      skillIds: ['js.async'],
+      estimatedMinutes: 22,
+      blocks: [
+        explain(
+          '## Three ways to wait for a group\n\n`Promise.all([a, b, c])` resolves with an array of results, in the order you passed them — **or** rejects the moment any one of them rejects. You do not get the results that did arrive. Use it when every part is required.\n\n`Promise.allSettled([a, b, c])` never rejects. It resolves with one row per promise: `{ status: "fulfilled", value }` or `{ status: "rejected", reason }`. Use it when you want a report of what worked.\n\n`Promise.race([a, b])` settles with whichever settles first, win or lose. That is how a timeout is built: race the real work against a promise that rejects after N milliseconds.'
+        ),
+        predict(
+          'all-rejects',
+          'Two reads succeed and the third rejects. What does `await Promise.all([r1, r2, r3])` give you?',
+          [
+            { id: 'partial', md: 'An array with the two results that arrived', misconceptionId: 'all-settles-partly' },
+            { id: 'throws', md: 'It throws — the whole group rejects' },
+            { id: 'undefined', md: 'An array with `undefined` in the third slot', misconceptionId: 'all-settles-partly' }
+          ],
+          'throws'
+        ),
+        check(
+          'pick-combinator',
+          'You want a report of which of four beacons answered, including the ones that failed. Which do you reach for?',
+          [
+            { id: 'all', md: '`Promise.all`', misconceptionId: 'all-settles-partly' },
+            { id: 'settled', md: '`Promise.allSettled`' },
+            { id: 'race', md: '`Promise.race`' }
+          ],
+          'settled',
+          {
+            explainMd:
+              '`allSettled` waits for every promise and reports each outcome. `all` would throw on the first failure and tell you nothing about the rest. `race` only reports the first one to settle.'
+          }
+        ),
+        tf(
+          'race-rejects',
+          '`Promise.race` ignores a rejection and waits for the first success.',
+          false,
+          {
+            explainMd:
+              'Race settles with the first promise to settle either way. A fast rejection wins the race, which is exactly what makes it useful as a timeout.'
+          }
+        ),
+        stdoutCode({
+          id: 'settle-report',
+          prompt:
+            '> `report(jobs)` awaits every job with `Promise.allSettled` and returns a string like `ok:2 failed:1`. Print `report` of two resolved jobs and one rejected one.',
+          equals: 'ok:2 failed:1',
+          ast: 'allSettled',
+          hidden: true,
+          hints: ladder(
+            'One failing job must not stop you from counting the others, so `all` is the wrong tool here.',
+            '`Promise.allSettled` resolves with a row per job. Each row has a `status` of `"fulfilled"` or `"rejected"`.',
+            'Count with a filter: `rows.filter((r) => r.status === "fulfilled").length`.',
+            'async function report(jobs) {\n  const rows = await Promise.allSettled(jobs)\n  const ok = rows.filter((r) => r.status === "fulfilled").length\n  return `ok:${ok} failed:${rows.length - ok}`\n}\nreport([Promise.resolve(1), Promise.resolve(2), Promise.reject(new Error("no"))]).then((v) => console.log(v))\nmodule.exports = { report }'
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `async function report(jobs) {
+  const rows = await Promise.allSettled(jobs)
+  return \`ok:\${rows.length} failed:0\`
+}
+report([Promise.resolve(1), Promise.resolve(2), Promise.reject(new Error("no"))]).then((v) => console.log(v))
+module.exports = { report }
+`,
+      'hidden.test.js': asyncAssert(`  const mixed = await m.report([Promise.resolve(1), Promise.resolve(2), Promise.reject(new Error('no'))])
+  assert.strictEqual(mixed, 'ok:2 failed:1')
+  const allOk = await m.report([Promise.resolve(1)])
+  assert.strictEqual(allOk, 'ok:1 failed:0')
+  const allBad = await m.report([Promise.reject(new Error('a')), Promise.reject(new Error('b'))])
+  assert.strictEqual(allBad, 'ok:0 failed:2')
 `)
     }
   })
@@ -753,7 +840,7 @@ assert.ok(items.includes('East'))
       estimatedMinutes: 22,
       blocks: [
         explain(
-          '## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running. One listener on a parent can hear a click on a child.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using the target id, then the currentTarget id. The inner ping is the target. The outer nest is the listener.'
+          '## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running. One listener on a parent can hear a click on a child.\n\nBubbling is the second half of the trip. The event first travels **down** from the document to the target — the capture phase — and `addEventListener(type, fn, { capture: true })` takes a seat on that leg instead. Same event, earlier seat. `stopPropagation()` ends the trip wherever you call it.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using the target id, then the currentTarget id. The inner ping is the target. The outer nest is the listener.'
         ),
         predict(
           'target',
@@ -857,7 +944,7 @@ assert.strictEqual(document.querySelector('#picked').textContent, 'East')
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## The live value\n\nThe `input` event fires as the person types. Read `event.target.value` (or the input’s `.value`). That string is the live field, not `innerHTML`.\n\nCopy it into `#echo`. On the echo plate, each letter the fox types should appear on the line below as it is typed.'
+          '## The live value\n\nThe `input` event fires as the person types. Read `event.target.value` (or the input’s `.value`). That string is the live field, not `innerHTML`.\n\nFor a whole form at once, `new FormData(formEl)` collects every named control: `data.get(\"name\")` reads one field and `Object.fromEntries(data)` turns the lot into a plain record. Controls without a `name` attribute are not collected, which is the usual reason a field goes missing.\n\nCopy it into `#echo`. On the echo plate, each letter the fox types should appear on the line below as it is typed.'
         ),
         predict(
           'value-field',
@@ -1246,7 +1333,7 @@ assert.deepStrictEqual(vis, ['West'])
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Method and labels\n\n`GET` asks to read. `POST` sends a body. The method is the verb on the slip. Headers are labels on that slip. `Content-Type` tells the other side how to read the body.\n\nThis lesson does not open the network. You only describe a request object. `describe({ method: \'POST\', headers: { \'content-type\': \'application/json\' } })` should print `POST application/json`. A GET with no content-type label prints `GET none`.'
+          '## Method and labels\n\n`GET` asks to read. `POST` sends a body. The method is the verb on the slip. Headers are labels on that slip. `Content-Type` tells the other side how to read the body.\n\nThe address has structure too. `new URL(\"/beacons?kind=lamp\", \"https://desk.test\")` splits into `pathname` and `searchParams`, and `url.searchParams.set(\"kind\", \"beacon\")` edits a query safely — it escapes spaces and symbols so you never glue a broken address together by hand.\n\nThis lesson does not open the network. You only describe a request object. `describe({ method: \'POST\', headers: { \'content-type\': \'application/json\' } })` should print `POST application/json`. A GET with no content-type label prints `GET none`.'
         ),
         predict(
           'get-vs-post',
@@ -1373,7 +1460,7 @@ module.exports = { read }
       estimatedMinutes: 18,
       blocks: [
         explain(
-          '## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `"bad-json"`.\n\nGood `/beacons.json` still parses. The fox asked for a record and got a torn slip. Handle the tear. Do not pretend the body was `{}`.'
+          '## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `"bad-json"`.\n\n**Run the starter first.** It crashes, and the stack trace is the lesson: the rejection came out of `res.json()`, not out of `fetch`. The status was fine; the body was torn.\n\nGood `/beacons.json` still parses. The fox asked for a record and got a torn slip. Handle the tear. Do not pretend the body was `{}`.'
         ),
         predict(
           'json-throw',
@@ -1392,7 +1479,8 @@ module.exports = { read }
         ),
         stdoutCode({
           id: 'parse-safe',
-          prompt: '> `safeRead("/broken")` returns `"bad-json"`. Print it.',
+          debug: true,
+          prompt: '> The starter throws on a torn body. Make `safeRead("/broken")` return `"bad-json"` instead. Print it.',
           equals: 'bad-json',
           hidden: true,
           extraFiles: [
@@ -1400,9 +1488,9 @@ module.exports = { read }
             { path: 'files/routes.json', role: 'fixture' }
           ],
           hints: ladder(
-            'Fetch the URL, then try to parse the body.',
-            'Wrap `res.json()` in `try/catch`.',
-            'On parse failure, return the string `bad-json`.',
+            'The crash happens at the parse step, so that is the line to guard.',
+            'Wrap `res.json()` in `try/catch`. The fetch itself succeeded.',
+            '`try { return await res.json() } catch { return "bad-json" }` turns the throw into an answer.',
             'async function safeRead(url) {\n  const res = await fetch(url)\n  try { return await res.json() }\n  catch { return "bad-json" }\n}\nsafeRead("/broken").then((v) => console.log(v))\nmodule.exports = { safeRead }'
           )
         })

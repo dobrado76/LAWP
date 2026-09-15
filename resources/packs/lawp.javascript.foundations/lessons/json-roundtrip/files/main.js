@@ -1,5 +1,6 @@
-function readName() {
-  return "?"
+const raw = '{ "name": "north", "kind": "beacon" }'
+function readName(text) {
+  return text
 }
-console.log(readName())
+console.log(readName(raw))
 module.exports = { readName }

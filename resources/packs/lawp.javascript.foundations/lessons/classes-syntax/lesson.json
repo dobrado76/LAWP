@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods.\n\n`go` lives on `Route.prototype`. Two instances share the same function.\n\nThe fox builds `new Route(\"east\")` and calls `go` three times. The heading lives on the instance; the walk method is shared."
+      "md": "## A route blueprint\n\n`class Route { constructor(dir) { this.dir = dir } go() { Player.move(this.dir) } }` is nicer spelling for prototype methods.\n\n`go` lives on `Route.prototype`. Two instances share the same function.\n\n`class Patrol extends Route` links the two prototypes. Inside `Patrol`, `super(dir)` runs the parent constructor — you must call it before you touch `this` — and `super.go()` calls the parent method you are wrapping instead of replacing.\n\nThe fox builds `new Route(\"east\")` and calls `go` three times. The heading lives on the instance; the walk method is shared."
     },
     {
       "type": "predict",

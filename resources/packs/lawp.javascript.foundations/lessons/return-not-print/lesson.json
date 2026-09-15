@@ -59,7 +59,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "return the string. Then pass it to Player.say. The fox starts one cell north of the beacon."
+          "md": "The fox says a question mark because `status` logs instead of returning. The stage only hears what you hand to `Player.say`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Swap `console.log` for `return`, then pass the call into `Player.say(status())`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`function name() { return \"fox\" }` then `Player.say(name())` puts `fox` in the bubble."
         },
         {
           "level": 4,

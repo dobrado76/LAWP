@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running. One listener on a parent can hear a click on a child.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using the target id, then the currentTarget id. The inner ping is the target. The outer nest is the listener."
+      "md": "## target vs currentTarget\n\nThe event starts at the clicked node (`target`) and bubbles up. `currentTarget` is the node whose listener is running. One listener on a parent can hear a click on a child.\n\nBubbling is the second half of the trip. The event first travels **down** from the document to the target — the capture phase — and `addEventListener(type, fn, { capture: true })` takes a seat on that leg instead. Same event, earlier seat. `stopPropagation()` ends the trip wherever you call it.\n\nListen on `#outer`. When `#inner` is clicked, set `#out` to `inner>outer` using the target id, then the currentTarget id. The inner ping is the target. The outer nest is the listener."
     },
     {
       "type": "predict",

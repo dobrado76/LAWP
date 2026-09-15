@@ -131,6 +131,35 @@ describe('code run grading', () => {
     expect(ok.passed).toBe(true)
   })
 
+  it('preview run keeps learner stdout and skips hidden-test stderr', async () => {
+    const { executeCodeBlock } = await import('@main/runners/code')
+    const block: CodeBlock = {
+      type: 'code',
+      id: 'hidden',
+      engine: 'javascript',
+      entry: 'main.js',
+      files: [
+        { path: 'files/main.js', role: 'edit', contents: '' },
+        {
+          path: 'files/hidden.test.js',
+          role: 'hidden-test',
+          contents: `const assert = require('assert')\nconst { label } = require('./main.js')\nassert.strictEqual(label(), 'beacon')\n`
+        }
+      ],
+      checks: [{ type: 'js-assert' }]
+    }
+    const out = await executeCodeBlock(
+      root,
+      block,
+      [{ path: 'files/main.js', contents: `function label() { return 'nope' }\nconsole.log('locked')\nmodule.exports = { label }\n` }],
+      { grade: false }
+    )
+    expect(out.stdout.trim()).toBe('locked')
+    expect(out.stderr).not.toMatch(/AssertionError/)
+    expect(out.exitCode).toBe(0)
+    expect(out.checks).toEqual([])
+  })
+
   it('boots ESM import/export', async () => {
     const { executeCodeBlock } = await import('@main/runners/code')
     const block: CodeBlock = {
@@ -220,5 +249,32 @@ describe('code run grading', () => {
       { path: 'files/main.js', contents: `document.querySelector('#t').textContent = 'Beacon'\n` }
     ])
     expect(ok.passed).toBe(true)
+  })
+
+  it('times out async DOM work that exceeds timeoutMs', async () => {
+    const { runDomHarness } = await import('@main/runners/dom')
+    const started = Date.now()
+    const out = await runDomHarness(
+      {
+        type: 'code',
+        id: 'slow',
+        engine: 'javascript',
+        entry: 'main.js',
+        timeoutMs: 10,
+        preview: { kind: 'iframe' },
+        files: [
+          { path: 'files/index.html', role: 'fixture', contents: '<!doctype html><html><body></body></html>' },
+          { path: 'files/main.js', role: 'edit', contents: '' }
+        ],
+        checks: []
+      },
+      [
+        { path: 'files/index.html', role: 'fixture', contents: '<!doctype html><html><body></body></html>' },
+        { path: 'files/main.js', role: 'edit', contents: 'setTimeout(function () {}, 120)\n' }
+      ]
+    )
+    expect(out.timedOut).toBe(true)
+    expect(out.exitCode).toBe(124)
+    expect(Date.now() - started).toBeLessThan(80)
   })
 })

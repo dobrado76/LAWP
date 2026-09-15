@@ -1,0 +1,139 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "js.objects",
+    "js.arrays"
+  ],
+  "id": "object-key-iteration",
+  "courseId": "data",
+  "moduleId": "records",
+  "title": "Walk the keys of a record",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three ways to walk, one you should reach for\n\n`Object.keys(route)` gives the **own** key names as an array. `Object.values` gives the values, `Object.entries` gives `[key, value]` pairs. All three skip anything inherited from a prototype.\n\n`for (const k in route)` also walks **inherited** keys. That is why a record built with `Object.create(base)` leaks `base`'s keys into your loop.\n\n`for (const v of list)` is for arrays and other iterables. A plain object is not iterable — `for…of` on one throws."
+    },
+    {
+      "type": "predict",
+      "id": "for-in-what",
+      "promptMd": "In `for (const k in route)`, what is `k` on each pass?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "key",
+          "md": "The key name, as a string"
+        },
+        {
+          "id": "value",
+          "md": "The value stored under the key",
+          "misconceptionId": "for-in-yields-values"
+        },
+        {
+          "id": "pair",
+          "md": "A `[key, value]` pair"
+        }
+      ],
+      "answer": "key"
+    },
+    {
+      "type": "check",
+      "id": "which-walk",
+      "kind": "cloze",
+      "promptMd": "To get own keys only, use {{a}}. To get `[key, value]` pairs, use {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "Object.keys",
+              "md": "Object.keys"
+            },
+            {
+              "id": "for…in",
+              "md": "for…in"
+            },
+            {
+              "id": "for…of",
+              "md": "for…of"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "Object.entries",
+              "md": "Object.entries"
+            },
+            {
+              "id": "Object.values",
+              "md": "Object.values"
+            },
+            {
+              "id": "JSON.parse",
+              "md": "JSON.parse"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "Object.keys",
+        "b": "Object.entries"
+      },
+      "explainMd": "for…in adds inherited keys. Object.keys and Object.entries stay on the record in front of you."
+    },
+    {
+      "type": "code",
+      "id": "route-summary",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `summary(route)` returns each own key and value as `key=value`, joined with `;`. Print `summary({ east: 3, south: 2 })` (`east=3;south=2`).",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "east=3;south=2"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "You need both the key and the value on each pass, in the order they were written."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`Object.entries(route)` hands you `[key, value]` pairs you can map over."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`Object.entries(o).map(([k, v]) => k + \"=\" + v)` builds the pieces; `join(\";\")` glues them."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function summary(route) {\n  return Object.entries(route)\n    .map(([key, value]) => `${key}=${value}`)\n    .join(\";\")\n}\nconsole.log(summary({ east: 3, south: 2 }))\nmodule.exports = { summary }"
+        }
+      ]
+    }
+  ],
+  "description": "Walk a record by its own keys, its values, or both. The older loop also hands you inherited keys."
+}

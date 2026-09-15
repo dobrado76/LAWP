@@ -66,7 +66,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Use a template literal, not + if you can help it."
+          "md": "The starter hands the name back unchanged. You need the name inside a longer label."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A template literal is wrapped in backticks and drops a value in with `${ }`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`` `signal:${kind}` `` with `kind = \"low\"` builds `signal:low`."
         },
         {
           "level": 4,

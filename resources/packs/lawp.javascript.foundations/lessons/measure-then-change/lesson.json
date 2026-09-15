@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Time a loop; do not guess\n\n`performance.now()` (or `Date.now()`) before and after a loop tells you how long it took. Guessing “this feels slow” is not a measurement.\n\nThis lesson asks for the **count** you measured (`1000`), not a clever faster algorithm. Run the loop. Increment `n`. Print `n`.\n\nThe desk timed a thousand fox steps before anyone rewrote the walker. Change the path after you have a number, not because the loop looked long."
+      "md": "## Count the work before you rewrite it\n\nWall-clock timing with `Date.now()` is noisy: the same loop gives a different answer on every run. A **counted** measurement is reproducible, and it is usually the number you actually wanted — how much work does each approach do?\n\nTwo ways to look for duplicates in a list of `n` items:\n\n- Nested loops compare every pair: `n * (n - 1) / 2` comparisons.\n- A `Set` visits each item once: `n` steps.\n\nDo not take those formulas on faith. Run both, increment a counter inside each, and report what the counters say. For `n = 5` that is `loops:10 set:5`.\n\nThe desk counted before anyone rewrote the walker. Change the path once you have a number."
     },
     {
       "type": "predict",
@@ -46,7 +46,7 @@
       "id": "count-loop",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> Loop 1000 times, increment `n`, print `n`.",
+      "promptMd": "> `report(n)` builds a list of `n` items, runs both searches with a counter in each, and returns `loops:<pairs> set:<steps>`. Print `report(5)` (`loops:10 set:5`).",
       "files": [
         {
           "path": "files/main.js",
@@ -60,7 +60,7 @@
       "checks": [
         {
           "type": "stdout",
-          "equals": "1000"
+          "equals": "loops:10 set:5"
         },
         {
           "type": "js-assert"
@@ -70,22 +70,22 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Start `n` at `0`. Add one, a thousand times."
+          "md": "Two counters, two loops. Neither number should be written by hand — they must come out of the runs."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "A `for` loop with `i < 1000` runs the body 1000 times."
+          "md": "The nested pass compares each item with the ones after it, so the inner loop starts at `i + 1`."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "for (let i = 0; i < 1000; i++) n++"
+          "md": "The Set pass is one loop: add each item and increment the counter once per item."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "function count() {\n  let n = 0\n  for (let i = 0; i < 1000; i++) n += 1\n  return n\n}\nconsole.log(count())\nmodule.exports = { count }"
+          "md": "function report(n) {\n  const list = Array.from({ length: n }, (_, i) => i)\n  let pairs = 0\n  for (let i = 0; i < list.length; i++) {\n    for (let j = i + 1; j < list.length; j++) pairs += 1\n  }\n  let steps = 0\n  const seen = new Set()\n  for (const item of list) {\n    steps += 1\n    seen.add(item)\n  }\n  return `loops:${pairs} set:${steps}`\n}\nconsole.log(report(5))\nmodule.exports = { report }"
         }
       ]
     }

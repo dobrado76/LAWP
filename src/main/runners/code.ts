@@ -128,8 +128,10 @@ function isEsmBlock(block: CodeBlock, files: { path: string; contents: string; r
 export async function executeCodeBlock(
   lessonFolder: string,
   block: CodeBlock,
-  learnerFiles: { path: string; contents: string }[]
+  learnerFiles: { path: string; contents: string }[],
+  opts?: { grade?: boolean }
 ): Promise<CodeRunOut> {
+  const grade = opts?.grade !== false
   const files = mergeLearnerFiles(lessonFolder, block, learnerFiles)
   const cwd = resetSandbox(`run-${Date.now()}-${Math.random().toString(16).slice(2)}`)
   for (const f of files) writeSandboxFile(cwd, sandboxName(f.path), f.contents)
@@ -143,7 +145,7 @@ export async function executeCodeBlock(
   let playLogAfterRun: unknown | undefined
 
   if (block.engine === 'javascript' && isDomBlock(block, files)) {
-    result = await runDomHarness(block, files)
+    result = await runDomHarness(block, files, { grade })
   } else if (block.engine === 'python') {
     const bin = await findPython()
     await assertPython3(bin)
@@ -161,7 +163,7 @@ export async function executeCodeBlock(
     const launched = pythonBinArgs(bin, [boot, ...argv])
     result = await runProcess(launched.bin, launched.args, cwd, timeout, extraEnv)
     if (play) playLogAfterRun = readPlayLog(cwd)
-    if (hidden && block.checks.some((c) => c.type === 'python-assert')) {
+    if (grade && hidden && block.checks.some((c) => c.type === 'python-assert')) {
       const hiddenName = sandboxName(hidden.path)
       const assertLaunch = pythonBinArgs(bin, [hiddenName, ...argv])
       const assertRun = await runProcess(assertLaunch.bin, assertLaunch.args, cwd, timeout, extraEnv)
@@ -204,7 +206,7 @@ export async function executeCodeBlock(
     }
     result = await runProcess(bin, [boot, ...argv], cwd, timeout, extraEnv)
     if (play) playLogAfterRun = readPlayLog(cwd)
-    if (hidden && block.checks.some((c) => c.type === 'js-assert')) {
+    if (grade && hidden && block.checks.some((c) => c.type === 'js-assert')) {
       const hiddenName = sandboxName(hidden.path)
       const hiddenEsm = hiddenName.endsWith('.mjs') || esm
       const assertBoot = hiddenEsm ? '_assert_boot.mjs' : '_assert_boot.js'
@@ -254,8 +256,10 @@ export async function executeCodeBlock(
     })
   }
   const processOk = result.exitCode === 0 && !result.timedOut
-  const passed = (playOut ? playOut.passed && checks.every((c) => c.ok) : checks.every((c) => c.ok)) && processOk
-  return { ...result, checks, passed, play: playOut }
+  const passed = grade
+    ? (playOut ? playOut.passed && checks.every((c) => c.ok) : checks.every((c) => c.ok)) && processOk
+    : Boolean(playOut?.passed && processOk)
+  return { ...result, checks: grade ? checks : [], passed, play: playOut }
 }
 
 function mergeAssertRun(first: SpawnResult, assertRun: SpawnResult): SpawnResult {

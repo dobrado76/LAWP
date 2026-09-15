@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `\"bad-json\"`.\n\nGood `/beacons.json` still parses. The fox asked for a record and got a torn slip. Handle the tear. Do not pretend the body was `{}`."
+      "md": "## Bad JSON is a throw from `res.json()`\n\n`/broken` returns `{` — not valid JSON. `res.json()` rejects. Catch that and return `\"bad-json\"`.\n\n**Run the starter first.** It crashes, and the stack trace is the lesson: the rejection came out of `res.json()`, not out of `fetch`. The status was fine; the body was torn.\n\nGood `/beacons.json` still parses. The fox asked for a record and got a torn slip. Handle the tear. Do not pretend the body was `{}`."
     },
     {
       "type": "predict",
@@ -42,11 +42,11 @@
       "explainMd": "A torn body is a parse error. Catch it. Do not invent an empty object."
     },
     {
-      "type": "code",
+      "type": "debug",
       "id": "parse-safe",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `safeRead(\"/broken\")` returns `\"bad-json\"`. Print it.",
+      "promptMd": "> The starter throws on a torn body. Make `safeRead(\"/broken\")` return `\"bad-json\"` instead. Print it.",
       "files": [
         {
           "path": "files/main.js",
@@ -78,17 +78,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Fetch the URL, then try to parse the body."
+          "md": "The crash happens at the parse step, so that is the line to guard."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "Wrap `res.json()` in `try/catch`."
+          "md": "Wrap `res.json()` in `try/catch`. The fetch itself succeeded."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "On parse failure, return the string `bad-json`."
+          "md": "`try { return await res.json() } catch { return \"bad-json\" }` turns the throw into an answer."
         },
         {
           "level": 4,

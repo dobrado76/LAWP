@@ -66,7 +66,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "dirs.filter(d => d === \"east\").join(\",\")"
+          "md": "The starter joins every direction, including the ones you were asked to drop."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`filter` keeps the entries whose test returns true and returns a new, shorter list."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`dirs.filter((d) => d === \"east\")` keeps only the easts; `join(\",\")` then makes the line."
         },
         {
           "level": 4,

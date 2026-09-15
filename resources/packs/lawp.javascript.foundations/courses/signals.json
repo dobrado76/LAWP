@@ -13,7 +13,7 @@
     {
       "id": "loops",
       "title": "Loops that write a path",
-      "lessonIds": ["loops-for", "loops-while-break", "keyed-beacon", "debug-off-by-one-path"]
+      "lessonIds": ["loops-for", "loops-while-break", "switch-dispatch", "keyed-beacon", "debug-off-by-one-path"]
     }
   ]
 }

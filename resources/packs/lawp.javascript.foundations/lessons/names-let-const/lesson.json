@@ -76,7 +76,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "const names a binding. You can still read it."
+          "md": "The word `locked` should live in a binding the function reads, not be invented inside the return."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`const` names a box you cannot rebind. Reading it from inside a function is fine."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`const tag = \"ready\"` above `function readTag() { return tag }` prints `ready`."
         },
         {
           "level": 4,

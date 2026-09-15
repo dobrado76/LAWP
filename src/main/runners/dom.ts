@@ -85,8 +85,10 @@ export function isDomBlock(block: CodeBlock, files: { path: string; role: string
 
 export async function runDomHarness(
   block: CodeBlock,
-  files: { path: string; contents: string; role: string }[]
+  files: { path: string; contents: string; role: string }[],
+  opts?: { grade?: boolean }
 ): Promise<DomRunOut> {
+  const grade = opts?.grade !== false
   const started = Date.now()
   const timeout = block.timeoutMs ?? 8000
   const htmlFile = files.find((f) => fileName(f.path).endsWith('.html'))
@@ -134,22 +136,24 @@ export async function runDomHarness(
     exports: {}
   })
   try {
-    if (learner?.contents) {
-      runInContext(learner.contents, context, { filename: entryName, timeout })
-    }
-    await window.happyDOM.waitUntilComplete()
-    if (hidden?.contents) {
-      const wrapped = `(async () => {\n${hidden.contents}\n})()`
-      const pending = runInContext(wrapped, context, { filename: fileName(hidden.path), timeout })
-      if (pending && typeof (pending as Promise<unknown>).then === 'function') {
-        await pending
+    return await withDeadline(timeout, async () => {
+      if (learner?.contents) {
+        runInContext(learner.contents, context, { filename: entryName, timeout })
       }
-    }
-    await window.happyDOM.waitUntilComplete()
-    return { stdout, stderr, exitCode: 0, timedOut: false, durationMs: Date.now() - started }
+      await window.happyDOM.waitUntilComplete()
+      if (grade && hidden?.contents) {
+        const wrapped = `(async () => {\n${hidden.contents}\n})()`
+        const pending = runInContext(wrapped, context, { filename: fileName(hidden.path), timeout })
+        if (pending && typeof (pending as Promise<unknown>).then === 'function') {
+          await pending
+        }
+      }
+      await window.happyDOM.waitUntilComplete()
+      return { stdout, stderr, exitCode: 0, timedOut: false, durationMs: Date.now() - started }
+    })
   } catch (err) {
     const message = err instanceof Error ? err.stack ?? err.message : String(err)
-    const timedOut = /Script execution timed out/i.test(message)
+    const timedOut = /Script execution timed out|TimeoutError/i.test(message)
     return {
       stdout,
       stderr: stderr + message + '\n',
@@ -160,4 +164,16 @@ export async function runDomHarness(
   } finally {
     window.happyDOM.close()
   }
+}
+
+function withDeadline<T>(ms: number, work: () => Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  return new Promise<T>((resolve, reject) => {
+    timer = setTimeout(() => {
+      reject(Object.assign(new Error('Script execution timed out'), { name: 'TimeoutError' }))
+    }, Math.max(1, ms))
+    work().then(resolve, reject)
+  }).finally(() => {
+    if (timer) clearTimeout(timer)
+  })
 }

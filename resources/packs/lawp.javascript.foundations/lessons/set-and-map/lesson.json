@@ -51,7 +51,7 @@
       "id": "unique-join",
       "engine": "javascript",
       "entry": "main.js",
-      "promptMd": "> `unique(dirs)` returns the unique headings joined with `-`. Print `unique([\"east\",\"east\",\"south\"])` (`east-south`).",
+      "promptMd": "> Two jobs. `unique(dirs)` returns the unique headings joined with `-`. `nameOf(map, key)` returns `map.get(key)`, or `\"none\"` when the key was never set. Print `unique([\"east\",\"east\",\"south\"])` (`east-south`).",
       "files": [
         {
           "path": "files/main.js",
@@ -75,22 +75,22 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "new Set(array) drops duplicates and keeps first-seen order."
+          "md": "A Set answers \"which headings appeared\"; a Map answers \"what is stored under this key\". You need one of each."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "[...set] turns the set back into a list you can join."
+          "md": "`new Set(array)` drops duplicates and keeps first-seen order; `[...set]` turns it back into a list you can join."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "function unique(dirs) { return [...new Set(dirs)].join(\"-\") }"
+          "md": "`map.has(key)` is the honest test before `map.get(key)`, because a missing key gives `undefined` rather than throwing."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "function unique(dirs) {\n  return [...new Set(dirs)].join(\"-\")\n}\nconsole.log(unique([\"east\", \"east\", \"south\"]))\nmodule.exports = { unique }"
+          "md": "function unique(dirs) {\n  return [...new Set(dirs)].join(\"-\")\n}\nfunction nameOf(map, key) {\n  return map.has(key) ? map.get(key) : \"none\"\n}\nconsole.log(unique([\"east\", \"east\", \"south\"]))\nmodule.exports = { unique, nameOf }"
         }
       ]
     }

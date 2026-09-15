@@ -113,17 +113,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Parse `cases.json`. Each row has `dirs` and `n`."
+          "md": "Two jobs: make `walkLength` correct, and prove it against every row in `cases.json` rather than one example you typed."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "Assert `walkLength(c.dirs)` equals `c.n` for every row."
+          "md": "Read the fixture with `fs`, `JSON.parse` it, and assert `walkLength(c.dirs)` equals `c.n` for each row."
         },
         {
           "level": 3,
           "kind": "concept",
-          "md": "JSON.parse the fixture, assert each n."
+          "md": "`for (const c of rows) assert.strictEqual(walkLength(c.dirs), c.n)` fails loudly on the first bad row."
         },
         {
           "level": 4,

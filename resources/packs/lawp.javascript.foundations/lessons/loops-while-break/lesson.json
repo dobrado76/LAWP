@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Stop when the counter says so\n\n`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon.\n\nA `while (true)` without `break` is a runaway. The runner will time out."
+      "md": "## Stop when the counter says so\n\n`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon.\n\nA `while (true)` without `break` is a runaway. The runner will time out.\n\nThere is a sibling worth knowing: `do { … } while (cond)` checks the condition **after** the body, so the body always runs at least once. Reach for it when the first attempt is unconditional — read a line, then keep reading while there are more."
     },
     {
       "type": "predict",
@@ -62,7 +62,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Keep a steps variable. break when it reaches 2."
+          "md": "`while (false)` never runs its body, so the fox has not moved at all."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Keep a `steps` counter, move inside the loop, and `break` once the counter reaches 2."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`if (steps === 2) break` is the exit. Put it after the move so the second step still happens."
         },
         {
           "level": 4,

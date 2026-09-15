@@ -453,3 +453,69 @@ export function deskWorld() {
 export const deskGoal = {
   all: [at('sync', 'on', 1), at('micro', 'on', 1), at('macro', 'on', 1), at('desk', 'fault', 0)]
 }
+
+// Two trays only: sync work, then the timeout. The microtask tray arrives in the
+// next lesson, so this desk must not demand a lamp the learner has not met.
+export function timeoutDeskWorld() {
+  return {
+    parts: [
+      { id: 'desk', type: 'meter', props: { step: 0, fault: 0, pick: 0, label: 'Dispatch desk' } },
+      { id: 'sync', type: 'lamp', props: { on: 0, brightness: 1, label: '1 · Sync work' } },
+      { id: 'macro', type: 'lamp', props: { on: 0, brightness: 1, label: '2 · setTimeout(fn, 0)' } }
+    ],
+    connections: [],
+    actions: [
+      { id: 'pick-sync', label: 'Run the sync call', target: 'desk', op: 'set', key: 'pick', values: [1] },
+      { id: 'pick-macro', label: 'Fire the timeout', target: 'desk', op: 'set', key: 'pick', values: [2] }
+    ],
+    rules: [
+      {
+        id: 'sync-first',
+        when: [
+          { path: 'desk.pick', op: 'eq', value: 1 },
+          { path: 'desk.step', op: 'eq', value: 0 }
+        ],
+        set: [
+          { target: 'sync', key: 'on', value: 1 },
+          { target: 'sync', key: 'brightness', value: 2 },
+          { target: 'desk', key: 'step', value: 1 },
+          { target: 'desk', key: 'pick', value: 0 }
+        ]
+      },
+      {
+        id: 'timeout-after-sync',
+        when: [
+          { path: 'desk.pick', op: 'eq', value: 2 },
+          { path: 'desk.step', op: 'eq', value: 1 }
+        ],
+        set: [
+          { target: 'macro', key: 'on', value: 1 },
+          { target: 'macro', key: 'brightness', value: 2 },
+          { target: 'desk', key: 'step', value: 2 },
+          { target: 'desk', key: 'pick', value: 0 }
+        ]
+      },
+      {
+        id: 'sync-twice',
+        when: [
+          { path: 'desk.pick', op: 'eq', value: 1 },
+          { path: 'desk.step', op: 'neq', value: 0 }
+        ],
+        set: [{ target: 'desk', key: 'fault', value: 1 }]
+      },
+      {
+        id: 'timeout-too-early',
+        when: [
+          { path: 'desk.pick', op: 'eq', value: 2 },
+          { path: 'desk.step', op: 'neq', value: 1 }
+        ],
+        set: [{ target: 'desk', key: 'fault', value: 1 }]
+      }
+    ],
+    view: { kind: 'list' }
+  }
+}
+
+export const timeoutDeskGoal = {
+  all: [at('sync', 'on', 1), at('macro', 'on', 1), at('desk', 'fault', 0)]
+}

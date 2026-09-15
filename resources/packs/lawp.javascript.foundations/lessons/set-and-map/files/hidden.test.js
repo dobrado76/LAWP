@@ -3,4 +3,8 @@ const m = require('./main.js')
 assert.strictEqual(m.unique(['east', 'east', 'south']), 'east-south')
 assert.strictEqual(m.unique(['west']), 'west')
 assert.strictEqual(m.unique(['south', 'south', 'south']), 'south')
+const beacons = new Map([['n', 'north'], ['e', 'east']])
+assert.strictEqual(m.nameOf(beacons, 'n'), 'north')
+assert.strictEqual(m.nameOf(beacons, 'e'), 'east')
+assert.strictEqual(m.nameOf(beacons, 'ghost'), 'none', 'a missing key is none, not undefined')
 

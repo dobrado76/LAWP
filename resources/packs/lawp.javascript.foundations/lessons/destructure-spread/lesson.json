@@ -66,7 +66,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "return { ...route, south: 2 }"
+          "md": "The starter writes straight into the record it was handed, so the caller loses the original."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Build a new object instead: spread the old fields in, then override the one you meant to change."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`{ ...settings, volume: 3 }` copies every field and replaces only `volume`."
         },
         {
           "level": 4,

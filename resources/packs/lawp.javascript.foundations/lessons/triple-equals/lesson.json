@@ -68,7 +68,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "Use === or !==. Do not use ==."
+          "md": "The starter uses `==`, which converts before it compares. That is the habit this lesson removes."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`===` and `!==` compare kind and value together, so `0 === \"\"` is false."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`function same(a, b) { return a === b }` answers \"the same\"; you want the opposite of that."
         },
         {
           "level": 4,

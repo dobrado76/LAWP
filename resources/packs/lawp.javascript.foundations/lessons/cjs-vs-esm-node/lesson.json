@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Two module systems\n\n`require` and `module.exports` are CommonJS. `import` and `export` are ESM. Node treats a file as ESM when it ends in `.mjs` or when `package.json` says `\"type\": \"module\"`.\n\nThis lesson is ESM. Export `ping` and print `pong`. Do not write `module.exports` here — the hidden test imports from `main.mjs`.\n\nThe desk’s walk helper ships as `.mjs` so the scrubber can `import { ping }` without a `require` dance."
+      "md": "## Two module systems\n\n`require` and `module.exports` are CommonJS. `import` and `export` are ESM. Node treats a file as ESM when it ends in `.mjs` or when `package.json` says `\"type\": \"module\"`.\n\nStatic `import` is hoisted and resolved before the file runs. When a module is only sometimes needed — a rarely used tool, a heavy dependency — `await import(\"./tool.mjs\")` loads it on demand and resolves to the namespace.\n\nThis lesson is ESM. Export `ping` and print `pong`. Do not write `module.exports` here — the hidden test imports from `main.mjs`.\n\nThe desk’s walk helper ships as `.mjs` so the scrubber can `import { ping }` without a `require` dance."
     },
     {
       "type": "predict",

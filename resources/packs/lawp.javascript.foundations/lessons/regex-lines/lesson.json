@@ -1,0 +1,146 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.text"
+  ],
+  "id": "regex-lines",
+  "courseId": "the-process",
+  "moduleId": "style",
+  "title": "Patterns over log lines",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A pattern is a tiny parser\n\nA log line looks like `[WARN]   beacon   down`. You want the level and the message, without the noise.\n\n- `/\\s+/` means one or more whitespace characters.\n- `^` and `$` anchor the pattern to the start and end of the line.\n- Parentheses **capture**: `/^\\[(\\w+)\\]\\s*(.*)$/` keeps the level in group 1 and the rest in group 2.\n- `exec` returns `null` when nothing matched, or an array whose slots 1 and 2 are those groups.\n\n`\"a  b  c\".replace(/\\s+/, \" \")` fixes only the **first** run of spaces. Add the `g` flag — `/\\s+/g` — to fix every run. That missing `g` is the bug people ship most.\n\nRegex is for lines and fields. It is the wrong tool for HTML; you already have a document tree for that."
+    },
+    {
+      "type": "predict",
+      "id": "replace-one",
+      "promptMd": "`\"a  b  c\".replace(/\\s+/, \"-\")` gives…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "all",
+          "md": "`a-b-c`",
+          "misconceptionId": "replace-replaces-all"
+        },
+        {
+          "id": "first",
+          "md": "`a-b  c` — only the first run changed"
+        },
+        {
+          "id": "none",
+          "md": "`a  b  c`"
+        }
+      ],
+      "answer": "first"
+    },
+    {
+      "type": "check",
+      "id": "pattern-parts",
+      "kind": "cloze",
+      "promptMd": "In `/^\\[(\\w+)\\]\\s*(.*)$/`, the parentheses {{a}} that part of the match, and `^` {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "capture",
+              "md": "capture"
+            },
+            {
+              "id": "delete",
+              "md": "delete"
+            },
+            {
+              "id": "repeat",
+              "md": "repeat"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "anchors to the start",
+              "md": "anchors to the start"
+            },
+            {
+              "id": "means not",
+              "md": "means not"
+            },
+            {
+              "id": "matches a caret",
+              "md": "matches a caret"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "capture",
+        "b": "anchors to the start"
+      },
+      "explainMd": "Groups come back as slots 1, 2, … on the exec result. Anchors stop the pattern from matching in the middle of a longer line."
+    },
+    {
+      "type": "check",
+      "id": "exec-null",
+      "kind": "tf",
+      "promptMd": "`exec` throws when the line does not match the pattern.",
+      "answer": "false",
+      "explainMd": "It returns null. Check for null before reading the capture groups, or you will read a property of null."
+    },
+    {
+      "type": "code",
+      "id": "tidy-line",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `tidy(line)` turns `\"[WARN]   beacon   down  \"` into `\"warn: beacon down\"`. A line with no `[LEVEL]` tag gets the level `info`. Print `tidy(\"[WARN]   beacon   down  \")`.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "warn: beacon down"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two jobs: pull the level out of the brackets, and squeeze the runs of spaces in the message."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`/^\\[(\\w+)\\]\\s*(.*)$/.exec(line)` gives you the level and the rest, or `null` when there is no tag."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Collapse spacing with the global flag: `text.replace(/\\s+/g, \" \").trim()`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "function tidy(line) {\n  const match = /^\\[(\\w+)\\]\\s*(.*)$/.exec(line.trim())\n  const level = match ? match[1].toLowerCase() : \"info\"\n  const message = (match ? match[2] : line).replace(/\\s+/g, \" \").trim()\n  return `${level}: ${message}`\n}\nconsole.log(tidy(\"[WARN]   beacon   down  \"))\nmodule.exports = { tidy }"
+        }
+      ]
+    }
+  ],
+  "description": "A pattern pulls fields out of a log line and squeezes the spacing. Without the global flag it fixes only the first match."
+}

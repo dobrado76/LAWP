@@ -14,7 +14,7 @@
   "blocks": [
     {
       "type": "explain",
-      "md": "## Method and labels\n\n`GET` asks to read. `POST` sends a body. The method is the verb on the slip. Headers are labels on that slip. `Content-Type` tells the other side how to read the body.\n\nThis lesson does not open the network. You only describe a request object. `describe({ method: 'POST', headers: { 'content-type': 'application/json' } })` should print `POST application/json`. A GET with no content-type label prints `GET none`."
+      "md": "## Method and labels\n\n`GET` asks to read. `POST` sends a body. The method is the verb on the slip. Headers are labels on that slip. `Content-Type` tells the other side how to read the body.\n\nThe address has structure too. `new URL(\"/beacons?kind=lamp\", \"https://desk.test\")` splits into `pathname` and `searchParams`, and `url.searchParams.set(\"kind\", \"beacon\")` edits a query safely — it escapes spaces and symbols so you never glue a broken address together by hand.\n\nThis lesson does not open the network. You only describe a request object. `describe({ method: 'POST', headers: { 'content-type': 'application/json' } })` should print `POST application/json`. A GET with no content-type label prints `GET none`."
     },
     {
       "type": "predict",

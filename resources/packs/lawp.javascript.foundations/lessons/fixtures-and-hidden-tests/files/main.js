@@ -1,5 +1,5 @@
 function walkLength(dirs) {
-  return dirs.length
+  return 0
 }
 console.log("ok")
 module.exports = { walkLength }

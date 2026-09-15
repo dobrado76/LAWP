@@ -1,11 +1,15 @@
 /** Small markdown subset used in Studio and release notes. */
+/** Code spans and bold only, with no block wrapper, so it can sit mid-sentence. */
+export function mdInline(t: string): string {
+  return t
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+}
+
 export function md(s: string): string {
-  const inline = (t: string) =>
-    t
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  const inline = mdInline
   const out: string[] = []
   let list: 'ul' | 'ol' | null = null
   const close = () => {

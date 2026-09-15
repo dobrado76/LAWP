@@ -13,7 +13,7 @@
     {
       "id": "async-code",
       "title": "Async programs",
-      "lessonIds": ["async-await", "async-errors", "parallel-vs-sequence", "async-iterators", "transfer-beacon-dispatch", "debug-forgotten-await"]
+      "lessonIds": ["async-await", "async-errors", "parallel-vs-sequence", "promise-combinators", "async-iterators", "transfer-beacon-dispatch", "debug-forgotten-await"]
     }
   ]
 }

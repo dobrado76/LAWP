@@ -76,6 +76,11 @@
           "md": "Array.isArray tells lists apart from plain objects."
         },
         {
+          "level": 3,
+          "kind": "concept",
+          "md": "The first line does the most work: `if (value === null || value === undefined) return \"empty\"`. Every other label follows the same shape."
+        },
+        {
           "level": 4,
           "kind": "assist",
           "md": "function classify(value) {\n  if (value === null || value === undefined) return \"empty\"\n  if (value === 0 || value === \"\") return \"zero\"\n  if (Array.isArray(value)) return \"list\"\n  if (typeof value === \"string\") return \"text\"\n  return \"other\"\n}\nconsole.log(classify(null))\nmodule.exports = { classify }"

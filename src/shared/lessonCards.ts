@@ -466,6 +466,36 @@ export const LESSON_CARDS: Record<string, LessonCardCopy> = {
     color: teal,
     tags: ['loop', 'count', 'array']
   },
+  'optional-chaining': {
+    description: 'Reach through a record that may be missing without crashing. The question mark dot stops at the first gap. It hands back nothing, which is not the same as a default.',
+    icon: 'Link',
+    color: cyan,
+    tags: ['optional', 'nullish', 'object']
+  },
+  'switch-dispatch': {
+    description: 'One command name can pick between many branches. Grouped labels share a body on purpose, and a missing stop runs the next branch by accident.',
+    icon: 'GitBranch',
+    color: green,
+    tags: ['switch', 'branch', 'dispatch']
+  },
+  'object-key-iteration': {
+    description: 'Walk a record by its own keys, its values, or both together. One of the older ways also hands you keys the record inherited, which is rarely what you meant.',
+    icon: 'FolderTree',
+    color: teal,
+    tags: ['object', 'keys', 'loop']
+  },
+  'promise-combinators': {
+    description: 'Waiting for a group is three different questions. Require every part, report what each part did, or take whichever answer lands first.',
+    icon: 'Layers',
+    color: blue,
+    tags: ['promise', 'all', 'race']
+  },
+  'regex-lines': {
+    description: 'A pattern pulls fields out of a log line and squeezes the spacing. Without the global flag it fixes only the first match it finds.',
+    icon: 'ScanSearch',
+    color: orange,
+    tags: ['regex', 'text', 'log']
+  },
   'loops-while-break': {
     description: 'Keep going while a condition is true. Stop when you have a reason, even if the count is not finished. An endless loop is a missing stop.',
     icon: 'Repeat',

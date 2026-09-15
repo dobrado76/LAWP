@@ -71,6 +71,11 @@
           "md": "The walls sit on the row below. Stay on y=0 and walk east."
         },
         {
+          "level": 3,
+          "kind": "concept",
+          "md": "Only the bound is wrong. The fox needs three moves, so the comparison must let i reach 2."
+        },
+        {
           "level": 4,
           "kind": "assist",
           "md": "for (let i = 0; i < 3; i++) Player.move(\"east\")"

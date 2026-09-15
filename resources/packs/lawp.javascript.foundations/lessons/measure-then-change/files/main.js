@@ -1,5 +1,6 @@
-function count() {
-  return 10
+function report(n) {
+  const list = Array.from({ length: n }, (_, i) => i)
+  return "loops:0 set:0"
 }
-console.log(count())
-module.exports = { count }
+console.log(report(5))
+module.exports = { report }

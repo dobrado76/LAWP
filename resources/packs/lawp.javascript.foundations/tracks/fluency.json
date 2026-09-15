@@ -1,6 +1,6 @@
 {
   "id": "fluency",
   "title": "Fluency",
-  "courseIds": ["scope-hofs", "errors"],
-  "intro": "Tutorial 2. After you can call a function: memory (closures) and recovering from a throw."
+  "courseIds": ["scope-hofs", "errors", "event-loop"],
+  "intro": "After you can call a function: memory (closures), recovering from a throw, and the order things actually run in."
 }

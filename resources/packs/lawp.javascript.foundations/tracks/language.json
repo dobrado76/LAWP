@@ -1,6 +1,6 @@
 {
   "id": "language",
   "title": "Language",
-  "courseIds": ["internals", "event-loop"],
-  "intro": "Tutorial 3. How objects really link, then how time and promises line up."
+  "courseIds": ["internals"],
+  "intro": "How objects really link. Taken after the page and the process, because you need something built before taking it apart."
 }

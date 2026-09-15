@@ -7,6 +7,7 @@ import { Studio } from './screens/Studio'
 import { Author } from './screens/Author'
 import { Settings } from './screens/Settings'
 import { Practice } from './screens/Practice'
+import { SettingsIcon } from './ui/IconBtn'
 
 export type Route = 'home' | 'library' | 'studio' | 'author' | 'settings' | 'practice'
 
@@ -47,14 +48,20 @@ export function App() {
   return (
     <div className="app">
       <nav className="nav">
-        {(['home', 'library', 'studio', 'practice', 'author', 'settings'] as Route[]).map((r) => (
+        {(['home', 'library', 'studio', 'practice', 'author'] as Route[]).map((r) => (
           <button key={r} className={route === r ? 'active' : ''} onClick={() => go(r)}>
             {r[0]!.toUpperCase() + r.slice(1)}
           </button>
         ))}
         <div className="spacer" />
-        <button type="button" className="hud notes-launch" onClick={() => notes && setShowNotes(true)}>
-          LAWP {info.version}
+        <button
+          type="button"
+          className={`btn icon-btn${route === 'settings' ? ' active' : ''}`}
+          title="Settings"
+          aria-label="Settings"
+          onClick={() => go('settings')}
+        >
+          <SettingsIcon />
         </button>
       </nav>
       {route === 'home' && <Home onOpen={(p, l) => go('studio', { packId: p, lessonId: l })} />}

@@ -69,7 +69,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "return `beacon:${name}`"
+          "md": "The starter returns the bare name, so the printed lines are missing their tag."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Build the tag inside the function, so every caller gets the same shape."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A template literal does it in one line: `` return `beacon:${name}` ``."
         },
         {
           "level": 4,

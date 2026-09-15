@@ -118,12 +118,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "`typeof` is an operator, not a function you must call with extra punctuation."
+          "md": "The starter returns a placeholder. It should report the kind of whatever value arrives."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "Export `kindOf` so the hidden test can call `kindOf(3)`."
+          "md": "`typeof` is an operator, not a function you must call with extra punctuation: `typeof v`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`function kindOf(v) { return typeof v }` makes `kindOf(\"3\")` answer `string`."
         },
         {
           "level": 4,

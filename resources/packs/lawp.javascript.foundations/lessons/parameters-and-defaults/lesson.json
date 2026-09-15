@@ -62,7 +62,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "A for loop from 0 to n works. Default n = 1."
+          "md": "The starter moves once no matter what number you pass. `n` is being ignored."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Loop `n` times inside `walk`, and write the default in the parameter list: `function walk(n = 1)`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`for (let i = 0; i < n; i++) { … }` repeats the body `n` times."
         },
         {
           "level": 4,

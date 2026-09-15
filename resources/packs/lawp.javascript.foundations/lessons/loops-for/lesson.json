@@ -68,7 +68,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "i < 3 with i starting at 0 runs three times."
+          "md": "Two pasted moves leave the fox one cell short, and the file must not grow a third paste."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A `for` loop is a counter: start at 0, keep going while the counter is below the number of steps."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`for (let i = 0; i < 3; i++)` runs its body three times — i is 0, 1, 2."
         },
         {
           "level": 4,

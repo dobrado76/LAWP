@@ -59,7 +59,17 @@
         {
           "level": 1,
           "kind": "concept",
-          "md": "for (const dir of dirs) Player.move(dir)"
+          "md": "The list already holds the route. The starter ignores it and moves once by hand."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Walk the list itself, so adding a direction to `dirs` changes the path with no other edit."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`for (const dir of dirs) { … }` hands you each string in turn."
         },
         {
           "level": 4,

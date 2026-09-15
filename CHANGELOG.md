@@ -12,6 +12,43 @@ Versioning is `MAJOR.MINOR.PATCH` (`package.json`).
 
 First product minor. Package/spec numbering was previously `0.3.3`; this release is **0.2.0**.
 
+### Grading and progress (D49–D54)
+
+- **Submit is one atomic act.** The click freezes the editor files and every answer into one submission; a single `submitLesson` handler in main grades all required blocks in one pass and commits them in one write, so evidence never shows half a submission. The old per-block `grade:block` channel is gone
+- Clicking Submit twice no longer grades twice: the button reads **Checking…** while main holds an in-flight submission per learner/lesson and the second call joins the first
+- Edit code while grading runs and the verdict stays honest — the pass is recorded against the version that earned it, and Next waits until the text now in the editor is submitted and passes
+- **A graded question now shows its answer and why.** The pick turns green or red on the choice itself and the explanation sits underneath. On a **diagnostic**, where you move on whether you were right or not, the answer you missed is marked in amber — before this a wrong answer was a red banner with no indication of what the right answer was, so you could only click Next and never learn it. A graded check you will retry still withholds the answer; that is the hint ladder's job
+- **One tally instead of a column of banners.** The placement quiz stacked eight identical Correct/Incorrect banners in the left pane, none of them attached to the question they judged. It now reads `3 correct · 5 to review`, and the marks live on the questions
+- **You can change an answer and submit again.** Editing any answer after grading returns the CTA from Next to Submit. Diagnostics were the worst case: they are excluded from the pass gate, so Next appeared as soon as the quiz was graded and there was no way back
+- Every placement question carries an explanation now, not just the first; a curriculum test fails the build if a diagnostic check ships without one
+- **Submit waits for an unanswered question.** Whether the code works still needs a run, but a question with nothing selected is visible without grading, so Submit greys out and says why ("Answer the question on the left first") rather than spending an attempt that could only come back "still unanswered". The keyboard shortcut is held by the same gate (D55)
+- **Runner trouble is no longer a wrong answer.** A crash, a DOM deadline, a trust refusal, or an IPC failure shows a retry note and writes no grade row and no misconception hit
+- **Completion survives the rolling grade ledger.** Per-block evidence (`blockState`) is kept apart from the 50-row history, so a 51st submission cannot un-finish a course. Existing learners are migrated from their old grades on load. Current score, completion, and mastery are now three separate values, and mastery never goes down after an assisted retry
+- **Diagnostics measure without punishing.** Answering a placement question completes it even when the answer is wrong, the wrong answer and its verdict come back on revisit, and Next is never blocked. Skipping is now an explicit **Skip ahead — this lesson stays unfinished**, which awards nothing
+- Run and preview never grade: no hidden tests, no grade row, no harness noise in the Console. Inspecting a page (Preview / HTML / CSS, selector highlight) no longer remounts the iframe, so typed input survives
+- Creations export as the learner's own files plus a small manifest, not as a single wrapper document
+
+### Library
+
+- The pack header now wears that pack's **cover art** with the blurb from its shelf card, so opening a pack no longer drops you from an illustrated shelf onto a bare line of text. The art sits under a gradient that keeps it behind the title rather than competing with it, and a pack with no cover just gets the plain bar as before
+
+- Dropped the **Your path** heading. The pack title is already above it and the filter pills already carry the counts, so the row was restating what the page had just said. The pills moved up beside **Export pack ZIP** in the title row, which removes a second near-empty row and opens the pack page straight onto Play next
+- A chapter now reads as a chapter: **`Chapter 3 — The page` on one 21px line**, the number in accent and the name in full-strength text, with its one-line intro underneath as supporting text. It was the reverse before — the chapter name was the smallest type on the page while its description was the largest. Sections read the same way, `1.2 — Values you can see`
+- Hairline rules and real gaps between chapters and between the numbered sections inside them, so the page breaks into blocks you can scan instead of one continuous wall of cards
+- The placement row is numbered `1.1` like every other section. It is a compact row rather than a card grid, but it is still the first section of the chapter, and leaving it unnumbered made the chapter look like it started at 1.2
+- Dropped the `Tutorial N.` prefix from every chapter intro. It was a leftover from before these were called chapters, and it sat one line under a `Chapter N` kicker giving the same section two different numbers
+
+### JavaScript path
+
+- Studio header now shows the **pack title, centred**, next to the lesson title
+- Inline code in lesson text now sizes itself relative to the prose around it (0.92em) instead of a fixed 12px, and the hard border is replaced by a soft tint, so a token reads as part of the sentence rather than a button dropped into it. Code in the goal banner is toned down so it does not inherit that line's bold
+- Reordered the path so scope, errors, and the event loop come before the first page lesson, and the dense language-internals course comes after the page and the process. The whole module story (CommonJS vs ESM, bundlers, multi-file ESM) sits together in the Node course, ahead of testing and the capstone
+- Five new lessons: `optional-chaining`, `switch-dispatch`, `object-key-iteration`, `promise-combinators`, `regex-lines`
+- Widened existing lessons instead of adding cards: `do…while`, `extends` / `super`, the capture phase, `FormData`, `URL` / `URLSearchParams`, and dynamic `import()`. `functions-call` now names `module.exports` as harness plumbing and defers modules to the Node course
+- Repairs: `macrotasks-timeout` has its own two-lamp desk instead of asking for an order the old desk called a fault; `arrays-map` teaches the transformation it grades; `set-and-map` exercises both; `json-roundtrip` no longer uses `fs` before the Node track; `measure-then-change` counts real operations from two runs; `closures-radio`, `reference-vs-copy`, and `parallel-vs-sequence` have hidden tests that can actually fail; `json-body` is now a debug lesson whose starter really throws
+- Filled 22 thin hint ladders out to orient → concept → different example → assist, with no 1→4 jumps
+- New tests hold the bar: exact path order, complete file and skill/misconception graphs, every assist solving its lesson, every assessed starter failing its assessment while still running cleanly, no play lesson opening with its objectives ticked, and every lesson teaching and asking something
+
 ### Added
 
 - Desktop LMS shell: Home, Library, Studio, Practice, Author, Settings
@@ -57,7 +94,16 @@ First product minor. Package/spec numbering was previously `0.3.3`; this release
 - DOM completions follow the selected node (`h1` does not offer `checked`); the cursor’s selector outlines that node in Preview
 - Every graded step (predict, question, fox walk, circuit, DOM) uses the same Submit → Correct! / Incorrect! → Next control on the **right** pane only; the header Check button is gone so you do not have to hunt for the Next arrow after SUCCESS
 - Play goals cannot start already ticked: `return-not-print` no longer places the fox on the beacon; a catalog test fails if any bundled play objective is true at start
-- Code editor includes a **Console** (stdout / stderr). The starter runs once on open so `console.log` is visible without a FAIL overlay. Cartridge paths such as `files/main.js` are hidden from learners
+- Code editor includes a **Console**. Empty until **Run**; then only the learner’s `console.log` / `print` (not hidden-test stacks or `Player` harness logs). Cartridge paths such as `files/main.js` are hidden from learners
+- Lesson Done / mastered waits until every required question and code task has a pass; one correct answer no longer completes the whole lesson
+- DOM harness times out timers and promises against the lesson deadline (not only the sync VM slice)
+- Leaving a lesson flushes the pending editor draft instead of dropping the last 400 ms
+- DOM Preview no longer reloads when the cursor moves in the editor; highlight updates stay on the live page
+- Submit on a question-plus-code lesson grades the question **and** runs the code; Correct / SUCCESS only when the goals are met, not from the multiple-choice alone
+- Editor drafts stay bound to the lesson they were loaded for, so leaving a lesson cannot write that code into the next starter
+- Restart lesson restores that lesson’s original starter and does not write the polluted editor back over the cleared draft
+- App chrome: version lives in the window title (`LAWP 0.2.x`); Settings is a gear on the right with a tooltip
+- Studio **Export** only appears after a kept creation exists; the save dialog uses the app window so the click is not a silent no-op
 
 ### Fixed
 

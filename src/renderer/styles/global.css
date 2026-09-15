@@ -9,6 +9,8 @@
   --accent-2: #3d5a80;
   --danger: #e07a5f;
   --ok: #7dce82;
+  /* Amber is "here is the answer", never "you failed". */
+  --warn: #e3a857;
   --border: #2a3344;
   --card-chrome: #10151e;
   --card-face: #1c2433;
@@ -37,11 +39,7 @@ body {
 .btn:disabled { opacity: 0.4; cursor: default; }
 .btn.danger { border-color: var(--danger); color: var(--danger); }
 .nav .spacer { flex: 1; }
-.nav .hud { color: var(--muted); font-size: 13px; }
-.nav button.notes-launch {
-  background: transparent; border: none; padding: 4px 0; color: var(--muted); cursor: pointer;
-}
-.nav button.notes-launch:hover { color: var(--accent); }
+.nav .icon-btn { margin-left: 4px; }
 .notes-backdrop {
   position: fixed; inset: 0; z-index: 40;
   display: flex; align-items: center; justify-content: center;
@@ -165,21 +163,41 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .lib-title-row h1 { margin: 0; }
 .lib-title-lead { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .lib-title-lead h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Inside a pack the header wears that pack's cover, so the page you browse in
+   looks like the card you clicked. The art is held well back — it is a backdrop
+   for a title, not an illustration to read. */
+.lib-title-row.is-hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  align-items: flex-end;
+  margin: 0 0 18px; padding: 18px 20px;
+  border: 1px solid var(--border); border-radius: 16px;
+  background: var(--bg-2);
+}
+.lib-title-art { position: absolute; inset: 0; z-index: -1; }
+/* Covers are 16:9; in a header band that crops to the middle, so bias the frame
+   up to where the subject usually sits. */
+.lib-title-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 40%; display: block; }
+.lib-title-art::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(100deg, rgba(14, 17, 24, 0.95) 34%, rgba(14, 17, 24, 0.66) 64%, rgba(14, 17, 24, 0.4));
+}
+.lib-title-row.is-hero .lib-title-lead { align-items: flex-start; }
+.lib-title-text { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.lib-title-blurb {
+  margin: 0; max-width: 68ch; font-size: 13.5px; line-height: 1.5; color: #c3cedd;
+}
+.lib-title-row.is-hero .lib-title-actions { align-self: flex-start; }
 .lib-title-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .lib-split {
   border: none; border-top: 1px solid var(--border);
   margin: 28px 0 20px;
 }
 .lib-pack { margin-top: 0; }
-.lib-pack-head {
-  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
-  gap: 12px; margin-bottom: 8px;
-}
-.lib-pack-head h2 { margin: 0 0 4px; }
-.lib-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+/* Rides in the title row next to Export, so the pack page opens on content. */
+.lib-filters { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-right: 6px; }
 .lib-next {
   display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-  width: 100%; margin: 8px 0 20px; padding: 16px 18px;
+  width: 100%; margin: 0 0 8px; padding: 16px 18px;
   background: #13241f; border: 1px solid #2a6b63; border-radius: 12px;
   color: inherit; font: inherit; text-align: left; cursor: pointer;
 }
@@ -188,31 +206,41 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .lib-next.is-done-path {
   background: var(--bg-2); border-color: var(--border); cursor: default;
 }
-.lib-level { margin: 28px 0 8px; }
+/* A chapter is the coarsest division on this page, so it gets the rule and the
+   widest gap; a section inside it gets a lighter one. */
+.lib-level { margin: 0; padding: 34px 0 10px; border-top: 1px solid var(--border); }
+.lib-pack > .lib-level:first-of-type { border-top: none; padding-top: 18px; }
 .lib-level.is-locked { opacity: 0.72; }
-.lib-level-head { margin-bottom: 12px; }
+.lib-level-head { margin-bottom: 22px; }
 .lib-level-kicker {
   margin: 0 0 4px; font-size: 12px; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--accent);
 }
-.lib-level-head h3 { margin: 0; font-size: 16px; font-weight: 500; color: var(--muted); }
+.lib-level-head h3 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
+/* Number and name share the line; colour and weight do the separating. */
+.lib-level-head h3 .lib-course-num { font-weight: 500; }
+.lib-level-intro { margin: 7px 0 0; max-width: 80ch; font-size: 13.5px; line-height: 1.55; color: var(--muted); }
 .lib-lock-note {
   display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
   margin: 10px 0 0;
 }
-.lib-course { margin: 0 0 22px; }
+.lib-course { margin: 0 0 26px; }
+.lib-level > :not(header) + .lib-course:not(.is-locked) {
+  padding-top: 24px; border-top: 1px solid var(--border);
+}
 .lib-course.is-locked { opacity: 0.78; padding: 12px 14px; background: var(--bg-2); border: 1px dashed var(--border); border-radius: 12px; }
 .lib-course-head {
   display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
-  margin: 0 0 10px;
+  margin: 0 0 14px;
 }
 .lib-course-head > div:first-child { flex: 1; min-width: 0; }
-.lib-course-head h4 { margin: 0 0 4px; font-size: 15px; color: var(--text); }
+.lib-course-head h4 { margin: 0 0 4px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; color: var(--text); }
 .lib-course-num { color: var(--accent); font-variant-numeric: tabular-nums; }
+.lib-intro-main .lib-course-num { color: inherit; opacity: 0.85; }
 .lib-course-why { margin: 0; font-size: 13px; color: var(--muted); }
 .lib-intro-row {
   display: flex; align-items: stretch; gap: 0;
-  margin: 0 0 18px;
+  margin: 0 0 22px;
   background: var(--card-chrome); border: 2px solid var(--border); border-radius: 12px;
   overflow: hidden;
 }
@@ -235,7 +263,7 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .lib-lesson-card.is-next, .lib-lesson-card.is-current { border-color: var(--accent); }
 .lib-lesson-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
-  gap: 14px; align-items: stretch;
+  gap: 16px; align-items: stretch;
 }
 .lib-lesson-card {
   position: relative;
@@ -354,8 +382,15 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .icon-btn svg { width: 16px; height: 16px; display: block; }
 
 .studio-bar {
+  position: relative;
   display: flex; align-items: center; gap: 10px; flex: 0 0 auto;
   padding: 8px 12px; border-bottom: 1px solid var(--border);
+}
+.studio-bar-pack {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  max-width: 42%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  color: var(--accent); font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
+  pointer-events: none;
 }
 .studio-bar-title { flex: 1 1 120px; min-width: 0; display: flex; flex-direction: column; }
 .studio-bar-title strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -386,18 +421,24 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .prose p { margin: 0 0 10px; line-height: 1.5; }
 .prose ul, .prose ol { margin: 0 0 12px; padding-left: 1.15em; }
 .prose li { margin: 0 0 6px; line-height: 1.45; }
+/* Sized in em so a token tracks whatever it sits in: body prose, a heading, a
+   card blurb. Mono runs small at equal px, so 0.92em matches the sans x-height. */
 .prose code {
-  font-family: var(--mono); font-size: 12px; color: var(--text);
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 5px; padding: 1px 5px;
-  overflow-wrap: anywhere;
+  font-family: var(--mono); font-size: 0.92em; font-variant-ligatures: none;
+  line-height: inherit; color: #dfe8f4;
+  background: rgba(148, 183, 230, 0.13); border-radius: 4px;
+  padding: 0.06em 0.3em;
+  overflow-wrap: break-word;
 }
+.prose h2 code, .prose h3 code { background: none; padding: 0; }
 .prose blockquote {
   margin: 0 0 12px; padding: 10px 12px;
   background: #13241f; border: 1px solid #2a6b63; border-radius: 8px;
   color: var(--text); font-weight: 600;
 }
 .prose blockquote p { margin: 0; color: var(--text); }
+/* The goal banner sets 600; mono at that weight reads heavy, so hold it back. */
+.prose blockquote code { background: rgba(6, 26, 22, 0.5); color: #e6f4ef; font-weight: 500; }
 .pane.teach .prose:first-child h2 { margin-top: 0; }
 .pane.teach .prose :last-child { margin-bottom: 0; }
 .task { margin-top: 14px; }
@@ -408,6 +449,11 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
   background: var(--bg); cursor: pointer;
 }
 .choice.is-on { border-color: var(--accent); background: #13241f; }
+/* After grading: green you were right, red you were not, amber the one you
+   missed. Amber is the teaching colour — it marks the answer, not a mistake. */
+.choice.is-correct { border-color: #7dce82; background: #10281c; }
+.choice.is-wrong { border-color: #e07a5f; background: #2c1613; }
+.choice.is-answer { border-color: var(--warn); background: #2b2211; }
 .choice input { width: auto; margin-top: 3px; }
 .choice .prose, .choice p { margin: 0; }
 .callout {
@@ -675,6 +721,16 @@ p, li { color: var(--muted); line-height: 1.45; margin: 0 0 8px; }
 .code-status.is-ok { color: var(--ok); }
 .code-status .code-lang { color: var(--muted); }
 .author-editor { min-height: 380px; display: flex; flex-direction: column; margin-top: 12px; }
+.run-note {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warn, #c98a2b);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--muted);
+  font-size: 13px;
+}
 .code-console {
   flex: 0 0 auto;
   display: flex;
@@ -797,6 +853,33 @@ label { display: block; margin: 8px 0 4px; color: var(--muted); font-size: 13px;
 
 .check-panel { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
 .check-kicker { margin: 0; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.check-panel.is-fail > .check-kicker { color: var(--warn); }
+.check-review {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--border); border-left-width: 3px; background: var(--bg-2);
+}
+.check-review.is-pass { border-left-color: var(--ok); }
+.check-review.is-fail { border-left-color: var(--warn); }
+.check-review-line { margin: 0; font-weight: 600; color: var(--text); }
+.check-review.is-pass .check-review-line { color: var(--ok); }
+.check-review-answer { color: var(--warn); }
+.check-review .prose { font-size: 13.5px; line-height: 1.5; }
+.check-review .prose p:last-child { margin-bottom: 0; }
+/* Buttons carry the same marks as choices, so true/false grades like the rest. */
+.btn.is-correct { border-color: var(--ok); color: var(--ok); }
+.btn.is-wrong { border-color: var(--danger); color: var(--danger); }
+.btn.is-answer { border-color: var(--warn); color: var(--warn); }
+.check-tally {
+  display: flex; flex-direction: column; gap: 6px;
+  margin: 16px 0 0; padding: 14px 16px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--bg-2);
+}
+.check-tally.is-clean { border-color: var(--ok); background: #10281c; }
+.check-tally-score { display: flex; flex-wrap: wrap; gap: 14px; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.check-tally-score .is-right { color: var(--ok); }
+.check-tally-score .is-wrong { color: var(--warn); }
+.check-tally .muted { margin: 0; line-height: 1.5; }
 .check-tf, .check-numeric, .check-slider { display: flex; gap: 8px; align-items: center; }
 .check-numeric input, .check-slider input { width: auto; flex: 1; }
 .check-cloze { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; line-height: 1.7; color: var(--text); }
@@ -874,6 +957,8 @@ label { display: block; margin: 8px 0 4px; color: var(--muted); font-size: 13px;
 .check-mark-svg { width: 56px; height: 56px; flex: 0 0 auto; }
 .check-cta { width: 100%; min-height: 44px; font-size: 16px; }
 .pane.work > .check-cta { margin-top: 10px; flex: 0 0 auto; }
+/* Why the disabled Submit is disabled — otherwise it reads as a dead button. */
+.check-cta-note { margin: 6px 0 0; flex: 0 0 auto; text-align: center; font-size: 13px; color: var(--muted); }
 
 .author-page { position: relative; }
 .author-page.is-start {

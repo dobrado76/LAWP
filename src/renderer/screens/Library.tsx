@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { courseLessonIds, lessonPath, orderCatalog } from '@shared/catalog'
 import { lessonCard } from '@shared/lessonCards'
-import { groupPacks } from '@shared/packDisplay'
+import { groupPacks, packCoverUrl } from '@shared/packDisplay'
 import { IPC, invoke } from '../api'
 import { BackIcon, IconBtn } from '../ui/IconBtn'
 import { LessonIcon } from '../ui/LessonIcon'
@@ -233,16 +233,42 @@ export function Library({
 
   return (
     <div className="page library-page" ref={pageRef} onScroll={onPageScroll}>
-      <div className="lib-title-row">
+      <div className={`lib-title-row${inPack && pack ? ' is-hero' : ''}`}>
+        {inPack && pack ? <PackCover pack={pack} /> : null}
         <div className="lib-title-lead">
           {inPack ? (
             <IconBtn label="All libraries" onClick={onBackToPacks}>
               <BackIcon />
             </IconBtn>
           ) : null}
-          <h1>{inPack ? (pack?.title ?? 'Lessons') : 'Library'}</h1>
+          <div className="lib-title-text">
+            <h1>{inPack ? (pack?.title ?? 'Lessons') : 'Library'}</h1>
+            {inPack && pack?.description ? <p className="lib-title-blurb">{pack.description}</p> : null}
+          </div>
         </div>
         <div className="lib-title-actions">
+          {inPack && tree && open && catalog && (
+            <div className="lib-filters" role="tablist" aria-label="Lesson status">
+              {(
+                [
+                  ['all', `All (${counts.total})`],
+                  ['todo', `To do (${counts.todo})`],
+                  ['done', `Done (${counts.done})`]
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={filter === id}
+                  className={`btn${filter === id ? ' primary' : ''}`}
+                  onClick={() => setFilter(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
           {!inPack && (
             <button
               className="btn primary"
@@ -289,35 +315,6 @@ export function Library({
       {inPack && !catalog && <p className="muted">Loading lessons…</p>}
       {inPack && tree && open && catalog && (
         <div className="lib-pack">
-          <div className="lib-pack-head">
-            <div>
-              <h2>Your path</h2>
-              <p className="muted">
-                Play in order, like a tutorial. {counts.done} done · {counts.todo} to do
-              </p>
-            </div>
-            <div className="lib-filters" role="tablist" aria-label="Lesson status">
-              {(
-                [
-                  ['all', `All (${counts.total})`],
-                  ['todo', `To do (${counts.todo})`],
-                  ['done', `Done (${counts.done})`]
-                ] as const
-              ).map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  role="tab"
-                  aria-selected={filter === id}
-                  className={`btn${filter === id ? ' primary' : ''}`}
-                  onClick={() => setFilter(id)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {nextLesson &&
             !catalog.courses.some((c) => introLessonId(c) === nextLesson.id && filter !== 'done') && (
             <button type="button" className="lib-next" onClick={() => openLesson(nextLesson.id)}>
@@ -352,10 +349,12 @@ export function Library({
             return (
               <section key={track.id} className={`lib-level${unlocked ? '' : ' is-locked'}`}>
                 <header className="lib-level-head">
-                  <p className="lib-level-kicker">
-                    Chapter {trackIndex + 1} · {track.title}
-                  </p>
-                  <h3>{track.intro ?? track.title}</h3>
+                  <h3>
+                    <span className="lib-course-num">Chapter {trackIndex + 1}</span> — {track.title}
+                  </h3>
+                  {track.intro && track.intro !== track.title && (
+                    <p className="lib-level-intro">{track.intro}</p>
+                  )}
                   {!unlocked && (
                     <p className="lib-lock-note">
                       Finish Chapter {trackIndex} first — this is later in the tutorial.
@@ -395,6 +394,7 @@ export function Library({
                         <IntroRow
                           key={course.id}
                           course={course}
+                          num={`${trackIndex + 1}.${courseIndex + 1}`}
                           lesson={tree.lessons.find((x) => x.id === introId)}
                           status={progress[introId]?.status}
                           next={introId === nextId}
@@ -419,6 +419,7 @@ export function Library({
                         <IntroRow
                           key={course.id}
                           course={course}
+                          num={`${trackIndex + 1}.${courseIndex + 1}`}
                           lesson={intro.lesson}
                           status={intro.status}
                           next={intro.id === nextId}
@@ -438,7 +439,7 @@ export function Library({
                                 <span className="lib-course-num">
                                   {trackIndex + 1}.{courseIndex + 1}
                                 </span>{' '}
-                                {course.title}
+                                — {course.title}
                               </h4>
                               <p className="lib-course-why">{COURSE_WHY[course.id] ?? ''}</p>
                               <p className="lib-lock-note">
@@ -469,7 +470,7 @@ export function Library({
                               <span className="lib-course-num">
                                 {trackIndex + 1}.{courseIndex + 1}
                               </span>{' '}
-                              {course.title}
+                              — {course.title}
                             </h4>
                             <p className="lib-course-why">{COURSE_WHY[course.id] ?? ''}</p>
                           </div>
@@ -549,7 +550,8 @@ export function Library({
             <section className="lib-level">
               <header className="lib-level-head">
                 <p className="lib-level-kicker">Unfiled</p>
-                <h3>Lessons not yet on a course path — open them here, or add them to a course in Author.</h3>
+                <h3>Not yet on a path</h3>
+                <p className="lib-level-intro">Open them here, or add them to a course in Author.</p>
               </header>
               <div className="lib-lesson-grid">
                 {tree.lessons
@@ -606,8 +608,25 @@ function lessonMenu(packId: string, lessonId: string, title: string, onChanged: 
   ]
 }
 
+/**
+ * The shelf cover again, this time as the backdrop of the pack you opened, so
+ * the page you browse in looks like the card you clicked. Decoration only — it
+ * carries no information the text below does not, and it steps aside when the
+ * pack has no art.
+ */
+function PackCover({ pack }: { pack: PackSum }) {
+  const [broken, setBroken] = useState(false)
+  if (broken) return null
+  return (
+    <div className="lib-title-art" aria-hidden="true">
+      <img src={packCoverUrl(pack.id, pack.cover)} alt="" onError={() => setBroken(true)} />
+    </div>
+  )
+}
+
 function IntroRow({
   course,
+  num,
   lesson,
   status,
   next,
@@ -619,6 +638,8 @@ function IntroRow({
   onChanged
 }: {
   course: Course
+  /** Its place in the chapter, e.g. `1.1`. A compact row is still a numbered section. */
+  num: string
   lesson?: LessonSum
   status?: LessonStatus
   next: boolean
@@ -639,7 +660,10 @@ function IntroRow({
       className={`lib-intro-row${locked ? ' is-locked' : ''}${next ? ' is-next' : ''}`}
     >
       <button type="button" className="lib-intro-main" onClick={onOpen} disabled={locked}>
-        <span className="lib-level-kicker">{next ? 'Start here' : course.title}</span>
+        <span className="lib-level-kicker">
+          <span className="lib-course-num">{num}</span> — {course.title}
+          {next ? ' · Start here' : null}
+        </span>
         <span className="lib-intro-title">
           {copy ? <LessonIcon name={copy.icon} color={copy.color} size={18} /> : null}
           <strong>{title}</strong>

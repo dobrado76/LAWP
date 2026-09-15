@@ -1,0 +1,127 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.javascript.foundations",
+  "taskRev": 2,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "js.async"
+  ],
+  "id": "promise-combinators",
+  "courseId": "event-loop",
+  "moduleId": "async-code",
+  "title": "all, allSettled, and race",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three ways to wait for a group\n\n`Promise.all([a, b, c])` resolves with an array of results, in the order you passed them — **or** rejects the moment any one of them rejects. You do not get the results that did arrive. Use it when every part is required.\n\n`Promise.allSettled([a, b, c])` never rejects. It resolves with one row per promise: `{ status: \"fulfilled\", value }` or `{ status: \"rejected\", reason }`. Use it when you want a report of what worked.\n\n`Promise.race([a, b])` settles with whichever settles first, win or lose. That is how a timeout is built: race the real work against a promise that rejects after N milliseconds."
+    },
+    {
+      "type": "predict",
+      "id": "all-rejects",
+      "promptMd": "Two reads succeed and the third rejects. What does `await Promise.all([r1, r2, r3])` give you?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "partial",
+          "md": "An array with the two results that arrived",
+          "misconceptionId": "all-settles-partly"
+        },
+        {
+          "id": "throws",
+          "md": "It throws — the whole group rejects"
+        },
+        {
+          "id": "undefined",
+          "md": "An array with `undefined` in the third slot",
+          "misconceptionId": "all-settles-partly"
+        }
+      ],
+      "answer": "throws"
+    },
+    {
+      "type": "check",
+      "id": "pick-combinator",
+      "promptMd": "You want a report of which of four beacons answered, including the ones that failed. Which do you reach for?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "all",
+          "md": "`Promise.all`",
+          "misconceptionId": "all-settles-partly"
+        },
+        {
+          "id": "settled",
+          "md": "`Promise.allSettled`"
+        },
+        {
+          "id": "race",
+          "md": "`Promise.race`"
+        }
+      ],
+      "answer": "settled",
+      "explainMd": "`allSettled` waits for every promise and reports each outcome. `all` would throw on the first failure and tell you nothing about the rest. `race` only reports the first one to settle."
+    },
+    {
+      "type": "check",
+      "id": "race-rejects",
+      "kind": "tf",
+      "promptMd": "`Promise.race` ignores a rejection and waits for the first success.",
+      "answer": "false",
+      "explainMd": "Race settles with the first promise to settle either way. A fast rejection wins the race, which is exactly what makes it useful as a timeout."
+    },
+    {
+      "type": "code",
+      "id": "settle-report",
+      "engine": "javascript",
+      "entry": "main.js",
+      "promptMd": "> `report(jobs)` awaits every job with `Promise.allSettled` and returns a string like `ok:2 failed:1`. Print `report` of two resolved jobs and one rejected one.",
+      "files": [
+        {
+          "path": "files/main.js",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden.test.js",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "ok:2 failed:1"
+        },
+        {
+          "type": "ast",
+          "query": "allSettled"
+        },
+        {
+          "type": "js-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "One failing job must not stop you from counting the others, so `all` is the wrong tool here."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`Promise.allSettled` resolves with a row per job. Each row has a `status` of `\"fulfilled\"` or `\"rejected\"`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Count with a filter: `rows.filter((r) => r.status === \"fulfilled\").length`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "async function report(jobs) {\n  const rows = await Promise.allSettled(jobs)\n  const ok = rows.filter((r) => r.status === \"fulfilled\").length\n  return `ok:${ok} failed:${rows.length - ok}`\n}\nreport([Promise.resolve(1), Promise.resolve(2), Promise.reject(new Error(\"no\"))]).then((v) => console.log(v))\nmodule.exports = { report }"
+        }
+      ]
+    }
+  ],
+  "description": "Waiting for a group is three questions. Require every part, report what each part did, or take whichever answer lands first."
+}

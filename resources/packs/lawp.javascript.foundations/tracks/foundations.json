@@ -2,5 +2,5 @@
   "id": "foundations",
   "title": "Foundations",
   "courseIds": ["placement", "values", "signals", "data"],
-  "intro": "Tutorial 1. First: what a value is. Then: tell the fox to walk. Last: lists and objects — not before."
+  "intro": "First: what a value is. Then: tell the fox to walk. Last: lists and objects — not before."
 }

@@ -15,6 +15,7 @@
   { "id": "js.events", "title": "Events and delegation", "prereqIds": ["js.dom"] },
   { "id": "js.http", "title": "HTTP messages and fetch", "prereqIds": ["js.async"] },
   { "id": "js.node.fs", "title": "Node files and process", "prereqIds": ["js.functions"] },
+  { "id": "js.text", "title": "Text and patterns", "prereqIds": ["js.values"] },
   { "id": "js.test", "title": "Assertions and fixtures", "prereqIds": ["js.functions"] },
   { "id": "js.security", "title": "XSS and prototype hygiene", "prereqIds": ["js.objects"] }
 ]

@@ -58,7 +58,12 @@ export function lessonsC0C3() {
             { id: 'false', md: 'false — different kinds' }
           ],
           'false',
-          { diagnostic: true, skillIds: ['js.values'] }
+          {
+            diagnostic: true,
+            skillIds: ['js.values'],
+            explainMd:
+              '`===` compares kind first. A number and a string are different kinds, so it answers `false` without looking at the contents. Only `==` converts one side before comparing, which is why `0 == ""` is `true` and why you will be told to avoid it.'
+          }
         ),
         check(
           'truthy-zero',
@@ -68,7 +73,12 @@ export function lessonsC0C3() {
             { id: 'stop', md: '`stop`' }
           ],
           'stop',
-          { diagnostic: true, skillIds: ['js.flow'] }
+          {
+            diagnostic: true,
+            skillIds: ['js.flow'],
+            explainMd:
+              '`if` does not ask "is there a value here", it asks "is this value truthy". `0` is one of the six falsy values (`0`, `""`, `null`, `undefined`, `NaN`, `false`), so the `else` branch runs. This is why counting code that tests `if (count)` silently skips zero.'
+          }
         ),
         check(
           'closure-sniff',
@@ -79,7 +89,12 @@ export function lessonsC0C3() {
             { id: '2', md: '`2`' }
           ],
           '3',
-          { diagnostic: true, skillIds: ['js.closures'] }
+          {
+            diagnostic: true,
+            skillIds: ['js.closures'],
+            explainMd:
+              '`make()` ran once, so `n` was created once. The arrow function returned from it keeps a hold on that same `n` — not a copy of its value. Two earlier calls made it 1 then 2, so this call makes it `3`. Call `make()` a second time and you get a fresh, separate counter.'
+          }
         ),
         check(
           'map-vs-mutate',
@@ -89,7 +104,12 @@ export function lessonsC0C3() {
             { id: '1', md: '`1` — map returned a new list' }
           ],
           '1',
-          { diagnostic: true, skillIds: ['js.arrays'] }
+          {
+            diagnostic: true,
+            skillIds: ['js.arrays'],
+            explainMd:
+              '`map` builds and returns a new array; it never writes into the one you called it on. `xs` still holds `[1]` and `ys` holds `[2]`. The methods that do change the original are the ones like `push`, `sort`, and `splice`.'
+          }
         ),
         check(
           'promise-vs-cb',
@@ -99,7 +119,12 @@ export function lessonsC0C3() {
             { id: 'callback', md: 'callback — that is the same thing' }
           ],
           'pending',
-          { diagnostic: true, skillIds: ['js.async'] }
+          {
+            diagnostic: true,
+            skillIds: ['js.async'],
+            explainMd:
+              'A promise is in exactly one of three states: **pending** while the work is unfinished, then **fulfilled** with a value or **rejected** with a reason. A callback is not a state — it is one way of being told the work ended. The state is what lets you hand the unfinished result around before it exists.'
+          }
         ),
         check(
           'this-sniff',
@@ -109,7 +134,12 @@ export function lessonsC0C3() {
             { id: 'globalish', md: 'the global object (unless `"use strict"`)' }
           ],
           'globalish',
-          { diagnostic: true, skillIds: ['js.this'] }
+          {
+            diagnostic: true,
+            skillIds: ['js.this'],
+            explainMd:
+              '`this` is decided by how a function is *called*, not where it was written. Called bare, with nothing before the dot, sloppy mode falls back to the global object; `"use strict"` (and every ES module) leaves it `undefined` instead. Call the same function as `obj.greet()` and `this` is `obj`.'
+          }
         ),
         check(
           'dom-sniff',
@@ -119,7 +149,12 @@ export function lessonsC0C3() {
             { id: 'node', md: 'one element node, or `null` if missing' }
           ],
           'node',
-          { diagnostic: true, skillIds: ['js.dom'] }
+          {
+            diagnostic: true,
+            skillIds: ['js.dom'],
+            explainMd:
+              'The page is a tree of objects, not text. `querySelector` hands back the first matching element as a live object you can read and change — or `null` when nothing matches, which is why unchecked results throw "cannot read properties of null". Use `querySelectorAll` when you want every match.'
+          }
         )
       ]
     }),
@@ -165,10 +200,11 @@ export function lessonsC0C3() {
           equals: 'number',
           ast: 'typeof',
           hidden: true,
-          hints: hints(
-            { level: 1, kind: 'concept', md: '`typeof` is an operator, not a function you must call with extra punctuation.' },
-            { level: 2, kind: 'concept', md: 'Export `kindOf` so the hidden test can call `kindOf(3)`.' },
-            { level: 4, kind: 'assist', md: 'function kindOf(v) { return typeof v }\nconsole.log(kindOf(3))\nmodule.exports = { kindOf }' }
+          hints: ladder(
+            'The starter returns a placeholder. It should report the kind of whatever value arrives.',
+            '`typeof` is an operator, not a function you must call with extra punctuation: `typeof v`.',
+            '`function kindOf(v) { return typeof v }` makes `kindOf("3")` answer `string`.',
+            'function kindOf(v) { return typeof v }\nconsole.log(kindOf(3))\nmodule.exports = { kindOf }'
           )
         })
       ]
@@ -219,9 +255,11 @@ assert.strictEqual(m.kindOf('3'), 'string')
           equals: 'locked',
           ast: 'const',
           hidden: true,
-          hints: hints(
-            'const names a binding. You can still read it.',
-            { level: 4, kind: 'assist', md: 'const word = "locked"\nfunction labelBox() { return word }\nconsole.log(labelBox())\nmodule.exports = { labelBox }' }
+          hints: ladder(
+            'The word `locked` should live in a binding the function reads, not be invented inside the return.',
+            '`const` names a box you cannot rebind. Reading it from inside a function is fine.',
+            '`const tag = "ready"` above `function readTag() { return tag }` prints `ready`.',
+            'const word = "locked"\nfunction labelBox() { return word }\nconsole.log(labelBox())\nmodule.exports = { labelBox }'
           )
         })
       ]
@@ -267,9 +305,11 @@ assert.ok(src.includes('const'))
           equals: 'beacon:north',
           ast: '`',
           hidden: true,
-          hints: hints(
-            'Use a template literal, not + if you can help it.',
-            { level: 4, kind: 'assist', md: 'function tagBeacon(name) { return `beacon:${name}` }\nconsole.log(tagBeacon("north"))\nmodule.exports = { tagBeacon }' }
+          hints: ladder(
+            'The starter hands the name back unchanged. You need the name inside a longer label.',
+            'A template literal is wrapped in backticks and drops a value in with `${ }`.',
+            '`` `signal:${kind}` `` with `kind = "low"` builds `signal:low`.',
+            'function tagBeacon(name) { return `beacon:${name}` }\nconsole.log(tagBeacon("north"))\nmodule.exports = { tagBeacon }'
           )
         })
       ]
@@ -314,9 +354,11 @@ assert.strictEqual(m.tagBeacon('north'), 'beacon:north')
           equals: 'true',
           ast: 'Number.isNaN',
           hidden: true,
-          hints: hints(
-            'Number("fox") is NaN. Number.isNaN tells you that on purpose.',
-            { level: 4, kind: 'assist', md: 'function failedNumber(text) { return Number.isNaN(Number(text)) }\nconsole.log(failedNumber("fox"))\nmodule.exports = { failedNumber }' }
+          hints: ladder(
+            'Comparing against the word `fox` only catches one bad input. Ask the real question instead.',
+            '`Number(text)` gives `NaN` when the text is not numeric, and `Number.isNaN` asks about that on purpose.',
+            '`Number.isNaN(Number("sky"))` is `true`; `Number.isNaN(Number("7"))` is `false`.',
+            'function failedNumber(text) { return Number.isNaN(Number(text)) }\nconsole.log(failedNumber("fox"))\nmodule.exports = { failedNumber }'
           )
         })
       ]
@@ -363,9 +405,11 @@ assert.strictEqual(m.failedNumber('3'), false)
           ast: '===',
           misconceptionId: 'double-equals-is-fine',
           hidden: true,
-          hints: hints(
-            { level: 1, kind: 'concept', md: 'Use === or !==. Do not use ==.' },
-            { level: 4, kind: 'assist', md: 'function notStrictSame(a, b) { return !(a === b) }\nconsole.log(notStrictSame(0, ""))\nmodule.exports = { notStrictSame }' }
+          hints: ladder(
+            'The starter uses `==`, which converts before it compares. That is the habit this lesson removes.',
+            '`===` and `!==` compare kind and value together, so `0 === ""` is false.',
+            '`function same(a, b) { return a === b }` answers "the same"; you want the opposite of that.',
+            'function notStrictSame(a, b) { return !(a === b) }\nconsole.log(notStrictSame(0, ""))\nmodule.exports = { notStrictSame }'
           )
         })
       ]
@@ -423,9 +467,11 @@ assert.ok(!/[^!=]==[^=]/.test(src), 'do not use ==')
           prompt: '> `gate(value)` returns `"open"` if the value is truthy, otherwise `"shut"`. Print `gate(0)`.',
           equals: 'shut',
           hidden: true,
-          hints: hints(
-            'if (value) is enough. 0 is falsy.',
-            { level: 4, kind: 'assist', md: 'function gate(value) { return value ? "open" : "shut" }\nconsole.log(gate(0))\nmodule.exports = { gate }' }
+          hints: ladder(
+            'The starter always answers `open`. The value that arrives should decide.',
+            '`if (value)` is enough on its own: `0` and `""` are falsy, `[]` and `"0"` are truthy.',
+            '`return value ? "yes" : "no"` picks between two strings in one line.',
+            'function gate(value) { return value ? "open" : "shut" }\nconsole.log(gate(0))\nmodule.exports = { gate }'
           )
         })
       ]
@@ -508,6 +554,73 @@ assert.strictEqual(m.label(0), 'anon')
 
   out.push({
     doc: lesson({
+      id: 'optional-chaining',
+      courseId: 'values',
+      moduleId: 'compare',
+      title: 'Reach into a record that may be missing',
+      skillIds: ['js.values', 'js.objects'],
+      estimatedMinutes: 18,
+      blocks: [
+        explain(
+          '## `?.` asks first\n\n`signal.beacon.name` throws the moment `signal.beacon` is `undefined`. `signal?.beacon?.name` stops at the first missing link and hands back `undefined` instead of throwing.\n\n`?.` does **not** supply a default. It only avoids the crash. Pair it with `??` when you want a fallback:\n\n```\nsignal?.beacon?.name ?? "unknown"\n```\n\nThere are two more forms: `fn?.()` calls only if `fn` exists, and `list?.[0]` indexes only if `list` exists.'
+        ),
+        predict(
+          'chain-missing',
+          '`const s = {}` — what is `s?.beacon?.name`?',
+          [
+            { id: 'throws', md: 'It throws a TypeError' },
+            { id: 'undef', md: '`undefined` — the chain stopped early' },
+            { id: 'empty', md: '`""` — it becomes an empty string', misconceptionId: 'optional-chain-defaults' }
+          ],
+          'undef'
+        ),
+        check(
+          'chain-not-default',
+          'A beacon reads `{ name: "", power: 0 }`. Which expression keeps both real readings instead of hiding them?',
+          [
+            { id: 'or', md: '`b?.name || "unknown"` and `b?.power || 1`', misconceptionId: 'or-eats-zero' },
+            { id: 'nullish', md: '`b?.name ?? "unknown"` and `b?.power ?? 1`' },
+            { id: 'chain', md: '`b?.name` alone supplies the default', misconceptionId: 'optional-chain-defaults' }
+          ],
+          'nullish',
+          {
+            explainMd:
+              '`""` and `0` are real readings. `||` throws them away; `??` only steps in for `null` or `undefined`. `?.` never supplies a default at all.'
+          }
+        ),
+        stdoutCode({
+          id: 'beacon-name',
+          prompt:
+            '> `beaconName(signal)` returns the beacon name. Missing signal or missing beacon gives `"unknown"`, but an empty name stays empty. Print `beaconName({ beacon: { name: "north" } })`.',
+          equals: 'north',
+          hidden: true,
+          hints: ladder(
+            'Reading `.beacon.name` on an empty object throws. You need the chain to stop instead.',
+            '`?.` returns undefined at the first missing link. `??` then fills in the fallback.',
+            '`const label = record?.inner?.label ?? "none"` reads two levels and defaults only when something was missing.',
+            'function beaconName(signal) {\n  return signal?.beacon?.name ?? "unknown"\n}\nconsole.log(beaconName({ beacon: { name: "north" } }))\nmodule.exports = { beaconName }'
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `function beaconName(signal) {
+  return "unknown"
+}
+console.log(beaconName({ beacon: { name: "north" } }))
+module.exports = { beaconName }
+`,
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.beaconName({ beacon: { name: 'north' } }), 'north')
+assert.strictEqual(m.beaconName({}), 'unknown')
+assert.strictEqual(m.beaconName(null), 'unknown')
+assert.strictEqual(m.beaconName(undefined), 'unknown')
+assert.strictEqual(m.beaconName({ beacon: { name: '' } }), '')
+`)
+    }
+  })
+
+  out.push({
+    doc: lesson({
       id: 'transfer-classify-signal',
       courseId: 'values',
       moduleId: 'compare',
@@ -536,6 +649,7 @@ assert.strictEqual(m.label(0), 'anon')
           hints: hints(
             'Check null and undefined before typeof.',
             'Array.isArray tells lists apart from plain objects.',
+            { level: 3, kind: 'concept', md: 'The first line does the most work: `if (value === null || value === undefined) return "empty"`. Every other label follows the same shape.' },
             { level: 4, kind: 'assist', md: 'function classify(value) {\n  if (value === null || value === undefined) return "empty"\n  if (value === 0 || value === "") return "zero"\n  if (Array.isArray(value)) return "list"\n  if (typeof value === "string") return "text"\n  return "other"\n}\nconsole.log(classify(null))\nmodule.exports = { classify }' }
           )
         })
@@ -570,7 +684,7 @@ assert.strictEqual(m.classify(3), 'other')
       taskRev: 2,
       blocks: [
         explain(
-          '## A name is not a call\n\n`ping` is the function. `ping()` runs it and gives you `"pong"`. Printing the function itself is not the same as printing its result.'
+          '## A name is not a call\n\n`ping` is the function. `ping()` runs it and gives you `"pong"`. Printing the function itself is not the same as printing its result.\n\nThe last line, `module.exports = { ping }`, is how the checker reaches your function. Leave it there and ignore it for now — it is harness plumbing, not syntax you need yet. Modules get taught properly in the Node track.'
         ),
         predict(
           'call-vs-name',
@@ -586,9 +700,11 @@ assert.strictEqual(m.classify(3), 'other')
           prompt: '> Call `ping` and print the returned string `pong`.',
           equals: 'pong',
           hidden: true,
-          hints: hints(
-            { level: 1, kind: 'concept', md: 'Parentheses run the function: ping()' },
-            { level: 4, kind: 'assist', md: 'function ping() {\n  return "pong"\n}\nconsole.log(ping())\nmodule.exports = { ping }' }
+          hints: ladder(
+            'The file prints a question mark. Nothing has called `ping` yet.',
+            'Parentheses run the function: `ping()`. Without them you are holding the function itself.',
+            '`console.log(add(2, 2))` prints `4`; `console.log(add)` prints the function source.',
+            'function ping() {\n  return "pong"\n}\nconsole.log(ping())\nmodule.exports = { ping }'
           )
         })
       ]
@@ -690,9 +806,11 @@ assert.ok(log.filter((row) => row.op === 'move' && row.dir === 'south').length >
           world: gridWorld([fox(2, 1), beacon(2, 2)]),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 2), at('fox', 'say', 'locked')] },
           hidden: true,
-          hints: hints(
-            'return the string. Then pass it to Player.say. The fox starts one cell north of the beacon.',
-            { level: 4, kind: 'assist', md: 'function status() { return "locked" }\nPlayer.say(status())\nPlayer.move("south")\nmodule.exports = { status }' }
+          hints: ladder(
+            'The fox says a question mark because `status` logs instead of returning. The stage only hears what you hand to `Player.say`.',
+            'Swap `console.log` for `return`, then pass the call into `Player.say(status())`.',
+            '`function name() { return "fox" }` then `Player.say(name())` puts `fox` in the bubble.',
+            'function status() { return "locked" }\nPlayer.say(status())\nPlayer.move("south")\nmodule.exports = { status }'
           )
         })
       ]
@@ -739,9 +857,11 @@ module.exports = { status }
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
           ast: 'walk',
-          hints: hints(
-            'A for loop from 0 to n works. Default n = 1.',
-            { level: 4, kind: 'assist', md: 'function walk(n = 1) {\n  for (let i = 0; i < n; i++) Player.move("east")\n}\nwalk(3)\nmodule.exports = { walk }' }
+          hints: ladder(
+            'The starter moves once no matter what number you pass. `n` is being ignored.',
+            'Loop `n` times inside `walk`, and write the default in the parameter list: `function walk(n = 1)`.',
+            '`for (let i = 0; i < n; i++) { … }` repeats the body `n` times.',
+            'function walk(n = 1) {\n  for (let i = 0; i < n; i++) Player.move("east")\n}\nwalk(3)\nmodule.exports = { walk }'
           )
         })
       ]
@@ -789,9 +909,11 @@ module.exports = { walk }
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 0)] },
           hidden: true,
           ast: 'for',
-          hints: hints(
-            'i < 3 with i starting at 0 runs three times.',
-            { level: 4, kind: 'assist', md: 'for (let i = 0; i < 3; i++) {\n  Player.move("east")\n}' }
+          hints: ladder(
+            'Two pasted moves leave the fox one cell short, and the file must not grow a third paste.',
+            'A `for` loop is a counter: start at 0, keep going while the counter is below the number of steps.',
+            '`for (let i = 0; i < 3; i++)` runs its body three times — i is 0, 1, 2.',
+            'for (let i = 0; i < 3; i++) {\n  Player.move("east")\n}'
           )
         })
       ]
@@ -817,7 +939,7 @@ Player.move("east")
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Stop when the counter says so\n\n`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon.\n\nA `while (true)` without `break` is a runaway. The runner will time out.'
+          '## Stop when the counter says so\n\n`while` keeps going while a condition is true. `break` leaves early when you have a *reason* — here, when you have taken 2 south steps toward the beacon.\n\nA `while (true)` without `break` is a runaway. The runner will time out.\n\nThere is a sibling worth knowing: `do { … } while (cond)` checks the condition **after** the body, so the body always runs at least once. Reach for it when the first attempt is unconditional — read a line, then keep reading while there are more.'
         ),
         predict(
           'break-why',
@@ -835,9 +957,11 @@ Player.move("east")
           goal: { all: [at('fox', 'x', 1), at('fox', 'y', 2)] },
           hidden: true,
           ast: 'while',
-          hints: hints(
-            'Keep a steps variable. break when it reaches 2.',
-            { level: 4, kind: 'assist', md: 'let steps = 0\nwhile (true) {\n  Player.move("south")\n  steps += 1\n  if (steps === 2) break\n}' }
+          hints: ladder(
+            '`while (false)` never runs its body, so the fox has not moved at all.',
+            'Keep a `steps` counter, move inside the loop, and `break` once the counter reaches 2.',
+            '`if (steps === 2) break` is the exit. Put it after the move so the second step still happens.',
+            'let steps = 0\nwhile (true) {\n  Player.move("south")\n  steps += 1\n  if (steps === 2) break\n}'
           )
         })
       ]
@@ -849,6 +973,69 @@ while (false) {
 }
 `,
       'hidden.test.js': srcIncludes('while') + playLogOk()
+    }
+  })
+
+  out.push({
+    doc: lesson({
+      id: 'switch-dispatch',
+      courseId: 'signals',
+      moduleId: 'loops',
+      title: 'One command name, many branches',
+      skillIds: ['js.flow', 'js.functions'],
+      estimatedMinutes: 20,
+      blocks: [
+        explain(
+          '## `switch` routes a command\n\nA dispatch table reads one value and picks a branch. `switch (cmd)` compares with `===`, runs the matching `case`, and keeps running **into the next case** until it meets `break`.\n\nThat fall-through is a feature when you group spellings:\n\n```\ncase "east":\ncase "e":\n  Player.move("east")\n  break\n```\n\nBoth labels share one body. Forgetting `break` on a branch that has its own body is the classic bug: the fox does two things for one command. `default` catches anything you did not plan for.'
+        ),
+        predict(
+          'no-break',
+          'A `case "east"` moves east but has no `break`. The next case moves south. What happens on `"east"`?',
+          [
+            { id: 'east', md: 'Only the east move runs' },
+            { id: 'both', md: 'East runs, then south runs too', misconceptionId: 'switch-without-break' },
+            { id: 'error', md: 'JavaScript refuses to run it' }
+          ],
+          'both'
+        ),
+        check(
+          'default-case',
+          'The plan contains `"beep"`, which no case names. With a `default` branch that calls `Player.say("skip")`, what happens?',
+          [
+            { id: 'crash', md: 'The program throws on the unknown command' },
+            { id: 'skip', md: 'The default branch runs and the fox says `skip`' },
+            { id: 'last', md: 'The last case runs instead', misconceptionId: 'switch-without-break' }
+          ],
+          'skip',
+          { explainMd: '`default` is the branch for everything you did not list. Without it, an unknown command is silently ignored.' }
+        ),
+        playCode({
+          id: 'dispatch-plan',
+          prompt:
+            '> Walk the plan with a `switch`. `east` and `e` both go east, `south` goes south, and anything else falls to `default` and says `skip`. Beacon is at (2, 2).',
+          world: field([fox(0, 0), beacon(2, 2), tree('t1', 5, 1), piece('barrel', 'barrel', 6, 3)]),
+          goal: { all: [at('fox', 'x', 2), at('fox', 'y', 2), at('fox', 'say', 'skip')] },
+          hidden: true,
+          ast: 'switch',
+          hints: ladder(
+            'The plan is already in the file. Loop it and branch on each command.',
+            '`switch (cmd)` with one `case` per command name, and `break` at the end of each body.',
+            'Two labels stacked with no body between them share the branch below: `case "east":` then `case "e":` then the move.',
+            'const plan = ["east", "east", "south", "south", "beep"]\nfor (const cmd of plan) {\n  switch (cmd) {\n    case "east":\n    case "e":\n      Player.move("east")\n      break\n    case "south":\n      Player.move("south")\n      break\n    default:\n      Player.say("skip")\n  }\n}'
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `const plan = ["east", "east", "south", "south", "beep"]
+for (const cmd of plan) {
+  switch (cmd) {
+    default:
+      Player.say(cmd)
+  }
+}
+`,
+      'hidden.test.js': srcIncludes('case', 'break') + playLogOk()
     }
   })
 
@@ -977,6 +1164,7 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
           hints: hints(
             'Count on your fingers: i = 0, 1, 2 is three moves if the test is i < 3.',
             { level: 2, kind: 'concept', md: 'The walls sit on the row below. Stay on y=0 and walk east.' },
+            { level: 3, kind: 'concept', md: 'Only the bound is wrong. The fox needs three moves, so the comparison must let i reach 2.' },
             { level: 4, kind: 'assist', md: 'for (let i = 0; i < 3; i++) Player.move("east")' }
           )
         })
@@ -1018,9 +1206,11 @@ assert.ok(log.some((row) => row.op === 'scale' && row.n === 2))
           world: gridWorld([fox(0, 0), beacon(2, 1)]),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 1)] },
           hidden: true,
-          hints: hints(
-            'for (const dir of dirs) Player.move(dir)',
-            { level: 4, kind: 'assist', md: 'const dirs = ["east", "east", "south"]\nfor (const dir of dirs) Player.move(dir)\nmodule.exports = { dirs }' }
+          hints: ladder(
+            'The list already holds the route. The starter ignores it and moves once by hand.',
+            'Walk the list itself, so adding a direction to `dirs` changes the path with no other edit.',
+            '`for (const dir of dirs) { … }` hands you each string in turn.',
+            'const dirs = ["east", "east", "south"]\nfor (const dir of dirs) Player.move(dir)\nmodule.exports = { dirs }'
           )
         })
       ]
@@ -1045,7 +1235,7 @@ module.exports = { dirs }
       taskRev: 2,
       blocks: [
         explain(
-          '## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array. Print `ADA,GRACE`.\n\nThen walk: map `"E"`/`"S"` labels into `"east"`/`"south"` and move those dirs to (2, 1).'
+          '## map does not rewrite the original\n\n`names.map(n => n.toUpperCase())` returns a **new** array of the same length, with each item transformed. The list you started from is untouched — that is the whole point, and the hidden test checks it.\n\nHere you map two lowercase names to uppercase and join them: `ADA,GRACE`.'
         ),
         predict(
           'map-original',
@@ -1063,9 +1253,11 @@ module.exports = { dirs }
           ast: 'map',
           misconceptionId: 'map-mutates',
           hidden: true,
-          hints: hints(
-            { level: 1, kind: 'concept', md: 'Use map, then join with a comma.' },
-            { level: 4, kind: 'assist', md: 'function uppers(names) { return names.map(n => n.toUpperCase()).join(",") }\nconsole.log(uppers(["ada", "grace"]))\nmodule.exports = { uppers }' }
+          hints: ladder(
+            'The starter joins the names but never changes them, so the letters stay lowercase.',
+            '`map` builds a new list from the old one; `join` turns that new list into text.',
+            '`["a"].map((s) => s.toUpperCase())` is `["A"]`, and the original list is untouched.',
+            'function uppers(names) { return names.map(n => n.toUpperCase()).join(",") }\nconsole.log(uppers(["ada", "grace"]))\nmodule.exports = { uppers }'
           )
         })
       ]
@@ -1113,9 +1305,11 @@ assert.strictEqual(src[0], 'ada')
           equals: 'east,east',
           ast: 'filter',
           hidden: true,
-          hints: hints(
-            'dirs.filter(d => d === "east").join(",")',
-            { level: 4, kind: 'assist', md: 'function onlyEast(dirs) { return dirs.filter(d => d === "east").join(",") }\nconsole.log(onlyEast(["east", "south", "east"]))\nmodule.exports = { onlyEast }' }
+          hints: ladder(
+            'The starter joins every direction, including the ones you were asked to drop.',
+            '`filter` keeps the entries whose test returns true and returns a new, shorter list.',
+            '`dirs.filter((d) => d === "east")` keeps only the easts; `join(",")` then makes the line.',
+            'function onlyEast(dirs) { return dirs.filter(d => d === "east").join(",") }\nconsole.log(onlyEast(["east", "south", "east"]))\nmodule.exports = { onlyEast }'
           )
         })
       ]
@@ -1160,9 +1354,11 @@ assert.strictEqual(m.onlyEast(['south']), '')
           equals: 'east-south',
           ast: 'reduce',
           hidden: true,
-          hints: hints(
-            'If acc is empty, return the dir. Else return acc + "-" + dir.',
-            { level: 4, kind: 'assist', md: 'function pathOf(dirs) {\n  return dirs.reduce((acc, d) => (acc ? acc + "-" + d : d), "")\n}\nconsole.log(pathOf(["east", "south"]))\nmodule.exports = { pathOf }' }
+          hints: ladder(
+            'The starter joins with a comma. The lesson asks you to build the same idea with an accumulator.',
+            '`reduce` carries one value across the list: the running path so far, plus the next direction.',
+            'If the accumulator is still empty, the answer is just the direction; otherwise add `"-"` before it.',
+            'function pathOf(dirs) {\n  return dirs.reduce((acc, d) => (acc ? acc + "-" + d : d), "")\n}\nconsole.log(pathOf(["east", "south"]))\nmodule.exports = { pathOf }'
           )
         })
       ]
@@ -1216,9 +1412,11 @@ assert.strictEqual(m.pathOf(['west']), 'west')
           ),
           goal: { all: [at('fox', 'x', 3), at('fox', 'y', 2)] },
           hidden: true,
-          hints: hints(
-            'for (let i = 0; i < route.east; i++) Player.move("east")',
-            { level: 4, kind: 'assist', md: 'const route = { east: 3, south: 2 }\nfor (let i = 0; i < route.east; i++) Player.move("east")\nfor (let i = 0; i < route.south; i++) Player.move("south")\nmodule.exports = { route }' }
+          hints: ladder(
+            'The record already holds both counts. The starter moves east once and ignores them.',
+            'Read `route.east` and `route.south`, and loop that many times for each heading.',
+            '`for (let i = 0; i < route.east; i++) Player.move("east")` walks the east leg.',
+            'const route = { east: 3, south: 2 }\nfor (let i = 0; i < route.east; i++) Player.move("east")\nfor (let i = 0; i < route.south; i++) Player.move("south")\nmodule.exports = { route }'
           )
         })
       ]
@@ -1231,6 +1429,71 @@ module.exports = { route }
       'hidden.test.js': exportAssert(`assert.strictEqual(m.route.east, 3)
 assert.strictEqual(m.route.south, 2)
 `) + playLogOk()
+    }
+  })
+
+  out.push({
+    doc: lesson({
+      id: 'object-key-iteration',
+      courseId: 'data',
+      moduleId: 'records',
+      title: 'Walk the keys of a record',
+      skillIds: ['js.objects', 'js.arrays'],
+      estimatedMinutes: 20,
+      blocks: [
+        explain(
+          '## Three ways to walk, one you should reach for\n\n`Object.keys(route)` gives the **own** key names as an array. `Object.values` gives the values, `Object.entries` gives `[key, value]` pairs. All three skip anything inherited from a prototype.\n\n`for (const k in route)` also walks **inherited** keys. That is why a record built with `Object.create(base)` leaks `base`\'s keys into your loop.\n\n`for (const v of list)` is for arrays and other iterables. A plain object is not iterable — `for…of` on one throws.'
+        ),
+        predict(
+          'for-in-what',
+          'In `for (const k in route)`, what is `k` on each pass?',
+          [
+            { id: 'key', md: 'The key name, as a string' },
+            { id: 'value', md: 'The value stored under the key', misconceptionId: 'for-in-yields-values' },
+            { id: 'pair', md: 'A `[key, value]` pair' }
+          ],
+          'key'
+        ),
+        cloze(
+          'which-walk',
+          'To get own keys only, use {{a}}. To get `[key, value]` pairs, use {{b}}.',
+          [
+            { id: 'a', choices: ['Object.keys', 'for…in', 'for…of'] },
+            { id: 'b', choices: ['Object.entries', 'Object.values', 'JSON.parse'] }
+          ],
+          { a: 'Object.keys', b: 'Object.entries' },
+          { explainMd: 'for…in adds inherited keys. Object.keys and Object.entries stay on the record in front of you.' }
+        ),
+        stdoutCode({
+          id: 'route-summary',
+          prompt:
+            '> `summary(route)` returns each own key and value as `key=value`, joined with `;`. Print `summary({ east: 3, south: 2 })` (`east=3;south=2`).',
+          equals: 'east=3;south=2',
+          hidden: true,
+          hints: ladder(
+            'You need both the key and the value on each pass, in the order they were written.',
+            '`Object.entries(route)` hands you `[key, value]` pairs you can map over.',
+            '`Object.entries(o).map(([k, v]) => k + "=" + v)` builds the pieces; `join(";")` glues them.',
+            'function summary(route) {\n  return Object.entries(route)\n    .map(([key, value]) => `${key}=${value}`)\n    .join(";")\n}\nconsole.log(summary({ east: 3, south: 2 }))\nmodule.exports = { summary }'
+          )
+        })
+      ]
+    }),
+    files: {
+      'main.js': `function summary(route) {
+  return Object.keys(route).join(";")
+}
+console.log(summary({ east: 3, south: 2 }))
+module.exports = { summary }
+`,
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.summary({ east: 3, south: 2 }), 'east=3;south=2')
+assert.strictEqual(m.summary({}), '')
+assert.strictEqual(m.summary({ north: 1 }), 'north=1')
+const base = { ghost: 9 }
+const child = Object.create(base)
+child.east = 1
+assert.strictEqual(m.summary(child), 'east=1', 'inherited keys must not appear')
+`)
     }
   })
 
@@ -1264,14 +1527,15 @@ assert.strictEqual(m.route.south, 2)
         ),
         stdoutCode({
           id: 'unique-join',
-          prompt: '> `unique(dirs)` returns the unique headings joined with `-`. Print `unique(["east","east","south"])` (`east-south`).',
+          prompt:
+            '> Two jobs. `unique(dirs)` returns the unique headings joined with `-`. `nameOf(map, key)` returns `map.get(key)`, or `"none"` when the key was never set. Print `unique(["east","east","south"])` (`east-south`).',
           equals: 'east-south',
           hidden: true,
           hints: ladder(
-            'new Set(array) drops duplicates and keeps first-seen order.',
-            '[...set] turns the set back into a list you can join.',
-            'function unique(dirs) { return [...new Set(dirs)].join("-") }',
-            'function unique(dirs) {\n  return [...new Set(dirs)].join("-")\n}\nconsole.log(unique(["east", "east", "south"]))\nmodule.exports = { unique }'
+            'A Set answers "which headings appeared"; a Map answers "what is stored under this key". You need one of each.',
+            '`new Set(array)` drops duplicates and keeps first-seen order; `[...set]` turns it back into a list you can join.',
+            '`map.has(key)` is the honest test before `map.get(key)`, because a missing key gives `undefined` rather than throwing.',
+            'function unique(dirs) {\n  return [...new Set(dirs)].join("-")\n}\nfunction nameOf(map, key) {\n  return map.has(key) ? map.get(key) : "none"\n}\nconsole.log(unique(["east", "east", "south"]))\nmodule.exports = { unique, nameOf }'
           )
         })
       ]
@@ -1280,12 +1544,19 @@ assert.strictEqual(m.route.south, 2)
       'main.js': `function unique(dirs) {
   return dirs.join("-")
 }
+function nameOf(map, key) {
+  return key
+}
 console.log(unique(["east", "east", "south"]))
-module.exports = { unique }
+module.exports = { unique, nameOf }
 `,
       'hidden.test.js': exportAssert(`assert.strictEqual(m.unique(['east', 'east', 'south']), 'east-south')
 assert.strictEqual(m.unique(['west']), 'west')
 assert.strictEqual(m.unique(['south', 'south', 'south']), 'south')
+const beacons = new Map([['n', 'north'], ['e', 'east']])
+assert.strictEqual(m.nameOf(beacons, 'n'), 'north')
+assert.strictEqual(m.nameOf(beacons, 'e'), 'east')
+assert.strictEqual(m.nameOf(beacons, 'ghost'), 'none', 'a missing key is none, not undefined')
 `)
     }
   })
@@ -1317,9 +1588,11 @@ assert.strictEqual(m.unique(['south', 'south', 'south']), 'south')
           world: gridWorld([fox(0, 0), beacon(2, 1)]),
           goal: { all: [at('fox', 'x', 2), at('fox', 'y', 1)] },
           hidden: true,
-          hints: hints(
-            'Mutate the shared array, then walk it. The lesson is that both names see south.',
-            { level: 4, kind: 'assist', md: 'const shared = ["east", "east"]\nconst also = shared\nalso.push("south")\nfor (const d of shared) Player.move(d)\nmodule.exports = { shared }' }
+          hints: ladder(
+            'The comment marks the missing line: `also` has to gain a south step.',
+            '`also` and `shared` are two names for one list, so pushing through either name changes both.',
+            '`also.push("south")` adds the step; the loop below already walks `shared`.',
+            'const shared = ["east", "east"]\nconst also = shared\nalso.push("south")\nfor (const d of shared) Player.move(d)\nmodule.exports = { shared }'
           )
         })
       ]
@@ -1331,8 +1604,13 @@ const also = shared
 for (const d of shared) Player.move(d)
 module.exports = { shared }
 `,
-      'hidden.test.js': exportAssert(`assert.ok(Array.isArray(m.shared))
-`) + playLogOk()
+      'hidden.test.js':
+        exportAssert(`assert.ok(Array.isArray(m.shared))
+assert.deepStrictEqual(m.shared, ['east', 'east', 'south'], 'the shared list itself must gain the south step')
+`) +
+        playLogOk(`const dirs = log.filter((row) => row.op === 'move').map((row) => row.dir)
+assert.deepStrictEqual(dirs.slice(0, 3), ['east', 'east', 'south'], 'walk the shared list, do not add a move by hand')
+`)
     }
   })
 
@@ -1363,9 +1641,11 @@ module.exports = { shared }
           equals: '2',
           ast: '...',
           hidden: true,
-          hints: hints(
-            'return { ...route, south: 2 }',
-            { level: 4, kind: 'assist', md: 'function extendSouth(route) { return { ...route, south: 2 } }\nconsole.log(extendSouth({ east: 3, south: 0 }).south)\nmodule.exports = { extendSouth }' }
+          hints: ladder(
+            'The starter writes straight into the record it was handed, so the caller loses the original.',
+            'Build a new object instead: spread the old fields in, then override the one you meant to change.',
+            '`{ ...settings, volume: 3 }` copies every field and replaces only `volume`.',
+            'function extendSouth(route) { return { ...route, south: 2 } }\nconsole.log(extendSouth({ east: 3, south: 0 }).south)\nmodule.exports = { extendSouth }'
           )
         })
       ]
@@ -1396,7 +1676,7 @@ assert.strictEqual(src.south, 0)
       estimatedMinutes: 20,
       blocks: [
         explain(
-          '## Text in, object out\n\n`JSON.parse` reads a string. Bad text throws. `JSON.stringify` writes a string. A fixture file in this lesson is `signal.json` — parse it and print the `name` field.'
+          '## Text in, object out, text again\n\n`JSON.parse` turns a string into an object. Bad text throws a `SyntaxError` — there is no quiet `{}` fallback. `JSON.stringify` goes the other way.\n\nHere the JSON arrives as a string already, held in `raw`. Reading files comes later, in the Node track; today the only question is what the text becomes.\n\nA round-trip is not always lossless: `undefined`, functions, and `Map` values do not survive `stringify`.'
         ),
         predict(
           'parse-throw',
@@ -1407,28 +1687,38 @@ assert.strictEqual(src.south, 0)
           ],
           'throw'
         ),
+        tf(
+          'stringify-undefined',
+          '`JSON.stringify({ a: undefined })` keeps the `a` field.',
+          false,
+          { explainMd: 'It gives `{}`. Fields set to undefined, and functions, are dropped on the way out.' }
+        ),
         stdoutCode({
-          id: 'read-fixture',
-          prompt: '> Parse `signal.json` and print the `name` field (`north`).',
+          id: 'read-signal',
+          prompt: '> `readName(text)` parses the JSON in `text` and returns the `name` field. Print `readName(raw)` (`north`).',
           equals: 'north',
+          ast: 'JSON.parse',
           hidden: true,
-          extraFiles: [{ path: 'files/signal.json', role: 'fixture' }],
-          hints: hints(
-            'fs.readFileSync("signal.json", "utf8") then JSON.parse.',
-            { level: 4, kind: 'assist', md: 'const fs = require("fs")\nfunction readName() {\n  return JSON.parse(fs.readFileSync("signal.json", "utf8")).name\n}\nconsole.log(readName())\nmodule.exports = { readName }' }
+          hints: ladder(
+            'The starter hands the raw text straight back, so you are printing JSON instead of a name.',
+            '`JSON.parse(text)` gives you an object; after that it is an ordinary field read.',
+            '`JSON.parse(\'{"kind":"beacon"}\').kind` is `"beacon"`.',
+            'const raw = \'{ "name": "north", "kind": "beacon" }\'\nfunction readName(text) {\n  return JSON.parse(text).name\n}\nconsole.log(readName(raw))\nmodule.exports = { readName }'
           )
         })
       ]
     }),
     files: {
-      'signal.json': `{ "name": "north", "kind": "beacon" }\n`,
-      'main.js': `function readName() {
-  return "?"
+      'main.js': `const raw = '{ "name": "north", "kind": "beacon" }'
+function readName(text) {
+  return text
 }
-console.log(readName())
+console.log(readName(raw))
 module.exports = { readName }
 `,
-      'hidden.test.js': exportAssert(`assert.strictEqual(m.readName(), 'north')
+      'hidden.test.js': exportAssert(`assert.strictEqual(m.readName('{ "name": "north", "kind": "beacon" }'), 'north')
+assert.strictEqual(m.readName('{"name":"west"}'), 'west')
+assert.throws(() => m.readName('{'), 'broken JSON must throw, not return undefined')
 `)
     }
   })
@@ -1461,9 +1751,11 @@ module.exports = { readName }
           prompt: '> `logBeacon(name)` returns `beacon:name`. Print north then east, one per line.',
           equals: 'beacon:north\nbeacon:east',
           hidden: true,
-          hints: hints(
-            { level: 1, kind: 'concept', md: 'return `beacon:${name}`' },
-            { level: 4, kind: 'assist', md: 'function logBeacon(name) { return `beacon:${name}` }\nconsole.log(logBeacon("north"))\nconsole.log(logBeacon("east"))\nmodule.exports = { logBeacon }' }
+          hints: ladder(
+            'The starter returns the bare name, so the printed lines are missing their tag.',
+            'Build the tag inside the function, so every caller gets the same shape.',
+            'A template literal does it in one line: `` return `beacon:${name}` ``.',
+            'function logBeacon(name) { return `beacon:${name}` }\nconsole.log(logBeacon("north"))\nconsole.log(logBeacon("east"))\nmodule.exports = { logBeacon }'
           )
         })
       ]
