@@ -3,7 +3,7 @@ import { linter, type Diagnostic } from '@codemirror/lint'
 import type { EditorState } from '@codemirror/state'
 import type { EditorView } from '@codemirror/view'
 import * as acorn from 'acorn'
-import { PLAYER_DIRS, PLAYER_METHODS, type EditorApi } from './apis'
+import { PLAYER_DIRS, PLAYER_METHODS, playerMethodFor, type EditorApi } from './apis'
 import type { EditorLanguage } from './languages'
 
 /** Wait until the learner pauses before showing unfinished-expression tips. */
@@ -252,16 +252,129 @@ function unclosedIssues(state: EditorState): EditorIssue[] {
   return []
 }
 
-function lezerIssues(state: EditorState): EditorIssue[] {
+function lezerIssues(state: EditorState, softenTail = false): EditorIssue[] {
   const issues: EditorIssue[] = []
+  // The end of the document is almost always a half-typed line, not a mistake.
+  const settled = state.doc.toString().trimEnd().length
   syntaxTree(state).iterate({
     enter(node) {
       if (!node.type.isError) return
       issues.push(
-        at(state, node.from, Math.max(node.to, node.from + 1), 'Something here is not valid — check spelling, quotes, and parentheses.')
+        at(state, node.from, Math.max(node.to, node.from + 1), 'Something here is not valid — check spelling, quotes, and parentheses.', {
+          incomplete: softenTail && node.to >= settled,
+          severity: softenTail && node.to >= settled ? 'warning' : 'error'
+        })
       )
     }
   })
+  return issues
+}
+
+/** `if`, `for`, `def` … — the statements Python expects to end in a colon. */
+const PY_HEADER = /^(?:async\s+)?(if|elif|else|for|while|def|class|try|except|finally|with|match|case)\b/
+
+/** Blank out comments and string bodies so a scan only sees real code. */
+function codeOnly(src: string, language: EditorLanguage): string {
+  const mask = codeMask(src, language)
+  let out = ''
+  for (let i = 0; i < src.length; i += 1) out += mask[i] === 1 ? src[i] : src[i] === '\n' ? '\n' : ' '
+  return out
+}
+
+function depthDelta(text: string): number {
+  let depth = 0
+  for (const c of text) {
+    if (c === '(' || c === '[' || c === '{') depth += 1
+    if (c === ')' || c === ']' || c === '}') depth -= 1
+  }
+  return depth
+}
+
+/** Index of the first `ch` at or after `from` that sits outside every bracket, or -1. */
+function indexAtTopLevel(text: string, ch: string, from = 0): number {
+  let depth = 0
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i]!
+    if (c === '(' || c === '[' || c === '{') depth += 1
+    else if (c === ')' || c === ']' || c === '}') depth -= 1
+    else if (c === ch && depth === 0 && i >= from) return i
+  }
+  return -1
+}
+
+/** A single `=` outside every bracket — assignment where a comparison belongs. */
+function loneEquals(text: string): number {
+  let depth = 0
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i]!
+    if (c === '(' || c === '[' || c === '{') depth += 1
+    else if (c === ')' || c === ']' || c === '}') depth -= 1
+    else if (c === '=' && depth === 0) {
+      if (text[i + 1] === '=') {
+        i += 1
+        continue
+      }
+      // `==`, `!=`, `<=`, `>=`, `+=` … and the walrus are all deliberate.
+      if ('=!<>+-*/%&|^:'.includes(text[i - 1] ?? '')) continue
+      return i
+    }
+  }
+  return -1
+}
+
+/**
+ * The mistakes a Python beginner actually makes. Lezer reports all of them as
+ * "not valid here", which names the symptom and never the fix.
+ */
+function pythonTaughtIssues(state: EditorState): EditorIssue[] {
+  const src = state.doc.toString()
+  const bare = codeOnly(src, 'python')
+  const issues: EditorIssue[] = []
+  let depth = 0
+  for (let n = 1; n <= state.doc.lines; n += 1) {
+    const line = state.doc.line(n)
+    const raw = src.slice(line.from, line.to)
+    const code = bare.slice(line.from, line.to)
+    const opened = depth
+    depth += depthDelta(code)
+    const body = code.trimEnd()
+    if (!body.trim()) continue
+    // Inside brackets or after a backslash the statement has not ended yet.
+    if (opened > 0 || body.endsWith('\\')) continue
+    const indent = code.length - code.trimStart().length
+    const start = line.from + indent
+    const trimmed = body.trim()
+
+    // The masked copy proves `print` is code; the raw line shows what follows it.
+    if (/^print\b/.test(trimmed) && /^\s*print\s+[^\s(=.,)\]}:]/.test(raw)) {
+      issues.push(
+        at(state, start, start + 5, 'print is a function in Python 3 — wrap the message in parentheses, like print("hello").')
+      )
+      continue
+    }
+
+    const header = PY_HEADER.exec(trimmed)
+    if (!header) continue
+    const colon = indexAtTopLevel(code, ':', indent)
+    if (colon === -1) {
+      if (depth > 0) continue // header spread over several lines
+      issues.push(
+        at(state, start, line.to, `Add a colon at the end of this ${header[1]} line, then indent the block under it.`, {
+          incomplete: line.to >= src.trimEnd().length,
+          severity: line.to >= src.trimEnd().length ? 'warning' : 'error'
+        })
+      )
+      continue
+    }
+    if (header[1] === 'if' || header[1] === 'elif' || header[1] === 'while') {
+      const condFrom = indent + header[0].length
+      const eq = loneEquals(code.slice(condFrom, colon))
+      if (eq !== -1) {
+        const atEq = line.from + condFrom + eq
+        issues.push(at(state, atEq, atEq + 1, 'Use == to compare. A single = binds a name, and Python will not accept it in a condition.'))
+      }
+    }
+  }
   return issues
 }
 
@@ -349,7 +462,7 @@ function playerApiIssues(state: EditorState, language: EditorLanguage): EditorIs
     const name = m[1]!
     const from = m.index
     const identTo = from + m[0].length
-    const method = PLAYER_METHODS[name]
+    const method = playerMethodFor(name, language === 'python' ? 'python' : 'javascript')
     if (!method) {
       const known = Object.keys(PLAYER_METHODS).join(', ')
       issues.push(at(state, from, identTo, `Player has no method "${name}". Try ${known}.`))
@@ -404,7 +517,13 @@ export function collectIssues(state: EditorState, ctx: LintContext): EditorIssue
   else if (ctx.language === 'python') {
     const unclosed = unclosedIssues(state)
     parse.push(...unclosed)
-    if (unclosed.length === 0) parse.push(...lezerIssues(state))
+    if (unclosed.length === 0) {
+      const taught = pythonTaughtIssues(state)
+      parse.push(...taught)
+      // Lezer would repeat the same spot in language nobody can act on.
+      const taughtLines = new Set(taught.map((issue) => issue.line))
+      parse.push(...lezerIssues(state, true).filter((issue) => !taughtLines.has(issue.line)))
+    }
   } else parse.push(...lezerIssues(state))
 
   const api = ctx.api === 'player-v1' ? playerApiIssues(state, ctx.language) : []

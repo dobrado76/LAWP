@@ -1,0 +1,118 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "python.io.files"
+  ],
+  "id": "creation-log-scrubber",
+  "courseId": "files",
+  "moduleId": "records",
+  "title": "The log scrubber reads the real log",
+  "creation": {
+    "id": "log-scrubber",
+    "step": 2,
+    "briefMd": "Step 2 of the log scrubber. The line cleaner you built earlier now works on the real thing: it reads the station log off disk, drops the noise, and writes `report.txt` — a file you can hand to somebody else."
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## From one line to the whole file\n\nYou already know how to clean one line: strip the ends, collapse the run of spaces in the middle, lower the case. A file is that rule inside a loop, plus two decisions about lines you do not want — the blank ones and the comment ones — and one decision about where the cleaned lines go.\n\nA whole-file scrubber has to be safe to run twice, because it will be. Read the messy log, build the cleaned lines in memory, and write them out in one pass; never write into the file you are still reading. And decide what a line of output ends with, because writing `\"\\n\"` yourself is the difference between a file of lines and one very long line.\n\n```python\nline = \"  06:12  FOX ne ok  \"\nprint(\" \".join(line.split()).lower())   # 06:12 fox ne ok\n\nprint(\"# note\".startswith(\"#\"))         # True — a comment line to drop\nprint(bool(\"   \".strip()))              # False — a blank line to drop\n```\n\nA common mistake is `line.replace(\"  \", \" \")`, which turns three spaces into two and stops there. `line.split()` with no argument breaks on any run of whitespace and throws the empty pieces away, so `\" \".join(line.split())` normalises every gap in one go. The exercise prints how many lines it kept, so one stray blank shows up in the number."
+    },
+    {
+      "type": "check",
+      "id": "collapse-spaces",
+      "promptMd": "Which expression turns `\"  06:12   FOX  ne \"` into `\"06:12 FOX ne\"`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "replace",
+          "md": "`line.strip().replace(\"  \", \" \")`"
+        },
+        {
+          "id": "joinsplit",
+          "md": "`\" \".join(line.split())`"
+        }
+      ],
+      "answer": "joinsplit",
+      "explainMd": "`replace(\"  \", \" \")` walks the string once, so a run of three spaces becomes two and a run of five becomes three. `split()` with no argument breaks on any run of whitespace and discards the empty pieces, so joining the result with a single space normalises every gap no matter how long it was."
+    },
+    {
+      "type": "predict",
+      "id": "skip-comment",
+      "promptMd": "The scrubber keeps a line unless it is blank or starts with `#`. How many of these four survive: `\"  06:12 ok \"`, `\"\"`, `\"# calibration\"`, `\"07:05 ok\"`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "four",
+          "md": "All four"
+        },
+        {
+          "id": "two",
+          "md": "Two"
+        }
+      ],
+      "answer": "two",
+      "explainMd": "The empty line goes because `\"\".strip()` is falsy, and the calibration line goes because it starts with `#`. Order matters: strip the line first and then test it, or a comment that somebody indented by two spaces slips straight through into the report."
+    },
+    {
+      "type": "code",
+      "id": "scrub-file",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Read `station.log`, drop the blank lines and the `#` comment lines, normalise every surviving line to single-spaced lowercase, and write them to `report.txt`, one per line. Print how many lines you wrote.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station.log",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "4"
+        },
+        {
+          "type": "ast",
+          "query": "report.txt"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter copies the log straight across, blank lines and comment and all. The cleaning rule belongs between the read and the write."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Per line: `line = line.strip()`, then `continue` when the line is empty or `line.startswith(\"#\")`, then keep `\" \".join(line.split()).lower()` in a list."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Writing a list of lines back out: `for row in cleaned: out.write(row + \"\\n\")`. The newline is yours to add, and `len(cleaned)` is the number you print."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "cleaned = []\n\nwith open(\"station.log\", encoding=\"utf-8\") as f:\n    for line in f:\n        line = line.strip()\n        if not line or line.startswith(\"#\"):\n            continue\n        cleaned.append(\" \".join(line.split()).lower())\n\nwith open(\"report.txt\", \"w\", encoding=\"utf-8\") as out:\n    for row in cleaned:\n        out.write(row + \"\\n\")\n\nprint(len(cleaned))"
+        }
+      ]
+    }
+  ],
+  "description": "Read the station log from a file and write a clean report."
+}

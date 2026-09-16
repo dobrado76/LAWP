@@ -1,0 +1,140 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.values.truth"
+  ],
+  "id": "equality-vs-identity",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "Same contents, different box",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two questions you can ask about two names\n\n`==` asks whether two values look the same to anyone reading them. `is` asks something much narrower: whether the two names point at one single object in memory. Two crates packed with identical contents are equal; they are still two crates.\n\nThis bites because `is` sometimes appears to work. Python reuses small integers and short strings behind the scenes, so `a is b` can come out `True` for `3` and then `False` for `3000`, on the same machine, in the same session. Code that relies on that accident works on your laptop and fails on the station recorder.\n\n```python\nleft = [\"fox\", \"owl\"]\nright = [\"fox\", \"owl\"]\nprint(left == right)     # True  — same contents\nprint(left is right)     # False — two separate lists\n\nalso = left\nprint(also is left)      # True  — one list wearing two names\nprint(left is not None)  # True  — the job is belongs to\n```\n\nA common mistake is using `is` for value comparison because it reads like English. Reserve `is` for the three singletons — `None`, `True`, `False` — where there is genuinely only ever one object. The exercise asks you to write both questions as separate functions so the difference is impossible to blur."
+    },
+    {
+      "type": "predict",
+      "id": "two-equal-lists",
+      "promptMd": "For `left = [\"fox\"]` and `right = [\"fox\"]`, what are `left == right` and `left is right`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "both-true",
+          "md": "Both `True` — equal contents means the same object",
+          "misconceptionId": "is-means-equals"
+        },
+        {
+          "id": "split",
+          "md": "`True` then `False`"
+        }
+      ],
+      "answer": "split",
+      "explainMd": "Each list literal builds a separate object, so there are two lists here. They compare equal because their contents match, but `is` looks past the contents at the identity of the object itself and reports `False`. Appending to one would leave the other untouched, which is the practical difference."
+    },
+    {
+      "type": "check",
+      "id": "pick-the-operator",
+      "kind": "cloze",
+      "promptMd": "To ask whether a reading is absent, write `reading {{a}} None`. To ask whether two tags spell the same word, write `one {{b}} two`.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "is",
+              "md": "is"
+            },
+            {
+              "id": "==",
+              "md": "=="
+            },
+            {
+              "id": "has",
+              "md": "has"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "==",
+              "md": "=="
+            },
+            {
+              "id": "is",
+              "md": "is"
+            },
+            {
+              "id": "in",
+              "md": "in"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "is",
+        "b": "=="
+      },
+      "explainMd": "There is exactly one `None` object in a running program, so identity is the precise question and `is None` is the idiom every Python reader expects. Strings are values you care about by content, so `==` is right there: two tags typed in different places can be equal without being the same object."
+    },
+    {
+      "type": "code",
+      "id": "two-questions",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `same_object(x, y)` so it answers the identity question, and leave `same_value(x, y)` answering the contents question. For two separately built lists the printed line should be `False True`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "False True",
+          "misconceptionId": "is-means-equals"
+        },
+        {
+          "type": "ast",
+          "query": " is "
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Both starter functions ask the same question, so they can never disagree. One of them is meant to be stricter."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`is` compares identity — are these the very same object? `==` compares contents. Only one of the two functions should use `is`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`a = {\"n\": 1}` and `b = {\"n\": 1}` give `a == b` as `True` and `a is b` as `False`, for exactly the same reason."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def same_object(x, y):\n    return x is y\n\n\ndef same_value(x, y):\n    return x == y\n\n\nleft = [\"fox\", \"owl\"]\nright = [\"fox\", \"owl\"]\nprint(same_object(left, right), same_value(left, right))"
+        }
+      ]
+    }
+  ],
+  "description": "Two values can be equal without being the same object."
+}

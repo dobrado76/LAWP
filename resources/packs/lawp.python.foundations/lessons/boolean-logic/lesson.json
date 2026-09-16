@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.values.truth"
+  ],
+  "id": "boolean-logic",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "And, or, and the answer you did not expect",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three words that combine conditions\n\n`and` is true only when both sides are true, `or` is true when at least one side is, and `not` flips whichever answer it is handed. They read like English because they were meant to, and an `if` built from them usually says out loud what the station rule is.\n\nThis bites in two places. First, both operators short-circuit: `and` stops as soon as it finds something falsy and `or` stops as soon as it finds something truthy, so the right-hand side may never run at all. Second, `or` does not hand back `True` — it hands back one of the two operands, which is why `name or \"unnamed\"` is the standard way to supply a fallback.\n\n```python\ndef boom():\n    raise ValueError(\"this never runs\")\n\n\nprint(True and False)         # False\nprint(not True)               # False\nprint(False and boom())       # False — the right side is skipped\nprint(0 or \"unnamed\")         # unnamed — an operand, not True\nprint(\"fox-den\" or \"unnamed\") # fox-den\n```\n\nA common mistake is wrapping everything in `bool(...)` because you assumed `or` returns `True`. It returns the first truthy operand, or the last one if none were truthy, and that behaviour is the whole point of the fallback idiom. The exercise asks for a default tag and a two-condition readiness check, so use each operator for what it is good at."
+    },
+    {
+      "type": "predict",
+      "id": "or-returns-operand",
+      "promptMd": "What does `print(0 or \"unnamed\")` show?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "true",
+          "md": "`True`"
+        },
+        {
+          "id": "text",
+          "md": "`unnamed`"
+        }
+      ],
+      "answer": "text",
+      "explainMd": "`or` evaluates the left side, finds `0` is falsy, and moves on to the right side — then hands back that operand itself rather than a boolean. The result is the string `\"unnamed\"`. Reach for this whenever you want \"use what I was given, unless it is empty\"."
+    },
+    {
+      "type": "check",
+      "id": "short-circuit",
+      "kind": "tf",
+      "promptMd": "In `False and boom()`, the function `boom()` is never called.",
+      "answer": "true",
+      "explainMd": "True. `and` already knows the answer once it sees a falsy left side, so it stops and never evaluates the right. This is what makes `if items and items[0] == \"fox\"` safe on an empty list: the index expression is only reached when there is something to index."
+    },
+    {
+      "type": "code",
+      "id": "defaults-and-gates",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `name_or_default(given)` so an empty tag falls back to `\"unnamed\"`, and fix `can_send(powered, linked)` so it is only true when **both** are true. The printed line should be `unnamed False`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "unnamed False"
+        },
+        {
+          "type": "ast",
+          "query": "or"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter hands back whatever it was given, and its second function is happy with one condition out of two."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`a or b` gives you `a` unless `a` is falsy, in which case you get `b`. `a and b` needs both sides before it is true."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`port = chosen or 8080` keeps a chosen port and falls back to `8080` when `chosen` is `0`, `None`, or `\"\"`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def name_or_default(given):\n    return given or \"unnamed\"\n\n\ndef can_send(powered, linked):\n    return powered and linked\n\n\nprint(name_or_default(\"\"), can_send(True, False))"
+        }
+      ]
+    }
+  ],
+  "description": "Combine checks with and, or, and not, and see where they stop early."
+}

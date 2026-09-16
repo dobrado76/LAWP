@@ -1,53 +1,135 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "names-and-values",
   "packId": "lawp.python.foundations",
-  "courseId": "repl-in-pocket",
-  "moduleId": "values-and-names",
-  "title": "Names hold values",
+  "taskRev": 2,
+  "estimatedMinutes": 12,
   "skillIds": [
     "python.types.names"
   ],
-  "estimatedMinutes": 15,
-  "taskRev": 1,
+  "id": "names-and-values",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Names hold values",
   "blocks": [
     {
       "type": "explain",
-      "md": "## A name is a sticky note\n\nA name is a sticky note you press onto a value after you finish a calculation. The note does not do the math. It only remembers the result so you can use that result again without typing the work twice. `total = 3 + 4` computes the sum, then sticks `7` on the name `total`. `print(total)` shows whatever that name holds right now.\n\nThis bites when you print a hardcoded `7` and skip the name. The screen looks correct once, but nothing is storing the answer. Change the sum later and the printed digit stays stale, because you never attached a name to the result.\n\n```python\ntotal = 3 + 4\nprint(total)\n```\n\nA common mistake is treating `print` as the storage. Printing a literal skips the sticky-note idea entirely. The exercise asks you to compute `3 + 4` into the name `total`, then print that name so the output is `7` because of the stored value, not because you typed the digit yourself.\n"
+      "md": "## A name is a sticky note\n\nA name is a sticky note you press onto a value once the work is done. The note does not do the arithmetic. It remembers the result so the rest of the program can use it without repeating the calculation.\n\nThis bites when you print a literal instead of a name. The screen looks right once, but nothing stored the answer, so the next line cannot use it and a later change leaves a stale digit on the screen.\n\n```python\ntotal = 3 + 4\nprint(total)     # 7 — because total holds the result\n```\n\nA common mistake is treating `print` as the storage. Printing shows a value and then forgets it. The exercise asks you to add `3 + 4` into the name `total` and print that name, so the `7` comes from the binding rather than from a digit you typed."
+    },
+    {
+      "type": "predict",
+      "id": "what-prints",
+      "promptMd": "After `total = 3 + 4`, what does `print(total)` show?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "expr",
+          "md": "The text `3 + 4`"
+        },
+        {
+          "id": "seven",
+          "md": "`7`"
+        }
+      ],
+      "answer": "seven",
+      "explainMd": "The right-hand side runs first and produces `7`. The name is then bound to that finished value, so printing the name shows `7`, not the expression that made it."
+    },
+    {
+      "type": "check",
+      "id": "binding-words",
+      "kind": "cloze",
+      "promptMd": "In `total = 3 + 4`, the {{a}} runs first and the {{b}} remembers the result.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "expression",
+              "md": "expression"
+            },
+            {
+              "id": "name",
+              "md": "name"
+            },
+            {
+              "id": "print",
+              "md": "print"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "name",
+              "md": "name"
+            },
+            {
+              "id": "expression",
+              "md": "expression"
+            },
+            {
+              "id": "screen",
+              "md": "screen"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "expression",
+        "b": "name"
+      },
+      "explainMd": "Python evaluates the right-hand side first and produces one finished value. Only then is the name on the left bound to it, which is why printing the name later shows `7` rather than the expression that made it."
     },
     {
       "type": "code",
       "id": "make-total",
       "engine": "python",
       "entry": "main.py",
+      "promptMd": "> Add `3 + 4` into the name `total`, then print that name. Output should be `7`.",
       "files": [
         {
           "path": "files/main.py",
           "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
         }
       ],
       "checks": [
         {
           "type": "stdout",
           "equals": "7"
+        },
+        {
+          "type": "ast",
+          "query": "total"
+        },
+        {
+          "type": "python-assert"
         }
       ],
       "hintLadder": [
         {
           "level": 1,
           "kind": "concept",
-          "md": "Compute 3 + 4 into a name, then print the name."
+          "md": "The starter prints a digit directly. Nothing is stored, so nothing can be reused."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "The last line should print a name, not a hardcoded 7 only."
+          "md": "Bind the sum to a name first: `name = value`. Then print the name."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`parts = 2 + 5` then `print(parts)` shows `7` from the binding, not from a typed digit."
         },
         {
           "level": 4,
           "kind": "assist",
-          "md": "total = 3 + 4 then print(total)"
+          "md": "total = 3 + 4\nprint(total)"
         }
       ]
     }

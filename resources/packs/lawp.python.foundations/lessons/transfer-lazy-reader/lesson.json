@@ -1,0 +1,122 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 28,
+  "skillIds": [
+    "python.internals.iteration",
+    "python.internals.context"
+  ],
+  "mastery": {
+    "requiresTransfer": true
+  },
+  "id": "transfer-lazy-reader",
+  "courseId": "internals",
+  "moduleId": "wrap",
+  "title": "Transfer: a lazy reader for the station log",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Put the two halves together\n\nA real reader needs both ideas from this module at once. A context manager owns the file and closes it whatever happens; a chain of generators turns raw lines into the values you want, one line at a time. Together they read a log of any size with one handle and one line in memory.\n\nA file object is already an iterator over its lines, so it drops straight into the front of a pipeline — no `readlines()`, no list. The station log is messy: comment lines start with `#`, some lines are blank, some are padded with spaces, and some rows are not readings at all. Each of those is one small stage that yields what it keeps and silently skips the rest.\n\n```python\nfrom contextlib import contextmanager\n\n@contextmanager\ndef opened(path):\n    handle = open(path, encoding=\"utf-8\")\n    try:\n        yield handle\n    finally:\n        handle.close()\n\ndef wanted(lines):\n    for line in lines:\n        line = line.strip()\n        if line and not line.startswith(\"#\"):\n            yield line\n\nwith opened(\"notes.txt\") as handle:\n    for row in wanted(handle):\n        print(row)\n```\n\nA common mistake is returning the pipeline out of the `with` block and consuming it afterwards — by then the file is closed and you get `ValueError: I/O operation on closed file`. Do the consuming inside the block. The exercise asks for the whole reader: one manager, two generator stages, and the total of the `temp=` rows in `station.log`."
+    },
+    {
+      "type": "predict",
+      "id": "file-is-iterator",
+      "promptMd": "What does `for line in handle:` iterate over for an open text file?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "lines",
+          "md": "Its lines, one at a time, without loading the file"
+        },
+        {
+          "id": "chars",
+          "md": "Its characters"
+        },
+        {
+          "id": "nothing",
+          "md": "Nothing until you call `readlines()` first"
+        }
+      ],
+      "answer": "lines",
+      "explainMd": "A text file object implements the iterator protocol over lines, so it is already a lazy stream and can be the first stage of a pipeline. `readlines()` is the eager alternative: it hands back a list of every line, which is the one thing you were trying to avoid."
+    },
+    {
+      "type": "check",
+      "id": "consume-outside-with",
+      "promptMd": "You return `temps(records(handle))` from inside the `with` and call `sum()` on it afterwards. What happens?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fine",
+          "md": "It works — the generator kept the data"
+        },
+        {
+          "id": "closed",
+          "md": "`ValueError`: the file was closed before the pipeline read it"
+        }
+      ],
+      "answer": "closed",
+      "explainMd": "The pipeline had not read anything yet, so the reading happens after `__exit__` has closed the handle. Laziness means the work moves to wherever you consume it — so consume inside the block, or have the manager itself yield finished values rather than an open handle."
+    },
+    {
+      "type": "reflect",
+      "id": "reader-shape",
+      "promptMd": "In one or two sentences: which part of your reader guarantees the file closes, and which part guarantees the log is never all in memory at once?"
+    },
+    {
+      "type": "code",
+      "id": "lazy-reader",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Build the reader over `station.log`. `opened(path)` is a `@contextmanager` that closes the file even when the block raises. `records(lines)` yields each line stripped, skipping blanks and `#` comments. `temps(rows)` yields the integer from every `temp=` row. Output should be `12`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station.log",
+          "role": "ro"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "12"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Both stages return empty lists today, so the total is 0. The log is read-only — read it, do not rewrite it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`records`: strip the line, `continue` on an empty line or one starting with `#`, otherwise `yield` it. `temps`: split each row once on `=` and `yield int(value)` when the left side is `temp`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`kind, _, value = row.partition(\"=\")` splits `\"temp=4\"` into `\"temp\"`, `\"=\"`, `\"4\"` and leaves a row with no `=` sign as `(\"bad line\", \"\", \"\")`, which the `if` then skips."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from contextlib import contextmanager\n\n\n@contextmanager\ndef opened(path):\n    handle = open(path, encoding=\"utf-8\")\n    try:\n        yield handle\n    finally:\n        handle.close()\n\n\ndef records(lines):\n    for line in lines:\n        line = line.strip()\n        if not line or line.startswith(\"#\"):\n            continue\n        yield line\n\n\ndef temps(rows):\n    for row in rows:\n        kind, _, value = row.partition(\"=\")\n        if kind == \"temp\":\n            yield int(value)\n\n\nwith opened(\"station.log\") as handle:\n    print(sum(temps(records(handle))))"
+        }
+      ]
+    }
+  ],
+  "description": "Read a log too big to hold, one record at a time."
+}

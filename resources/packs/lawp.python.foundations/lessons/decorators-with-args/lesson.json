@@ -1,0 +1,156 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.internals.decorators"
+  ],
+  "id": "decorators-with-args",
+  "courseId": "internals",
+  "moduleId": "wrap",
+  "title": "One more layer for an argument",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three functions deep, and why\n\nA plain decorator receives a function. A decorator with arguments receives the *arguments*, so it has to hand back a decorator, which then hands back the wrapper. `@tagged(\"north\")` calls `tagged(\"north\")` first; the thing it returns is what actually gets called with your function.\n\nThis bites when you write only two layers. `@tagged(\"north\")` on a two-layer decorator passes the string where the function was expected, and you get a `TypeError` about a string not being callable — or worse, silence and a broken function. Count the layers against the call: the outer takes the tag, the middle takes the function, the inner takes the call arguments.\n\n```python\nfrom functools import wraps\n\ndef tagged(tag):\n    def decorate(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            return f\"[{tag}] {func(*args, **kwargs)}\"\n        return wrapper\n    return decorate\n\n@tagged(\"north\")\ndef report(count):\n    return f\"{count} tracks\"\n\n# identical to: report = tagged(\"north\")(report)\nprint(report(2))\n```\n\nA common mistake is forgetting the brackets: `@tagged` without them passes your function in as `tag` and the wrapper never appears. The tag itself lives in the closure, so each decorated function keeps its own. The exercise asks you to add the missing layer and prefix the result."
+    },
+    {
+      "type": "predict",
+      "id": "layers-order",
+      "promptMd": "`@tagged(\"north\")` above `def report(...)` — what is called first?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "tag-first",
+          "md": "`tagged(\"north\")`, and its result is then called with `report`"
+        },
+        {
+          "id": "func-first",
+          "md": "`tagged(report)`, and `\"north\"` is passed later"
+        }
+      ],
+      "answer": "tag-first",
+      "explainMd": "The expression after `@` is evaluated first, exactly as written, and only then is the result applied to the function below. So `@tagged(\"north\")` is `report = tagged(\"north\")(report)` — two calls, which is why a parameterised decorator needs one more layer than a plain one."
+    },
+    {
+      "type": "check",
+      "id": "missing-layer",
+      "promptMd": "A two-layer `tagged(tag)` that returns the wrapper directly, used as `@tagged(\"north\")`, gives you…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "works",
+          "md": "The same behaviour; the layer is optional"
+        },
+        {
+          "id": "breaks",
+          "md": "A broken `report`, because the wrapper is handed the tag instead of the function"
+        }
+      ],
+      "answer": "breaks",
+      "explainMd": "With one layer missing, `tagged(\"north\")` returns the wrapper, and Python then calls that wrapper with `report` as its argument — so `report` becomes whatever the wrapper returned, and the original function is never called properly. The fix is a middle layer whose only job is to receive the function."
+    },
+    {
+      "type": "check",
+      "id": "layer-words",
+      "kind": "cloze",
+      "promptMd": "The outer function receives the {{a}}; the middle function receives the {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "decorator argument",
+              "md": "decorator argument"
+            },
+            {
+              "id": "function",
+              "md": "function"
+            },
+            {
+              "id": "call arguments",
+              "md": "call arguments"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "function",
+              "md": "function"
+            },
+            {
+              "id": "decorator argument",
+              "md": "decorator argument"
+            },
+            {
+              "id": "return value",
+              "md": "return value"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "decorator argument",
+        "b": "function"
+      },
+      "explainMd": "Outer takes the tag, middle takes the function, inner takes whatever the caller passes at call time. Each layer closes over the one above it, which is how the wrapper can still see `tag` long after `tagged` has returned."
+    },
+    {
+      "type": "code",
+      "id": "tagged-decorator",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `tagged(tag)` so the decorated function's result comes back prefixed with `[tag] `. Keep the wrapped name with `functools.wraps`. Output should be `[north] 2 tracks`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "[north] 2 tracks"
+        },
+        {
+          "type": "ast",
+          "query": "return wrapper"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "`decorate` currently hands the function straight back, so the tag is never used."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Inside `decorate`, define `wrapper(*args, **kwargs)` that calls `func(*args, **kwargs)` and returns the result with the tag in front. Return `wrapper` from `decorate`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A repeat decorator nests the same way: `def repeat(times)` → `def decorate(func)` → `def wrapper(*a, **k)` that loops `times` and returns the last result."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from functools import wraps\n\n\ndef tagged(tag):\n    def decorate(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            return f\"[{tag}] {func(*args, **kwargs)}\"\n\n        return wrapper\n\n    return decorate\n\n\n@tagged(\"north\")\ndef report(count):\n    return f\"{count} tracks\"\n\n\nprint(report(2))"
+        }
+      ]
+    }
+  ],
+  "description": "A decorator that takes options is one function deeper."
+}

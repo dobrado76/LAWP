@@ -1,0 +1,110 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.collections.list"
+  ],
+  "id": "sorting-with-key",
+  "courseId": "collections",
+  "moduleId": "sequences",
+  "title": "Sorted gives, sort rearranges",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two different jobs\n\nPython has two ways to order a list and they are not interchangeable. `sorted(items)` builds and returns a new list, leaving the original alone. `items.sort()` rearranges the list in place and returns `None`, because there is nothing new to hand back.\n\nThis bites the moment you write `best = readings.sort()`. The list really does get sorted, so the code looks like it worked, but `best` is `None` and the next line fails somewhere else entirely. The traceback points at the innocent line, not at the assignment that caused it.\n\n```python\nreadings = [12, 7, 19]\nprint(sorted(readings))                 # [7, 12, 19] - a new list\nprint(readings)                         # [12, 7, 19] - untouched\n\nnames = [\"Owl\", \"fox\", \"Badger\"]\nprint(sorted(names, key=str.lower))     # ['Badger', 'fox', 'Owl']\nprint(sorted(readings, reverse=True))   # [19, 12, 7]\nprint(readings.sort())                  # None\n```\n\nA common mistake is passing the comparison you want instead of the value to compare: `key=` takes a function that is called once per item and returns the thing to order by. The exercise asks you to order station records, each a `(name, strength)` pair, from strongest to weakest without disturbing the list you were handed."
+    },
+    {
+      "type": "predict",
+      "id": "sort-return",
+      "promptMd": "`readings = [3, 1]`, then `best = readings.sort()`. What is `best`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "list",
+          "md": "`[1, 3]` — the sorted list",
+          "misconceptionId": "sort-returns-a-list"
+        },
+        {
+          "id": "none",
+          "md": "`None`"
+        }
+      ],
+      "answer": "none",
+      "explainMd": "`list.sort()` changes the list in place and returns `None`, which is what Python methods return when their whole point is the side effect. `readings` really is `[1, 3]` afterwards; it is `best` that is empty. Use `best = sorted(readings)` when you want a value back."
+    },
+    {
+      "type": "check",
+      "id": "key-does-what",
+      "promptMd": "`sorted(words, key=len)` orders the words by…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "alpha",
+          "md": "Alphabetical order"
+        },
+        {
+          "id": "length",
+          "md": "How many characters each word has"
+        },
+        {
+          "id": "reverse",
+          "md": "Reverse alphabetical order"
+        }
+      ],
+      "answer": "length",
+      "explainMd": "`key` names a function that is called once for every item; the value it returns is what gets compared. With `key=len`, Python compares the lengths but still moves the original words around, so you get the words back — just ordered by size."
+    },
+    {
+      "type": "code",
+      "id": "strongest-first",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `by_strength(rows)` where each row is a `(name, strength)` tuple. Return a **new** list ordered strongest first, leaving `rows` alone.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "[('creek', 19), ('bluff', 12), ('ridge', 7)]"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter sorts, but it compares whole tuples, so it orders by name and ignores the number entirely. Decide which part of each row should be compared."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Give `sorted` a `key=` function that pulls the second slot out of a row, and pass `reverse=True` to run largest first. `sorted` returns a new list, which is exactly what the task asks for."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `sorted([(\"a\", 2), (\"b\", 9)], key=lambda row: row[1], reverse=True)` the result is `[(\"b\", 9), (\"a\", 2)]`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def by_strength(rows):\n    return sorted(rows, key=lambda row: row[1], reverse=True)\n\n\nprint(by_strength([(\"ridge\", 7), (\"creek\", 19), (\"bluff\", 12)]))"
+        }
+      ]
+    }
+  ],
+  "description": "Sort by the part of each item you care about."
+}

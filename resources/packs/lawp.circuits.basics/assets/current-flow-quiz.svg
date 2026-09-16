@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Unlabeled loop with equal current arrows">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <rect x="100" y="80" width="440" height="220" rx="8" fill="none" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="268" y="58" width="104" height="40" rx="5" fill="#1f2937" stroke="#9ca3af"/>
+  <rect x="360" y="68" width="10" height="20" fill="#e6b84d"/>
+  <circle cx="320" cy="300" r="24" fill="#e6b84d" stroke="#c9a227"/>
+  <circle cx="320" cy="300" r="10" fill="#d4b84a"/>
+  <polygon points="100,154 92,174 108,174" fill="#2ec4b6"/>
+  <text x="118" y="168" fill="#93a0b5" font-size="14" font-family="Segoe UI, sans-serif" font-style="italic">I</text>
+  <polygon points="540,226 548,206 532,206" fill="#2ec4b6"/>
+  <text x="552" y="200" fill="#93a0b5" font-size="14" font-family="Segoe UI, sans-serif" font-style="italic">I</text>
+  <polygon points="304,300 324,292 324,308" fill="#2ec4b6"/>
+  <text x="292" y="360" fill="#93a0b5" font-size="14" font-family="Segoe UI, sans-serif" font-style="italic">I</text>
+</svg>

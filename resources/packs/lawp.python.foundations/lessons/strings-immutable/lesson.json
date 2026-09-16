@@ -1,0 +1,140 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "python.values.strings"
+  ],
+  "id": "strings-immutable",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "A string method hands you a new string",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Text you cannot edit in place\n\nA string in Python is frozen once it exists. Every method that looks like it edits text — `upper`, `strip`, `replace` — actually builds a second string and hands that back. The original is untouched, which is why a string is safe to pass around: nobody can change it behind your back.\n\nThis bites when you call the method and walk away. The line runs, the new string is built, and then it is dropped on the floor because nothing caught it. The station log is full of tags with stray spaces, and a cleanup pass that forgets to assign the result leaves every one of them exactly as messy as before.\n\n```python\ntag = \"  north gate  \"\ntag.strip()          # builds \"north gate\" and throws it away\nprint(tag)           # '  north gate  ' — unchanged\n\ntag = tag.strip()    # catch the new string\nprint(tag)           # 'north gate'\n```\n\nA common mistake is expecting the method call alone to fix the value. Nothing in Python edits a string where it stands. The exercise asks you to clean a log tag and hand the cleaned version back, so make sure the value you return is the one the methods produced, not the one you were given."
+    },
+    {
+      "type": "predict",
+      "id": "upper-then-print",
+      "promptMd": "`name = \"ada\"`, then `name.upper()`, then `print(name)`. What appears?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "shouted",
+          "md": "`ADA` — the method changed `name`",
+          "misconceptionId": "strings-mutate-in-place"
+        },
+        {
+          "id": "quiet",
+          "md": "`ada`"
+        }
+      ],
+      "answer": "quiet",
+      "explainMd": "`upper()` returns a brand new string and leaves `name` alone, so `name` still holds `\"ada\"`. The uppercase copy existed for a moment and then had no name pointing at it, so it was discarded. Writing `name = name.upper()` is what makes the change stick."
+    },
+    {
+      "type": "check",
+      "id": "method-words",
+      "kind": "cloze",
+      "promptMd": "A string method {{a}} the original and {{b}} a new string.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "leaves alone",
+              "md": "leaves alone"
+            },
+            {
+              "id": "rewrites",
+              "md": "rewrites"
+            },
+            {
+              "id": "deletes",
+              "md": "deletes"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "returns",
+              "md": "returns"
+            },
+            {
+              "id": "prints",
+              "md": "prints"
+            },
+            {
+              "id": "ignores",
+              "md": "ignores"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "leaves alone",
+        "b": "returns"
+      },
+      "explainMd": "Strings are immutable, so no method can rewrite one. Each method reads the original, builds a separate string from it, and returns that. If you do not assign or return the result, the work is simply lost, which is the single most common string bug for a new Python programmer."
+    },
+    {
+      "type": "code",
+      "id": "clean-the-tag",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `shout(tag)` so it trims the stray spaces off a log tag and hands back the uppercase version. `shout(\"  fox-den  \")` should be `\"FOX-DEN\"`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "FOX-DEN",
+          "misconceptionId": "strings-mutate-in-place"
+        },
+        {
+          "type": "ast",
+          "query": ".strip()"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter calls two methods and then returns the value it was handed. Nothing caught what those methods built."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Each method returns a new string. Either assign each result back to the name, or chain them and return the end of the chain."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`line = \"  owl  \".strip().title()` gives `\"Owl\"`, because each call works on what the previous one returned."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def shout(tag):\n    return tag.strip().upper()\n\n\nprint(shout(\"  fox-den  \"))"
+        }
+      ]
+    }
+  ],
+  "description": "Text cannot change in place. Every string method hands back new text."
+}

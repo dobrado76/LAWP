@@ -1,0 +1,160 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 24,
+  "skillIds": [
+    "python.internals.iteration"
+  ],
+  "id": "generator-pipelines",
+  "courseId": "internals",
+  "moduleId": "iteration",
+  "title": "A pipeline that never holds the log",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Each stage pulls one item\n\nGenerators compose. When you write `temps(cleaned(noisy(1000)))` nothing has been read yet; you have built a chain of three paused functions. Asking the last stage for one item pulls one item through every stage, so peak memory is one line rather than a million.\n\nThis bites in reverse if any stage builds a list. One `[line.strip() for line in lines]` in the middle forces the whole log into memory and undoes the laziness of everything upstream. A generator expression — the same comprehension in round brackets — keeps the chain lazy and reads almost the same.\n\n```python\ndef noisy(count):\n    for number in range(count):\n        yield f\"  temp={number}  \"\n\ndef cleaned(lines):\n    for line in lines:\n        yield line.strip()\n\nstripped = cleaned(noisy(3))\nprint(next(stripped))                       # temp=0\n\n# the same stage as a generator expression\nlazy = (line.strip() for line in noisy(3))\nprint(sum(1 for _ in lazy))                 # 3, one line at a time\n```\n\nA common mistake is testing a pipeline with `list(...)` around every stage, which hides the fact that one stage is eager. Check the *function*, not the output: `inspect.isgeneratorfunction` tells you whether a stage still streams. The exercise asks you to turn two stub stages into generators and pipe a thousand lines through them."
+    },
+    {
+      "type": "predict",
+      "id": "pipeline-work-done",
+      "promptMd": "`stream = temps(cleaned(noisy(1000)))` — how many lines have been read when that line finishes?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "none",
+          "md": "None; only the chain has been built"
+        },
+        {
+          "id": "all",
+          "md": "All thousand, once per stage"
+        },
+        {
+          "id": "one",
+          "md": "Exactly one, to prime the pipeline"
+        }
+      ],
+      "answer": "none",
+      "explainMd": "Building the chain runs no bodies at all — each call just makes a paused generator. The first `next()` or `sum()` at the end of the chain is what pulls a line through `noisy`, then `cleaned`, then `temps`. Nothing upstream runs ahead of demand."
+    },
+    {
+      "type": "check",
+      "id": "eager-stage",
+      "promptMd": "One stage in the middle does `return [line.strip() for line in lines]`. What does that cost?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "nothing",
+          "md": "Nothing — the output is identical"
+        },
+        {
+          "id": "memory",
+          "md": "The whole log is materialised there, so the pipeline is no longer lazy"
+        },
+        {
+          "id": "crash",
+          "md": "A `TypeError`, because a list cannot feed a generator"
+        }
+      ],
+      "answer": "memory",
+      "explainMd": "The output stays the same, which is exactly what makes this hard to spot. But that stage has to finish before it returns, so it drains everything upstream into one list, and peak memory becomes the whole log. Swap the square brackets for a `yield` loop or round brackets and the chain streams again."
+    },
+    {
+      "type": "check",
+      "id": "genexp-words",
+      "kind": "cloze",
+      "promptMd": "`[x for x in rows]` builds a {{a}}; `(x for x in rows)` builds a {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "list",
+              "md": "list"
+            },
+            {
+              "id": "generator",
+              "md": "generator"
+            },
+            {
+              "id": "tuple",
+              "md": "tuple"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "generator",
+              "md": "generator"
+            },
+            {
+              "id": "tuple",
+              "md": "tuple"
+            },
+            {
+              "id": "set",
+              "md": "set"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "list",
+        "b": "generator"
+      },
+      "explainMd": "Square brackets do the work now and hand back a full list; round brackets hand back a generator that does the work on demand. Round brackets are also implied inside a single-argument call, which is why `sum(int(x) for x in rows)` needs no extra pair of brackets."
+    },
+    {
+      "type": "code",
+      "id": "log-pipeline",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Make `cleaned` and `temps` generators and let the pipeline run. `cleaned(lines)` yields each line stripped of spaces; `temps(rows)` yields the integer from every row that starts with `temp=`. Output should be `249500`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "249500"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The two stages return empty lists, so the sum at the bottom has nothing to add. Do not change `noisy`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Each stage is a `for` loop over its input that `yield`s what it wants to pass on — and simply skips a row it does not want, with no `else` needed."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A filter stage reads like this: `for row in rows:` / `if row.startswith(\"wind=\"): yield row`. Nothing is collected; each wanted row is handed straight on."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def noisy(count):\n    \"\"\"Pretend this log is far too big to hold in memory.\"\"\"\n    for number in range(count):\n        yield f\"  temp={number}  \" if number % 2 == 0 else \"  skip  \"\n\n\ndef cleaned(lines):\n    for line in lines:\n        yield line.strip()\n\n\ndef temps(rows):\n    for row in rows:\n        if row.startswith(\"temp=\"):\n            yield int(row.split(\"=\")[1])\n\n\nprint(sum(temps(cleaned(noisy(1000)))))"
+        }
+      ]
+    }
+  ],
+  "description": "Chain generators so the log streams through each stage."
+}

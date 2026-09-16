@@ -1,0 +1,1 @@
+print("Ridge station")

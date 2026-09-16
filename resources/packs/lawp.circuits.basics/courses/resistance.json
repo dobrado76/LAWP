@@ -1,0 +1,19 @@
+{
+  "id": "resistance",
+  "title": "Resistance and Ohm’s law",
+  "level": "beginner",
+  "estimatedMinutes": 36,
+  "skillIds": ["circuits.resistance", "circuits.ohms", "circuits.series.current"],
+  "modules": [
+    {
+      "id": "squeeze",
+      "title": "Squeeze and the relation",
+      "lessonIds": ["resistance-as-squeeze", "ohms-law"]
+    },
+    {
+      "id": "experiment",
+      "title": "The first experiment",
+      "lessonIds": ["brighter-lamp", "why-the-limit"]
+    }
+  ]
+}

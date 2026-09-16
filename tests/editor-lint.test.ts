@@ -4,10 +4,11 @@ import { python } from '@codemirror/lang-python'
 import { EditorState } from '@codemirror/state'
 import { describe, expect, it } from 'vitest'
 import { domCompletionSource, playerCompletionSource } from '../src/renderer/editor/completions'
-import { languageFromEngine, languageLabel } from '../src/renderer/editor/languages'
+import { languageExtension, languageFromEngine, languageLabel } from '../src/renderer/editor/languages'
 import { inspectSelectorAt, kindFromSelector } from '../src/renderer/editor/domKind'
 import { inspectPage, pageSelectors } from '../src/renderer/editor/pageSource'
 import { collectIssues, collectSyntaxIssues, teachParseMessage } from '../src/renderer/editor/lint'
+import { companionFiles } from '../src/renderer/screens/Studio'
 
 function js(doc: string) {
   return EditorState.create({ doc, extensions: [javascript()] })
@@ -32,6 +33,19 @@ describe('editor language registry', () => {
     expect(languageFromEngine(undefined, 'page.css')).toBe('css')
     expect(languageLabel('javascript', 'dom-v1')).toBe('JavaScript · DOM')
     expect(languageLabel('javascript', 'player-v1')).toBe('JavaScript · Player')
+    expect(languageLabel('python', 'player-v1')).toBe('Python · Player')
+  })
+
+  it('gives a python lesson python highlighting, linting, and completions', () => {
+    const state = EditorState.create({
+      doc: 'Player.mo',
+      extensions: [languageExtension('python', 'player-v1')]
+    })
+    // lang-python contributes local and global completion; the Player source is ours.
+    const sources = state.languageDataAt<unknown>('autocomplete', 0)
+    expect(sources.length).toBeGreaterThanOrEqual(3)
+    const player = playerCompletionSource(new CompletionContext(state, state.doc.length, true), 'python')
+    expect(player?.options.map((o) => o.label)).toEqual(expect.arrayContaining(['move', 'wait']))
   })
 })
 
@@ -57,6 +71,60 @@ describe('syntax issues', () => {
       extensions: [python()]
     })
     expect(collectIssues(state, { language: 'python' })).toEqual([])
+  })
+})
+
+function py(doc: string) {
+  return EditorState.create({ doc, extensions: [python()] })
+}
+
+function pyIssues(doc: string) {
+  return collectIssues(py(doc), { language: 'python' })
+}
+
+describe('python diagnostics', () => {
+  it('names the missing colon instead of pointing at the line', () => {
+    const issues = pyIssues('def greet(name)\n    return name\n')
+    expect(issues[0]?.message).toMatch(/colon/i)
+    expect(issues[0]?.message).toMatch(/def/)
+    expect(issues[0]?.line).toBe(1)
+  })
+
+  it('does not ask for a colon on a header spread over several lines', () => {
+    expect(pyIssues('def greet(\n    name,\n):\n    return name\n')).toEqual([])
+  })
+
+  it('leaves an annotated signature and a one-line body alone', () => {
+    expect(pyIssues('def add(a: int, b: int) -> int:\n    return a + b\n')).toEqual([])
+    expect(pyIssues('for i in range(3):\n    print(i)\n')).toEqual([])
+    expect(pyIssues('rows = {"a": 1}\nlabel = rows["a"]\nprint(label)\n')).toEqual([])
+  })
+
+  it('teaches == in a condition rather than repeating the parse error', () => {
+    const issues = pyIssues('flag = True\nif flag = True:\n    print("yes")\n')
+    expect(issues[0]?.message).toMatch(/==/)
+    expect(issues[0]?.line).toBe(2)
+    expect(issues.some((i) => /not valid/.test(i.message))).toBe(false)
+  })
+
+  it('keeps a keyword argument and a walrus out of the == warning', () => {
+    expect(pyIssues('def f(x=1):\n    return x\n\n\nif f(x=2) > 1:\n    print("ok")\n')).toEqual([])
+    expect(pyIssues('values = [1, 2]\nif (n := len(values)) > 1:\n    print(n)\n')).toEqual([])
+  })
+
+  it('explains a python 2 print statement', () => {
+    const issues = pyIssues('print "hello"\n')
+    expect(issues[0]?.message).toMatch(/print\("hello"\)|function in Python 3/)
+  })
+
+  it('treats a half-typed last line as unfinished, not wrong', () => {
+    const issues = pyIssues('total = 3 + 4\nif total >')
+    expect(issues.length).toBeGreaterThan(0)
+    expect(issues.every((i) => i.incomplete)).toBe(true)
+  })
+
+  it('ignores python keywords inside comments and strings', () => {
+    expect(pyIssues('note = "if flag = 1"\n# def broken(\nprint(note)\n')).toEqual([])
   })
 })
 
@@ -118,6 +186,16 @@ describe('player-v1 completions', () => {
     expect(east?.detail).toBe('direction')
     expect(String(east?.info)).toMatch(/x increases/)
   })
+
+  it('does not offer await to a python learner', () => {
+    const state = EditorState.create({ doc: 'Player.', extensions: [python()] })
+    const ctx = new CompletionContext(state, state.doc.length, true)
+    const jsWait = playerCompletionSource(ctx, 'javascript')?.options.find((o) => o.label === 'wait')
+    const pyWait = playerCompletionSource(ctx, 'python')?.options.find((o) => o.label === 'wait')
+    expect(String(jsWait?.info)).toContain('await')
+    expect(String(pyWait?.info)).not.toContain('await')
+    expect(String(pyWait?.info)).toContain('Player.wait(2)')
+  })
 })
 
 function domComplete(doc: string, selectors: string[] = [], explicit = true, html = '') {
@@ -173,6 +251,31 @@ describe('dom-v1 completions', () => {
     const result = domComplete('document.querySelector(', ['#beacon-name', '.desk'])
     const labels = result?.options.map((o) => o.label) ?? []
     expect(labels).toEqual(expect.arrayContaining(['"#beacon-name"', '".desk"']))
+  })
+})
+
+describe('companion files', () => {
+  it('shows a module the exercise imports but not the hidden test', () => {
+    const shown = companionFiles({
+      files: [
+        { path: 'files/main.py', role: 'edit' },
+        { path: 'files/station.py', role: 'ro', contents: 'NAME = "north ridge"\n' },
+        { path: 'files/log.txt', role: 'fixture', contents: 'raw\n' },
+        { path: 'files/hidden_test.py', role: 'hidden-test' }
+      ]
+    }).map((f) => f.path)
+    expect(shown).toEqual(['files/station.py', 'files/log.txt'])
+  })
+
+  it('leaves the page fixture to the DOM board, which already has a tab for it', () => {
+    const shown = companionFiles({
+      preview: { kind: 'iframe' },
+      files: [
+        { path: 'files/index.html', role: 'fixture', contents: '<p>x</p>' },
+        { path: 'files/main.js', role: 'edit' }
+      ]
+    })
+    expect(shown).toEqual([])
   })
 })
 

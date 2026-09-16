@@ -1,0 +1,113 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.io.json"
+  ],
+  "id": "csv-rows",
+  "courseId": "files",
+  "moduleId": "records",
+  "title": "The comma inside the field",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## CSV is not \"split on commas\"\n\nA CSV file is not a file where commas separate fields. It is a file where commas separate fields *unless* the field is quoted, and a quoted field may itself contain commas, newlines, and doubled quote characters. The `csv` module knows all of those rules. `str.split` knows none of them.\n\n`csv.reader` hands you each row as a list of already-unquoted fields. `csv.DictReader` reads the header line first and hands you each row as a dict keyed by column name, which keeps working when somebody inserts a column. Open the file with `newline=\"\"` so the module sees the line endings raw, because a quoted field is allowed to contain one.\n\n```python\nimport csv\n\nwith open(\"stations.csv\", encoding=\"utf-8\", newline=\"\") as f:\n    for row in csv.DictReader(f):\n        print(row[\"station\"], row[\"drift\"])\n\nline = 'north,\"fox, then owl\",2'\nprint(len(line.split(\",\")))   # 4 — the quoted comma cut the note in half\n```\n\nA common mistake is indexing the pieces of a naive split by position, which puts a fragment of somebody note where a number should be. The failure is a wrong value rather than an exception, so it survives review. The exercise has one station whose note holds two commas, so the totals stay right while the note comes out truncated."
+    },
+    {
+      "type": "predict",
+      "id": "naive-split",
+      "promptMd": "A row reads `north,\"fox, then owl\",2`. How many pieces does splitting it on every comma produce?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "three",
+          "md": "3 — one per column"
+        },
+        {
+          "id": "four",
+          "md": "4 — the comma inside the quotes counts too"
+        }
+      ],
+      "answer": "four",
+      "explainMd": "Splitting cannot see the quotes, so the note is cut in half and a three-column row yields four pieces. Every field after the quoted one has shifted by one index, which is why this shows up as a wrong number in a report rather than as an error at the point of the split."
+    },
+    {
+      "type": "check",
+      "id": "newline-arg",
+      "promptMd": "Which `open` call is right for handing a file to `csv.DictReader`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "plain",
+          "md": "`open(path, encoding=\"utf-8\")`"
+        },
+        {
+          "id": "rawnl",
+          "md": "`open(path, encoding=\"utf-8\", newline=\"\")`"
+        }
+      ],
+      "answer": "rawnl",
+      "explainMd": "The `csv` module does its own line-ending handling, because a quoted field may contain a newline that belongs to the field and not to the row. Passing `newline=\"\"` turns off the translation `open` would otherwise apply, so a row spread over two lines is still read as one row."
+    },
+    {
+      "type": "code",
+      "id": "csv-report",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Read `stations.csv` with `csv.DictReader`. Print the total of the `drift` column and the `note` of the station with the highest drift — `7 ping, ping, ping`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/stations.csv",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "7 ping, ping, ping"
+        },
+        {
+          "type": "ast",
+          "query": "DictReader"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The total is already right. Look at the note it printed and compare it with the row in the file."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`csv.DictReader(f)` reads the header and then gives you `row[\"station\"]`, `row[\"note\"]`, and `row[\"drift\"]` per row, quoted commas kept whole. `row[\"drift\"]` is still text, so wrap it in `int(...)`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same loop on another file: `for row in csv.DictReader(f): total += int(row[\"count\"])` — and you never have to know which column number `count` is."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import csv\n\ntotal = 0\nnote = \"\"\nmost = -1\n\nwith open(\"stations.csv\", encoding=\"utf-8\", newline=\"\") as f:\n    for row in csv.DictReader(f):\n        drift = int(row[\"drift\"])\n        total += drift\n        if drift > most:\n            most = drift\n            note = row[\"note\"]\n\nprint(total, note)"
+        }
+      ]
+    }
+  ],
+  "description": "Read and write rows where a comma inside a field is normal."
+}

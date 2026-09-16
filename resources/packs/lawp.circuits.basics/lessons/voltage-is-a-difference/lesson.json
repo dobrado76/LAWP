@@ -1,0 +1,93 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "voltage-is-a-difference",
+  "packId": "lawp.circuits.basics",
+  "courseId": "voltage",
+  "moduleId": "push",
+  "title": "Voltage is a difference",
+  "skillIds": [
+    "circuits.voltage"
+  ],
+  "estimatedMinutes": 10,
+  "taskRev": 1,
+  "description": "Voltage is a push between two points, not a stuff that sits in the wire. You measure it across, not through.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A push between two points\n\nVoltage is a difference. Think of it as a height: high on one side of the battery, low on the other. Charge wants to fall from high to low if a path exists. The number on a cell — 1.5 V — is how big that difference is, not how much “electricity” is stored in the copper.\n\nThis bites when people say a wire “has voltage in it” the way a bottle has water. A single point does not have a useful voltage by itself. You always pick two points. Across the battery. Across the lamp. Never “through” a point as if voltage were a flow.\n\n![Voltage is high versus low](assets/voltage-difference.svg)\n\n```text\nHIGH (+)  --push-->  LOW (−)\nmeasure ACROSS two points\n```\n\nA common mistake is treating voltage as stuff in the wire, or as another word for current. The questions ask you to keep them apart."
+    },
+    {
+      "type": "check",
+      "id": "what-v",
+      "kind": "mcq",
+      "promptMd": "Voltage is…",
+      "choices": [
+        {
+          "id": "diff",
+          "md": "A difference — a push between two points"
+        },
+        {
+          "id": "stuff",
+          "md": "A stuff that lives inside the wire",
+          "misconceptionId": "voltage-is-stuff-in-the-wire"
+        },
+        {
+          "id": "flow",
+          "md": "The same thing as current",
+          "misconceptionId": "current-gets-used-up"
+        }
+      ],
+      "answer": "diff",
+      "explainMd": "Voltage is across. Current is through. They are partners, not synonyms.",
+      "skillIds": [
+        "circuits.voltage"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "match-words",
+      "kind": "match",
+      "promptMd": "Match the word to the picture in your head.",
+      "left": [
+        {
+          "id": "v",
+          "md": "Voltage"
+        },
+        {
+          "id": "i",
+          "md": "Current"
+        }
+      ],
+      "right": [
+        {
+          "id": "across",
+          "md": "A difference across two points"
+        },
+        {
+          "id": "through",
+          "md": "A flow through a path"
+        }
+      ],
+      "answer": {
+        "v": "across",
+        "i": "through"
+      },
+      "explainMd": "V across. I through. That pairing is the whole measuring story later.",
+      "skillIds": [
+        "circuits.voltage"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "one-point",
+      "kind": "tf",
+      "promptMd": "A single point on a wire has a voltage you can read without choosing a second point.",
+      "answer": "false",
+      "explainMd": "Voltage is a difference. One point is not a difference.",
+      "skillIds": [
+        "circuits.voltage"
+      ]
+    }
+  ]
+}

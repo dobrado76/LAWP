@@ -1,0 +1,139 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.io.files"
+  ],
+  "id": "pathlib-paths",
+  "courseId": "files",
+  "moduleId": "read-write",
+  "title": "A path is an object",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Ask the path instead of chopping the string\n\n`Path` from `pathlib` models a location instead of describing one. The `/` operator joins another piece on and inserts whatever separator this operating system uses, and the object answers questions about itself: `.name` is the last piece, `.stem` is that piece without its extension, `.suffix` is the extension, `.parent` is the folder above.\n\nGluing text is where it bites. `folder + \"/\" + name` works on your machine until `folder` already ends in a separator and you ship `logs//day.log`, or until the folder came from a Windows setting and you are now mixing two separators in one string. The object also carries the toolbox with it: `.mkdir()`, `.exists()`, `.read_text()`, `.write_text()`.\n\n```python\nfrom pathlib import Path\n\npath = Path(\"logs\") / \"north\" / \"day.log\"\n\nprint(path.name, path.stem, path.suffix)   # day.log day .log\nprint(path.parent.name)                    # north\n```\n\nA common mistake is building the path as text and then interrogating it with string methods, where `path.split(\".\")[0]` stops being the stem the moment a folder name contains a dot. Let the `Path` answer. The exercise makes a folder, writes a file into it, and prints the stem and suffix, so there is nothing left for `+` to do."
+    },
+    {
+      "type": "check",
+      "id": "glue-vs-join",
+      "promptMd": "You need the file `station.log` inside the folder `reports`. Which one is safe on any machine?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "glue",
+          "md": "`\"reports\" + \"/\" + \"station.log\"`",
+          "misconceptionId": "paths-are-just-strings"
+        },
+        {
+          "id": "joined",
+          "md": "`Path(\"reports\") / \"station.log\"`"
+        }
+      ],
+      "answer": "joined",
+      "explainMd": "A path is not a sentence you assemble by hand. `Path` joins the pieces with the separator this system expects and copes with a folder that already ends in one, so you never ship the double slash or the mixed separators that only appear on somebody else machine. The result also knows how to read and write itself."
+    },
+    {
+      "type": "check",
+      "id": "path-parts",
+      "kind": "cloze",
+      "promptMd": "For `Path(\"notes/station.log\")`, `.name` is {{a}} and `.stem` is {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "station.log",
+              "md": "station.log"
+            },
+            {
+              "id": "station",
+              "md": "station"
+            },
+            {
+              "id": ".log",
+              "md": ".log"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "station",
+              "md": "station"
+            },
+            {
+              "id": "station.log",
+              "md": "station.log"
+            },
+            {
+              "id": "notes",
+              "md": "notes"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "station.log",
+        "b": "station"
+      },
+      "explainMd": "`.name` is the last piece of the path with its extension still attached. `.stem` is that same piece with the final extension removed and `.suffix` is the extension on its own, so `.stem + .suffix` puts `.name` back together again."
+    },
+    {
+      "type": "code",
+      "id": "build-path",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Using `pathlib` only: make the folder `reports`, write `ok` into `reports/station.log`, then print the stem, the suffix, and the text you read back — `station .log ok`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "station .log ok"
+        },
+        {
+          "type": "ast",
+          "query": "Path("
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Everything in this task is a method on a `Path`: making the folder, writing the file, reading it back, and naming its parts."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`folder = Path(\"reports\")` then `folder.mkdir(exist_ok=True)`, then `path = folder / \"station.log\"`. `write_text` and `read_text` both take `encoding=\"utf-8\"`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A different path answers the same way: `p = Path(\"out\") / \"day.csv\"` has `.stem` `\"day\"`, `.suffix` `\".csv\"`, and `.parent` `Path(\"out\")` — no string surgery anywhere."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from pathlib import Path\n\nfolder = Path(\"reports\")\nfolder.mkdir(exist_ok=True)\n\npath = folder / \"station.log\"\npath.write_text(\"ok\", encoding=\"utf-8\")\n\nprint(path.stem, path.suffix, path.read_text(encoding=\"utf-8\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Build a path from parts instead of gluing strings together."
+}

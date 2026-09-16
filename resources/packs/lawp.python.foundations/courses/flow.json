@@ -1,0 +1,34 @@
+{
+  "id": "flow",
+  "title": "Decisions and the grid",
+  "level": "beginner",
+  "estimatedMinutes": 260,
+  "skillIds": [
+    "python.control.if",
+    "python.control.loops",
+    "python.call.move"
+  ],
+  "modules": [
+    {
+      "id": "decide",
+      "title": "Decide",
+      "lessonIds": [
+        "if-this-then-that",
+        "compare-chaining",
+        "walk-the-fox"
+      ]
+    },
+    {
+      "id": "repeat",
+      "title": "Repeat",
+      "lessonIds": [
+        "for-over-range",
+        "while-and-break",
+        "loop-else-and-continue",
+        "nested-loops-grid",
+        "debug-off-by-one",
+        "transfer-patrol-route"
+      ]
+    }
+  ]
+}

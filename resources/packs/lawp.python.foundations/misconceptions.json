@@ -1,4 +1,202 @@
 [
-  { "id": "assign-instead-of-compare", "title": "Uses = when the code needed a comparison", "skillIds": ["python.control.if"] },
-  { "id": "print-is-the-program", "title": "Treats print as the whole program", "skillIds": ["python.io.stdio"] }
+  {
+    "id": "print-is-the-program",
+    "title": "Treats print as the whole program",
+    "skillIds": [
+      "python.io.stdio"
+    ],
+    "followUpLessonId": "def-and-return"
+  },
+  {
+    "id": "assign-instead-of-compare",
+    "title": "Uses = when the code needed a comparison",
+    "skillIds": [
+      "python.control.if"
+    ],
+    "followUpLessonId": "compare-is-not-assign"
+  },
+  {
+    "id": "strings-mutate-in-place",
+    "title": "Expects a string method to change the original",
+    "skillIds": [
+      "python.values.strings"
+    ],
+    "followUpLessonId": "strings-immutable"
+  },
+  {
+    "id": "slash-is-integer-division",
+    "title": "Expects / to stay a whole number",
+    "skillIds": [
+      "python.values.numbers"
+    ],
+    "followUpLessonId": "numbers-int-float"
+  },
+  {
+    "id": "is-means-equals",
+    "title": "Uses is for value equality",
+    "skillIds": [
+      "python.values.truth"
+    ],
+    "followUpLessonId": "equality-vs-identity"
+  },
+  {
+    "id": "none-is-false-value",
+    "title": "Treats None as interchangeable with False",
+    "skillIds": [
+      "python.values.truth"
+    ],
+    "followUpLessonId": "truthiness-and-none"
+  },
+  {
+    "id": "range-is-inclusive",
+    "title": "Expects range to include the end value",
+    "skillIds": [
+      "python.control.loops"
+    ],
+    "followUpLessonId": "for-over-range"
+  },
+  {
+    "id": "mutable-default-is-fresh",
+    "title": "Expects a default list argument to be new each call",
+    "skillIds": [
+      "python.functions"
+    ],
+    "followUpLessonId": "mutable-default-trap"
+  },
+  {
+    "id": "assignment-copies-a-list",
+    "title": "Expects assignment to copy a list",
+    "skillIds": [
+      "python.collections.list"
+    ],
+    "followUpLessonId": "list-mutation-vs-copy"
+  },
+  {
+    "id": "copy-is-always-deep",
+    "title": "Expects a copy to protect nested values",
+    "skillIds": [
+      "python.collections.list"
+    ],
+    "followUpLessonId": "copy-shallow-vs-deep"
+  },
+  {
+    "id": "missing-key-returns-none",
+    "title": "Expects a missing dict key to return None",
+    "skillIds": [
+      "python.collections.dict"
+    ],
+    "followUpLessonId": "dict-get-and-setdefault"
+  },
+  {
+    "id": "sets-keep-order",
+    "title": "Expects a set to keep insertion order",
+    "skillIds": [
+      "python.collections.set"
+    ],
+    "followUpLessonId": "sets-and-dedupe"
+  },
+  {
+    "id": "sort-returns-a-list",
+    "title": "Expects list.sort() to return the sorted list",
+    "skillIds": [
+      "python.collections.list"
+    ],
+    "followUpLessonId": "sorting-with-key"
+  },
+  {
+    "id": "bare-except-is-handling",
+    "title": "Treats a bare except as error handling",
+    "skillIds": [
+      "python.errors"
+    ],
+    "followUpLessonId": "try-except-specific"
+  },
+  {
+    "id": "traceback-reads-top-down",
+    "title": "Reads the traceback from the top instead of the last frame",
+    "skillIds": [
+      "python.craft.debug"
+    ],
+    "followUpLessonId": "read-the-traceback"
+  },
+  {
+    "id": "file-closes-itself",
+    "title": "Assumes an opened file closes on its own",
+    "skillIds": [
+      "python.io.files"
+    ],
+    "followUpLessonId": "open-and-with"
+  },
+  {
+    "id": "paths-are-just-strings",
+    "title": "Builds paths by gluing strings with slashes",
+    "skillIds": [
+      "python.io.files"
+    ],
+    "followUpLessonId": "pathlib-paths"
+  },
+  {
+    "id": "import-runs-nothing",
+    "title": "Thinks importing a module does not run its code",
+    "skillIds": [
+      "python.modules"
+    ],
+    "followUpLessonId": "main-guard"
+  },
+  {
+    "id": "self-is-a-keyword",
+    "title": "Thinks self is language magic rather than the first parameter",
+    "skillIds": [
+      "python.objects"
+    ],
+    "followUpLessonId": "methods-and-self"
+  },
+  {
+    "id": "class-attr-is-per-instance",
+    "title": "Expects a class attribute to be private to each instance",
+    "skillIds": [
+      "python.objects"
+    ],
+    "followUpLessonId": "class-vs-instance-attr"
+  },
+  {
+    "id": "generator-is-a-list",
+    "title": "Treats a generator as a list it can index or reuse",
+    "skillIds": [
+      "python.internals.iteration"
+    ],
+    "followUpLessonId": "generators-yield"
+  },
+  {
+    "id": "decorator-edits-the-source",
+    "title": "Thinks a decorator rewrites the function body",
+    "skillIds": [
+      "python.internals.decorators"
+    ],
+    "followUpLessonId": "decorators-basics"
+  },
+  {
+    "id": "await-blocks-everything",
+    "title": "Thinks await stops the whole program",
+    "skillIds": [
+      "python.async"
+    ],
+    "followUpLessonId": "async-def-await"
+  },
+  {
+    "id": "hints-are-enforced",
+    "title": "Believes type hints are checked at runtime",
+    "skillIds": [
+      "python.typing"
+    ],
+    "followUpLessonId": "type-hints"
+  },
+  {
+    "id": "test-checks-the-print",
+    "title": "Tests the printed text instead of the returned value",
+    "skillIds": [
+      "python.craft.tests"
+    ],
+    "followUpLessonId": "assert-and-aaa"
+  }
 ]

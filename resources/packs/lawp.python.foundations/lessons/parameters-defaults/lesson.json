@@ -1,0 +1,138 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.functions"
+  ],
+  "id": "parameters-defaults",
+  "courseId": "functions",
+  "moduleId": "define",
+  "title": "Parameters, and the ones you can leave out",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A parameter with a value already attached\n\nParameters are the names a function gives to the values it is handed, and they are filled in order unless you say otherwise. Give a parameter a default in the `def` line and the caller may simply omit it, which lets one function serve both the common case and the unusual one.\n\nThis bites when every call site has to spell out a value that is almost always the same. Nine calls pass `\"C\"` and the tenth passes `\"F\"`, so the important difference is buried in noise. It bites the other way too: a parameter with no default is compulsory, and leaving it out raises `TypeError: missing 1 required positional argument` before the body runs.\n\n```python\ndef label(name, unit=\"C\"):\n    return f\"{name} [{unit}]\"\n\n\nprint(label(\"temp\"))          # temp [C]  — the default filled in\nprint(label(\"temp\", \"F\"))     # temp [F]  — overridden by position\n\n# label()                     # TypeError: name has no default\n```\n\nA common mistake is putting the defaulted parameter before the required one, which Python rejects outright: every parameter after the first default must have one too. The exercise asks for a reading label where the unit is usually Celsius, so put the default where it belongs and let the common call get shorter."
+    },
+    {
+      "type": "predict",
+      "id": "missing-argument",
+      "promptMd": "For `def reading(name, value, unit):`, what does `reading(\"temp\", 21)` do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "blank",
+          "md": "Runs with `unit` set to an empty string"
+        },
+        {
+          "id": "typeerror",
+          "md": "Raises `TypeError` before the body runs"
+        }
+      ],
+      "answer": "typeerror",
+      "explainMd": "A parameter without a default is required, and Python checks the call before executing a single line of the body. The message names the missing parameter, which makes it one of the friendlier errors in the language. Giving `unit` a default is what turns that error into a sensible fallback."
+    },
+    {
+      "type": "check",
+      "id": "default-rules",
+      "kind": "cloze",
+      "promptMd": "A parameter with a default may be {{a}} by the caller, and in the `def` line it must come {{b}} the required parameters.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "omitted",
+              "md": "omitted"
+            },
+            {
+              "id": "renamed",
+              "md": "renamed"
+            },
+            {
+              "id": "repeated",
+              "md": "repeated"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "after",
+              "md": "after"
+            },
+            {
+              "id": "before",
+              "md": "before"
+            },
+            {
+              "id": "instead of",
+              "md": "instead of"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "omitted",
+        "b": "after"
+      },
+      "explainMd": "Defaults exist so the caller can leave a value out and still get sensible behaviour. They have to sit after the required parameters because Python matches positional arguments left to right — if an optional one came first there would be no way to tell which value the caller meant."
+    },
+    {
+      "type": "code",
+      "id": "reading-label",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Give `unit` a default of `\"C\"` so `reading(\"temp\", 21)` works on its own and returns `temp 21C`, while `reading(\"wind\", 4, \"kn\")` still overrides it.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "temp 21C"
+        },
+        {
+          "type": "ast",
+          "query": "unit="
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints the right line, but only because the call spells out the unit. Try calling it with two arguments."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Add `= \"C\"` to the `unit` parameter in the `def` line, then drop the third argument from the call below."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`def pause(seconds=1): ...` can be called as `pause()` or `pause(5)`, and the default only applies when the argument is absent."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def reading(name, value, unit=\"C\"):\n    return f\"{name} {value}{unit}\"\n\n\nprint(reading(\"temp\", 21))"
+        }
+      ]
+    }
+  ],
+  "description": "A function can take values in, and missing ones can have a fallback."
+}

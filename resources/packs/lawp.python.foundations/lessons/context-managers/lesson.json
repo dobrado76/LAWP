@@ -1,0 +1,160 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 24,
+  "skillIds": [
+    "python.internals.context"
+  ],
+  "id": "context-managers",
+  "courseId": "internals",
+  "moduleId": "wrap",
+  "title": "with: cleanup that always happens",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two methods and a guarantee\n\n`with obj as name:` calls `obj.__enter__()` and binds whatever it returns to `name`. When the block ends — normally, by `return`, or because something raised — Python calls `obj.__exit__(exc_type, exc, tb)`. That second call is the guarantee: it is the reason `with open(...)` cannot leak a file handle.\n\n`contextlib.contextmanager` turns a generator into the same protocol: everything before `yield` is the setup, the `yield` is where the block runs, and everything after is the teardown. That is exactly where people get burned — if the block raises, the exception is thrown *into* the generator at the `yield`, so any cleanup that is not inside a `finally` is skipped.\n\n```python\nfrom contextlib import contextmanager\n\n@contextmanager\ndef shift(name):\n    print(\"start\", name)\n    try:\n        yield name\n    finally:\n        print(\"stop\", name)      # runs even when the block raises\n\ntry:\n    with shift(\"dawn\"):\n        raise ValueError(\"storm\")\nexcept ValueError:\n    print(\"handled\")\n```\n\nA common mistake is returning a truthy value from `__exit__`, which silently swallows the exception; return `False` (or nothing) unless suppressing it is genuinely the point. The exercise asks for both forms — a class and a `@contextmanager` — and the recorded order proves your teardown survived the error."
+    },
+    {
+      "type": "predict",
+      "id": "exit-on-raise",
+      "promptMd": "The block inside a `with` raises. Does `__exit__` run?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "yes",
+          "md": "Yes — then the exception carries on unless `__exit__` suppresses it"
+        },
+        {
+          "id": "no",
+          "md": "No — the exception skips the rest of the statement"
+        }
+      ],
+      "answer": "yes",
+      "explainMd": "`__exit__` is called on every exit path, and it is handed the exception type, value, and traceback so it can decide what to do. Return `False` and the exception continues on its way; return `True` and you have swallowed it, which is almost never what you want."
+    },
+    {
+      "type": "check",
+      "id": "contextmanager-cleanup",
+      "promptMd": "In a `@contextmanager` generator, where does teardown have to live to survive an exception in the block?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "after",
+          "md": "On the line after `yield`"
+        },
+        {
+          "id": "finally",
+          "md": "In a `finally` around the `yield`"
+        },
+        {
+          "id": "exit",
+          "md": "In an `__exit__` method as well"
+        }
+      ],
+      "answer": "finally",
+      "explainMd": "The exception is thrown into the generator at the `yield`, so plain code after the `yield` is never reached. Wrapping the `yield` in `try` / `finally` is what makes the teardown unconditional — the same guarantee the class form gets from `__exit__` for free."
+    },
+    {
+      "type": "check",
+      "id": "with-words",
+      "kind": "cloze",
+      "promptMd": "`with obj as name:` binds `name` to the return value of {{a}}, and calls {{b}} on the way out.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "__enter__",
+              "md": "__enter__"
+            },
+            {
+              "id": "__init__",
+              "md": "__init__"
+            },
+            {
+              "id": "__exit__",
+              "md": "__exit__"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "__exit__",
+              "md": "__exit__"
+            },
+            {
+              "id": "__del__",
+              "md": "__del__"
+            },
+            {
+              "id": "close",
+              "md": "close"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "__enter__",
+        "b": "__exit__"
+      },
+      "explainMd": "`__init__` builds the object, `__enter__` starts the managed period and decides what `as` sees, `__exit__` ends it. Many managers simply `return self` from `__enter__`; a file object returns itself too, which is why `with open(p) as f` hands you the file."
+    },
+    {
+      "type": "code",
+      "id": "both-managers",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish both. `Station` records `\"open\"` in `__enter__`, hands itself back, and records `\"close\"` in `__exit__` without swallowing the error. `shift` records `\"start\"`, yields, and records `\"stop\"` even when the block raises. Output should be `['open', 'start', 'stop', 'close']`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['open', 'start', 'stop', 'close']"
+        },
+        {
+          "type": "ast",
+          "query": "finally"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Only `\"start\"` reaches `EVENTS` today: the class records nothing, and the generator's teardown is skipped by the raise."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`__enter__` should append `\"open\"` and `return self`; `__exit__` should append `\"close\"` and return `False`. In `shift`, put the `yield` in a `try` and the `\"stop\"` append in a `finally`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A lock reads the same way: `acquire()` before the `yield`, `release()` in the `finally`, so the lock is freed whether the block succeeded or blew up."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from contextlib import contextmanager\n\nEVENTS = []\n\n\nclass Station:\n    def __init__(self, name):\n        self.name = name\n\n    def __enter__(self):\n        EVENTS.append(\"open\")\n        return self\n\n    def __exit__(self, exc_type, exc, tb):\n        EVENTS.append(\"close\")\n        return False\n\n\n@contextmanager\ndef shift(name):\n    EVENTS.append(\"start\")\n    try:\n        yield name\n    finally:\n        EVENTS.append(\"stop\")\n\n\ntry:\n    with Station(\"north\") as post, shift(\"dawn\"):\n        raise ValueError(\"storm\")\nexcept ValueError:\n    pass\n\nprint(EVENTS)"
+        }
+      ]
+    }
+  ],
+  "description": "Write your own with-block so setup and cleanup travel together."
+}

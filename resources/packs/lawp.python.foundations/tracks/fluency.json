@@ -1,0 +1,10 @@
+{
+  "id": "fluency",
+  "title": "Fluency",
+  "courseIds": [
+    "collections",
+    "errors",
+    "text"
+  ],
+  "intro": "Collections, errors, and text. This is where small scripts start to feel like programs."
+}

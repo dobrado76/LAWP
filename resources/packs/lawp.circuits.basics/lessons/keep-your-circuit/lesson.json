@@ -3,28 +3,56 @@
   "schemaVersion": 1,
   "id": "keep-your-circuit",
   "packId": "lawp.circuits.basics",
-  "courseId": "first-contact",
-  "moduleId": "the-loop",
+  "courseId": "workshop",
+  "moduleId": "keep",
   "title": "Keep your circuit",
   "skillIds": [
-    "circuits.series.current"
+    "circuits.series.current",
+    "circuits.combine"
   ],
-  "estimatedMinutes": 2,
-  "taskRev": 1,
+  "estimatedMinutes": 6,
+  "taskRev": 2,
+  "description": "Keep the circuit you built. You can come back to it later instead of starting from an empty bench.",
   "creation": {
     "id": "my-circuit",
-    "step": 2,
+    "step": 3,
     "briefMd": "Export the circuit you built."
   },
   "blocks": [
     {
       "type": "explain",
-      "md": "## Yours to keep\n\nPassing **Make the lamp brighter** saved your world under this learner's `creations/` folder. That circuit can now sit at a bright, safe current — something it could not do at the start. **Export creation** in the studio writes those files off this machine. Settings export will not include it. A creation is progress, not a pack of teaching content.\n\nThis bites when you assume a reinstall or a settings backup will carry the circuit. Packs are lessons other people wrote. Your tuned loop lives with the learner until you export it. Leave it here and a new machine starts dim again.\n\n```text\nbattery → resistor(1 Ω) → lamp → battery\nbright, current 1, cap 2\n```\n\nA common mistake is treating this page as another ohms puzzle. There is no new circuit to tune. The prompt asks you to say, in one sentence, why lowering resistance made the lamp brighter and why `0.25` was a bad idea.\n"
+      "md": "## Yours to keep\n\nPassing the brighter-lamp experiment and the two-lamp mix saved world state under this learner’s creations folder. That circuit can sit at a bright, safe current, and it can remember a series or parallel choice. Export creation in the studio writes those files off this machine. Settings export will not include it.\n\nThis bites when you assume a reinstall or a settings backup will carry the circuit. Packs are lessons other people wrote. Your tuned loop lives with the learner until you export it.\n\n![A loop you can keep](assets/closed-loop.svg)\n\n```text\nbattery → resistor(1 Ω) → lamp → battery\nbright, current 1, cap 2\n```\n\nA common mistake is treating this page as another ohms puzzle. Say why lowering resistance made the first lamp brighter, and why 0.25 was a bad idea."
+    },
+    {
+      "type": "check",
+      "id": "recap",
+      "kind": "mcq",
+      "promptMd": "Lowering resistance made the first lamp brighter because…",
+      "choices": [
+        {
+          "id": "iup",
+          "md": "Current rose (same push, less squeeze) while staying under the cap"
+        },
+        {
+          "id": "used",
+          "md": "The lamp finally got to keep the current it had been eating",
+          "misconceptionId": "current-gets-used-up"
+        },
+        {
+          "id": "zero",
+          "md": "The best move was ohms 0.25 for extra power",
+          "misconceptionId": "ignores-current-limit"
+        }
+      ],
+      "answer": "iup",
+      "explainMd": "I ≈ cells / ohms. Ohms 1 gives I = 1, bright and safe. 0.25 gives 4 and fails the cap.",
+      "skillIds": [
+        "circuits.series.current"
+      ]
     },
     {
       "type": "reflect",
       "promptMd": "In one sentence: why did lowering resistance make the lamp brighter, and why was 0.25 a bad idea?"
     }
-  ],
-  "description": "Keep the circuit you built and take it with you."
+  ]
 }

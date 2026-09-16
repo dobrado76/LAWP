@@ -26,6 +26,20 @@ type ConsoleState = { text: string; ran: boolean }
 
 const emptyConsole: ConsoleState = { text: '', ran: false }
 
+type LessonFile = { path: string; role: string; contents?: string }
+
+/**
+ * Files the lesson ships for the learner to *read* — the module an exercise
+ * imports, or a fixture it opens. The page fixture is skipped because the DOM
+ * board already shows it under its own tab, and hidden tests stay hidden.
+ */
+export function companionFiles(code?: { files?: LessonFile[]; preview?: { kind?: string } }): LessonFile[] {
+  const onPage = code?.preview?.kind === 'iframe'
+  return (code?.files ?? []).filter(
+    (f) => (f.role === 'ro' || f.role === 'fixture') && !(onPage && f.path.endsWith('.html'))
+  )
+}
+
 function CodeConsole({ text }: ConsoleState) {
   return (
     <div className="code-console" role="log" aria-label="Console">
@@ -774,18 +788,33 @@ export function Studio({
           {lesson?.blocks.map((b, i) => {
             if (b.type === 'explain') {
               if (!onLearn) return null
-              return <div key={i} className="prose" dangerouslySetInnerHTML={{ __html: md(String(b.md)) }} />
+              return (
+                <div
+                  key={i}
+                  className="prose"
+                  dangerouslySetInnerHTML={{ __html: md(String(b.md), { packId, lessonId }) }}
+                />
+              )
             }
             if (b.type === 'predict' && b.id) return null
             if (b.type === 'reflect') {
               if (!onLearn) return null
-              return <div key={i} className="prose" dangerouslySetInnerHTML={{ __html: md(String(b.promptMd ?? '')) }} />
+              return (
+                <div
+                  key={i}
+                  className="prose"
+                  dangerouslySetInnerHTML={{ __html: md(String(b.promptMd ?? ''), { packId, lessonId }) }}
+                />
+              )
             }
             return null
           })}
           {activity?.predict && onLearn && !paged && <Predict pred={activity.predict} value={predict} onChange={setPredict} />}
           {activity && onTry && (
-            <div className="task prose" dangerouslySetInnerHTML={{ __html: md(activity.promptMd) }} />
+            <div
+              className="task prose"
+              dangerouslySetInnerHTML={{ __html: md(activity.promptMd, { packId, lessonId }) }}
+            />
           )}
           {code?.play && onTry && <Objectives goal={code.play.goal} world={world ?? startWorld} />}
           {code?.play?.guided && onTry && (
@@ -822,23 +851,29 @@ export function Studio({
             </div>
           )}
           {onTry && world && activity && !isGrid && (
-            <div className="world">
-              {world.parts.map((p) => {
-                const bright = Number(p.props.brightness ?? 0)
-                const cls = p.type === 'lamp' ? (bright >= 2 ? 'lamp-bright' : 'lamp-dim') : ''
-                return (
-                  <div key={p.id} className={`node ${cls}`}>
-                    <div className="node-type">{String(p.props.label ?? p.type)}</div>
-                    <div className="muted">
-                      {Object.entries(p.props)
-                        .filter(([k]) => k !== 'label')
-                        .map(([k, v]) => `${k} ${v}`)
-                        .join(' · ')}
+            viewKind === 'graph' ? (
+              <CircuitGraph world={world} packId={packId} lessonId={lessonId} />
+            ) : (
+              <div className="world">
+                {world.parts.map((p) => {
+                  const bright = Number(p.props.brightness ?? 0)
+                  const cls = p.type === 'lamp' ? (bright >= 2 ? 'lamp-bright' : 'lamp-dim') : ''
+                  const src = spriteUrl(packId, lessonId, world.view?.assetMap, p)
+                  return (
+                    <div key={p.id} className={`node ${cls}`}>
+                      {src ? <img className="node-art" src={src} alt="" /> : null}
+                      <div className="node-type">{String(p.props.label ?? p.type)}</div>
+                      <div className="muted">
+                        {Object.entries(p.props)
+                          .filter(([k]) => k !== 'label')
+                          .map(([k, v]) => `${k} ${v}`)
+                          .join(' · ')}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+            )
           )}
           {onTry && activity?.world?.actions.map((a) => (
             <div key={a.id} className="action-group">
@@ -895,6 +930,16 @@ export function Studio({
                     setTaskResult(null)
                     setFiles((prev) => prev.map((x) => (x.path === f.path ? { ...x, contents } : x)))
                   }}
+                />
+              ))}
+              {companionFiles(code).map((f) => (
+                <CodeEditor
+                  key={`${lessonId}:ro:${f.path}`}
+                  path={f.path}
+                  value={f.contents ?? ''}
+                  engine={code?.engine}
+                  readOnly
+                  onChange={() => undefined}
                 />
               ))}
               <CodeConsole {...consoleOut} />
@@ -1111,26 +1156,109 @@ function Predict({
   )
 }
 
-function spriteUrl(packId: string, lessonId: string, map: Record<string, string> | undefined, part: WorldPart): string | null {
-  const rot = part.props.rot
-  const keys = [
-    typeof rot === 'number' ? `${part.id}@rot=${rot}` : '',
-    typeof rot === 'number' ? `${part.type}@rot=${rot}` : '',
-    part.id,
-    part.type
-  ].filter(Boolean)
-  let mapped: string | undefined
-  for (const k of keys) {
-    if (map?.[k]) {
-      mapped = map[k]
-      break
+function matchMappedAsset(map: Record<string, string> | undefined, part: WorldPart): string | undefined {
+  if (!map) return undefined
+  let best: string | undefined
+  let score = -1
+  for (const [key, asset] of Object.entries(map)) {
+    if (key === part.id && score < 1) {
+      best = asset
+      score = 1
+    }
+    if (key === part.type && score < 0) {
+      best = asset
+      score = 0
+    }
+    const m = key.match(/^(.+)@([^=]+)=(.+)$/)
+    if (m && String(part.props[m[2]!]) === m[3]) {
+      const tagged = m[1] === part.id ? 3 : m[1] === part.type ? 2 : -1
+      if (tagged > score) {
+        best = asset
+        score = tagged
+      }
     }
   }
+  return best
+}
+
+function spriteUrl(packId: string, lessonId: string, map: Record<string, string> | undefined, part: WorldPart): string | null {
+  const mapped = matchMappedAsset(map, part)
   if (!mapped) return playKitSrc(part.type)
   if (mapped.startsWith('lawp-pack://')) return mapped
   if (mapped.startsWith('assets/')) return `lawp-pack://${packId}/lessons/${lessonId}/${mapped}`
   const file = mapped.replace(/^lawp-play:\/\/assets\//, '').replace(/\.svg$/i, '.png')
   return `lawp-play://assets/${file}`
+}
+
+function loopOrder(world: World): WorldPart[] {
+  const parts = world.parts
+  if (!parts.length) return []
+  const byId = new Map(parts.map((p) => [p.id, p]))
+  const next = new Map<string, string[]>()
+  for (const c of world.connections ?? []) {
+    const list = next.get(c.from) ?? []
+    list.push(c.to)
+    next.set(c.from, list)
+  }
+  const start = parts[0]!
+  const order: WorldPart[] = [start]
+  const seen = new Set([start.id])
+  let cur = start.id
+  for (let i = 0; i < parts.length + 2; i++) {
+    const cand = (next.get(cur) ?? []).find((id) => !seen.has(id) && byId.has(id))
+    if (!cand) break
+    order.push(byId.get(cand)!)
+    seen.add(cand)
+    cur = cand
+  }
+  for (const p of parts) if (!seen.has(p.id)) order.push(p)
+  return order
+}
+
+function CircuitGraph({ world, packId, lessonId }: { world: World; packId: string; lessonId: string }) {
+  const nodes = loopOrder(world)
+  const n = Math.max(nodes.length, 1)
+  const placed = nodes.map((p, i) => {
+    const a = (i / n) * Math.PI * 2 - Math.PI / 2
+    return { p, x: 50 + 36 * Math.cos(a), y: 50 + 34 * Math.sin(a) }
+  })
+  const byId = new Map(placed.map((x) => [x.p.id, x]))
+  const wires = (world.connections ?? []).flatMap((c) => {
+    const a = byId.get(c.from)
+    const b = byId.get(c.to)
+    if (!a || !b) return []
+    return [`${a.x},${a.y} ${b.x},${b.y}`]
+  })
+  return (
+    <div className="world-graph">
+      <svg className="world-graph-wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+        {wires.map((d, i) => (
+          <polyline key={i} points={d} fill="none" stroke="#2ec4b6" strokeWidth="0.7" />
+        ))}
+      </svg>
+      {placed.map(({ p, x, y }) => {
+        const src = spriteUrl(packId, lessonId, world.view?.assetMap, p)
+        const bright = Number(p.props.brightness ?? 0)
+        const on = p.props.on === true || bright >= 2
+        return (
+          <div
+            key={p.id}
+            className={`world-graph-node${on ? ' is-bright' : ''}${p.type === 'lamp' && bright < 2 ? ' is-dim' : ''}`}
+            style={{ left: `${x}%`, top: `${y}%` }}
+          >
+            {src ? <img src={src} alt="" /> : null}
+            <div className="node-type">{String(p.props.label ?? p.type)}</div>
+            <div className="muted">
+              {Object.entries(p.props)
+                .filter(([k]) => k !== 'label')
+                .map(([k, v]) => `${k} ${v}`)
+                .join(' · ')}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
 }
 
 function stepPlay(world: World, cmd: PlayCmd, playerId: string): World {

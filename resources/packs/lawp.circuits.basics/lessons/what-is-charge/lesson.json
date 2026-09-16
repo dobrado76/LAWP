@@ -1,0 +1,89 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "what-is-charge",
+  "packId": "lawp.circuits.basics",
+  "courseId": "first-contact",
+  "moduleId": "charge",
+  "title": "Charge is a property",
+  "skillIds": [
+    "circuits.charge"
+  ],
+  "estimatedMinutes": 8,
+  "taskRev": 1,
+  "description": "Charge is a property of bits of matter, not a juice that sits in the wire. Opposite charges pull; a battery holds them apart.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Plus and minus, not juice\n\nCharge is a property. Some bits of matter have extra negative charge, some are short of it. Opposite charges pull toward each other. Same charges push apart. A battery is a pump that holds those sides apart so they want a path back together.\n\nThis bites when people say electricity is a liquid in the copper, or that you need two different metals for anything to happen. Copper can carry charge either way. Two metals show up in some cells, but they are not the idea. The idea is a difference you can close with a loop.\n\n![Positive and negative charge](assets/charge-plus-minus.svg)\n\n```text\n+ side  ----push---->  − side\nA battery holds them apart.\n```\n\nA common mistake is thinking the wire is full of “electricity stuff” that leaks out of the lamp. The questions ask what charge is, and whether two different metals are required."
+    },
+    {
+      "type": "check",
+      "id": "property",
+      "kind": "mcq",
+      "promptMd": "Charge is…",
+      "choices": [
+        {
+          "id": "prop",
+          "md": "A property — plus and minus that pull or push"
+        },
+        {
+          "id": "juice",
+          "md": "A juice that sits in the wire like water in a hose",
+          "misconceptionId": "voltage-is-stuff-in-the-wire"
+        },
+        {
+          "id": "metals",
+          "md": "Something that only appears when two metals touch",
+          "misconceptionId": "two-metals-needed"
+        }
+      ],
+      "answer": "prop",
+      "explainMd": "Charge is plus and minus. A battery holds them apart. The wire is a path, not a tank of juice.",
+      "skillIds": [
+        "circuits.charge"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "metals-tf",
+      "kind": "tf",
+      "promptMd": "You must use two different metals or a lamp cannot light.",
+      "answer": "false",
+      "explainMd": "You need a closed path and a difference. Two metals are not the rule.",
+      "skillIds": [
+        "circuits.charge"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "tap-plus",
+      "kind": "hotspot",
+      "promptMd": "Tap the positive side in the picture.",
+      "image": "assets/charge-plus-minus-quiz.svg",
+      "slots": [
+        {
+          "id": "plus",
+          "x": 28,
+          "y": 45,
+          "w": 28,
+          "h": 40,
+          "label": ""
+        },
+        {
+          "id": "minus",
+          "x": 72,
+          "y": 45,
+          "w": 28,
+          "h": 40,
+          "label": ""
+        }
+      ],
+      "answer": "plus",
+      "explainMd": "The left circle is marked plus. Opposite of minus.",
+      "skillIds": [
+        "circuits.charge"
+      ]
+    }
+  ]
+}

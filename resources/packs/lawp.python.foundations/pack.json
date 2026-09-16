@@ -2,15 +2,32 @@
   "kind": "pack",
   "schemaVersion": 1,
   "id": "lawp.python.foundations",
-  "title": "Python: Think, then run",
-  "description": "Names, a grid walk, decisions, messages, and a greeting bot you keep.",
-  "subjects": ["programming", "python"],
+  "title": "Python: Zero to hero",
+  "description": "A field-station path from your first name binding to generators, packages, tests, and a capstone tool. Predict, run, explain.",
+  "subjects": [
+    "programming",
+    "python"
+  ],
   "category": "Programming",
   "cover": "assets/cover.png",
-  "engines": ["python"],
-  "capabilities": { "execute": "python", "network": false },
-  "version": "0.3.3",
+  "engines": [
+    "python"
+  ],
+  "capabilities": {
+    "execute": "python",
+    "network": false
+  },
+  "version": "0.5.0",
   "locale": "en",
-  "authors": ["LAWP"],
-  "tracks": ["foundations"]
+  "authors": [
+    "LAWP"
+  ],
+  "tracks": [
+    "foundations",
+    "fluency",
+    "the-machine",
+    "structure",
+    "language",
+    "craft"
+  ]
 }

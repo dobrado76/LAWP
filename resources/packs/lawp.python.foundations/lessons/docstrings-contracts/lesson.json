@@ -1,0 +1,126 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 24,
+  "skillIds": [
+    "python.craft.tests"
+  ],
+  "id": "docstrings-contracts",
+  "courseId": "craft",
+  "moduleId": "prove",
+  "title": "The docstring is the contract",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## What goes in, what comes back, what it raises\n\nA docstring is the first string in a function body, and Python keeps it as `__doc__`. That makes it the one piece of prose the language can hand back: `help(grid_step)` prints it, editors show it on hover, and `pydoc` builds a page from it. So write it as a contract rather than a summary — what goes in, what comes back, and what it raises when the input is wrong.\n\nThis bites when the promise lives in a `#` comment instead. Comments are stripped from the object, so `help()` shows nothing and the next reader has to open the source to learn that an unknown direction raises. Worse, a contract nobody can read gets broken silently: the caller wraps the call in a bare `except`, because it was never told which error to expect.\n\n```python\ndef clamp(value, high):\n    \"\"\"Squeeze value into 0..high.\n\n    Args:\n        value: any int.\n        high: the largest allowed result; must not be negative.\n\n    Returns:\n        An int between 0 and high inclusive.\n\n    Raises:\n        ValueError: if high is negative.\n\n    >>> clamp(7, 4)\n    4\n    \"\"\"\n    if high < 0:\n        raise ValueError(f\"high must not be negative: {high}\")\n    return min(max(value, 0), high)\n\n\nprint(clamp.__doc__.splitlines()[0])\n```\n\nA common mistake is writing `\"\"\"Steps the fox.\"\"\"` and stopping — a restatement of the name that tells a caller nothing new. The other trap is a `>>>` example that was never run: it drifts, and then the documentation lies. The exercise wants a real contract with Args, Returns and Raises sections, plus an example whose output matches what the function actually produces."
+    },
+    {
+      "type": "check",
+      "id": "what-help-shows",
+      "promptMd": "`help(grid_step)` prints…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "source",
+          "md": "The whole function body"
+        },
+        {
+          "id": "doc",
+          "md": "The signature and the docstring"
+        },
+        {
+          "id": "comments",
+          "md": "The `#` comments above the `def`"
+        }
+      ],
+      "answer": "doc",
+      "explainMd": "`help()` reads the live object: its signature and its `__doc__`. Comments never reach the object — the compiler drops them — and the body is only available through `inspect.getsource`. That is the practical reason a promise belongs in the docstring: it is the only prose that travels with the function into the interpreter, the editor tooltip, and generated docs.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "comment-in-help",
+      "kind": "tf",
+      "promptMd": "A `#` comment written just above `def` shows up in `help()`.",
+      "answer": "false",
+      "explainMd": "Comments are for the person editing the line; docstrings are for the person calling the function. Only the docstring becomes `__doc__`, so only the docstring is visible from the outside. If you find yourself explaining the contract in a comment, move those sentences inside the triple quotes and the tooling picks them up for free.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "predict",
+      "id": "doctest-drift",
+      "promptMd": "A docstring shows `>>> grid_step((0, 0), \"east\")` returning `(1, 1)`, but the function returns `(1, 0)`. Running the module under `doctest` reports…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "silent",
+          "md": "Nothing — examples in prose are not executable"
+        },
+        {
+          "id": "failure",
+          "md": "A failure, quoting the expected `(1, 1)` against the actual `(1, 0)`"
+        }
+      ],
+      "answer": "failure",
+      "explainMd": "The stdlib `doctest` module scans docstrings for `>>>` lines, runs them, and compares the printed result character for character. That turns your examples into tests, which is exactly what stops documentation from drifting away from behaviour. It is also why an example must be copied from a real session rather than typed from memory.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "grid-step-contract",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `grid_step(pos, direction)` and document it.\n>\n> 1. `pos` is an `(x, y)` tuple; `direction` is one of `\"north\"`, `\"south\"`, `\"east\"`, `\"west\"`. North decreases `y`, east increases `x`.\n> 2. Return a **new** tuple one cell along.\n> 3. Any other direction raises `ValueError`, and the message must contain the bad name.\n> 4. The docstring needs `Args:`, `Returns:` and `Raises:` sections and at least one `>>>` example whose output matches reality — it is run with `doctest`.\n>\n> Print `grid_step((0, 0), \"east\")`. Output should be `(1, 0)`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "(1, 0)"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two halves: make all four directions work and raise on anything else, then write the contract the caller reads."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A dict of offsets keeps it flat: `{\"north\": (0, -1), ...}`. If the name is missing, `raise ValueError(f\"unknown direction: {direction!r}\")` — the `!r` puts the bad name in quotes inside the message."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Copy the example from a real run. `>>> clamp(7, 4)` on its own line, then `4` on the next, is what `doctest` compares against."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def grid_step(pos, direction):\n    \"\"\"Take one step on the station grid.\n\n    Args:\n        pos: an (x, y) tuple - the cell you are standing on.\n        direction: one of \"north\", \"south\", \"east\", \"west\".\n\n    Returns:\n        A new (x, y) tuple one cell along. pos itself is untouched.\n\n    Raises:\n        ValueError: if direction is not one of those four names.\n\n    >>> grid_step((0, 0), \"east\")\n    (1, 0)\n    >>> grid_step((2, 3), \"north\")\n    (2, 2)\n    \"\"\"\n    steps = {\"north\": (0, -1), \"south\": (0, 1), \"east\": (1, 0), \"west\": (-1, 0)}\n    if direction not in steps:\n        raise ValueError(f\"unknown direction: {direction!r}\")\n    dx, dy = steps[direction]\n    x, y = pos\n    return (x + dx, y + dy)\n\n\nprint(grid_step((0, 0), \"east\"))"
+        }
+      ]
+    }
+  ],
+  "description": "A docstring is the promise a function makes about its arguments."
+}

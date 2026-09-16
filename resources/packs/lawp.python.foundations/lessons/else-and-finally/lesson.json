@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.errors"
+  ],
+  "id": "else-and-finally",
+  "courseId": "errors",
+  "moduleId": "read",
+  "title": "Else for success, finally for always",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Four blocks, four different moments\n\nA `try` statement has room for four blocks and each one answers a different question. `try` is the risky part. `except` runs only when the named error happened. `else` runs only when the `try` body finished with no exception at all. `finally` runs either way, on the way out, no matter what.\n\nThis bites when success-only work is left sitting at the end of the `try` body. Anything you put there is also protected by the `except`, so an error thrown by the follow-up work gets reported as if the risky line had failed. Moving it to `else` keeps the `try` body down to the one line that can actually break.\n\n```python\ndef open_log(raw):\n    try:\n        value = int(raw)\n    except ValueError:\n        print(\"could not read\", raw)\n        value = 0\n    else:\n        print(\"read\", value)\n    finally:\n        print(\"done with\", raw)\n    return value\n\n\nopen_log(\"12\")     # read 12 / done with 12\nopen_log(\"warm\")   # could not read warm / done with warm\n```\n\nA common mistake is expecting `finally` to be skipped when the function returns early — it is not, it runs on the way out of every path, which is exactly why cleanup belongs there. The exercise asks you to record the story of a parse in a list, so the order of the three notes proves which block ran when."
+    },
+    {
+      "type": "check",
+      "id": "else-when",
+      "promptMd": "The `else` block of a `try` statement runs when…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "clean",
+          "md": "The `try` body finished with no exception"
+        },
+        {
+          "id": "caught",
+          "md": "An exception was raised and caught"
+        },
+        {
+          "id": "always",
+          "md": "Always, like `finally`"
+        }
+      ],
+      "answer": "clean",
+      "explainMd": "`else` is the success path: it runs only if nothing in the `try` body raised. That makes it the right home for work that depends on the risky line having worked, without putting that work inside the protected block where its own failures would be misattributed."
+    },
+    {
+      "type": "check",
+      "id": "finally-always",
+      "kind": "tf",
+      "promptMd": "`finally` runs whether or not an exception was raised — including when the function returns from inside the `try`.",
+      "answer": "true",
+      "explainMd": "`finally` is the on-the-way-out block. Success, handled error, unhandled error, or an early `return` all pass through it, which is why closing a file or releasing a lock belongs there and nowhere else. The only thing it cannot survive is the process being killed outright."
+    },
+    {
+      "type": "code",
+      "id": "trail-of-blocks",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `parse_with_report(raw, log)` so it appends `\"ok\"` on success, `\"failed\"` on a `ValueError`, and `\"closed\"` every time. Return the number, or `0` when it failed. Print the trail for `\"warm\"`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['failed', 'closed']"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter appends `\"ok\"` even when the parse failed, because that line sits outside the `try` statement altogether and runs on every path."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Put the success note in an `else:` block so it only runs when `int(raw)` worked, and put the `\"closed\"` note in a `finally:` block so it runs on both paths. The `except ValueError:` block keeps the failure note."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "With `try: int(\"x\")` / `except ValueError: log.append(\"bad\")` / `else: log.append(\"good\")` / `finally: log.append(\"out\")`, the log ends up `[\"bad\", \"out\"]` — `\"good\"` never runs."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def parse_with_report(raw, log):\n    try:\n        value = int(raw)\n    except ValueError:\n        log.append(\"failed\")\n        value = 0\n    else:\n        log.append(\"ok\")\n    finally:\n        log.append(\"closed\")\n    return value\n\n\ntrail = []\nparse_with_report(\"warm\", trail)\nprint(trail)"
+        }
+      ]
+    }
+  ],
+  "description": "The else runs when nothing failed. The finally runs either way."
+}

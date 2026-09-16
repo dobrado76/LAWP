@@ -1,0 +1,110 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.collections.set"
+  ],
+  "id": "sets-and-dedupe",
+  "courseId": "collections",
+  "moduleId": "mappings",
+  "title": "Membership without duplicates",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A bag that refuses seconds\n\nA set holds each value at most once and answers one question very fast: is this in here? Adding a value that is already present changes nothing, which is why `set(names)` is the shortest way to collapse a list of repeated sightings down to the distinct ones.\n\nThis bites when you print a set and trust what you see. A set has no position and no insertion order you may rely on; the display order comes from how values happen to hash. Code that passes today because `{\"fox\", \"owl\"}` printed in a friendly order can fail on another machine or another run.\n\n```python\nseen = {\"fox\", \"owl\", \"fox\"}\nprint(len(seen))                  # 2 - the duplicate collapsed\nprint(\"fox\" in seen)              # True\n\nmorning = {\"fox\", \"owl\"}\nevening = {\"owl\", \"badger\"}\nprint(sorted(morning & evening))  # ['owl']        - in both\nprint(sorted(morning | evening))  # ['badger', 'fox', 'owl'] - in either\nprint(sorted(morning - evening))  # ['fox']        - only in the first\n```\n\nA common mistake is sorting once and then treating the set itself as ordered afterwards. Sorting produces a **list**; the set is unchanged. The exercise asks for two functions that both end in `sorted(...)`, so the caller gets a stable answer no matter how the set chose to arrange itself."
+    },
+    {
+      "type": "predict",
+      "id": "set-order",
+      "promptMd": "You add `\"fox\"`, then `\"owl\"`, then `\"badger\"` to a set. What order do they come out in?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "insertion",
+          "md": "The order you added them",
+          "misconceptionId": "sets-keep-order"
+        },
+        {
+          "id": "unordered",
+          "md": "No order you are allowed to rely on"
+        }
+      ],
+      "answer": "unordered",
+      "explainMd": "Sets are unordered: they are built for membership tests, not for sequence. Any order you observe is an accident of hashing and may change between values, runs, or Python versions. When order matters, wrap the set in `sorted(...)` and work with the list that comes back."
+    },
+    {
+      "type": "check",
+      "id": "set-ops",
+      "promptMd": "What is `{1, 2, 3} & {2, 3, 4}`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "union",
+          "md": "`{1, 2, 3, 4}`"
+        },
+        {
+          "id": "inter",
+          "md": "`{2, 3}`"
+        },
+        {
+          "id": "diff",
+          "md": "`{1}`"
+        }
+      ],
+      "answer": "inter",
+      "explainMd": "`&` is intersection: the values present in both sets. `|` is union, everything from either side, and `-` is difference, what is in the left set and not the right. Reaching for these beats writing a nested loop that compares every pair."
+    },
+    {
+      "type": "code",
+      "id": "dedupe-and-overlap",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `unique_sorted(names)` returning the distinct names in sorted order, and `both_shifts(morning, evening)` returning the sorted names that appear in both lists.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['badger', 'fox', 'owl']"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter sorts the names but keeps every repeat, so `fox` appears twice. Something has to collapse the duplicates before the sort."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`set(names)` throws away repeats, and `sorted(...)` turns the set back into a list with a dependable order. For the overlap, build a set from each list and use `&`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`sorted(set([\"b\", \"a\", \"b\"]))` is `[\"a\", \"b\"]`, and `sorted({\"a\", \"b\"} & {\"b\", \"c\"})` is `[\"b\"]`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def unique_sorted(names):\n    return sorted(set(names))\n\n\ndef both_shifts(morning, evening):\n    return sorted(set(morning) & set(evening))\n\n\nprint(unique_sorted([\"fox\", \"owl\", \"fox\", \"badger\"]))"
+        }
+      ]
+    }
+  ],
+  "description": "A set keeps each value once and forgets the order."
+}

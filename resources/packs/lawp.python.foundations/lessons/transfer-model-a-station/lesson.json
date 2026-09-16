@@ -1,0 +1,114 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.objects",
+    "python.objects.data"
+  ],
+  "mastery": {
+    "requiresTransfer": true
+  },
+  "id": "transfer-model-a-station",
+  "courseId": "objects",
+  "moduleId": "reuse",
+  "title": "Transfer: model the field station",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two classes and one honest relationship\n\nNothing new here — this is the whole module used at once on a new shape. A reading from one instrument is a small bundle of values, which is a class of its own. A station is the thing that owns a set of instruments and can speak about all of them, which is a second class. The relationship between them is has-a, so the station holds sensors in an attribute rather than inheriting from one.\n\nTwo traps from earlier in the module are waiting. The list of sensors must be built in `__init__` and not in the class body, or every station on the ridge shares one list and a fresh station reports somebody else’s readings. And the empty case needs a decision made on purpose: joining nothing gives an empty tail, so a station with no sensors should say so in words rather than trailing off after the colon.\n\n```python\nclass Reading:\n    def __init__(self, name, value):\n        self.name = name\n        self.value = value\n\n\nclass Panel:\n    def __init__(self, title):\n        self.title = title\n        self.rows = []            # per instance, on purpose\n\n    def add(self, row):\n        self.rows.append(row)\n        return row\n\n\npanel = Panel(\"Ridge\")\npanel.add(Reading(\"soil\", 11))\nprint(panel.title, len(panel.rows))   # Ridge 1\n```\n\nA common mistake is letting `Station` inherit from `list` so it gets `append` for free, which makes a station claim to be a sequence of sensors and drags every list method along. Build the two classes and give the station a `summary()` that reads `Ridge: soil=11, wind=18`, or `Ridge: no sensors` when nothing has been added."
+    },
+    {
+      "type": "check",
+      "id": "where-the-list-lives",
+      "promptMd": "The station has to hold several sensors. Where should that list live?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "init",
+          "md": "Built in `__init__` as `self.sensors = []`"
+        },
+        {
+          "id": "classbody",
+          "md": "In the class body as `sensors = []`, so the class owns it",
+          "misconceptionId": "class-attr-is-per-instance"
+        },
+        {
+          "id": "inherit",
+          "md": "Nowhere — make `Station` inherit from `list`"
+        }
+      ],
+      "answer": "init",
+      "explainMd": "A list in the class body is created once and shared by every station, so the second station starts life holding the first one’s sensors. Inheriting from `list` is worse in a different way: it makes a station claim to *be* a sequence and inherits `sort`, `pop`, and the rest whether they make sense or not."
+    },
+    {
+      "type": "predict",
+      "id": "empty-summary",
+      "promptMd": "`\", \".join([])` returns what, and what does that mean for a station with no sensors?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "raises",
+          "md": "It raises, so the empty case needs a `try`"
+        },
+        {
+          "id": "empty",
+          "md": "`\"\"`, so the naive summary trails off after the colon and needs its own branch"
+        }
+      ],
+      "answer": "empty",
+      "explainMd": "Joining an empty list is perfectly legal and gives the empty string, which is why the bug is easy to ship — the output is not an error, just a half-finished sentence. Deciding the empty wording up front is cheaper than discovering it in a report someone else is reading."
+    },
+    {
+      "type": "code",
+      "id": "model-the-station",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Build `Sensor(name, value)` and `Station(name)`. A station **holds** sensors: `station.add(sensor)` keeps it, and `station.summary()` returns the station name, a colon and a space, then each sensor as `name=value` in the order added, joined with `, `. With no sensors, `summary()` returns `<name>: no sensors`. Output should be `Ridge: soil=11, wind=18`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "Ridge: soil=11, wind=18"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two classes and one attribute. `Sensor` only has to remember two values; `Station` has to remember its name and the sensors handed to it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Give `Station.__init__` a `self.sensors = []`, append in `add`, and build `summary()` from a list of `f\"{s.name}={s.value}\"` strings joined with `\", \"`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Handle the empty case before joining: `if not self.sensors: return f\"{self.name}: no sensors\"` keeps the branch out of the formatting line."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    def __init__(self, name, value):\n        self.name = name\n        self.value = value\n\n\nclass Station:\n    def __init__(self, name):\n        self.name = name\n        self.sensors = []\n\n    def add(self, sensor):\n        self.sensors.append(sensor)\n        return sensor\n\n    def summary(self):\n        if not self.sensors:\n            return f\"{self.name}: no sensors\"\n        parts = [f\"{s.name}={s.value}\" for s in self.sensors]\n        return f\"{self.name}: \" + \", \".join(parts)\n\n\nstation = Station(\"Ridge\")\nstation.add(Sensor(\"soil\", 11))\nstation.add(Sensor(\"wind\", 18))\n\nprint(station.summary())"
+        }
+      ]
+    }
+  ],
+  "description": "Model the field station as objects that hold their own state."
+}

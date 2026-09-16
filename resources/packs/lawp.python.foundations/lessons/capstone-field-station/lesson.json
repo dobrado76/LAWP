@@ -1,0 +1,151 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 60,
+  "skillIds": [
+    "python.craft.tests",
+    "python.io.files",
+    "python.craft.debug"
+  ],
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "id": "capstone-field-station",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "Capstone: the field station, tested",
+  "creation": {
+    "id": "field-station",
+    "step": 3,
+    "briefMd": "The last step. Your tool now loads the station log itself, keeps the rows it can read and the lines it cannot, summarises the day, prints one line a human can read, and ships with its own tests. That is the whole field station: a loader, a report, and the proof. Export it and it runs anywhere Python does."
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Load, report, prove\n\nA tool worth keeping has three layers, and they are worth keeping apart. A **loader** turns messy text into clean records and hands back what it could not read instead of hiding it. A **summary** is a pure function: records in, a small dict out, no files and no printing. A **formatter** turns that dict into one line. Only the last layer touches the screen, which is exactly why the first two are easy to test.\n\nThis bites when the layers fuse. A function that opens the file, tallies, and prints as it goes cannot be tested without a real log on disk and cannot be reused by anything that wants the numbers rather than the text. Splitting them costs three `def`s and buys you a fixture-sized test for every rule — the blank line, the comment, the row whose coordinate is not a number.\n\n```python\ndef summarise(records):\n    \"\"\"records in, one small dict out. No files, no print.\"\"\"\n    if not records:\n        return {\"rows\": 0, \"animals\": 0, \"busiest\": None, \"top_cell\": None}\n    ...\n\n\ndef format_report(summary):\n    \"\"\"One line a human reads and a test compares.\"\"\"\n    ...\n\n\nrecords, rejects = load_records()        # the only layer that touches disk\nprint(format_report(summarise(records)))  # the only layer that prints\n```\n\nA common mistake is dropping the lines you cannot parse. Silence is the worst failure mode a log tool has: the report looks fine and the station never learns that a row was lost. Hand the rejects back so the caller can decide, and write a test that pins the exact list."
+    },
+    {
+      "type": "explain",
+      "md": "## Ties are part of the contract\n\nEvery summary that picks a winner needs a documented answer for a tie, and one for no data at all. Two animals seen once each is not an error; it is a Tuesday. If the rule is not written down, the answer depends on dictionary order and your test becomes a coin toss you happen to be winning today.\n\nThis bites when the fix is \"whatever `max` returned last time\". `max` over a `Counter` picks by count and breaks ties by whichever key it met first, so adding a row at the top of the log can silently change the reported winner. Choosing the *alphabetically smallest* name — and the *smallest* `(x, y)` tuple — makes the answer a property of the data rather than of the insertion order.\n\n```python\nfrom collections import Counter\n\ntally = Counter([\"owl\", \"fox\"])          # one each: a tie\nbest = max(tally.values())               # 1\nwinner = min(name for name, seen in tally.items() if seen == best)\nprint(winner)                            # fox - documented, not accidental\n```\n\nA common mistake is testing only the happy path, where one animal clearly wins. The brief below spells out both edges — the tie and the empty log — and the hidden test checks each of them, so write the guard and the tie-break before you write the tests that pin them."
+    },
+    {
+      "type": "check",
+      "id": "why-return-rejects",
+      "promptMd": "`load_records` meets a line it cannot parse. What should it do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "skip",
+          "md": "Skip it quietly — the report should not be interrupted"
+        },
+        {
+          "id": "raise",
+          "md": "Raise, so the whole run stops on the first bad row"
+        },
+        {
+          "id": "collect",
+          "md": "Keep it in a rejects list and hand that back with the records"
+        }
+      ],
+      "answer": "collect",
+      "explainMd": "Silently skipping loses information the station needs, and raising throws away the ninety-nine good rows because of one bad one. Returning both lists lets the caller choose: print the report and warn about two rejects, or refuse to report when there are more than ten. It is also the only one of the three you can pin with a test, because the rejects are a value rather than an absence.",
+      "skillIds": [
+        "python.craft.debug"
+      ]
+    },
+    {
+      "type": "predict",
+      "id": "tie-order",
+      "promptMd": "Two animals appear once each, and you pick the winner with `max(tally, key=tally.get)`. What decides the answer?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "alpha",
+          "md": "Alphabetical order — `max` sorts the keys"
+        },
+        {
+          "id": "first",
+          "md": "Whichever key `max` met first, so the order of the log decides"
+        }
+      ],
+      "answer": "first",
+      "explainMd": "`max` keeps the first item with the highest key value, and dictionary iteration follows insertion order, so the winner is decided by which row happened to come first in the file. Reordering the log would change your report without changing the data. Pick the winners whose count equals the best count and then apply a written rule — smallest name, smallest cell — so the answer is reproducible.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "summary-is-pure",
+      "kind": "tf",
+      "promptMd": "`summarise(records)` should be testable without any file on disk.",
+      "answer": "true",
+      "explainMd": "It takes a list and returns a dict, so a three-row literal in the test is a complete input. That is what makes the tie rule and the empty case cheap to pin: no fixture file, no cleanup, no ordering between tests. Keep the file reading in the loader, where a small temporary log written by the test itself is enough to cover the parsing rules.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "field-station-tool",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Build the whole tool in `main.py`. `station.log` is read-only.\n>\n> **`load_records(path=\"station.log\")` → `(records, rejects)`**\n> - Skip blank lines and lines starting with `#`; they are not rejects.\n> - A good row splits on `,` into three fields and the last two are integers: keep `{\"animal\": str, \"x\": int, \"y\": int}`, in file order.\n> - Anything else goes into `rejects` as the stripped line.\n>\n> **`summarise(records)` → dict** with `\"rows\"`, `\"animals\"` (distinct names), `\"busiest\"` (most rows; a tie goes to the alphabetically smallest name) and `\"top_cell\"` (the most common `(x, y)`; a tie goes to the smallest tuple). No records means `{\"rows\": 0, \"animals\": 0, \"busiest\": None, \"top_cell\": None}`.\n>\n> **`format_report(summary)` → str** — `rows=6 animals=3 busiest=fox top-cell=2,1`, or exactly `rows=0 animals=0 busiest=none top-cell=none` when there are no rows.\n>\n> **Prove it**: at least three `test_` functions, each with its own fixture, called at import. Then print the report for `station.log`. Output should be `rows=6 animals=3 busiest=fox top-cell=2,1`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station.log",
+          "role": "ro"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "rows=6 animals=3 busiest=fox top-cell=2,1"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Four jobs, in this order: parse one line, loop the file, summarise a list, format a dict. Write them as four separate functions and the tests almost write themselves."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A one-line parser keeps `load_records` short: split on `,`, bail out unless there are three fields, then `int()` the last two inside a `try` and answer `None` on `ValueError`. In the loader, `line = raw.strip()`, `continue` on empty or `#`, and append to `records` or `rejects` depending on what the parser said."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The tie rules are the same two-step you used on cells: `best = max(tally.values())`, then `min(key for key, seen in tally.items() if seen == best)`. For a test fixture, write your own tiny log with `Path(\"case_a.log\").write_text(\"# day 1\\n\\nfox,1,1\\n\")` and load that instead of the real one."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "\"\"\"The field station: load the log, report the day, prove it with tests.\"\"\"\n\nfrom collections import Counter\nfrom pathlib import Path\n\n\ndef parse_row(line):\n    \"\"\"Return a record dict for a good row, or None for a bad one.\"\"\"\n    fields = line.split(\",\")\n    if len(fields) != 3:\n        return None\n    animal, x, y = (field.strip() for field in fields)\n    try:\n        return {\"animal\": animal, \"x\": int(x), \"y\": int(y)}\n    except ValueError:\n        return None\n\n\ndef load_records(path=\"station.log\"):\n    \"\"\"Read path and return (records, rejects). Blanks and # lines are skipped.\"\"\"\n    records = []\n    rejects = []\n    for raw in Path(path).read_text(encoding=\"utf-8\").splitlines():\n        line = raw.strip()\n        if not line or line.startswith(\"#\"):\n            continue\n        row = parse_row(line)\n        if row is None:\n            rejects.append(line)\n        else:\n            records.append(row)\n    return records, rejects\n\n\ndef summarise(records):\n    \"\"\"Records in, one small dict out. Ties are documented, not accidental.\"\"\"\n    if not records:\n        return {\"rows\": 0, \"animals\": 0, \"busiest\": None, \"top_cell\": None}\n    animals = Counter(row[\"animal\"] for row in records)\n    cells = Counter((row[\"x\"], row[\"y\"]) for row in records)\n    most_seen = max(animals.values())\n    most_visited = max(cells.values())\n    return {\n        \"rows\": len(records),\n        \"animals\": len(animals),\n        \"busiest\": min(name for name, seen in animals.items() if seen == most_seen),\n        \"top_cell\": min(cell for cell, seen in cells.items() if seen == most_visited),\n    }\n\n\ndef format_report(summary):\n    \"\"\"One line a human reads and a test compares.\"\"\"\n    if not summary[\"rows\"]:\n        return \"rows=0 animals=0 busiest=none top-cell=none\"\n    x, y = summary[\"top_cell\"]\n    return (\n        f\"rows={summary['rows']} animals={summary['animals']} \"\n        f\"busiest={summary['busiest']} top-cell={x},{y}\"\n    )\n\n\ndef test_skips_blanks_and_comments():\n    Path(\"case_a.log\").write_text(\"# day 1\\n\\nfox,1,1\\n\", encoding=\"utf-8\")\n    records, rejects = load_records(\"case_a.log\")\n    assert records == [{\"animal\": \"fox\", \"x\": 1, \"y\": 1}], records\n    assert rejects == [], rejects\n\n\ndef test_keeps_a_bad_row_as_a_reject():\n    Path(\"case_b.log\").write_text(\"fox,1,1\\nbadger,oops,2\\nnope\\n\", encoding=\"utf-8\")\n    records, rejects = load_records(\"case_b.log\")\n    assert len(records) == 1, records\n    assert rejects == [\"badger,oops,2\", \"nope\"], rejects\n\n\ndef test_ties_follow_the_written_rule():\n    rows = [{\"animal\": \"owl\", \"x\": 3, \"y\": 0}, {\"animal\": \"fox\", \"x\": 1, \"y\": 2}]\n    summary = summarise(rows)\n    assert summary[\"busiest\"] == \"fox\", summary\n    assert summary[\"top_cell\"] == (1, 2), summary\n\n\ndef test_empty_log_still_reports():\n    line = format_report(summarise([]))\n    assert line == \"rows=0 animals=0 busiest=none top-cell=none\", line\n\n\ntest_skips_blanks_and_comments()\ntest_keeps_a_bad_row_as_a_reject()\ntest_ties_follow_the_written_rule()\ntest_empty_log_still_reports()\n\nrecords, rejects = load_records()\nprint(format_report(summarise(records)))"
+        }
+      ],
+      "timeoutMs": 15000
+    },
+    {
+      "type": "reflect",
+      "id": "ship-it",
+      "promptMd": "Someone else now runs your tool on their own log. Which of your four tests would catch the first thing they break, and which rule of the brief has no test yet?"
+    }
+  ],
+  "description": "Ship the field station: a package that loads records, reports, and proves itself."
+}

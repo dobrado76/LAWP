@@ -1,0 +1,124 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "what-meters-do",
+  "packId": "lawp.circuits.basics",
+  "courseId": "workshop",
+  "moduleId": "control",
+  "title": "What meters do",
+  "skillIds": [
+    "circuits.measure"
+  ],
+  "estimatedMinutes": 10,
+  "taskRev": 1,
+  "description": "An ammeter sits in the path and reads current. A voltmeter sits across two points and reads a difference.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Through versus across\n\nAn ammeter measures current, so it must sit in the path: the flow goes through it. A voltmeter measures a difference, so it sits across two points: it does not become the path. Swap those jobs and you tell a lie — or you short something.\n\nThis bites when you “put the voltage meter in the wire like the current meter.” Voltage is not a flow through a point. Current is not a height you read on one clip.\n\n![Ammeter in series, voltmeter across](assets/meters.svg)\n\n```text\nA  in series   measures I  (through)\nV  across      measures V  (difference)\n```\n\nA common mistake is treating V as something you read through a single wire. Place the meters, then match the words."
+    },
+    {
+      "type": "check",
+      "id": "place-meters",
+      "kind": "place",
+      "promptMd": "Drop A on the meter that sits in the path. Drop V on the meter that sits across two points.",
+      "image": "assets/meters-quiz.svg",
+      "slots": [
+        {
+          "id": "amm",
+          "x": 26,
+          "y": 52,
+          "w": 22,
+          "h": 18,
+          "label": ""
+        },
+        {
+          "id": "volt",
+          "x": 84,
+          "y": 42,
+          "w": 16,
+          "h": 16,
+          "label": ""
+        }
+      ],
+      "pieces": [
+        {
+          "id": "a",
+          "md": "A"
+        },
+        {
+          "id": "v",
+          "md": "V"
+        },
+        {
+          "id": "r",
+          "md": "R"
+        }
+      ],
+      "answer": {
+        "amm": "a",
+        "volt": "v"
+      },
+      "explainMd": "A sits in the loop. V sits across two points. R is leftover.",
+      "skillIds": [
+        "circuits.measure"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "match-meters",
+      "kind": "match",
+      "promptMd": "Match the meter to the job.",
+      "left": [
+        {
+          "id": "a",
+          "md": "Ammeter"
+        },
+        {
+          "id": "v",
+          "md": "Voltmeter"
+        }
+      ],
+      "right": [
+        {
+          "id": "through",
+          "md": "Sits in the path, reads current"
+        },
+        {
+          "id": "across",
+          "md": "Sits across two points, reads a difference"
+        }
+      ],
+      "answer": {
+        "a": "through",
+        "v": "across"
+      },
+      "explainMd": "Through for I. Across for V.",
+      "skillIds": [
+        "circuits.measure"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "v-through",
+      "kind": "tf",
+      "promptMd": "You measure voltage by putting the meter through a single point on the wire, like current.",
+      "choices": [
+        {
+          "id": "true",
+          "md": "True",
+          "misconceptionId": "voltage-through-not-across"
+        },
+        {
+          "id": "false",
+          "md": "False"
+        }
+      ],
+      "answer": "false",
+      "explainMd": "Voltage is a difference. You need two points.",
+      "skillIds": [
+        "circuits.measure"
+      ]
+    }
+  ]
+}

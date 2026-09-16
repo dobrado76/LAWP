@@ -1,0 +1,138 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.functions"
+  ],
+  "id": "args-and-kwargs",
+  "courseId": "functions",
+  "moduleId": "define",
+  "title": "However many arguments arrive",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A star collects, and a star spreads\n\nIn a `def` line, `*values` collects every extra positional argument into a tuple and `**options` collects every extra keyword argument into a dict. At a call site the same stars work in reverse: `total(*readings)` spreads a sequence out into separate arguments, and `total(**settings)` spreads a dict out into keywords.\n\nThis bites when a function takes one sequence and you wanted it to take several numbers, or the other way round. `total([1, 2, 3])` and `total(1, 2, 3)` are different calls, and only one of them matches a given `def`. Anything written after `*values` becomes keyword-only, which is usually what you want for a flag nobody should pass by position.\n\n```python\ndef tally(*counts, **labels):\n    return sum(counts), sorted(labels)\n\n\nprint(tally(1, 2, 3))              # (6, [])\nprint(tally(1, 2, fox=\"den\"))      # (3, ['fox'])\n\nnumbers = (4, 5)\nprint(tally(*numbers))             # (9, []) — spread back out\n```\n\nA common mistake is passing the tuple itself into a starred parameter, so `values` ends up as a tuple holding one tuple and `sum` fails. The star belongs on the call as well as on the definition. The exercise takes any number of readings plus an optional scale, and the readings already live in a tuple."
+    },
+    {
+      "type": "predict",
+      "id": "star-at-call",
+      "promptMd": "With `def total(*values)` and `READINGS = (3, 4, 5)`, which call gives `12`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "plain",
+          "md": "`total(READINGS)`"
+        },
+        {
+          "id": "starred",
+          "md": "`total(*READINGS)`"
+        }
+      ],
+      "answer": "starred",
+      "explainMd": "`total(READINGS)` passes one argument — the tuple — so `values` becomes `((3, 4, 5),)` and summing it fails. The star at the call site unpacks the tuple into three separate arguments, which is exactly what a starred parameter is waiting to collect."
+    },
+    {
+      "type": "check",
+      "id": "star-words",
+      "kind": "cloze",
+      "promptMd": "In a `def`, `*values` collects extra positional arguments into a {{a}}, and `**options` collects keyword arguments into a {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "tuple",
+              "md": "tuple"
+            },
+            {
+              "id": "list",
+              "md": "list"
+            },
+            {
+              "id": "string",
+              "md": "string"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "dict",
+              "md": "dict"
+            },
+            {
+              "id": "set",
+              "md": "set"
+            },
+            {
+              "id": "tuple",
+              "md": "tuple"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "tuple",
+        "b": "dict"
+      },
+      "explainMd": "Positional arguments have an order but no names, so they arrive as a tuple. Keyword arguments are name-and-value pairs, so they arrive as a dict keyed by the names the caller used. Knowing the two shapes is what lets you forward them on to another function unchanged."
+    },
+    {
+      "type": "code",
+      "id": "total-readings",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Change `total` so it collects any number of readings, and keep `scale` as a keyword-only option after the star. Then spread `READINGS` at the call site. The printed line should be `12`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "12"
+        },
+        {
+          "type": "ast",
+          "query": "*values"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter only accepts one sequence, so `total(3, 4, 5)` is a `TypeError`. The function should collect however many numbers arrive."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Put a star in front of the parameter in the `def` line, and put a star in front of the tuple at the call site to spread it back out."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`def longest(*words): return max(words, key=len)` is then called as `longest(\"fox\", \"owl\")` or `longest(*tags)`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "READINGS = (3, 4, 5)\n\n\ndef total(*values, scale=1):\n    return sum(values) * scale\n\n\nprint(total(*READINGS))"
+        }
+      ]
+    }
+  ],
+  "description": "Accept any number of positional or named arguments."
+}

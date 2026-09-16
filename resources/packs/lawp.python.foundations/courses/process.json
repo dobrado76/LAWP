@@ -1,0 +1,29 @@
+{
+  "id": "process",
+  "title": "The process your script lives in",
+  "level": "intermediate",
+  "estimatedMinutes": 170,
+  "skillIds": [
+    "python.io.stdio",
+    "python.modules"
+  ],
+  "modules": [
+    {
+      "id": "inputs",
+      "title": "Inputs and exits",
+      "lessonIds": [
+        "argv-and-env",
+        "exit-codes-and-stderr",
+        "datetime-and-stamps"
+      ]
+    },
+    {
+      "id": "reach",
+      "title": "Reach and limits",
+      "lessonIds": [
+        "subprocess-idea",
+        "transfer-report-tool"
+      ]
+    }
+  ]
+}

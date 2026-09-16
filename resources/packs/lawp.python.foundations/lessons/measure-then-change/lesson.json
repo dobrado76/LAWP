@@ -1,0 +1,126 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 28,
+  "skillIds": [
+    "python.craft.perf"
+  ],
+  "id": "measure-then-change",
+  "courseId": "craft",
+  "moduleId": "diagnose",
+  "title": "Measure, then change the algorithm",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The clock first, the rewrite second\n\nOptimising without measuring is guessing with extra steps. `time.perf_counter()` around a block gives you a before-and-after number, and `timeit` runs a small snippet many times so the answer is not one noisy sample. Measure, write the number down, change one thing, measure again. If the second number is not better, you learned something and you can put the code back.\n\nThis bites when the measurement points at the *data structure*, not the loop. Asking `name in names` where `names` is a list walks it item by item: every extra name is extra work, so a thousand lookups over a thousand names is a million comparisons. A set answers the same question by hashing the name once and looking in one place, so the cost barely moves as the set grows. That is a different algorithm, not a faster loop.\n\n```python\nimport timeit\n\nsetup = \"names = [f'n{i}' for i in range(5000)]; wanted = set(names)\"\nas_list = timeit.timeit(\"'n4999' in names\", setup=setup, number=2000)\nas_set = timeit.timeit(\"'n4999' in wanted\", setup=setup, number=2000)\n\n# The exact seconds differ per machine; the shape of the answer does not.\nprint(as_set < as_list)   # True - one hash beats 5000 comparisons\n```\n\nA common mistake is tuning the loop body — a comprehension here, a local alias there — while the containment test stays linear. Micro-edits win percentages; changing the container changes the exponent. The exercise keeps the printed answer exactly as it is and grades the structure instead, so you can prove the change without chasing a stopwatch reading."
+    },
+    {
+      "type": "check",
+      "id": "measure-first",
+      "promptMd": "A report feels slow. What is the first move?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "rewrite",
+          "md": "Rewrite the biggest loop as a comprehension and see if it feels better"
+        },
+        {
+          "id": "measure",
+          "md": "Time the parts, so you change the one that actually costs"
+        },
+        {
+          "id": "cache",
+          "md": "Add a cache everywhere, since caching is always faster"
+        }
+      ],
+      "answer": "measure",
+      "explainMd": "Intuition about speed is unreliable, and the slow part is very often not the part you were looking at. A `perf_counter` around each stage costs two lines and turns the argument into a number. Without that number you cannot tell whether your change helped, and you cannot tell when to stop — both of which are how a \"quick optimisation\" turns into a day.",
+      "skillIds": [
+        "python.craft.perf"
+      ]
+    },
+    {
+      "type": "predict",
+      "id": "list-vs-set-cost",
+      "promptMd": "`names` is a list of 10,000 strings. Roughly how much work does `\"dragon\" in names` do when `\"dragon\"` is absent?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "one",
+          "md": "One lookup — Python indexes the list by value"
+        },
+        {
+          "id": "ten-thousand",
+          "md": "Ten thousand comparisons — it walks to the end before giving up"
+        }
+      ],
+      "answer": "ten-thousand",
+      "explainMd": "A list keeps order, not an index by value, so `in` has to compare against each item until it finds a match or runs out. The absent case is the worst case: every element, every time. That is O(n) per lookup, and inside a loop over m rows it becomes O(n·m) — the shape that turns a fast script slow the week the data grows.",
+      "skillIds": [
+        "python.craft.perf"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "set-is-sorted",
+      "kind": "tf",
+      "promptMd": "A set answers `in` quickly because it keeps its items sorted.",
+      "answer": "false",
+      "explainMd": "A set is unordered; it hashes each item and stores it in a slot chosen from that hash. Membership hashes the thing you are asking about and looks in the matching slot, which is why the cost is roughly constant rather than proportional to the size. The price is that the item must be hashable and that iteration order is not something you may rely on.",
+      "skillIds": [
+        "python.craft.perf"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "known-names-fast",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> The answer this program prints is already right — do not change it. Change the algorithm behind it.\n>\n> 1. `KNOWN` must be a **set** of the station's known animal names.\n> 2. `is_known(name)` returns whether `name` is in `KNOWN`, with no loop and no scan.\n> 3. `count_known(rows)` still returns how many names in `rows` are known.\n>\n> Print `count_known(SIGHTINGS)`. Output should be `4`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "4"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Read `is_known` and count what it does for a name that is not there: one comparison per known animal, every single call."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Membership is a built-in question. Store the names in a set with `{...}` and let `return name in KNOWN` do the hashing — no loop at all."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same swap on a different job: `SEEN = set()` then `if cell in SEEN` instead of keeping a `seen` list and scanning it each time round."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "KNOWN = {\"fox\", \"owl\", \"hare\", \"badger\", \"stoat\", \"heron\"}\nSIGHTINGS = [\"fox\", \"dragon\", \"owl\", \"fox\", \"griffin\", \"hare\"]\n\n\ndef is_known(name):\n    return name in KNOWN\n\n\ndef count_known(rows):\n    return sum(1 for row in rows if is_known(row))\n\n\nprint(count_known(SIGHTINGS))"
+        }
+      ]
+    }
+  ],
+  "description": "Time it before you tune it, then change one thing."
+}

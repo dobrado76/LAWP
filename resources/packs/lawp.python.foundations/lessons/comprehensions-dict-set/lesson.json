@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.collections.comprehension"
+  ],
+  "id": "comprehensions-dict-set",
+  "courseId": "collections",
+  "moduleId": "shape",
+  "title": "Comprehensions that are not lists",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The braces decide\n\nThe same comprehension grammar builds dictionaries and sets; only the brackets and the expression change. Square brackets give a list. Braces holding `key: value` give a dictionary. Braces holding a single expression give a set, with duplicates collapsed on the way in.\n\nThis bites when you invert a mapping. `{value: key for key, value in m.items()}` is one clean line, but if two keys shared a value, only the last one survives — the earlier pair is overwritten without a word. A zone map with two sensors reading 12 quietly loses a sensor.\n\n```python\nreadings = {\"north\": 12, \"east\": 7, \"south\": 19}\n\nloud = {zone: value for zone, value in readings.items() if value > 10}\nprint(loud)                                 # {'north': 12, 'south': 19}\n\nby_value = {value: zone for zone, value in readings.items()}\nprint(by_value[12])                         # north\n\nprint(sorted({len(zone) for zone in readings}))   # [4, 5] - a set of lengths\n```\n\nA common mistake is writing `{zone for zone, value in ...}` when you meant a dictionary, and getting a set of keys instead. The colon is what makes it a mapping. The exercise asks you to invert a mapping and to filter one, so you will write both shapes side by side and see the difference in the braces."
+    },
+    {
+      "type": "check",
+      "id": "invert-risk",
+      "promptMd": "Inverting a mapping with `{value: key for key, value in m.items()}` loses data when…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "dupes",
+          "md": "Two keys share the same value"
+        },
+        {
+          "id": "strings",
+          "md": "The keys are strings"
+        },
+        {
+          "id": "empty",
+          "md": "The mapping is empty"
+        }
+      ],
+      "answer": "dupes",
+      "explainMd": "The inverted mapping files each old value as a new key, and a key can only hold one value. When two original keys shared a value, the second one overwrites the first and the result is shorter than the input — with no error to warn you."
+    },
+    {
+      "type": "check",
+      "id": "set-comp-braces",
+      "kind": "tf",
+      "promptMd": "`{f(x) for x in xs}` builds a set, while adding `key: value` inside the same braces builds a dictionary.",
+      "answer": "true",
+      "explainMd": "Braces are shared between sets and dictionaries; the colon in the expression is what tells them apart. One oddity worth remembering: `{}` on its own is an empty dictionary, so an empty set has to be written `set()`."
+    },
+    {
+      "type": "code",
+      "id": "invert-and-filter",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `invert(mapping)` returning a dictionary with keys and values swapped, and `zones_over(readings, limit)` returning only the pairs whose value is greater than `limit`. Print `invert({\"north\": 12, \"east\": 7})`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "{12: 'north', 7: 'east'}"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Both starter functions hand the mapping straight back, so the printed dictionary still has zone names as keys."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`mapping.items()` yields `(key, value)` pairs you can unpack in the comprehension header. Write the swapped pair as `{value: key for key, value in mapping.items()}`, and for the filter keep the pair as it is and add a trailing `if`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`{v: k for k, v in {\"a\": 1}.items()}` is `{1: \"a\"}`, and `{k: v for k, v in {\"a\": 1, \"b\": 9}.items() if v > 5}` is `{\"b\": 9}`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def invert(mapping):\n    return {value: key for key, value in mapping.items()}\n\n\ndef zones_over(readings, limit):\n    return {zone: value for zone, value in readings.items() if value > limit}\n\n\nprint(invert({\"north\": 12, \"east\": 7}))"
+        }
+      ]
+    }
+  ],
+  "description": "The same shape builds a dict or a set."
+}

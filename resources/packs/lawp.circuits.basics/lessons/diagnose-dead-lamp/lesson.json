@@ -1,0 +1,215 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "diagnose-dead-lamp",
+  "packId": "lawp.circuits.basics",
+  "courseId": "first-contact",
+  "moduleId": "the-loop",
+  "title": "Diagnose a dark lamp",
+  "skillIds": [
+    "circuits.loop"
+  ],
+  "estimatedMinutes": 10,
+  "taskRev": 1,
+  "description": "A dark lamp is a detective story. Predict why it is dark, then close the gap and watch the loop come back.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Find the gap, then close it\n\nA dark lamp is usually an open path, not a cursed bulb. The picture marks three places a gap can hide: a switch, a loose wire, a dead cell. In this room the switch starts open. Current is zero. The lamp is dark.\n\nThis bites when you twist the battery or stare at the glass. The first move is “is the loop closed?” The live world lets you toggle the switch. Predict first: why is it dark?\n\n![Three places a loop can be open](assets/dead-lamp.svg)\n\n```text\nbattery → OPEN switch → lamp → battery\ncurrent 0 · lamp dark\n```\n\nA common mistake is adding cells to a broken loop. Extra push into a gap is still a gap. Close the switch, then Check."
+    },
+    {
+      "type": "activity",
+      "id": "close-the-gap",
+      "kind": "diagnose",
+      "engine": "world-v1",
+      "promptMd": "The lamp is dark. Close the path so it lights.",
+      "skillIds": [
+        "circuits.loop"
+      ],
+      "constraintMode": "final",
+      "predict": {
+        "promptMd": "Why is the lamp dark at the start?",
+        "kind": "mcq",
+        "choices": [
+          {
+            "id": "gap",
+            "md": "The switch is open, so the loop is broken"
+          },
+          {
+            "id": "used",
+            "md": "The last person used up the current",
+            "misconceptionId": "current-gets-used-up"
+          },
+          {
+            "id": "ok",
+            "md": "Open loops still leak a little light",
+            "misconceptionId": "open-loop-still-lit"
+          }
+        ],
+        "answer": "gap"
+      },
+      "world": {
+        "parts": [
+          {
+            "id": "battery",
+            "type": "battery",
+            "props": {
+              "cells": 1
+            }
+          },
+          {
+            "id": "switch",
+            "type": "switch",
+            "props": {
+              "closed": false,
+              "label": "Switch"
+            }
+          },
+          {
+            "id": "lamp",
+            "type": "lamp",
+            "props": {
+              "brightness": 0,
+              "label": "Lamp"
+            }
+          },
+          {
+            "id": "meter",
+            "type": "meter",
+            "props": {
+              "current": 0
+            }
+          }
+        ],
+        "connections": [
+          {
+            "from": "battery",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "lamp"
+          },
+          {
+            "from": "lamp",
+            "to": "battery"
+          }
+        ],
+        "actions": [
+          {
+            "id": "toggle-switch",
+            "label": "Toggle the switch",
+            "target": "switch",
+            "op": "toggle",
+            "key": "closed"
+          }
+        ],
+        "rules": [
+          {
+            "id": "closed-on",
+            "when": [
+              {
+                "path": "switch.closed",
+                "op": "eq",
+                "value": true
+              }
+            ],
+            "set": [
+              {
+                "target": "lamp",
+                "key": "brightness",
+                "value": 2
+              },
+              {
+                "target": "meter",
+                "key": "current",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "id": "open-off",
+            "when": [
+              {
+                "path": "switch.closed",
+                "op": "eq",
+                "value": false
+              }
+            ],
+            "set": [
+              {
+                "target": "lamp",
+                "key": "brightness",
+                "value": 0
+              },
+              {
+                "target": "meter",
+                "key": "current",
+                "value": 0
+              }
+            ]
+          }
+        ],
+        "view": {
+          "kind": "graph",
+          "assetMap": {
+            "lamp@brightness=0": "assets/lamp-dim.svg",
+            "lamp@brightness=1": "assets/lamp-dim.svg",
+            "lamp@brightness=2": "assets/lamp-bright.svg",
+            "battery": "assets/battery.svg",
+            "resistor": "assets/resistor.svg",
+            "meter": "assets/meter.svg",
+            "voltmeter": "assets/voltmeter.svg",
+            "switch@closed=false": "assets/switch-open.svg",
+            "switch@closed=true": "assets/switch-closed.svg",
+            "fuse": "assets/fuse.svg"
+          }
+        }
+      },
+      "goal": {
+        "all": [
+          {
+            "path": "lamp.brightness",
+            "op": "eq",
+            "value": 2
+          }
+        ]
+      },
+      "explainAfter": {
+        "promptMd": "Closing the switch completed the loop. Current rose and the lamp lit. The parts were fine; the path was open."
+      },
+      "misconceptionMap": [
+        {
+          "when": {
+            "path": "switch.closed",
+            "op": "eq",
+            "value": false
+          },
+          "misconceptionId": "open-loop-still-lit"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Look at the switch, not only the lamp."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "An open switch is a gap. Current needs a closed path."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Toggle the switch once. The meter should leave 0."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Toggle the switch to closed, then Check."
+        }
+      ]
+    }
+  ]
+}

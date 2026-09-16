@@ -1,0 +1,97 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "open-means-dark",
+  "packId": "lawp.circuits.basics",
+  "courseId": "first-contact",
+  "moduleId": "the-loop",
+  "title": "Open means dark",
+  "skillIds": [
+    "circuits.loop"
+  ],
+  "estimatedMinutes": 8,
+  "taskRev": 1,
+  "description": "One break anywhere on a series loop stops the flow. The lamp goes dark even if every part is still on the table.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One gap is enough\n\nOn a series loop, current is all or nothing. Close the path and a current can exist. Open one gap — a switch, a loose clip, a dead cell — and the current is zero. The lamp goes dark even if the battery is strong and the bulb is new.\n\nThis bites when you hunt for a “weak lamp” and ignore the gap. Nearby parts are not a circuit. The picture with the dashed break is the whole lesson.\n\n![An open gap keeps the lamp dark](assets/open-loop.svg)\n\n```text\nbattery → resistor →  GAP  → lamp   (dark)\n```\n\nA common mistake is thinking a tiny gap still leaks a little light. In these lessons an open path is I = 0. The questions ask you to read the open picture, then say why the lamp is dark."
+    },
+    {
+      "type": "check",
+      "id": "tap-gap",
+      "kind": "hotspot",
+      "promptMd": "Tap the gap that keeps this lamp dark.",
+      "image": "assets/open-loop-quiz.svg",
+      "slots": [
+        {
+          "id": "bat",
+          "x": 50,
+          "y": 16,
+          "w": 26,
+          "h": 14,
+          "label": ""
+        },
+        {
+          "id": "gap",
+          "x": 50,
+          "y": 76,
+          "w": 24,
+          "h": 16,
+          "label": ""
+        },
+        {
+          "id": "left",
+          "x": 16,
+          "y": 50,
+          "w": 14,
+          "h": 20,
+          "label": ""
+        }
+      ],
+      "answer": "gap",
+      "explainMd": "The dashed red break in the loop is the open point. That is why the lamp cannot light.",
+      "skillIds": [
+        "circuits.loop"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "still-lit",
+      "kind": "tf",
+      "promptMd": "If the battery and the lamp are both on the table, the lamp can glow even with a gap in the wire.",
+      "answer": "false",
+      "explainMd": "On the table is not a loop. An open path is dark.",
+      "skillIds": [
+        "circuits.loop"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "why-dark",
+      "kind": "mcq",
+      "promptMd": "The lamp is dark. The most useful first question is…",
+      "choices": [
+        {
+          "id": "gap",
+          "md": "Is the path closed all the way around?"
+        },
+        {
+          "id": "more",
+          "md": "Should I add more cells first?",
+          "misconceptionId": "more-cells-always-brighter"
+        },
+        {
+          "id": "ok",
+          "md": "An open loop can still leak a little light",
+          "misconceptionId": "open-loop-still-lit"
+        }
+      ],
+      "answer": "gap",
+      "explainMd": "Find the break before you blame the battery or the bulb.",
+      "skillIds": [
+        "circuits.loop"
+      ]
+    }
+  ]
+}

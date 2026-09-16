@@ -1,0 +1,9 @@
+{
+  "id": "structure",
+  "title": "Structure",
+  "courseIds": [
+    "modules",
+    "objects"
+  ],
+  "intro": "Files become modules, and state that travels together becomes an object."
+}

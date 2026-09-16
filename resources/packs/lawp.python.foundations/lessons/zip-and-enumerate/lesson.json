@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.collections.list"
+  ],
+  "id": "zip-and-enumerate",
+  "courseId": "collections",
+  "moduleId": "shape",
+  "title": "Positions and parallel lists",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two helpers that end index arithmetic\n\n`enumerate(items)` yields `(index, item)` pairs, so a loop can know where it is without keeping a counter by hand. `zip(a, b)` yields pairs taken from two sequences at the same position, so two parallel lists can be walked together instead of one being indexed through the other.\n\nThis bites when the two sequences are different lengths. `zip` stops as soon as the shortest one runs out and says nothing about the leftovers, so a zone list of three and a reading list of two quietly produces two pairs. If the mismatch is a bug, `zip` will not be the one to report it.\n\n```python\nzones = [\"north\", \"east\", \"south\"]\nreadings = [12, 7]\n\nfor index, zone in enumerate(zones):\n    print(index, zone)              # 0 north / 1 east / 2 south\n\nprint(list(zip(zones, readings)))   # [('north', 12), ('east', 7)] - stops short\nprint(list(enumerate(zones, start=1)))   # numbering for humans, from 1\n```\n\nA common mistake is writing `for i in range(len(zones)):` and then indexing everything inside the loop. It works, but every access is a chance to use the wrong list or slip by one. The exercise asks for a numbered list of zones starting at 1, and a paired-up list of zones and readings, so both helpers get used for what they are for."
+    },
+    {
+      "type": "predict",
+      "id": "zip-length",
+      "promptMd": "`zones` has three items and `readings` has two. How many pairs does `list(zip(zones, readings))` produce?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "three",
+          "md": "Three — the extra zone pairs with `None`"
+        },
+        {
+          "id": "two",
+          "md": "Two — `zip` stops at the shorter sequence"
+        }
+      ],
+      "answer": "two",
+      "explainMd": "`zip` stops the moment any input is exhausted, so the length of the result is the length of the shortest input. Nothing is padded and nothing is reported. When the leftovers matter, compare the lengths yourself first or reach for `itertools.zip_longest`."
+    },
+    {
+      "type": "check",
+      "id": "enumerate-gives",
+      "promptMd": "In `for i, item in enumerate(xs):`, what is `i`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "index",
+          "md": "The position of the item, counting from 0"
+        },
+        {
+          "id": "item",
+          "md": "A copy of the item"
+        },
+        {
+          "id": "len",
+          "md": "How many items are left"
+        }
+      ],
+      "answer": "index",
+      "explainMd": "`enumerate` yields a `(position, item)` pair on every step, so the first name gets the index and the second gets the value. Passing `start=1` changes where the numbering begins without changing the items, which is handy when the output is for a person to read."
+    },
+    {
+      "type": "code",
+      "id": "number-and-pair",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `numbered(zones)` returning strings like `\"1: north\"` numbered from **1**, and `pair_up(zones, readings)` returning a list of `(zone, reading)` tuples. Print `numbered([\"north\", \"east\"])`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['1: north', '2: east']"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Every line the starter produces begins with `0:`, because nothing in the loop knows which position it is on."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`enumerate(zones, start=1)` hands you the number and the zone together on each step. Unpack both names in the comprehension header. For the second function, `list(zip(...))` turns the pairs into a list."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`[f\"{n}. {w}\" for n, w in enumerate([\"a\", \"b\"], start=1)]` is `[\"1. a\", \"2. b\"]`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def numbered(zones):\n    return [f\"{index}: {zone}\" for index, zone in enumerate(zones, start=1)]\n\n\ndef pair_up(zones, readings):\n    return list(zip(zones, readings))\n\n\nprint(numbered([\"north\", \"east\"]))"
+        }
+      ]
+    }
+  ],
+  "description": "Walk two lists together, or a list with its index."
+}

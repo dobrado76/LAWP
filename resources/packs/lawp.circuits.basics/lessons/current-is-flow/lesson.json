@@ -1,0 +1,100 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "current-is-flow",
+  "packId": "lawp.circuits.basics",
+  "courseId": "first-contact",
+  "moduleId": "charge",
+  "title": "Current is a flow",
+  "skillIds": [
+    "circuits.current"
+  ],
+  "estimatedMinutes": 8,
+  "taskRev": 1,
+  "description": "Current is charge moving around a closed path. On one path the flow is the same everywhere — the lamp does not eat it.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The same number all the way around\n\nCurrent is charge on the move. In these lessons we treat it as a flow around a loop. On a single path the flow is the same at every point: out of the battery, through the resistor, through the lamp, and back. The lamp gets bright because energy is spent there, not because the current is used up.\n\nThis bites when you imagine the return wire as empty. Learners draw a fat arrow into the lamp and a thin arrow out. That picture is the used-up myth. If the charge did not come home, it would pile up. It does not.\n\n![Current is the same on one path](assets/current-flow.svg)\n\n```text\nI = 1  →  lamp  →  I = 1  →  battery\nsame flow, energy spent in the lamp\n```\n\nA common mistake is saying the lamp “ate the amps.” The questions ask what happens to the current on the way out and the way back."
+    },
+    {
+      "type": "check",
+      "id": "myth-pic",
+      "kind": "image",
+      "promptMd": "Which picture matches a real series loop?",
+      "choices": [
+        {
+          "id": "model",
+          "md": "A",
+          "image": "assets/current-flow-quiz.svg"
+        },
+        {
+          "id": "myth",
+          "md": "B",
+          "image": "assets/used-up-myth-quiz.svg",
+          "misconceptionId": "current-gets-used-up"
+        }
+      ],
+      "answer": "model",
+      "explainMd": "Same I around the loop. Energy changes. Charge comes home.",
+      "skillIds": [
+        "circuits.current"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "return-i",
+      "kind": "cloze",
+      "promptMd": "On one path the current leaving the battery and the current returning are {{a}} because charge is {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "same",
+              "md": "the same"
+            },
+            {
+              "id": "smaller",
+              "md": "smaller",
+              "misconceptionId": "current-leaves-and-returns-different"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "home",
+              "md": "coming home"
+            },
+            {
+              "id": "eaten",
+              "md": "eaten by the lamp",
+              "misconceptionId": "current-gets-used-up"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "same",
+        "b": "home"
+      },
+      "explainMd": "One path, one current. The lamp spends energy. Charge returns.",
+      "skillIds": [
+        "circuits.current"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "used-tf",
+      "kind": "tf",
+      "promptMd": "If a lamp is bright, the return wire must carry less current.",
+      "answer": "false",
+      "explainMd": "Brightness is energy spent per time, not missing amps on the way home.",
+      "skillIds": [
+        "circuits.current"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 19,
+  "skillIds": [
+    "python.functions.scope"
+  ],
+  "id": "closures-and-nonlocal",
+  "courseId": "functions",
+  "moduleId": "scope",
+  "title": "A function that remembers",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The inner function keeps the outer one alive\n\nDefine a function inside another function and the inner one keeps a live link to the names around it. That link survives after the outer call has returned, so the little function carries a private piece of state that nothing else can reach. This is a closure, and it is how you hand someone a counter without handing them a global.\n\nThis bites the moment the inner function tries to **assign** to one of those outer names. The same rule as before applies — assignment makes the name local — so the inner function creates its own copy and the running total resets on every call, or raises `UnboundLocalError` if it also reads it first. `nonlocal` is the declaration that says \"this name belongs to the enclosing function, not to me\".\n\n```python\ndef counter():\n    total = 0\n\n    def bump():\n        nonlocal total\n        total = total + 1\n        return total\n\n    return bump\n\n\ntick = counter()\nprint(tick(), tick(), tick())    # 1 2 3\nprint(counter()())               # 1 — a separate counter, its own total\n```\n\nA common mistake is confusing `nonlocal` with `global`. `global` jumps all the way out to module level; `nonlocal` stops at the nearest enclosing function that already has the name. The exercise builds a running tally, and each tally you create must count independently of the others."
+    },
+    {
+      "type": "predict",
+      "id": "two-counters",
+      "promptMd": "With the `counter` above, `a = counter()` and `b = counter()`. After `a()` twice, what does `b()` return?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "three",
+          "md": "`3` — they share the total"
+        },
+        {
+          "id": "one",
+          "md": "`1`"
+        }
+      ],
+      "answer": "one",
+      "explainMd": "Every call to `counter` runs the body again and creates a fresh `total`, so each returned function closes over its own. The two tallies are completely independent, which is exactly the property that makes closures a safe alternative to a module-level counter shared by everyone."
+    },
+    {
+      "type": "check",
+      "id": "nonlocal-vs-global",
+      "kind": "tf",
+      "promptMd": "`nonlocal` binds to a name in the nearest enclosing function, not at module level.",
+      "answer": "true",
+      "explainMd": "True. `nonlocal` searches the enclosing function scopes and fails at compile time if no such name exists, which makes it much harder to misuse than `global`. Reach for it only when the inner function genuinely needs to update state the outer one owns."
+    },
+    {
+      "type": "code",
+      "id": "running-tally",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `tally()` so the function it returns keeps a running total across calls. After `add(4)` then `add(5)`, the printed line should be `9`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "9"
+        },
+        {
+          "type": "ast",
+          "query": "nonlocal"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints `5`, so the earlier `add(4)` was forgotten. The inner function reads `total` but never updates it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Assigning to `total` inside `add` would create a local. Declare `nonlocal total` first so the assignment lands on the enclosing name."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`def gate(): open = False` with an inner `def toggle(): nonlocal open; open = not open` flips one shared flag rather than a copy."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def tally():\n    total = 0\n\n    def add(n):\n        nonlocal total\n        total = total + n\n        return total\n\n    return add\n\n\nadd = tally()\nadd(4)\nprint(add(5))"
+        }
+      ]
+    }
+  ],
+  "description": "An inner function remembers the names around where it was made."
+}

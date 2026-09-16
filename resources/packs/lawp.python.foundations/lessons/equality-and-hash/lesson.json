@@ -1,0 +1,95 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.objects.data"
+  ],
+  "id": "equality-and-hash",
+  "courseId": "objects",
+  "moduleId": "behave",
+  "title": "What a dict key needs",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Equality and hashing travel together\n\nOut of the box, `==` on your own objects means \"the same object\", so two tags built from the same word compare unequal. Defining `__eq__` fixes that by comparing what you care about. But it also does something you did not ask for: Python sets `__hash__` to `None` on that class, and the objects become unhashable.\n\nThat is not spite, it is arithmetic. A set or dict finds a candidate by hash bucket first and only compares inside the bucket, so two objects that are equal must hash the same or the lookup misses. Python cannot guess which fields your new `__eq__` used, so it refuses to keep the inherited identity hash and makes you write `__hash__` from the same fields. Mutable objects are usually left unhashable on purpose — a key whose hash changes is lost inside the dict.\n\n```python\nclass Tag:\n    def __init__(self, name):\n        self.name = name\n\n    def __eq__(self, other):\n        return isinstance(other, Tag) and self.name == other.name\n\n    def __hash__(self):\n        return hash(self.name)\n\n\nprint(Tag(\"soil\") == Tag(\"soil\"))     # True\nprint(len({Tag(\"soil\"), Tag(\"soil\")}))  # 1 — the set folded them together\n```\n\nA common mistake is adding `__eq__`, seeing `==` behave, and only discovering the missing `__hash__` when a set raises `TypeError: unhashable type`. The exercise asks for both from the start: `len({Tag(\"soil\"), Tag(\"soil\"), Tag(\"wind\")})` must come out as `2`."
+    },
+    {
+      "type": "predict",
+      "id": "eq-without-hash",
+      "promptMd": "A class defines `__eq__` and nothing else. What does `{obj}` — a set holding one of them — do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "works",
+          "md": "Works fine; the set uses the identity hash it inherited"
+        },
+        {
+          "id": "raises",
+          "md": "Raises `TypeError: unhashable type` — defining `__eq__` cleared `__hash__`"
+        }
+      ],
+      "answer": "raises",
+      "explainMd": "Python sets `__hash__ = None` on any class that defines `__eq__` without one, because the inherited identity hash would disagree with your new equality and break lookups silently. Failing loudly at the first set or dict use is the safer trade, and the fix is a `__hash__` built from the same fields."
+    },
+    {
+      "type": "check",
+      "id": "equal-means-same-hash",
+      "kind": "tf",
+      "promptMd": "Two objects that compare equal must return the same hash for sets and dicts to work.",
+      "answer": "true",
+      "explainMd": "A dict narrows the search by hash before it ever calls `==`, so equal objects with different hashes land in different buckets and the second one is never found. The reverse is allowed: unequal objects may share a hash, and the container just compares the few candidates in that bucket."
+    },
+    {
+      "type": "code",
+      "id": "hashable-tag",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Give `Tag` an `__eq__` that compares `name` and a matching `__hash__`, so equal tags fold together in a set. Printing `len({Tag(\"soil\"), Tag(\"soil\"), Tag(\"wind\")})` should give `2`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints `3`: with the default equality, every `Tag` is distinct from every other, even with the same name."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Two methods are needed. `__eq__(self, other)` compares the fields; `__hash__(self)` returns a hash built from the same fields."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "You rarely invent a hash — `hash(self.name)` reuses the string’s, and for several fields `hash((self.a, self.b))` hashes the tuple."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Tag:\n    def __init__(self, name):\n        self.name = name\n\n    def __eq__(self, other):\n        return isinstance(other, Tag) and self.name == other.name\n\n    def __hash__(self):\n        return hash(self.name)\n\n\nprint(len({Tag(\"soil\"), Tag(\"soil\"), Tag(\"wind\")}))"
+        }
+      ]
+    }
+  ],
+  "description": "Two readings can count as equal if you say what equal means."
+}

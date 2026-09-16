@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Fuse in a series loop">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="150" y="36" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">A fuse is a planned weak point on the loop</text>
+  <rect x="90" y="80" width="460" height="220" rx="8" fill="none" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="268" y="58" width="104" height="40" rx="5" fill="#1f2937" stroke="#9ca3af"/>
+  <text x="286" y="84" fill="#e8edf5" font-size="15" font-family="Segoe UI, sans-serif">Battery</text>
+  <rect x="500" y="170" width="70" height="24" rx="12" fill="#1e2533" stroke="#e07a5f" stroke-width="2"/>
+  <text x="516" y="158" fill="#e07a5f" font-size="14" font-family="Segoe UI, sans-serif">Fuse</text>
+  <polygon points="90,154 82,174 98,174" fill="#2ec4b6"/>
+  <text x="106" y="168" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif" font-style="italic">I</text>
+  <circle cx="320" cy="300" r="22" fill="#fbbf24" stroke="#f59e0b"/>
+  <text x="70" y="350" fill="#e8edf5" font-size="16" font-family="Segoe UI, sans-serif">If current goes past the rating, the fuse opens on purpose.</text>
+  <text x="70" y="378" fill="#93a0b5" font-size="15" font-family="Segoe UI, sans-serif">That is a win. A melted wire later is not. The fuse remembers one overshoot.</text>
+</svg>

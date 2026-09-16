@@ -1,0 +1,35 @@
+{
+  "id": "functions",
+  "title": "Functions you can reuse",
+  "level": "beginner",
+  "estimatedMinutes": 270,
+  "skillIds": [
+    "python.functions",
+    "python.functions.scope",
+    "python.io.stdio"
+  ],
+  "creationId": "greeting-bot",
+  "modules": [
+    {
+      "id": "define",
+      "title": "Define and return",
+      "lessonIds": [
+        "def-and-return",
+        "parameters-defaults",
+        "keyword-args",
+        "mutable-default-trap",
+        "args-and-kwargs"
+      ]
+    },
+    {
+      "id": "scope",
+      "title": "Where names live",
+      "lessonIds": [
+        "scope-and-global",
+        "closures-and-nonlocal",
+        "lambda-and-key",
+        "greeting-bot"
+      ]
+    }
+  ]
+}

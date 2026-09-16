@@ -1,10 +1,11 @@
 {
   "id": "my-circuit",
   "title": "My circuit",
-  "briefMd": "A series loop you keep and can export out of LAWP.",
+  "briefMd": "A loop you keep: first a safe bright lamp, then a series or parallel choice, then an export out of LAWP.",
   "exportKinds": ["folder", "zip"],
   "steps": [
     { "lessonId": "brighter-lamp", "addsMd": "A working lamp with a safe current." },
+    { "lessonId": "series-parallel-mix", "addsMd": "A two-lamp layout you can wire in series or parallel." },
     { "lessonId": "keep-your-circuit", "addsMd": "Export the circuit you tuned." }
   ]
 }

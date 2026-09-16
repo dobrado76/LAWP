@@ -1,0 +1,250 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "open-vs-short",
+  "packId": "lawp.circuits.basics",
+  "courseId": "safety",
+  "moduleId": "heat",
+  "title": "Open versus short",
+  "skillIds": [
+    "circuits.short"
+  ],
+  "estimatedMinutes": 10,
+  "taskRev": 1,
+  "description": "An open path is dark and usually safe. A short is an easy extra path: huge current, heat, and often a dark lamp.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three stories\n\nAn open path has a gap: I = 0, lamp dark, usually safe. A normal loop does the job: enough current, lamp on, under the cap. A short is an easy extra wire that skips the work: current soars, heat soars, and the lamp is often dark because the easy path stole the flow.\n\nThis bites when a short looks like “more connection, so better.” More metal is not more lamp. Predict which setting lights the lamp without blowing the cap, then pick it. Do not visit the short just to see.\n\n![Open, normal, and short](assets/open-vs-short.svg)\n\n```text\nOPEN    I = 0     dark    safe\nNORMAL  I = 1     bright  safe\nSHORT   I huge    dark    hot\n```\n\nA common mistake is picking the short for extra power. The activity fails that run."
+    },
+    {
+      "type": "activity",
+      "id": "pick-path",
+      "kind": "experiment",
+      "engine": "world-v1",
+      "promptMd": "Light the lamp brightly. Keep current at or under 2. Do not use the short.",
+      "skillIds": [
+        "circuits.short"
+      ],
+      "constraintMode": "final",
+      "predict": {
+        "promptMd": "If you add a wire that skips the lamp, what happens?",
+        "kind": "mcq",
+        "choices": [
+          {
+            "id": "skip",
+            "md": "The lamp goes dark and current soars"
+          },
+          {
+            "id": "better",
+            "md": "The lamp gets extra power and shines more",
+            "misconceptionId": "short-is-more-power-better"
+          },
+          {
+            "id": "same",
+            "md": "Nothing — extra wire is decoration",
+            "misconceptionId": "fuse-is-optional"
+          }
+        ],
+        "answer": "skip"
+      },
+      "world": {
+        "parts": [
+          {
+            "id": "battery",
+            "type": "battery",
+            "props": {
+              "cells": 1
+            }
+          },
+          {
+            "id": "path",
+            "type": "resistor",
+            "props": {
+              "mode": "open",
+              "ohms": 1,
+              "label": "Path"
+            }
+          },
+          {
+            "id": "lamp",
+            "type": "lamp",
+            "props": {
+              "brightness": 0,
+              "label": "Lamp"
+            }
+          },
+          {
+            "id": "meter",
+            "type": "meter",
+            "props": {
+              "current": 0
+            }
+          }
+        ],
+        "connections": [
+          {
+            "from": "battery",
+            "to": "path"
+          },
+          {
+            "from": "path",
+            "to": "lamp"
+          },
+          {
+            "from": "lamp",
+            "to": "battery"
+          }
+        ],
+        "actions": [
+          {
+            "id": "set-mode",
+            "label": "Set the path",
+            "target": "path",
+            "op": "set",
+            "key": "mode",
+            "values": [
+              "open",
+              "normal",
+              "short"
+            ]
+          }
+        ],
+        "rules": [
+          {
+            "id": "open",
+            "when": [
+              {
+                "path": "path.mode",
+                "op": "eq",
+                "value": "open"
+              }
+            ],
+            "set": [
+              {
+                "target": "meter",
+                "key": "current",
+                "value": 0
+              },
+              {
+                "target": "lamp",
+                "key": "brightness",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "id": "normal",
+            "when": [
+              {
+                "path": "path.mode",
+                "op": "eq",
+                "value": "normal"
+              }
+            ],
+            "set": [
+              {
+                "target": "meter",
+                "key": "current",
+                "value": 1
+              },
+              {
+                "target": "lamp",
+                "key": "brightness",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "id": "short",
+            "when": [
+              {
+                "path": "path.mode",
+                "op": "eq",
+                "value": "short"
+              }
+            ],
+            "set": [
+              {
+                "target": "meter",
+                "key": "current",
+                "value": 5
+              },
+              {
+                "target": "lamp",
+                "key": "brightness",
+                "value": 0
+              }
+            ]
+          }
+        ],
+        "view": {
+          "kind": "graph",
+          "assetMap": {
+            "lamp@brightness=0": "assets/lamp-dim.svg",
+            "lamp@brightness=1": "assets/lamp-dim.svg",
+            "lamp@brightness=2": "assets/lamp-bright.svg",
+            "battery": "assets/battery.svg",
+            "resistor": "assets/resistor.svg",
+            "meter": "assets/meter.svg",
+            "voltmeter": "assets/voltmeter.svg",
+            "switch@closed=false": "assets/switch-open.svg",
+            "switch@closed=true": "assets/switch-closed.svg",
+            "fuse": "assets/fuse.svg"
+          }
+        }
+      },
+      "goal": {
+        "all": [
+          {
+            "path": "lamp.brightness",
+            "op": "eq",
+            "value": 2
+          }
+        ]
+      },
+      "constraints": [
+        {
+          "path": "meter.current",
+          "op": "lte",
+          "value": 2
+        }
+      ],
+      "explainAfter": {
+        "promptMd": "Normal is the only win: lamp bright and current 1. Open is dark. Short is hot and dark."
+      },
+      "misconceptionMap": [
+        {
+          "when": {
+            "path": "meter.current",
+            "op": "gt",
+            "value": 2
+          },
+          "misconceptionId": "short-is-more-power-better"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Three settings: open, normal, short."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "You need the lamp on and current ≤ 2."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Open is I = 0. Short is I = 5. Only normal is I = 1 and bright."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Set the path to normal, then Check."
+        }
+      ]
+    }
+  ]
+}

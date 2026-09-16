@@ -1,0 +1,118 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.async"
+  ],
+  "id": "async-def-await",
+  "courseId": "waiting",
+  "moduleId": "why",
+  "title": "async def, and what await really does",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A coroutine is a plan, not a running job\n\nCalling an `async def` function runs none of its body. It builds a **coroutine object** — a plan — and nothing happens until something drives it: an `await` from inside another coroutine, or `asyncio.run()` from ordinary code. That is why an unawaited call gives you `<coroutine object ...>` and a warning instead of a result.\n\n`await` is the opposite of a freeze. It says \"I am waiting; run something else and come back to me\", handing control to the event loop, which is free to advance any other task that is ready. The program does not stop — only this coroutine pauses, exactly at the `await`, and resumes there once the thing it waited on is done.\n\n```python\nimport asyncio\n\nasync def read_cell(name):\n    await asyncio.sleep(0)          # yield control, then carry on\n    return f\"{name} clear\"\n\nplan = read_cell(\"north\")\nprint(type(plan).__name__)          # coroutine - nothing has run yet\nplan.close()\n\nprint(asyncio.run(read_cell(\"east\")))   # east clear\n```\n\nA common mistake is calling an async function and using the result as a value: `total = fetch()` gives you a coroutine, not a number, and the bug surfaces far from the cause. `asyncio.run` is for the single entry point at the top; inside a coroutine you use `await`, and never `asyncio.run` again. The exercise asks you to await two cells and join the answers."
+    },
+    {
+      "type": "predict",
+      "id": "call-without-await",
+      "promptMd": "`plan = read_cell(\"north\")` where `read_cell` is an `async def`. What is `plan`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "coro",
+          "md": "A coroutine object; the body has not run"
+        },
+        {
+          "id": "string",
+          "md": "The string the function returns"
+        }
+      ],
+      "answer": "coro",
+      "explainMd": "The call only builds the coroutine. Its body waits until something awaits it or `asyncio.run` drives it, and if nobody ever does, Python warns that a coroutine was never awaited. This is the most common async bug and the reason the next lesson in this module is a repair job."
+    },
+    {
+      "type": "check",
+      "id": "await-blocks",
+      "promptMd": "What does `await something` do to the rest of the program?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "freezes",
+          "md": "Freezes everything until the wait is over",
+          "misconceptionId": "await-blocks-everything"
+        },
+        {
+          "id": "yields",
+          "md": "Pauses this coroutine and lets the loop run other ready tasks"
+        }
+      ],
+      "answer": "yields",
+      "explainMd": "`await` is a hand-off, not a halt: this coroutine parks at that exact line and the event loop gets control back to advance anything else that is ready. What *does* freeze everything is a blocking call like `time.sleep` inside a coroutine, because it never gives the loop a turn."
+    },
+    {
+      "type": "check",
+      "id": "run-once",
+      "kind": "tf",
+      "promptMd": "`asyncio.run` is meant to be called once, at the top of the program, not inside a coroutine.",
+      "answer": "true",
+      "explainMd": "`asyncio.run` creates an event loop, drives one coroutine to completion, and closes the loop. Calling it inside a running coroutine raises, because a loop is already going — from in there, `await` is the way to run another coroutine."
+    },
+    {
+      "type": "code",
+      "id": "sweep-two-cells",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `sweep` so it awaits `read_cell(\"north\")` and then `read_cell(\"east\")` and returns the two answers joined with `\" | \"`. Output should be `coroutine north clear | east clear`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "coroutine north clear | east clear"
+        },
+        {
+          "type": "ast",
+          "query": "await read_cell"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "`sweep` returns a placeholder string, so the printed line never shows either cell."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Inside an `async def`, `await read_cell(\"north\")` gives you the finished string. Await both, then join them with `\" | \"`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Awaiting into a name reads like ordinary code: `first = await read_cell(\"north\")`, and from there `first` is just a string."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import asyncio\n\n\nasync def read_cell(name):\n    await asyncio.sleep(0)\n    return f\"{name} clear\"\n\n\nasync def sweep():\n    first = await read_cell(\"north\")\n    second = await read_cell(\"east\")\n    return \" | \".join([first, second])\n\n\npending = read_cell(\"north\")\nprint(type(pending).__name__, asyncio.run(sweep()))\npending.close()"
+        }
+      ]
+    }
+  ],
+  "description": "Await hands control back while one call waits."
+}

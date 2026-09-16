@@ -2,104 +2,113 @@
 
 **Four original tracks.** The first is **not** programming: circuits prove the teaching loop and `world-v1`. Depth over breadth. Do **not** clone Codefinity chapter titles or exercises.
 
+These are the tracks that exist. The rules a **new** subject must follow are in [COURSE_SPEC.md](COURSE_SPEC.md).
+
 Estimated hours are learner-facing ranges, not marketing.
 
 ---
 
-## Track 0 — Circuits: Cause and effect (~20–40 min)
+## Track 0 — Electricity: From charge to circuits (~3–6 h)
 
 **Pack id:** `lawp.circuits.basics`  
 **Engines:** `none` (`world-v1` only — no Python/Node)  
-**Level:** beginner  
+**Level:** thorough beginner (not electrical-engineer expert)  
 
 ### Goals
 
-Predict how a simple series circuit behaves. Change it, **see** the lamp, explain why. Keep a circuit as a creation and export it.
+Build a durable mental model of charge, current, voltage, resistance, Ohm’s law, series and parallel, power/heat, opens and shorts, fuses, switches, and meters. Predict, change a live loop, **see** the lamp, explain why. Keep a circuit as a creation and export it.
 
-### The 20-minute session
+Out of scope: Maxwell, phasors, Laplace, three-phase power, transmission lines, semiconductor physics, motor design.
 
-| Beat | Block | Notes |
-| --- | --- | --- |
-| Orient | `explain` | Battery, lamp, one knob (resistance or extra cell) |
-| Predict | `predict` | “What happens to brightness if…?” |
-| Experiment | `activity` `experiment` | Make the lamp brighter **without** exceeding a current constraint |
-| Why | misconception or diagnostic | e.g. “more cells always means brighter” / “ignores the constraint” |
-| Transfer | `activity` `experiment` or `construct` | New cover story, same properties |
-| Keep | `creation` step | Export JSON + diagram snapshot |
+### Path (locked by `tests/circuits-curriculum.test.ts`)
 
-Misconceptions (indicative): `more-cells-always-brighter`, `ignores-current-limit`, `open-loop-still-lit`.
+| Course | Lessons |
+| --- | --- |
+| Where you are | `circuits-placement` |
+| Charge and the loop | `what-is-charge`, `current-is-flow`, `what-is-a-loop`, `open-means-dark`, `diagnose-dead-lamp` |
+| Voltage as a difference | `voltage-is-a-difference`, `battery-as-push` |
+| Resistance and Ohm’s law | `resistance-as-squeeze`, `ohms-law`, `brighter-lamp` (play-first experiment), `why-the-limit` |
+| Series and parallel | `series-same-current`, `parallel-split`, `series-vs-parallel` |
+| Power, shorts, and fuses | `power-and-heat`, `open-vs-short`, `why-a-short-hurts`, `transfer-fuse` |
+| Control and keep | `switches-break`, `what-meters-do`, `series-parallel-mix`, `keep-your-circuit` |
 
-Optional later in this pack (not required for the spike): `diagnose` a dead lamp; `decide` a fuse rating; `construct` a working series loop.
+Diagrams teach: pack `assets/*.svg` in explain (`![alt](assets/name.svg)`), image / hotspot / place checks, and `world-v1` graph view. Learn diagrams may label parts. Graded picture questions use unlabeled `*-quiz.svg` variants so the graphic does not name the answer. Monospace ` ```text ` loops when a picture is enough.
+
+Misconceptions (authored, each used, each has a follow-up): current used up; voltage as stuff in the wire; open loop still lit; more cells always brighter; series/parallel swap; short as extra useful power; two metals required; fuse optional; switch as dimmer; and the original current-cap pair.
 
 ### Runtime notes
 
 - No spawn. If `world-v1` cannot express a rule, author a lookup table — do not add a physics engine for v1.
 - Conformance world and state table: **brighter-lamp** in [CONTENT_MODEL.md](CONTENT_MODEL.md).
+- Graph view binds `assetMap` images and draws connections (D58). Pack `assets/` is the fallback when a lesson folder has no copy of the file.
 
 ---
 
-## Track A — Python: Think, then run
+## Track A — Python: Zero to hero
 
-**Pack id:** `lawp.python.foundations`  
+**Pack id:** `lawp.python.foundations` (progress keys stay on this id)  
 **Engine:** `python`  
-**Level:** beginner → early intermediate  
+**Level:** absolute beginner → working Python developer (~80–100 h)  
+**Story:** a field station with a fox, a grid, and a messy station log. Never ninja-sushi; that is not this product’s voice or anyone else’s IP.
 
-### Goals
+A working Python developer can **predict** what the interpreter will do, **prove** it with a small program or a test, and **explain why** — including references and mutability, lazy iteration, decorators, the import system, and why a bare `except` is not error handling. Not a CPython contributor. Not a data scientist.
 
-Write small programs with real control flow, data, functions, errors, and files. Finish a **text adventure** and a **data-cleaning script** you could actually reuse.
+**In scope:** language semantics, collections, functions and scope, errors, text and regex, files and paths, the process, modules and packages, objects, iterators and generators, decorators, context managers, type hints, async, tests, logging, measurement, and basic security judgment.  
+**Out of scope:** NumPy / pandas / ML, web frameworks, native extensions, packaging to PyPI as a project. Do not stub empty courses for them.
 
-### Diagnostic
+### Path (locked by `tests/py-curriculum.test.ts`)
 
-15 items: types, `if`, `for`/`while`, lists vs dicts, function signatures, traceback reading. Skip or compress modules accordingly.
+Six tracks, 13 courses, 114 lessons. Values → flow → functions comes before any collection; errors and files come before anything that writes to disk; the lazy version of an idea is always taught after the eager one.
 
-### Course 1 — The REPL in your pocket (~3–5 h)
+| Track | Courses |
+| --- | --- |
+| Foundations | Where you are · Values you can see · Decisions and the grid · Functions you can reuse |
+| Fluency | Data that becomes a path · Errors you can recover from · Text you can trust |
+| Files and the machine | Files and the filesystem · The process your script lives in |
+| Structure | Modules and packages · Objects that hold state |
+| The language under the hood | How Python actually runs it · Waiting without blocking |
+| Craft | Prove it, then ship it |
 
-| Module | Lessons (indicative) | Skills |
-| --- | --- | --- |
-| Values and names | Expressions vs statements; types; assignment; truthiness | `python.types.*` |
-| Decisions | `if/elif/else`; compare vs assign; early return | `python.control.if` |
-| Messages | f-strings; input; print as a *tool* not the program | `python.io.stdio` |
-| First program | Mini: greeting bot with validation | transfer |
+**Course 0 — Where you are.** `py-placement`: a ten-item skip-aware `check` battery (`type`, true division, string immutability, `range`, list aliasing, missing keys, `return` vs `print`, the mutable default, `is` vs `==`, generator exhaustion). No grid. Every question is `diagnostic`: attempting one completes it, a wrong answer never blocks Next.
 
-**Play block:** fox on a 5×5 grid; Python functions `move(dir)` — win by reaching beacons (teaches calling functions, not JS ninja IP).
+**Course 1 — Values you can see.** Names, kinds, `int`/`float`, string immutability, f-strings, truthiness and `None`, `=` vs `==`, `==` vs `is`, boolean logic, and a classify transfer.
 
-### Course 2 — Loops and collections (~4–6 h)
+**Course 2 — Decisions and the grid.** `if`/`elif`/`else`, chained comparison, then the fox: `Player.move("east")` on a 5×5 grid. `for`/`range`, `while`/`break`, `continue` and `for…else`, nested loops, an off-by-one debug, and a patrol transfer.
 
-| Module | Focus | Must include |
-| --- | --- | --- |
-| `for` over iterables | ranges, strings, lists | off-by-one predict blocks |
-| `while` and exits | `break`/`continue` with a real reason | debug a runaway loop (timeout) |
-| Lists | index, slice, mutate vs copy | |
-| Dicts | keys, grouping | |
-| Nested | list of dicts | transfer: gradebook |
+**Course 3 — Functions you can reuse.** `def`/`return` vs `print`, defaults, keyword arguments, the **mutable default trap**, `*args`/`**kwargs`, scope and `global`, closures and `nonlocal`, `lambda` as a `key=`. Creation: the greeting bot.
 
-Hidden tests: property “order independent when specified”.
+**Course 4 — Data that becomes a path.** Lists and slices, aliasing vs copying, tuples and unpacking, `sorted` vs `.sort()`, dicts, `.get`/`setdefault`, sets, `Counter`, list and dict comprehensions, `zip`/`enumerate`, a list-of-dicts gradebook, and a grouping transfer.
 
-### Course 3 — Functions and errors (~3–4 h)
+**Course 5 — Errors you can recover from.** Read the last frame first; catch the exception you expect; `else`/`finally`; `raise` and a domain error; EAFP vs LBYL; a swallowed-error debug; `parse_int_safe` as the transfer.
 
-Pure vs side-effect; arguments; defaults; `return` vs print; `try/except` that *handles*; raising.  
-Capstone: `parse_int_safe`.
+**Course 6 — Text you can trust.** String methods, `split`/`join`, slicing, format specs, `re.search`, groups and `re.sub`, `str` vs `bytes`. Transfer: normalise the messy station log (creation step 1 of the log scrubber).
 
-### Course 4 — Files and small tools (~3–4 h)
+**Course 7 — Files and the filesystem.** `with open`, line-by-line reading, safe writes, `pathlib`, JSON round-trip, `csv`, globs. Creation: the log scrubber reads a file and writes a report.
 
-Read/write UTF-8 text under the **sandbox root only**. CSV-as-text.  
-Project: clean a messy names list (fixtures in pack).
+**Course 8 — The process your script lives in.** `sys.argv` and the environment, exit codes and stderr, `datetime`, and what running another program means. Transfer: a reporting command (creation step 1 of the capstone).
 
-### Course 5 — Structure (~4 h)
+**Course 9 — Modules and packages.** A file is a module; import forms; **importing runs the module**, which is what `if __name__ == "__main__":` is for; packages and `__init__.py`; a stdlib tour; virtual environments and dependency declaration (concept only — the sandbox has no network).
 
-Modules as files; simple classes (when state is natural); when *not* to use classes.  
-Project: text adventure (rooms dict, parser). Mastery = new room added by learner without breaking tests.
+**Course 10 — Objects that hold state.** Class and instance, `__init__`, `self` as the first parameter, class vs instance attributes, `__str__`/`__repr__`, `__eq__`/`__hash__`, dataclasses, `@property`, inheritance, `super()` and the MRO, composition over inheritance, and a modelling transfer.
 
-### Not in this Python pack
+**Course 11 — How Python actually runs it.** References and `id`, mutability and aliasing, shallow vs deep copy, the iterator protocol, `yield`, generator pipelines, `itertools`, decorators (plain and parameterised), context managers, type hints as documentation rather than enforcement, and a lazy-reader transfer.
 
-NumPy / pandas / ML. Do not stub empty courses for them.
+**Course 12 — Waiting without blocking.** Blocking vs waiting, `async def`/`await`, `asyncio.gather`, threads vs processes and the GIL, and a forgotten-`await` debug.
+
+**Course 13 — Prove it, then ship it.** Arrange/act/assert on the **returned** value, fixtures and the hidden test as a contract, injecting the clock and the reader, docstrings as contracts, `logging` over `print`, measure before you optimise, `eval` and path traversal. Then the transfer and the **capstone**: the field station, assembled and tested.
+
+### Authoring
+
+The pack is generated: `node scripts/author-py-expert.mjs`. The path, skills, misconceptions, and creations live in `scripts/py-curriculum/structure.mjs`; one file per track holds the lessons. See [`scripts/py-curriculum/README.md`](../scripts/py-curriculum/README.md) for the contract the tests enforce — hidden test on every code block, a four-rung ladder whose assist rung is the whole working file, and a starter that runs cleanly while still failing.
+
+`tests/py-lessons.test.ts` runs every assist solution and every starter through the real interpreter, so a lesson cannot ship with an unreachable answer or a starter that already passes.
 
 ### Runtime notes
 
 - Discover `python` / `py -3` on PATH; Settings can set absolute interpreter
 - Refuse Python 2
-- Sandbox: see [SECURITY.md](SECURITY.md)
-- Stdlib only in v1 tests (no pip install from lessons)
+- Sandbox: see [SECURITY.md](SECURITY.md). The sandbox directory is the only one on `sys.path` (D59)
+- Stdlib only (no pip install from lessons), no network, no `input()`
 
 ---
 
@@ -273,7 +282,7 @@ Each course has:
 
 ## Pack order (as shipped)
 
-1. **Circuits** — playable non-code + Author zip round-trip
+1. **Circuits** — thorough-beginner electricity (diagrams + `world-v1`) + Author zip round-trip
 2. **Python Course 1** — same Why / progress / creation shells
 3. **JavaScript** — working-expert path (values through Node, DOM, tests) on the fox/beacon grid plus DOM/fetch harnesses
 4. **React** — continuing creation (preview is still Node-backed; see [STATUS.md](STATUS.md))

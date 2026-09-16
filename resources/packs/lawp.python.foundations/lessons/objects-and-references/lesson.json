@@ -1,0 +1,161 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "python.types.names"
+  ],
+  "id": "objects-and-references",
+  "courseId": "internals",
+  "moduleId": "identity",
+  "title": "A name points at an object",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Names point, they never contain\n\nEvery value you build lives somewhere in memory as an object, and a name is only a label pointing at it. Assignment never pours a value into a box; it moves a label onto an object that already exists. `id(value)` reports the identity of whatever object a name currently points at, so two labels stuck on one object always report the same number.\n\nThis bites when you assume two things that look alike are the same thing. `readings == backup` asks whether the contents match; `readings is backup` asks whether both names point at one object. The interpreter caches small integers and short strings, so `is` can look correct by accident on `x = 5` and then quietly give the wrong answer on the first list you try it on.\n\n```python\nnorth = [1, 2]\nsouth = north            # one object, two labels\ntwin = [1, 2]            # a second object that happens to match\n\nprint(north is south)    # True  - the same object\nprint(north is twin)     # False - two objects\nprint(north == twin)     # True  - equal contents\nprint(id(north) == id(south))  # True - identity is what \"is\" reads\n```\n\nA common mistake is reaching for `is` when you meant `==`, then trusting the result because it happened to be right once. Keep `is` for `None`, `True`, `False`, and the rare moment you genuinely mean \"the same object\". The exercise asks you to report which of the three cases a pair of values is in, so the difference has to live in your code rather than in your head."
+    },
+    {
+      "type": "predict",
+      "id": "id-of-alias",
+      "promptMd": "`north = [1, 2]` then `south = north`. What does `id(north) == id(south)` report?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "true",
+          "md": "`True`"
+        },
+        {
+          "id": "false",
+          "md": "`False` — assignment made a second list"
+        }
+      ],
+      "answer": "true",
+      "explainMd": "Assignment binds another label to the object that is already there; it never builds a second list. Both names point at one object, so both report the same identity number. Only something that constructs a new list — `list(north)`, `north[:]`, `copy.copy(north)` — gives you a second object with its own id."
+    },
+    {
+      "type": "check",
+      "id": "separate-lists",
+      "promptMd": "Two lists built separately from the same items: what do `==` and `is` say?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "both-true",
+          "md": "Both `True` — matching contents means one object",
+          "misconceptionId": "is-means-equals"
+        },
+        {
+          "id": "split",
+          "md": "`==` is `True`, `is` is `False`"
+        },
+        {
+          "id": "both-false",
+          "md": "Both `False`"
+        }
+      ],
+      "answer": "split",
+      "explainMd": "`==` walks the contents and finds them equal. `is` compares identity and finds two separate objects, so it is `False`. This is the single most useful distinction in this module: equality is about what a value holds, identity is about which object you are holding."
+    },
+    {
+      "type": "check",
+      "id": "identity-words",
+      "kind": "cloze",
+      "promptMd": "`==` compares {{a}}, and `is` compares {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "contents",
+              "md": "contents"
+            },
+            {
+              "id": "identity",
+              "md": "identity"
+            },
+            {
+              "id": "memory size",
+              "md": "memory size"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "identity",
+              "md": "identity"
+            },
+            {
+              "id": "contents",
+              "md": "contents"
+            },
+            {
+              "id": "type",
+              "md": "type"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "contents",
+        "b": "identity"
+      },
+      "explainMd": "Read `a == b` as \"do these hold the same thing\" and `a is b` as \"are these one object\". A class can change what `==` means by defining `__eq__`, but nothing can change what `is` means — it is always the identity of the object, the same thing `id()` prints."
+    },
+    {
+      "type": "code",
+      "id": "name-report",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `report(a, b)` that returns `\"same\"` when both names point at one object, `\"equal\"` when the contents match but the objects differ, and `\"different\"` otherwise. Print `report([1, 2], [1, 2])`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "equal"
+        },
+        {
+          "type": "ast",
+          "query": " is "
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Three outcomes, and they have to be tested in the right order: identity is stricter than equality."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Ask `a is b` first. If that is false, ask `a == b`. Anything that fails both is `\"different\"`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `x = {\"n\": 1}`, `report(x, x)` is `\"same\"` while `report(x, {\"n\": 1})` is `\"equal\"` — one object versus two matching ones."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def report(a, b):\n    if a is b:\n        return \"same\"\n    if a == b:\n        return \"equal\"\n    return \"different\"\n\n\nprint(report([1, 2], [1, 2]))"
+        }
+      ]
+    }
+  ],
+  "description": "A name points at an object. It does not contain it."
+}

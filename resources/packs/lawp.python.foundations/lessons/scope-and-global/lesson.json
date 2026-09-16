@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.functions.scope"
+  ],
+  "id": "scope-and-global",
+  "courseId": "functions",
+  "moduleId": "scope",
+  "title": "Where a name lives",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Assignment decides which scope a name belongs to\n\nEach call gets its own little namespace. Python decides at compile time whether a name inside a function is local or not, and the rule is blunt: if the function assigns to that name anywhere in its body, the name is local for the whole function. Reading a module-level name is fine; assigning to one makes a separate local instead.\n\nThis bites in two shapes. Assign after reading and you get `UnboundLocalError`, because the read now refers to a local that has no value yet. Assign without reading and you get silence: the function sets its own private copy, the module-level name never moves, and the count you were tracking stays at zero forever.\n\n```python\ncount = 0\n\n\ndef seen():\n    count = 1        # a brand new local name, unrelated to the one above\n    return count\n\n\nprint(seen())        # 1\nprint(count)         # 0 — the module name never moved\n```\n\nA common mistake is reaching for `global` to make the assignment stick. It works, and it also makes the function impossible to test or reuse, because its behaviour now depends on hidden state. Take the value as a parameter and hand the new one back instead — the exercise is built so that rebinding at the call site is the whole fix."
+    },
+    {
+      "type": "predict",
+      "id": "local-shadow",
+      "promptMd": "In the code above, what does `print(count)` show after `seen()` has run?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "one",
+          "md": "`1` — the function updated it"
+        },
+        {
+          "id": "zero",
+          "md": "`0`"
+        }
+      ],
+      "answer": "zero",
+      "explainMd": "The assignment inside `seen` created a local name that vanished when the call ended, so the module-level `count` was never touched. Nothing warns you about this, which is what makes it a quiet bug: the function returns the number you expected while the state you were tracking stays put."
+    },
+    {
+      "type": "check",
+      "id": "read-is-fine",
+      "kind": "tf",
+      "promptMd": "A function can read a module-level name without declaring anything.",
+      "answer": "true",
+      "explainMd": "True. Name lookup walks local, then enclosing, then module, then builtins, so a function body can read a constant defined above it with no ceremony. It is only assignment that forces the decision, because assigning is what claims the name for the local scope."
+    },
+    {
+      "type": "code",
+      "id": "count-without-global",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Make `record(count)` **return** the incremented value instead of trying to change anything outside itself, then rebind `seen` at each call site. The printed line should be `2`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2"
+        },
+        {
+          "type": "ast",
+          "query": "return"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter calls `record` twice and still prints `0`. The parameter was rebound inside the function and then thrown away."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Rebinding a parameter never reaches the caller. Return the new value and assign it back where you call from."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`level = raise_by(level, 2)` is the pattern: the function is pure, and the caller decides what to do with the answer."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "seen = 0\n\n\ndef record(count):\n    return count + 1\n\n\nseen = record(seen)\nseen = record(seen)\nprint(seen)"
+        }
+      ]
+    }
+  ],
+  "description": "A name assigned in a function is local unless you say otherwise."
+}

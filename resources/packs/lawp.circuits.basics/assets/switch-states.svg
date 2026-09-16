@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Open switch and closed switch">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="170" y="36" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">A switch is a gap you can open and close</text>
+  <rect x="30" y="60" width="270" height="280" rx="10" fill="#161b26" stroke="#2a3344"/>
+  <text x="110" y="96" fill="#e07a5f" font-size="16" font-family="Segoe UI, sans-serif">OPEN</text>
+  <circle cx="90" cy="180" r="10" fill="none" stroke="#2ec4b6" stroke-width="3"/>
+  <circle cx="230" cy="180" r="10" fill="none" stroke="#2ec4b6" stroke-width="3"/>
+  <path d="M100 176 L210 120" stroke="#e6b84d" stroke-width="4"/>
+  <circle cx="160" cy="280" r="20" fill="#2a3140" stroke="#8b919c"/>
+  <text x="118" y="330" fill="#93a0b5" font-size="14" font-family="Segoe UI, sans-serif">loop broken</text>
+  <rect x="340" y="60" width="270" height="280" rx="10" fill="#161b26" stroke="#2ec4b6"/>
+  <text x="418" y="96" fill="#2ec4b6" font-size="16" font-family="Segoe UI, sans-serif">CLOSED</text>
+  <circle cx="400" cy="180" r="10" fill="none" stroke="#2ec4b6" stroke-width="3"/>
+  <circle cx="540" cy="180" r="10" fill="none" stroke="#2ec4b6" stroke-width="3"/>
+  <path d="M410 180 H530" stroke="#e6b84d" stroke-width="4"/>
+  <circle cx="470" cy="280" r="20" fill="#fbbf24" stroke="#f59e0b"/>
+  <text x="424" y="330" fill="#93a0b5" font-size="14" font-family="Segoe UI, sans-serif">loop complete</text>
+</svg>

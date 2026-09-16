@@ -1,0 +1,117 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.io.files"
+  ],
+  "id": "write-text-safely",
+  "courseId": "files",
+  "moduleId": "read-write",
+  "title": "Write it without losing the old one",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The mode decides what happens to what was there\n\nThe mode string you pass to `open` is a decision about the existing file. `\"w\"` truncates it to nothing the moment it opens, before your first `write`. `\"a\"` keeps every old byte and adds to the end. `\"x\"` refuses to open at all if the file already exists.\n\nTwo silent failures live here. Leaving out `encoding=\"utf-8\"` makes the bytes depend on whatever code page the machine happens to prefer, so a report written on one computer arrives as mojibake on another. And writing straight over the real file means a crash halfway through leaves a half-written report where a complete one used to be.\n\n```python\nimport os\n\nwith open(\"report.tmp\", \"w\", encoding=\"utf-8\") as out:\n    out.write(\"total=41\")\n\n# one step, not two: afterwards the file is either the old one or the new one\nos.replace(\"report.tmp\", \"report.txt\")\n```\n\nA common mistake is opening in `\"a\"` to feel safe and ending up with yesterday report glued to today. Choose the mode on purpose: `\"w\"` to replace, `\"a\"` to add a line to a log you keep. The exercise starts with yesterday report still on disk, so appending shows up in the very first run."
+    },
+    {
+      "type": "predict",
+      "id": "w-truncates",
+      "promptMd": "`report.txt` holds `total=99`. You run `open(\"report.txt\", \"w\", encoding=\"utf-8\")` and then your program crashes before writing anything. What is in the file?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "kept",
+          "md": "`total=99` — nothing was written, so nothing changed"
+        },
+        {
+          "id": "empty",
+          "md": "Nothing — `\"w\"` emptied it at open time"
+        }
+      ],
+      "answer": "empty",
+      "explainMd": "Truncation happens when the file is opened, not when you write. Mode `\"w\"` is a promise that the old contents are already gone, which is exactly why a careful tool writes to a temporary name first and only swaps it over the real file once the new text is complete."
+    },
+    {
+      "type": "check",
+      "id": "append-vs-write",
+      "promptMd": "Yesterday `report.txt` holds `total=99`. You open it with `\"a\"` and write `total=41`. What does the file hold now?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "replaced",
+          "md": "`total=41`"
+        },
+        {
+          "id": "both",
+          "md": "`total=99total=41`"
+        }
+      ],
+      "answer": "both",
+      "explainMd": "Append mode never removes anything: it parks the file position at the end and adds from there. You get both records run together, with no newline between them unless you wrote one, which is how a mode chosen to feel safe quietly corrupts a report."
+    },
+    {
+      "type": "code",
+      "id": "swap-report",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Total the numbers in `readings.txt`, write `total=<sum>` into `report.tmp`, then use `os.replace` to swap it over `report.txt`. Read `report.txt` back and print it. Name `encoding=\"utf-8\"` on every text open. Expected `total=41`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/readings.txt",
+          "role": "fixture"
+        },
+        {
+          "path": "files/report.txt",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "total=41"
+        },
+        {
+          "type": "ast",
+          "query": "os.replace"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Yesterday report is still on disk, and the starter is adding to it instead of replacing it. Look at what it printed."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Write the new text under a second name — `report.tmp`, mode `\"w\"`, `encoding=\"utf-8\"` — and then `os.replace(\"report.tmp\", \"report.txt\")` moves it over the old one in a single step."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same shape for any file you rewrite: build `notes.tmp`, then `os.replace(\"notes.tmp\", \"notes.txt\")`. A crash before the replace leaves the complete old file untouched."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import os\n\nwith open(\"readings.txt\", encoding=\"utf-8\") as f:\n    numbers = [int(line) for line in f]\n\nwith open(\"report.tmp\", \"w\", encoding=\"utf-8\") as out:\n    out.write(\"total=\" + str(sum(numbers)))\n\nos.replace(\"report.tmp\", \"report.txt\")\n\nwith open(\"report.txt\", encoding=\"utf-8\") as f:\n    print(f.read())"
+        }
+      ]
+    }
+  ],
+  "description": "Write mode empties the file. Append keeps what was there."
+}

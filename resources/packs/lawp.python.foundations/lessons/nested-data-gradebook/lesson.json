@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.collections.dict"
+  ],
+  "id": "nested-data-gradebook",
+  "courseId": "collections",
+  "moduleId": "shape",
+  "title": "The station gradebook",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A list of dictionaries is one row each\n\nReal records almost never arrive as one flat list. The station gradebook is a **list** whose items are **dictionaries**, and one of those dictionary values is itself a list of scores. Each level is read with the tool for that level: a number for the list, a key for the dictionary.\n\nThis bites when you mix the two up. `gradebook[\"fox\"]` looks reasonable and raises `TypeError`, because the outer thing is a list and lists are indexed by position. The key only works one level in: `gradebook[0][\"name\"]` reads the name of the first row.\n\n```python\ngradebook = [\n    {\"name\": \"fox\", \"zone\": \"north\", \"scores\": [8, 9]},\n    {\"name\": \"owl\", \"zone\": \"south\", \"scores\": [6]},\n]\n\nfor row in gradebook:\n    print(row[\"name\"], sum(row[\"scores\"]))   # fox 17 / owl 6\n\nprint(gradebook[0][\"scores\"][1])             # 9\nprint(len(gradebook))                        # 2 rows\n```\n\nA common mistake is summarising with the wrong denominator: dividing every total by the same number instead of by that row's own score count. The exercise asks for an average per name and then the best name, so each row has to be measured against its own list of scores."
+    },
+    {
+      "type": "check",
+      "id": "reach-in",
+      "promptMd": "In the gradebook above, what does `gradebook[1][\"scores\"][0]` read?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "first",
+          "md": "The first score of the second row"
+        },
+        {
+          "id": "second",
+          "md": "The second score of the first row"
+        },
+        {
+          "id": "error",
+          "md": "Nothing — that is a `TypeError`"
+        }
+      ],
+      "answer": "first",
+      "explainMd": "Read it left to right: `[1]` picks the second row of the outer list, `[\"scores\"]` pulls the score list out of that dictionary, and `[0]` takes its first entry. Each step is one level deeper, and each uses the access style that level supports."
+    },
+    {
+      "type": "check",
+      "id": "row-is-dict",
+      "kind": "tf",
+      "promptMd": "Each item in a list of dictionaries is itself a dictionary, so you reach inside it by key rather than by number.",
+      "answer": "true",
+      "explainMd": "The outer container is indexed by position and the inner one by key. Getting this the wrong way round is the most common error in nested data, and the traceback usually says `TypeError: list indices must be integers` or `KeyError`, which tells you which level you were on."
+    },
+    {
+      "type": "code",
+      "id": "gradebook-summary",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `averages(gradebook)` returning `{name: average}` rounded to one decimal, and `best(gradebook)` returning the name with the highest average. Print `best(...)` for the two rows in the starter.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "owl"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter always names the first row, so it would be right by luck and wrong as soon as the rows are in a different order."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Walk the rows once. For each, the average is `sum(row[\"scores\"]) / len(row[\"scores\"])`, rounded with `round(value, 1)`. Once you have that mapping, `max(mapping, key=mapping.get)` names the winner."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `{\"a\": 3.0, \"b\": 9.0}`, `max(scores, key=scores.get)` is `\"b\"` — `max` compares the values but hands back the key."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def averages(gradebook):\n    return {row[\"name\"]: round(sum(row[\"scores\"]) / len(row[\"scores\"]), 1) for row in gradebook}\n\n\ndef best(gradebook):\n    scored = averages(gradebook)\n    return max(scored, key=scored.get)\n\n\nprint(best([\n    {\"name\": \"fox\", \"scores\": [6, 7]},\n    {\"name\": \"owl\", \"scores\": [8, 9]},\n]))"
+        }
+      ]
+    }
+  ],
+  "description": "Read a record inside a list inside a dict without losing your place."
+}

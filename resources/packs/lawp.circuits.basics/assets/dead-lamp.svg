@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Three places a loop can be open">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="140" y="36" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">A dark lamp: the gap can hide in more than one place</text>
+  <rect x="90" y="80" width="460" height="220" rx="8" fill="none" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="250" y="58" width="140" height="40" rx="5" fill="#1f2937" stroke="#9ca3af"/>
+  <text x="278" y="84" fill="#e8edf5" font-size="15" font-family="Segoe UI, sans-serif">Battery</text>
+  <circle cx="80" cy="190" r="16" fill="none" stroke="#e07a5f" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="24" y="170" fill="#e07a5f" font-size="13" font-family="Segoe UI, sans-serif">1 switch</text>
+  <circle cx="320" cy="300" r="22" fill="#2a3140" stroke="#8b919c"/>
+  <text x="292" y="348" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">Lamp</text>
+  <circle cx="560" cy="190" r="16" fill="none" stroke="#e6b84d" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="530" y="168" fill="#e6b84d" font-size="13" font-family="Segoe UI, sans-serif">2 wire</text>
+  <circle cx="320" cy="70" r="16" fill="none" stroke="#7eb6ff" stroke-width="2" stroke-dasharray="4 3"/>
+  <text x="360" y="56" fill="#7eb6ff" font-size="13" font-family="Segoe UI, sans-serif">3 cell</text>
+  <text x="70" y="380" fill="#93a0b5" font-size="14" font-family="Segoe UI, sans-serif">Any one open point makes the whole series loop dark. Find the gap, do not blame the lamp first.</text>
+</svg>

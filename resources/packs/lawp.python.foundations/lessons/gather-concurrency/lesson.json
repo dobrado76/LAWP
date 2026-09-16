@@ -1,0 +1,117 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.async"
+  ],
+  "id": "gather-concurrency",
+  "courseId": "waiting",
+  "moduleId": "together",
+  "title": "gather: start both, then wait",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Sequential awaits are still sequential\n\n`await one()` then `await two()` gives you no overlap at all. The first coroutine has to finish before the second is even started, so two one-second waits still take two seconds. Being async does not make anything concurrent; scheduling more than one job at a time does.\n\n`asyncio.gather(one(), two())` wraps each coroutine in a task, hands them all to the loop, and waits for the lot. Each task runs until its first `await`, at which point the loop starts the next one — so both are in flight before either is finished. `gather` returns the results as a list in the order you passed them in, not the order they completed.\n\n```python\nimport asyncio\n\norder = []\n\nasync def check(name):\n    order.append(f\"{name}+\")\n    await asyncio.sleep(0)\n    order.append(f\"{name}-\")\n    return name\n\nasync def main():\n    return await asyncio.gather(check(\"a\"), check(\"b\"))\n\nprint(asyncio.run(main()))   # ['a', 'b'] - argument order\nprint(order)                 # ['a+', 'b+', 'a-', 'b-'] - both started first\n```\n\nA common mistake is `await`ing inside a `for` loop and calling it concurrency. Collect the coroutines and hand them to `gather` in one go — `await asyncio.gather(*[check(n) for n in names])`. The exercise records the order each coroutine starts and finishes, so overlap is something you can actually see."
+    },
+    {
+      "type": "predict",
+      "id": "gather-order",
+      "promptMd": "Each `check` appends `name+`, awaits, then appends `name-`. Under `gather(check(\"a\"), check(\"b\"))`, what does the record look like?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "overlap",
+          "md": "`a+`, `b+`, `a-`, `b-`"
+        },
+        {
+          "id": "serial",
+          "md": "`a+`, `a-`, `b+`, `b-`"
+        }
+      ],
+      "answer": "overlap",
+      "explainMd": "Both tasks start before either finishes: `a` runs to its `await` and gives up control, `b` does the same, then the loop resumes them in turn. Sequential awaits produce the second record instead — the giveaway that nothing actually overlapped."
+    },
+    {
+      "type": "check",
+      "id": "gather-results-order",
+      "promptMd": "`gather` finishes. In what order are the results?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "args",
+          "md": "The order you passed the coroutines in"
+        },
+        {
+          "id": "done",
+          "md": "The order they completed in"
+        }
+      ],
+      "answer": "args",
+      "explainMd": "`gather` returns a list positionally, so `results[0]` always belongs to the first coroutine you passed however slow it was. If you want them as they finish, that is a different tool — `asyncio.as_completed`, which yields awaitables in completion order."
+    },
+    {
+      "type": "check",
+      "id": "await-in-loop",
+      "kind": "tf",
+      "promptMd": "`for name in names: await check(name)` runs the checks concurrently.",
+      "answer": "false",
+      "explainMd": "That loop is strictly one at a time: each `await` waits for its coroutine to finish before the next iteration begins. Build the coroutines first and pass them all to `gather` — `await asyncio.gather(*(check(n) for n in names))` — to get any overlap."
+    },
+    {
+      "type": "code",
+      "id": "overlap-two",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Rewrite `all_at_once` with `asyncio.gather` so both checks are started before either finishes, and return their results as a list. Output should be `True ['a+', 'b+', 'a-', 'b-']`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "True ['a+', 'b+', 'a-', 'b-']"
+        },
+        {
+          "type": "ast",
+          "query": "gather"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "`all_at_once` awaits inside a loop, so its record matches the sequential one instead of overlapping. Leave `one_at_a_time` alone — it is the comparison."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`asyncio.gather(...)` takes the coroutines as separate arguments and is itself awaited: `return await asyncio.gather(check(\"a\"), check(\"b\"))`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "With a list of names it is `await asyncio.gather(*(check(name) for name in names))` — the star spreads the coroutines out as arguments."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import asyncio\n\nORDER = []\n\n\nasync def check(name):\n    ORDER.append(f\"{name}+\")\n    await asyncio.sleep(0)\n    ORDER.append(f\"{name}-\")\n    return name\n\n\nasync def one_at_a_time():\n    for name in (\"a\", \"b\"):\n        await check(name)\n\n\nasync def all_at_once():\n    return await asyncio.gather(check(\"a\"), check(\"b\"))\n\n\nasync def compare():\n    ORDER.clear()\n    await one_at_a_time()\n    stepwise = list(ORDER)\n    ORDER.clear()\n    await all_at_once()\n    return stepwise, list(ORDER)\n\n\nstepwise, overlapped = asyncio.run(compare())\nprint(stepwise == [\"a+\", \"a-\", \"b+\", \"b-\"], overlapped)"
+        }
+      ]
+    }
+  ],
+  "description": "Start several waits at once instead of one after another."
+}

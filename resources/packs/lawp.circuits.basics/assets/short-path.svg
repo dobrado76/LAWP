@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="A short around a lamp">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="150" y="36" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">A short is an easy extra path around the work</text>
+  <rect x="100" y="90" width="440" height="200" rx="8" fill="none" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="268" y="68" width="104" height="40" rx="5" fill="#1f2937" stroke="#9ca3af"/>
+  <text x="286" y="94" fill="#e8edf5" font-size="15" font-family="Segoe UI, sans-serif">Battery</text>
+  <circle cx="320" cy="290" r="22" fill="#2a3140" stroke="#8b919c"/>
+  <text x="292" y="338" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">Lamp dark</text>
+  <path d="M140 190 H478" stroke="#e07a5f" stroke-width="6"/>
+  <polygon points="500,190 478,178 478,202" fill="#e07a5f"/>
+  <text x="250" y="176" fill="#e07a5f" font-size="16" font-family="Segoe UI, sans-serif" font-weight="700">SHORT</text>
+  <text x="456" y="176" fill="#e07a5f" font-size="13" font-family="Segoe UI, sans-serif" font-style="italic">I</text>
+  <text x="70" y="372" fill="#e8edf5" font-size="15" font-family="Segoe UI, sans-serif">Current prefers the easy wire. Huge I, heat, and the lamp is skipped.</text>
+</svg>

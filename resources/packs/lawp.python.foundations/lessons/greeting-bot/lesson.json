@@ -1,56 +1,124 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "greeting-bot",
   "packId": "lawp.python.foundations",
-  "courseId": "repl-in-pocket",
-  "moduleId": "messages",
-  "title": "Greeting bot",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
   "skillIds": [
+    "python.functions",
     "python.io.stdio",
     "python.control.if"
   ],
-  "estimatedMinutes": 25,
-  "taskRev": 1,
+  "id": "greeting-bot",
+  "courseId": "functions",
+  "moduleId": "scope",
+  "title": "Greeting bot",
   "creation": {
     "id": "greeting-bot",
     "step": 2,
-    "briefMd": "A greet() you can reuse."
+    "briefMd": "Step two finishes the greeting bot: `greet(name)` becomes a reusable function that hands its sentence back, and it stays sensible when nobody typed a name. Keep this file — the station reuses it whenever someone signs in."
   },
   "blocks": [
     {
       "type": "explain",
-      "md": "## Keep the bot\n\nA reusable greeting is a function that returns a string, not a one-off print. `greet(name)` should hand back `Hello, Ada!` when a name is present, and `Hello!` when the name is empty. The two `print` calls below the function are already there. They show what the function returned, so your job is the return value, not a second copy of the output.\n\nThis bites when you only `print` inside `greet` and return nothing. Then `print(greet(\"Ada\"))` prints the greeting and also `None`, so the checked output no longer matches. Empty input is the other trap: treating `\"\"` like a real name produces the broken line `Hello, !`.\n\n```python\ndef greet(name):\n    if not name:\n        return \"Hello!\"\n    return f\"Hello, {name}!\"\n```\n\nA common mistake is hardcoding both lines or forgetting the empty-name branch. The exercise asks you to return the two exact strings so the existing prints show `Hello, Ada!` then `Hello!`.\n"
+      "md": "## A greeting you can hand to the rest of the program\n\nStep one wrote the sentence once with an f-string. Step two turns it into something the station can rely on: a function that **returns** its line, and that copes with the case where the sign-in sheet is blank. Returning rather than printing is what lets the same function feed a screen, a log file, or a test.\n\nThis bites on the empty name. Gluing an empty string into the sentence produces `Hello, !`, which looks like a bug to everyone who reads it, and gluing `None` in raises `TypeError` before anything is printed at all. One guard at the top of the function handles both, because `None` and `\"\"` are both falsy.\n\n```python\ndef sign_off(name):\n    if not name:\n        return \"Goodbye!\"\n    return f\"Goodbye, {name}!\"\n\n\nprint(sign_off(\"Rune\"))   # Goodbye, Rune!\nprint(sign_off(\"\"))       # Goodbye!\nprint(sign_off(None))     # Goodbye!\n```\n\nA common mistake is testing `if name == \"\"` and leaving `None` to crash the concatenation later. A falsy check covers every \"nothing was entered\" case at once. The exercise wants the two prints below the function to show the named greeting and then the bare one, and the function must produce both lines by returning them."
+    },
+    {
+      "type": "predict",
+      "id": "empty-name",
+      "promptMd": "What does `\"Hello, \" + name + \"!\"` produce when `name` is `\"\"`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "bare",
+          "md": "`Hello!`"
+        },
+        {
+          "id": "broken",
+          "md": "`Hello, !`"
+        }
+      ],
+      "answer": "broken",
+      "explainMd": "Concatenation is literal: the empty string contributes nothing, but the comma and the space you typed are still there, so the line reads `Hello, !`. Nothing raises, which is why this reaches real users. A guard that returns a different sentence for a missing name is the only fix that reads well."
+    },
+    {
+      "type": "check",
+      "id": "which-guard",
+      "promptMd": "Which guard covers both an empty string and a missing `None`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "eq",
+          "md": "`if name == \"\":`"
+        },
+        {
+          "id": "falsy",
+          "md": "`if not name:`"
+        },
+        {
+          "id": "isnone",
+          "md": "`if name is None:`"
+        }
+      ],
+      "answer": "falsy",
+      "explainMd": "`not name` is true for `\"\"`, for `None`, and for anything else empty, so one line handles every \"nothing was entered\" case. The `==` version misses `None` and the `is None` version misses the empty string, and either gap shows up as a broken greeting the first time the sign-in sheet is left blank."
     },
     {
       "type": "code",
       "id": "greet-fn",
       "engine": "python",
       "entry": "main.py",
+      "promptMd": "> Finish `greet(name)` so it returns `Hello, Ada!` for a name and `Hello!` when the name is empty or missing. The two prints below should show those two lines.",
       "files": [
         {
           "path": "files/main.py",
           "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
         }
       ],
       "checks": [
         {
           "type": "stdout",
           "equals": "Hello, Ada!\nHello!"
+        },
+        {
+          "type": "ast",
+          "query": "def greet"
+        },
+        {
+          "type": "python-assert"
         }
       ],
       "hintLadder": [
         {
           "level": 1,
           "kind": "concept",
-          "md": "Return a value. The prints are already there."
+          "md": "Run the starter. The second line reads `Hello, !`, because the empty name still left the comma behind."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "if not name: return \"Hello!\" else return f\"Hello, {name}!\""
+          "md": "Guard first: when the name is falsy, return the bare greeting and stop. Everything below the guard can then assume a real name."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`if not tag: return \"unnamed\"` at the top of a function lets the rest of the body deal with only the normal case."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def greet(name):\n    if not name:\n        return \"Hello!\"\n    return f\"Hello, {name}!\"\n\n\nprint(greet(\"Ada\"))\nprint(greet(\"\"))"
         }
       ]
+    },
+    {
+      "type": "reflect",
+      "id": "bot-next",
+      "promptMd": "In your own words: what else should the greeting bot refuse or clean up before it is safe to point at a real sign-in sheet?"
     }
   ],
   "description": "Build a small greeting you can keep and run again."

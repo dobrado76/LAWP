@@ -244,6 +244,8 @@ Never jump to level 5 on first click. The Why panel can offer the next **concept
 
 `{ type: "explain", md: string, assetIds?: string[] }`
 
+A line that is only `![alt](assets/name.svg)` renders as a figure (D58). Remote `http` images are dropped. Studio rewrites `assets/` to the pack protocol; if the lesson folder has no file, main falls back to the pack’s `assets/`.
+
 ### `check`
 
 Closed kinds live in `src/shared/check.ts` (`CHECK_KINDS`). Adding a kind requires a grader case, an Author form, a Studio widget, **and** a lesson in pack `lawp.learning.questions`. Humans build these in Author — see [AUTHORING.md](AUTHORING.md).

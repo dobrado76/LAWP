@@ -1,0 +1,122 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 24,
+  "skillIds": [
+    "python.internals.decorators"
+  ],
+  "id": "decorators-basics",
+  "courseId": "internals",
+  "moduleId": "wrap",
+  "title": "A decorator wraps, it does not rewrite",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Take a function, return a function\n\nA decorator is an ordinary function that takes a function and returns a replacement. `@traced` above `def scan(...)` is pure shorthand: Python defines `scan`, calls `traced(scan)`, and rebinds the name `scan` to whatever came back. Nothing about the original body changes — it is still there, now reachable only through the wrapper that closed over it.\n\nThis bites when the wrapper is careless. `def wrapper(cell)` breaks every other signature, so wrappers take `*args, **kwargs` and pass them straight through. And because the name now points at `wrapper`, `scan.__name__` reports `\"wrapper\"` and the docstring disappears — until you put `@wraps(func)` on the wrapper and let `functools` copy that metadata across.\n\n```python\nfrom functools import wraps\n\ndef traced(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        print(\"calling\", func.__name__)\n        return func(*args, **kwargs)\n    return wrapper\n\n@traced\ndef scan(cell):\n    return f\"scanned {cell}\"\n\n# identical to: scan = traced(scan)\nprint(scan(\"north\"), scan.__name__)\n```\n\nA common mistake is thinking the decorator edits the source of the function it decorates. It cannot see the source at all; it only receives the finished function object and decides what to call and when. The exercise asks you to record every call in a list and hand the real result back untouched, with the wrapped name preserved."
+    },
+    {
+      "type": "predict",
+      "id": "what-at-does",
+      "promptMd": "What does `@traced` above `def scan(...)` actually do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "rewrite",
+          "md": "Edits the body of `scan` before it runs",
+          "misconceptionId": "decorator-edits-the-source"
+        },
+        {
+          "id": "rebind",
+          "md": "Rebinds the name `scan` to `traced(scan)`"
+        }
+      ],
+      "answer": "rebind",
+      "explainMd": "The `@` line is shorthand for one assignment: `scan = traced(scan)`, run right after the `def`. The original function object is untouched — the decorator just happens to be the only thing still holding a reference to it, which is how the wrapper can call it later."
+    },
+    {
+      "type": "check",
+      "id": "why-wraps",
+      "promptMd": "Without `functools.wraps`, what does `scan.__name__` report after decoration?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "scan",
+          "md": "`\"scan\"` — the name in the `def` wins"
+        },
+        {
+          "id": "wrapper",
+          "md": "`\"wrapper\"` — the name now points at the inner function"
+        },
+        {
+          "id": "traced",
+          "md": "`\"traced\"`"
+        }
+      ],
+      "answer": "wrapper",
+      "explainMd": "The name `scan` points at the wrapper, so its metadata is the wrapper's: `__name__`, `__doc__`, and the signature tooling reads. `@wraps(func)` copies those across from the original and also records it as `__wrapped__`, which keeps tracebacks, help text, and test output honest."
+    },
+    {
+      "type": "check",
+      "id": "wrapper-args",
+      "kind": "tf",
+      "promptMd": "A wrapper written as `def wrapper(*args, **kwargs)` works for functions with any signature.",
+      "answer": "true",
+      "explainMd": "Collecting `*args, **kwargs` and forwarding them unchanged means the wrapper does not need to know or care what it wraps. Hard-coding `def wrapper(cell)` would work for one function and raise `TypeError` on the next one you decorate."
+    },
+    {
+      "type": "code",
+      "id": "traced-decorator",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `traced` so it returns a wrapper that appends the wrapped function's name to `CALLS` and then hands back whatever the original returned. Keep the wrapped name intact with `functools.wraps`. Output should be `scanned north scan 1`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "scanned north scan 1"
+        },
+        {
+          "type": "ast",
+          "query": "@wraps"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Right now `traced` hands the function straight back, so nothing is recorded and `CALLS` stays empty."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Define a `wrapper(*args, **kwargs)` inside `traced`: record the call, then `return func(*args, **kwargs)`. Return the wrapper, not the result of calling it."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A timing decorator has the same shape: note something before the call, `result = func(*args, **kwargs)`, note something after, `return result`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from functools import wraps\n\nCALLS = []\n\n\ndef traced(func):\n    @wraps(func)\n    def wrapper(*args, **kwargs):\n        CALLS.append(func.__name__)\n        return func(*args, **kwargs)\n\n    return wrapper\n\n\n@traced\ndef scan(cell):\n    return f\"scanned {cell}\"\n\n\nprint(scan(\"north\"), scan.__name__, len(CALLS))"
+        }
+      ]
+    }
+  ],
+  "description": "A decorator wraps a function without editing it."
+}

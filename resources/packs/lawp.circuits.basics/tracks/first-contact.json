@@ -1,6 +1,6 @@
 {
   "id": "first-contact",
-  "title": "First contact",
-  "courseIds": ["first-contact"],
-  "intro": "Twenty minutes: a lamp, a knob, a limit."
+  "title": "Electricity from the start",
+  "courseIds": ["placement", "first-contact", "voltage", "resistance", "series-parallel", "safety", "workshop"],
+  "intro": "Charge, loops, voltage, Ohm’s law, series and parallel, then shorts, fuses, and a circuit you keep."
 }

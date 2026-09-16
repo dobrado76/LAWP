@@ -1,0 +1,123 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.internals.iteration"
+  ],
+  "id": "generators-yield",
+  "courseId": "internals",
+  "moduleId": "iteration",
+  "title": "yield makes a stream, not a list",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A function that pauses\n\nA function containing `yield` is a generator function. Calling it runs none of the body: it hands back a generator object. Each `next()` runs the body until the next `yield`, gives you that value, and freezes the function — locals, position in the loop and all — until you ask again.\n\nThis bites the first time you treat the result like a list. A generator has no length, no index, and no memory of what it already gave you, so `stream[0]`, `len(stream)`, and a second `for` over it all fail or come back empty. In exchange it never holds more than one item at a time, which is the whole point when the station log has a million lines.\n\n```python\ndef station_ids(count):\n    for number in range(1, count + 1):\n        yield f\"S{number}\"\n\nstream = station_ids(3)\nprint(next(stream))        # S1  - the body ran up to the first yield\nprint(list(stream))        # ['S2', 'S3'] - carries on from there\nprint(list(stream))        # [] - nothing is replayed\n```\n\nA common mistake is building a list inside the function and returning it, which quietly throws away the laziness even though the printed output looks identical. If you truly need to walk the items twice, wrap the call in `list(...)` at the call site and pay for the memory on purpose. The exercise asks for a generator, and the hidden test checks the function itself, not just what it prints."
+    },
+    {
+      "type": "predict",
+      "id": "second-loop",
+      "promptMd": "You loop over a generator, then loop over the same generator object again. The second loop sees…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "again",
+          "md": "The same items a second time",
+          "misconceptionId": "generator-is-a-list"
+        },
+        {
+          "id": "nothing",
+          "md": "Nothing — it is exhausted"
+        }
+      ],
+      "answer": "nothing",
+      "explainMd": "A generator produces each item once and keeps no history, so a spent generator is an empty stream forever. Call the generator function again for a fresh one, or materialise it with `list(...)` when you know you need more than one pass over the data."
+    },
+    {
+      "type": "check",
+      "id": "call-runs-nothing",
+      "promptMd": "What happens the instant you call a generator function?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "nothing",
+          "md": "Nothing in the body runs; you get a generator object"
+        },
+        {
+          "id": "all",
+          "md": "The whole body runs and the yields are collected",
+          "misconceptionId": "generator-is-a-list"
+        },
+        {
+          "id": "first",
+          "md": "The body runs up to the first `yield`"
+        }
+      ],
+      "answer": "nothing",
+      "explainMd": "The call only builds the generator. Not one line of the body executes until the first `next()` — which is why a `print` on the first line of a generator function stays silent until something consumes the stream. That first `next()` is what runs the body up to the first `yield`."
+    },
+    {
+      "type": "check",
+      "id": "generator-len",
+      "kind": "tf",
+      "promptMd": "`len(station_ids(3))` works because the generator knows it will produce three items.",
+      "answer": "false",
+      "explainMd": "It raises `TypeError`. A generator has no length: it only knows how to produce the next item, and in general it cannot know how many are left — some generators are endless. Wrap it in `list(...)` first if you really need a count."
+    },
+    {
+      "type": "code",
+      "id": "ids-as-stream",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Rewrite `station_ids(count)` as a generator: it must `yield` `\"S1\"`, `\"S2\"`, … one at a time instead of collecting them. Print `list(station_ids(3))`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['S1', 'S2', 'S3']"
+        },
+        {
+          "type": "ast",
+          "query": "yield"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The printed output is already right — the shape of the function is what is wrong."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Delete the list and the `return`. Inside the loop, `yield` each id as you make it; the function becomes a generator function by containing that keyword."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A countdown reads the same way: `for n in range(3, 0, -1): yield n` produces 3, 2, 1 without ever holding all three."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def station_ids(count):\n    for number in range(1, count + 1):\n        yield f\"S{number}\"\n\n\nprint(list(station_ids(3)))"
+        }
+      ]
+    }
+  ],
+  "description": "Yield hands back one value and keeps its place."
+}

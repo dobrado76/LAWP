@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.control.loops"
+  ],
+  "id": "while-and-break",
+  "courseId": "flow",
+  "moduleId": "repeat",
+  "title": "Loop until it is done",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A loop with no count, only a condition\n\nA `for` loop knows how many times it will run before it starts. A `while` loop does not: it re-asks its condition before every pass and keeps going while the answer stays true. Use it when the finish line is a state — the battery is flat, the queue is empty — rather than a number of turns.\n\nThis bites when nothing inside the loop moves the condition towards false. The battery never drains, the counter never climbs, and the program spins forever. In this app that shows up as a run that times out after a few seconds rather than a frozen window, but the bug is the same one, and the fix is always to make the body change the thing the condition asks about.\n\n```python\ncharge = 10\nticks = 0\nwhile charge > 0:\n    charge = charge - 3\n    ticks = ticks + 1\nprint(ticks)        # 4 — the last pass took it to -2\n\nwhile True:\n    break           # break leaves the loop immediately\n```\n\nA common mistake is guarding against a runaway with a counter that caps the passes and then returning that counter as if it were the answer. A cap tells you the loop misbehaved; it is not a result. The exercise asks how many drains empty a battery, and it also has to survive a drain of zero, which would otherwise never finish."
+    },
+    {
+      "type": "predict",
+      "id": "drain-count",
+      "promptMd": "With `charge = 10` and a drain of 3, how many passes does `while charge > 0` make?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "three",
+          "md": "3 — after three passes only 1 is left"
+        },
+        {
+          "id": "four",
+          "md": "4"
+        }
+      ],
+      "answer": "four",
+      "explainMd": "The condition is re-asked before each pass, not after. After three passes the charge is 1, which is still above zero, so a fourth pass runs and takes it to -2. Only then does the condition fail. Counting the pass that overshoots is the normal shape of a drain loop."
+    },
+    {
+      "type": "check",
+      "id": "break-exits",
+      "kind": "tf",
+      "promptMd": "`break` skips the rest of the current pass and leaves the loop entirely.",
+      "answer": "true",
+      "explainMd": "True. `break` abandons the loop on the spot, so no further passes happen and no remaining lines of the body run. That is what makes it the right tool for an impossible situation discovered mid-loop, and it is different from `continue`, which only abandons the current pass and then carries on."
+    },
+    {
+      "type": "code",
+      "id": "ticks-to-empty",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `ticks_to_empty(charge, drain)` so it counts how many drains take the charge to zero or below. If `drain` is zero or negative the loop can never finish, so `break` out and return `-1`. The printed line should be `4`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "4"
+        },
+        {
+          "type": "ast",
+          "query": "while"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter counts passes but never changes `charge`, so only the emergency cap stops it. The condition has to move."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Subtract `drain` from `charge` inside the body. Then handle the impossible case: when the drain cannot reduce the charge, `break` and report `-1`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`while fuel > 0: fuel = fuel - burn` finishes on its own because every pass makes the condition closer to false."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def ticks_to_empty(charge, drain):\n    ticks = 0\n    while charge > 0:\n        if drain <= 0:\n            ticks = -1\n            break\n        charge = charge - drain\n        ticks = ticks + 1\n    return ticks\n\n\nprint(ticks_to_empty(10, 3))"
+        }
+      ]
+    }
+  ],
+  "description": "Keep going while a check holds, and stop when you have a reason."
+}

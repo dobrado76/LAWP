@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 14,
+  "skillIds": [
+    "python.objects"
+  ],
+  "id": "class-and-instance",
+  "courseId": "objects",
+  "moduleId": "shape",
+  "title": "A template and the things made from it",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The class is the cutter, the instance is the biscuit\n\nA `class` statement describes a kind of thing: what its instances will be called, what they will know, and what they will do. It is a template, and on its own it holds no station readings. Calling the class — `Sensor()` — builds one instance from that template and hands it back.\n\nThe two get confused because the class name appears in both places. `Sensor` is the template; `Sensor()` is a new object. Every call builds a fresh one, so two calls give you two objects that are equal-looking but separate — `first is second` is `False`, and attributes set on one are invisible to the other.\n\n```python\nclass Sensor:\n    pass\n\n\na = Sensor()\nb = Sensor()\nprint(type(a).__name__)   # Sensor — the class this instance came from\nprint(a is b)             # False — two calls, two objects\n```\n\nA common mistake is building one instance and binding a second name to it, which looks like two sensors until you change one and both change. The exercise wants two genuinely separate instances: print the class name of the first and whether the two names point at the same object, so the answer has to be `Sensor False`."
+    },
+    {
+      "type": "predict",
+      "id": "two-calls-two-objects",
+      "promptMd": "`class Sensor: pass`, then `a = Sensor()` and `b = Sensor()`. Is `a is b` true?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "yes",
+          "md": "Yes — they came from the same class, so they are the same object"
+        },
+        {
+          "id": "no",
+          "md": "No — each call built a separate object"
+        }
+      ],
+      "answer": "no",
+      "explainMd": "Calling a class runs the construction machinery and hands back a brand-new object every time, so `a` and `b` are two distinct instances of one class. `is` asks about object identity, and identity is per instance — the shared class does not make them shared."
+    },
+    {
+      "type": "check",
+      "id": "what-the-class-holds",
+      "promptMd": "What does the class itself hold?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "template",
+          "md": "The template — the names and behaviour every instance will have"
+        },
+        {
+          "id": "state",
+          "md": "The state of the one object you built from it"
+        },
+        {
+          "id": "copy",
+          "md": "A copy of each instance, so it can list them later"
+        }
+      ],
+      "answer": "template",
+      "explainMd": "The class is a description; the per-thing values live on the instances. Python does not keep a registry of the objects you built, so if you need to know about all your sensors, something in your own code has to collect them in a list."
+    },
+    {
+      "type": "code",
+      "id": "two-sensors",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Build **two separate** `Sensor` instances, `first` and `second`. Print `type(first).__name__` and whether the two names point at the same object, separated by a space. Output should be `Sensor False`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "Sensor False"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Look at how `second` is bound in the starter. Is a second object ever built?"
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Each `Sensor()` call builds one instance, so two separate instances need the class called twice."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Compare with lists: `b = a` gives one list under two names, while `b = list(a)` gives a genuinely second list."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    pass\n\n\nfirst = Sensor()\nsecond = Sensor()\n\nprint(type(first).__name__, first is second)"
+        }
+      ]
+    }
+  ],
+  "description": "A class is the shape. An instance is one of the things."
+}

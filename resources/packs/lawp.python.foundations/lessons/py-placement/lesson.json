@@ -1,0 +1,257 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "python.types.names",
+    "python.control.loops",
+    "python.collections.list",
+    "python.functions"
+  ],
+  "id": "py-placement",
+  "courseId": "placement",
+  "moduleId": "diagnostic",
+  "title": "Placement: what Python already does in your head",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## No fox yet\n\nTen short questions about what Python actually does. Nothing here locks you out. A wrong answer only marks which later lesson to take slowly, and you can leave every one of them wrong and still continue.\n\nAnswer with the result you expect the language to produce, not the result you wish it produced. Most of these are places where a reasonable guess is wrong, which is exactly what makes them worth measuring before you start.\n\n```python\nprint(type(3))        # what does this actually print?\nprint(10 / 2)         # int or float?\nprint([1, 2] == [1, 2])\n```\n\nA common mistake is skipping the battery because it feels like a test. It is not graded; it is a map. Later the same ideas come back as a fox on a grid and as a field-station log you clean up."
+    },
+    {
+      "type": "check",
+      "id": "type-of-int",
+      "promptMd": "`type(3)` reports which kind?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "int",
+          "md": "`int`"
+        },
+        {
+          "id": "number",
+          "md": "`number`"
+        },
+        {
+          "id": "float",
+          "md": "`float`"
+        }
+      ],
+      "answer": "int",
+      "explainMd": "Python has no single `number` kind. A whole number is an `int` and a decimal is a `float`, and the two behave differently when you divide them. Knowing which one you hold is how you predict the result of `/` and `//`.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.types.names"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "true-division",
+      "promptMd": "`10 / 2` evaluates to…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "five-int",
+          "md": "`5` — a whole number",
+          "misconceptionId": "slash-is-integer-division"
+        },
+        {
+          "id": "five-float",
+          "md": "`5.0` — a float"
+        }
+      ],
+      "answer": "five-float",
+      "explainMd": "`/` is true division and always hands back a float, even when the answer divides evenly. `10 / 2` is `5.0`. The operator that keeps a whole number is `//`, which floors the result: `10 // 3` is `3`.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.values.numbers"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "string-upper",
+      "promptMd": "`name = \"ada\"` then `name.upper()` — what is `name` afterwards?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "shout",
+          "md": "`\"ADA\"` — the method changed it",
+          "misconceptionId": "strings-mutate-in-place"
+        },
+        {
+          "id": "same",
+          "md": "`\"ada\"` — the method returned a new string"
+        }
+      ],
+      "answer": "same",
+      "explainMd": "Strings are immutable. `upper()` builds a second string and hands it back; it never rewrites the one you called it on. `name` still holds `\"ada\"` unless you assign the result back with `name = name.upper()`.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.values.strings"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "range-end",
+      "promptMd": "`list(range(3))` is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "inclusive",
+          "md": "`[1, 2, 3]`",
+          "misconceptionId": "range-is-inclusive"
+        },
+        {
+          "id": "exclusive",
+          "md": "`[0, 1, 2]`"
+        }
+      ],
+      "answer": "exclusive",
+      "explainMd": "`range` starts at 0 and stops *before* the end value, so `range(3)` yields 0, 1, 2 — three items. This is why `range(len(items))` walks every index exactly once, and why an off-by-one bug usually means you added a `+ 1` that was never needed.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.control.loops"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "list-alias",
+      "promptMd": "`a = [1]` then `b = a` then `b.append(2)` — what is `a`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "one",
+          "md": "`[1]` — b was a copy",
+          "misconceptionId": "assignment-copies-a-list"
+        },
+        {
+          "id": "two",
+          "md": "`[1, 2]` — both names point at one list"
+        }
+      ],
+      "answer": "two",
+      "explainMd": "Assignment binds another name to the *same* list; it does not copy anything. `a` and `b` are two labels on one object, so appending through either name is visible through both. `b = a.copy()` or `b = list(a)` is what makes a separate list.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.collections.list"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "dict-missing",
+      "promptMd": "`{\"a\": 1}[\"b\"]` does what?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "none",
+          "md": "Returns `None`",
+          "misconceptionId": "missing-key-returns-none"
+        },
+        {
+          "id": "raises",
+          "md": "Raises `KeyError`"
+        }
+      ],
+      "answer": "raises",
+      "explainMd": "Square brackets on a missing key raise `KeyError`. The method that returns `None` instead — or any default you name — is `.get()`: `{\"a\": 1}.get(\"b\")` is `None` and `.get(\"b\", 0)` is `0`.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.collections.dict"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "return-vs-print",
+      "promptMd": "A function that only calls `print` and has no `return` gives back…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "text",
+          "md": "The text it printed",
+          "misconceptionId": "print-is-the-program"
+        },
+        {
+          "id": "none",
+          "md": "`None`"
+        }
+      ],
+      "answer": "none",
+      "explainMd": "Printing writes to the screen; returning hands a value back to the caller. A function with no `return` gives back `None`, which is why `print(greet(\"Ada\"))` can show the greeting and then `None` on the next line when `greet` printed instead of returning.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.functions"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "mutable-default",
+      "promptMd": "`def add(x, bag=[]): bag.append(x); return bag` — calling `add(1)` twice gives…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fresh",
+          "md": "`[1]` both times",
+          "misconceptionId": "mutable-default-is-fresh"
+        },
+        {
+          "id": "shared",
+          "md": "`[1]` then `[1, 1]`"
+        }
+      ],
+      "answer": "shared",
+      "explainMd": "The default value is built **once**, when the `def` runs — not on every call. Every call that does not pass `bag` shares that one list, so it grows. The fix is `bag=None` plus `if bag is None: bag = []` inside the function.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.functions"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "is-vs-equals",
+      "promptMd": "For two separate lists with the same contents, `a == b` and `a is b` are…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "same",
+          "md": "Both `True` — same contents means same object",
+          "misconceptionId": "is-means-equals"
+        },
+        {
+          "id": "split",
+          "md": "`==` is `True`, `is` is `False`"
+        }
+      ],
+      "answer": "split",
+      "explainMd": "`==` compares contents; `is` asks whether two names point at the very same object in memory. Two lists built separately can be equal without being identical. Reserve `is` for `None`, `True`, and `False`.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.values.truth"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "generator-reuse",
+      "promptMd": "A generator you have already looped over, looped a second time, yields…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "again",
+          "md": "The same items again",
+          "misconceptionId": "generator-is-a-list"
+        },
+        {
+          "id": "nothing",
+          "md": "Nothing — it is exhausted"
+        }
+      ],
+      "answer": "nothing",
+      "explainMd": "A generator produces items once and keeps no history, so a second loop sees an empty stream. That is the price of not holding everything in memory. Wrap it in `list(...)` when you genuinely need to walk the items more than once.",
+      "diagnostic": true,
+      "skillIds": [
+        "python.internals.iteration"
+      ]
+    }
+  ],
+  "description": "A short quiz about what you already expect Python to do. Wrong answers do not lock you out."
+}

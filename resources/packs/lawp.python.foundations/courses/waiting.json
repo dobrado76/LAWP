@@ -1,0 +1,28 @@
+{
+  "id": "waiting",
+  "title": "Waiting without blocking",
+  "level": "advanced",
+  "estimatedMinutes": 150,
+  "skillIds": [
+    "python.async"
+  ],
+  "modules": [
+    {
+      "id": "why",
+      "title": "Why waiting is different",
+      "lessonIds": [
+        "blocking-vs-waiting",
+        "async-def-await"
+      ]
+    },
+    {
+      "id": "together",
+      "title": "Work that overlaps",
+      "lessonIds": [
+        "gather-concurrency",
+        "threads-vs-processes",
+        "debug-forgotten-await"
+      ]
+    }
+  ]
+}

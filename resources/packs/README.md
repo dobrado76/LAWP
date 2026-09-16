@@ -4,7 +4,7 @@ Each subject-matter is `<packId>/` with `pack.json` and `lessons/<lessonId>/less
 
 Bundled proofs:
 
-- `lawp.circuits.basics` — `world-v1`, no spawn (the 20-minute spike)
+- `lawp.circuits.basics` — thorough-beginner electricity, `world-v1`, no spawn (diagrams + live loops)
 - `lawp.python.foundations` — Python Course 1
 - `lawp.javascript.foundations` — JavaScript Course 1
 - `lawp.react.foundations` — React Course 1

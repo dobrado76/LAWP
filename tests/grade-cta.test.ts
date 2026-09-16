@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { gradeCtaMode, lessonWorkVerdict, revealsAnswer, unansweredChecks } from '../src/renderer/checks/CheckPanel'
+import {
+  checkExplainHtml,
+  gradeCtaMode,
+  lessonWorkVerdict,
+  revealsAnswer,
+  unansweredChecks
+} from '../src/renderer/checks/CheckPanel'
 import type { CheckPrompt } from '../src/shared/check'
 
 describe('gradeCtaMode', () => {
@@ -70,6 +76,18 @@ describe('revealsAnswer', () => {
   it('reveals nothing before a verdict, or once it is already right', () => {
     expect(revealsAnswer(q(true), null)).toBe(false)
     expect(revealsAnswer(q(true), 'pass')).toBe(false)
+  })
+})
+
+describe('checkExplainHtml', () => {
+  it('renders a pack diagram in graded why-text without throwing', () => {
+    const html = checkExplainHtml(
+      'Only the closed path lights.\n\n![Closed loop](assets/closed-loop.svg)',
+      'lawp.circuits.basics',
+      'what-is-a-loop'
+    )
+    expect(html).toContain('class="diagram"')
+    expect(html).toContain('lawp-pack://lawp.circuits.basics/lessons/what-is-a-loop/assets/closed-loop.svg')
   })
 })
 

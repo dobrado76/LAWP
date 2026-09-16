@@ -3,18 +3,24 @@
   "schemaVersion": 1,
   "id": "transfer-fuse",
   "packId": "lawp.circuits.basics",
-  "courseId": "first-contact",
-  "moduleId": "the-loop",
+  "courseId": "safety",
+  "moduleId": "heat",
   "title": "A fuse in another story",
   "skillIds": [
+    "circuits.fuse",
     "circuits.series.current"
   ],
-  "estimatedMinutes": 4,
-  "taskRev": 1,
+  "estimatedMinutes": 8,
+  "taskRev": 2,
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "description": "The same current idea shows up in a fuse story. If the flow climbs too high, the fuse opens the path so the rest survives.",
   "blocks": [
     {
       "type": "explain",
-      "md": "## Transfer\n\nSame physics, new cover. A garden lamp sits on the same series loop, and a fuse blows if current goes above **2**. You still want the lamp bright (`brightness` 2, which needs current at least 1) and you must keep the fuse. This lesson uses always-on constraints: blowing the fuse even once fails, even if you recover afterward.\n\nThis bites when you visit ohms `0.25` just to see. Current becomes `4`, the fuse blows, and the run is already lost. Curiosity that was safe in the first experiment is fatal here because the fuse remembers the overshoot. The story changed; the math did not.\n\n```text\nbattery → resistor → garden lamp → battery\nfuse blows if current > 2\n```\n\nA common mistake is repeating the first lesson's wander through every knob. The activity asks you to light the garden lamp brightly and never exceed current `2`. Go straight to ohms `1`. Do not visit `0.25`.\n"
+      "md": "## Same physics, new cover\n\nA garden lamp sits on the same series loop, and a fuse blows if current goes above 2. You still want the lamp bright (brightness 2, which needs current at least 1) and you must keep the fuse. This lesson uses always-on constraints: blowing the fuse even once fails, even if you recover afterward.\n\nThis bites when you visit ohms 0.25 just to see. Current becomes 4, the fuse blows, and the run is already lost. Curiosity that was safe in the first experiment is fatal here because the fuse remembers the overshoot.\n\n![A fuse on the garden loop](assets/fuse-loop.svg)\n\n```text\nbattery → resistor → garden lamp → battery\nfuse blows if current > 2\n```\n\nA common mistake is treating the fuse as optional decoration. Do not visit a tiny resistance just to see — the fuse remembers one overshoot."
     },
     {
       "type": "activity",
@@ -23,7 +29,7 @@
       "engine": "world-v1",
       "promptMd": "Light the garden lamp brightly. Do not blow the fuse (current ≤ 2).",
       "skillIds": [
-        "circuits.series.current"
+        "circuits.fuse"
       ],
       "constraintMode": "always",
       "predict": {
@@ -32,11 +38,12 @@
         "choices": [
           {
             "id": "ok",
-            "md": "It stays fine"
+            "md": "It stays fine",
+            "misconceptionId": "fuse-is-optional"
           },
           {
             "id": "blow",
-            "md": "It blows (current 4)"
+            "md": "It blows"
           }
         ],
         "answer": "blow"
@@ -55,6 +62,13 @@
             "type": "resistor",
             "props": {
               "ohms": 2
+            }
+          },
+          {
+            "id": "fuse",
+            "type": "fuse",
+            "props": {
+              "label": "Fuse"
             }
           },
           {
@@ -80,6 +94,10 @@
           },
           {
             "from": "resistor",
+            "to": "fuse"
+          },
+          {
+            "from": "fuse",
             "to": "lamp"
           },
           {
@@ -156,7 +174,18 @@
         ],
         "view": {
           "kind": "graph",
-          "assetMap": {}
+          "assetMap": {
+            "lamp@brightness=0": "assets/lamp-dim.svg",
+            "lamp@brightness=1": "assets/lamp-dim.svg",
+            "lamp@brightness=2": "assets/lamp-bright.svg",
+            "battery": "assets/battery.svg",
+            "resistor": "assets/resistor.svg",
+            "meter": "assets/meter.svg",
+            "voltmeter": "assets/voltmeter.svg",
+            "switch@closed=false": "assets/switch-open.svg",
+            "switch@closed=true": "assets/switch-closed.svg",
+            "fuse": "assets/fuse.svg"
+          }
         }
       },
       "goal": {
@@ -198,9 +227,29 @@
           "level": 2,
           "kind": "concept",
           "md": "Go straight to ohms = 1. Do not visit 0.25."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "1 / 1 = 1, bright and under 2. 1 / 0.25 = 4 ends the run."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Set resistance to 1 and Check. Never click 0.25."
         }
       ]
+    },
+    {
+      "type": "check",
+      "id": "fuse-optional",
+      "kind": "tf",
+      "promptMd": "A fuse is optional. You can skip it if you want the garden lamp as bright as possible.",
+      "answer": "false",
+      "explainMd": "The fuse is why the rest of the circuit survives an overshoot. Skipping it is not a brightness strategy.",
+      "skillIds": [
+        "circuits.fuse"
+      ]
     }
-  ],
-  "description": "Use the same current idea in a new story about a fuse."
+  ]
 }

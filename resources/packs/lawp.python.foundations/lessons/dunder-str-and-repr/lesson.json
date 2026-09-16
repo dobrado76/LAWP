@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "python.objects"
+  ],
+  "id": "dunder-str-and-repr",
+  "courseId": "objects",
+  "moduleId": "behave",
+  "title": "Two ways to show an object",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One for people, one for you\n\nBy default a printed object shows something like `<__main__.Sensor object at 0x000001>` — the class and an address, which tells a reader nothing. Two methods fix that. `__str__` is the friendly line you would show a person, and `__repr__` is the precise one you want while debugging, ideally close enough to source that you could paste it back.\n\nThey are reached by different callers, which is the part worth memorising. `print(obj)` and `str(obj)` and an f-string’s `{obj}` want `__str__`; `repr(obj)`, the interactive prompt, `{obj!r}`, and — crucially — **anything inside a container** want `__repr__`. So `print(sensors)` on a list shows the repr of each item, and a class with only `__str__` still prints addresses inside a list. Define only `__repr__` and both callers get it, because `__str__` falls back to it.\n\n```python\nclass Sensor:\n    def __init__(self, name):\n        self.name = name\n\n    def __str__(self):\n        return f\"{self.name} sensor\"\n\n    def __repr__(self):\n        return f\"Sensor({self.name!r})\"\n\n\nwind = Sensor(\"wind\")\nprint(wind)        # wind sensor      <- __str__\nprint(repr(wind))  # Sensor('wind')   <- __repr__\nprint([wind])      # [Sensor('wind')] <- containers use __repr__\n```\n\nA common mistake is defining only `__str__`, being happy with `print(sensor)`, and then debugging a list of sensors that still shows addresses. The exercise wants both: `str(probe)` as `soil sensor` and `repr(probe)` as `Sensor('soil')`, printed on one line by the f-string already in the starter."
+    },
+    {
+      "type": "predict",
+      "id": "repr-fallback",
+      "promptMd": "A class defines `__repr__` but not `__str__`. What does `print(obj)` show?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "address",
+          "md": "The default `<... object at 0x...>` line"
+        },
+        {
+          "id": "repr",
+          "md": "The `__repr__` text — `str` falls back to it"
+        }
+      ],
+      "answer": "repr",
+      "explainMd": "`str()` uses `__str__` when the class defines one and otherwise defers to `__repr__`, so a single good `__repr__` improves every display at once. The fallback does not run the other way: defining only `__str__` leaves `repr` — and therefore lists, dicts, and the debugger — showing the default address line."
+    },
+    {
+      "type": "check",
+      "id": "container-uses-repr",
+      "promptMd": "`print([wind, soil])` on a list of sensors shows which text for each item?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "repr",
+          "md": "Their `__repr__` text"
+        },
+        {
+          "id": "str",
+          "md": "Their `__str__` text"
+        },
+        {
+          "id": "mixed",
+          "md": "The first item’s `__str__`, then `__repr__` for the rest"
+        }
+      ],
+      "answer": "repr",
+      "explainMd": "A list builds its own display by calling `repr()` on every element, so friendly `__str__` output never appears inside a container. That is deliberate: nested output is for reading precisely, and an unambiguous repr is what you want when a collection surprises you."
+    },
+    {
+      "type": "code",
+      "id": "both-displays",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Give `Sensor` a `__str__` that reads `soil sensor` and a `__repr__` that reads `Sensor('soil')`, both built from `self.name`. The print line is already written; output should be `soil sensor | Sensor('soil')`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "soil sensor | Sensor('soil')"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Run the starter first. Both halves of the line show the default display, because the class defines neither method."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Add `__str__(self)` returning the friendly line and `__repr__(self)` returning the precise one. Both take only `self` and return a string."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The `!r` conversion is doing real work: in an f-string, `{self.name!r}` writes `'wind'` with the quotes, which is what makes a repr pasteable."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    def __init__(self, name):\n        self.name = name\n\n    def __str__(self):\n        return f\"{self.name} sensor\"\n\n    def __repr__(self):\n        return f\"Sensor({self.name!r})\"\n\n\nprobe = Sensor(\"soil\")\n\nprint(f\"{probe} | {probe!r}\")"
+        }
+      ]
+    }
+  ],
+  "description": "Decide what your object looks like when it is printed."
+}

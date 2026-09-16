@@ -1,0 +1,160 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.async"
+  ],
+  "id": "blocking-vs-waiting",
+  "courseId": "waiting",
+  "moduleId": "why",
+  "title": "Waiting is not working",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two very different kinds of slow\n\nComputing is slow because the CPU is busy: averaging a million readings takes real work. Waiting is slow because something else is busy — a disk, a sensor, another machine — and your process has nothing to do but sit there. The two look identical from the outside and need opposite treatments.\n\nThis bites when three waits are served one after another. Ten seconds of waiting is ten seconds of an idle CPU, and the total is the sum of the waits even though nothing was competing for anything. Let the waits overlap and the total collapses to the longest single wait — the work was never the bottleneck, the queueing was.\n\n```python\nwaits = [3, 5, 2]\n\nprint(sum(waits))                  # 10 - one wait at a time\nprint(max(waits, default=0))       # 5  - all three waiting together\n\n# Overlapping only helps the second case. Three seconds of arithmetic\n# stays three seconds of arithmetic however you arrange it.\n```\n\nA common mistake is reaching for concurrency to speed up a calculation. Overlapping waits costs nothing because the CPU was idle anyway; overlapping computations just shares the same CPU between them. The exercise asks you to model both totals, including the empty case where there is nothing to wait for at all."
+    },
+    {
+      "type": "predict",
+      "id": "three-waits",
+      "promptMd": "Three independent waits of 3, 5, and 2 seconds, done one after another. Total?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "ten",
+          "md": "10 seconds"
+        },
+        {
+          "id": "five",
+          "md": "5 seconds"
+        }
+      ],
+      "answer": "ten",
+      "explainMd": "Sequential waiting adds up: nothing starts until the one before it has finished, so the total is 3 + 5 + 2. Started together, the three waits overlap and the slowest one sets the pace, giving 5 — which is the whole reason the rest of this course exists."
+    },
+    {
+      "type": "check",
+      "id": "which-benefits",
+      "promptMd": "Which job gets faster by overlapping it with others?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "io",
+          "md": "Reading four files from disk"
+        },
+        {
+          "id": "cpu",
+          "md": "Averaging a million readings in a loop"
+        },
+        {
+          "id": "both",
+          "md": "Both, equally"
+        }
+      ],
+      "answer": "io",
+      "explainMd": "The file reads spend their time waiting on the disk, so overlapping them puts an idle process to work. The averaging is CPU-bound: the work is real and interleaving it just splits the same processor between halves of the job, so the total barely moves."
+    },
+    {
+      "type": "check",
+      "id": "wait-words",
+      "kind": "cloze",
+      "promptMd": "While a task is waiting on I/O, the CPU is {{a}}, so overlapping waits costs {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "idle",
+              "md": "idle"
+            },
+            {
+              "id": "saturated",
+              "md": "saturated"
+            },
+            {
+              "id": "copying data",
+              "md": "copying data"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "almost nothing",
+              "md": "almost nothing"
+            },
+            {
+              "id": "twice as much",
+              "md": "twice as much"
+            },
+            {
+              "id": "one core per wait",
+              "md": "one core per wait"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "idle",
+        "b": "almost nothing"
+      },
+      "explainMd": "An idle CPU is the resource concurrency spends. Because a waiting task needs no processor time, one thread of execution can babysit dozens of outstanding waits — which is exactly what an event loop does in the next lesson."
+    },
+    {
+      "type": "code",
+      "id": "plan-the-waits",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish both planners. `blocking_plan(waits)` adds the waits up, because nothing overlaps. `overlapped_plan(waits)` returns the longest single wait, and must return `0` when there is nothing to wait for. Output should be `10 5`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "10 5"
+        },
+        {
+          "type": "ast",
+          "query": "max("
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Both planners currently add the waits up, so overlapping looks like it saves nothing."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Sequential waiting is `sum(waits)`. Overlapped waiting is the largest wait — and `max` on an empty list raises unless you give it a fallback."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`max([], default=0)` is `0`, while plain `max([])` raises `ValueError`. The same `default=` keyword works on `min`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "WAITS = [3, 5, 2]\n\n\ndef blocking_plan(waits):\n    return sum(waits)\n\n\ndef overlapped_plan(waits):\n    return max(waits, default=0)\n\n\nprint(blocking_plan(WAITS), overlapped_plan(WAITS))"
+        }
+      ]
+    }
+  ],
+  "description": "Waiting on the network is not the same as working."
+}

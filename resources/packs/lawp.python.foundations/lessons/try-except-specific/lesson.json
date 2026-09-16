@@ -1,0 +1,110 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.errors"
+  ],
+  "id": "try-except-specific",
+  "courseId": "errors",
+  "moduleId": "read",
+  "title": "Catch the one you expected",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Naming the failure is the handling\n\n`try` marks code that might fail and `except SomeError` says what to do about one specific way it can fail. Naming the error is not paperwork: it is the line that separates \"this input was messy, carry on\" from \"something is broken, stop\".\n\nThis bites when you write a bare `except:`. It catches absolutely everything — your typo, a wrong key, a name you never defined, even the interrupt that should stop the program. The code appears robust and is in fact silent, and the bug you did not plan for is now invisible.\n\n```python\nreadings = {\"north\": \"12\", \"east\": \"warm\"}\n\nfor zone, raw in readings.items():\n    try:\n        print(zone, int(raw))\n    except ValueError:\n        print(zone, \"not a number\")\n\n# north 12\n# east not a number\n```\n\nA common mistake is catching too wide because you are not sure which error to name: run the code once, read the last line of the traceback, and catch that. You can name more than one with a tuple, as in `except (TypeError, ValueError):`. The exercise asks for a `to_int` that survives messy input and still lets a genuine bug through."
+    },
+    {
+      "type": "predict",
+      "id": "bare-except",
+      "promptMd": "A colleague suggests using a bare `except:` everywhere \"so nothing can ever crash\". What is wrong with that?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "bare",
+          "md": "Nothing — catching everything is the safe default",
+          "misconceptionId": "bare-except-is-handling"
+        },
+        {
+          "id": "hides",
+          "md": "It also swallows typos and bugs you never planned for, so real failures become silent"
+        }
+      ],
+      "answer": "hides",
+      "explainMd": "A bare `except:` catches every exception, including `NameError` from a misspelled variable and `KeyboardInterrupt` from you trying to stop the program. The code stops crashing but it also stops telling the truth. Catching the one error you expected leaves everything else free to be reported."
+    },
+    {
+      "type": "check",
+      "id": "which-exception",
+      "promptMd": "`int(\"warm\")` raises which exception?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "value",
+          "md": "`ValueError`"
+        },
+        {
+          "id": "type",
+          "md": "`TypeError`"
+        },
+        {
+          "id": "key",
+          "md": "`KeyError`"
+        }
+      ],
+      "answer": "value",
+      "explainMd": "The argument is the right **type** — a string is something `int` accepts — but the wrong **value**, because those characters are not a number, so Python raises `ValueError`. `int(None)` is the `TypeError` case: that type is not convertible at all."
+    },
+    {
+      "type": "code",
+      "id": "to-int-safely",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `to_int(raw, fallback=0)` so it returns the number when `raw` converts and `fallback` when it does not. Catch only the errors `int()` actually raises — no bare `except:`. Print `to_int(\"12\", -1)`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "12"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter ignores `raw` completely and always answers the fallback, so even a perfectly good `\"12\"` comes back as `-1`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Put `return int(raw)` inside a `try:` and return the fallback from the `except`. Two things can go wrong: characters that are not a number raise `ValueError`, and a value like `None` raises `TypeError`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `def half(x):` you might write `try: return x / 2` and `except TypeError: return None`, so `half(\"a\")` answers `None` instead of stopping the program."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def to_int(raw, fallback=0):\n    try:\n        return int(raw)\n    except (TypeError, ValueError):\n        return fallback\n\n\nprint(to_int(\"12\", -1))"
+        }
+      ]
+    }
+  ],
+  "description": "Catch the error you expected, not everything."
+}

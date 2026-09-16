@@ -1,0 +1,123 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.types.names",
+    "python.values.truth",
+    "python.values.numbers"
+  ],
+  "mastery": {
+    "requiresTransfer": true
+  },
+  "id": "transfer-classify-value",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "Transfer: sort the station log by kind",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The whole course, on one messy log\n\nThe field station writes one line per reading, and the lines are not tidy. Some are counts, some are measurements, some are switch positions, some are notes typed by hand, and some are the absence of a reading at all. Before anything can be summed or charted, each value has to be sorted into a kind.\n\nThis bites on one detail the course has been circling: in Python `bool` is a subclass of `int`, so `type(True) is bool` but `isinstance(True, int)` is also true. If your chain asks \"is it a whole number?\" before \"is it a switch?\", every `True` in the log is filed as the count `1` and the station reports twice as many crates as it has.\n\n```python\nprint(type(3) is int)        # True\nprint(type(True) is bool)    # True\nprint(type(True) is int)     # False — type() asks the exact kind\nprint(isinstance(True, int)) # True  — but bool inherits from int\n```\n\nA common mistake is testing for emptiness before testing for absence, which files a missing reading as a blank one. Order your questions from most specific to most general, and let the last line handle everything that survived. The exercise gives you six labels and a log full of values that will try each of them."
+    },
+    {
+      "type": "predict",
+      "id": "bool-before-int",
+      "promptMd": "A chain checks `type(v) is int` first and `type(v) is bool` second. What label does `True` get?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "flag",
+          "md": "The bool label — `True` is not an `int`"
+        },
+        {
+          "id": "count",
+          "md": "The int label, because the first test already matched"
+        }
+      ],
+      "answer": "flag",
+      "explainMd": "`type(v)` reports the exact kind, and the exact kind of `True` is `bool`, not `int`, so the first test does not match and the value falls through to the bool label. The trap is real with `isinstance`, which follows inheritance and would match the int test first. When ordering matters, `type(...) is ...` is the blunt, predictable tool."
+    },
+    {
+      "type": "check",
+      "id": "order-the-questions",
+      "promptMd": "Which question has to come first in the chain?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "none-first",
+          "md": "`reading is None`"
+        },
+        {
+          "id": "empty-first",
+          "md": "`not reading`"
+        },
+        {
+          "id": "text-first",
+          "md": "`type(reading) is str`"
+        }
+      ],
+      "answer": "none-first",
+      "explainMd": "`None` is falsy, so `not reading` matches it too. If the emptiness test runs first, a missing reading is labelled blank and the station never learns that a sensor went quiet. Asking `is None` first is the only order that keeps \"no reading\" and \"a reading of nothing\" apart."
+    },
+    {
+      "type": "code",
+      "id": "classify-reading",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `classify(reading)` so it returns `\"missing\"` for `None`, `\"flag\"` for a bool, `\"count\"` for an int, `\"measure\"` for a float, `\"blank\"` for an empty string, and `\"text\"` for anything else. The printed line should be `measure`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "measure"
+        },
+        {
+          "type": "ast",
+          "query": "type("
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Six labels means six decisions. The starter makes none of them, so every reading in the log comes back as text."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Ask `reading is None` first, then `type(reading) is bool`, then the number kinds, then emptiness, and let the final `return` catch the rest."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`if type(v) is float: return \"measure\"` matches `1.5` and `0.0` but not `1`, because `type()` reports the exact kind rather than a family."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def classify(reading):\n    if reading is None:\n        return \"missing\"\n    if type(reading) is bool:\n        return \"flag\"\n    if type(reading) is int:\n        return \"count\"\n    if type(reading) is float:\n        return \"measure\"\n    if not reading:\n        return \"blank\"\n    return \"text\"\n\n\nprint(classify(1.5))"
+        }
+      ]
+    },
+    {
+      "type": "reflect",
+      "id": "why-order",
+      "promptMd": "In your own words: why does the order of the questions in `classify` change the answer, and which two pairs of kinds would collide if you shuffled them?"
+    }
+  ],
+  "description": "Sort unfamiliar station readings into kinds of value."
+}

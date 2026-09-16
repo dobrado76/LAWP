@@ -1,0 +1,140 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.control.loops"
+  ],
+  "id": "for-over-range",
+  "courseId": "flow",
+  "moduleId": "repeat",
+  "title": "Counting with range",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A loop that counts, and where it stops\n\n`range` produces a run of whole numbers for a `for` loop to walk. `range(n)` starts at 0 and stops **before** n, so it yields exactly n numbers. `range(start, stop)` begins wherever you say, and `range(start, stop, step)` lets you count by twos, by fives, or backwards.\n\nThis bites because the end is exclusive and almost every sentence in English is inclusive. \"Sum the readings one through five\" becomes `range(1, 5)` and quietly drops the five. The same off-by-one runs the other way when you write `range(n + 1)` out of caution and walk one cell past the edge of the grid.\n\n```python\nprint(list(range(3)))          # [0, 1, 2]        — three numbers, no 3\nprint(list(range(1, 4)))       # [1, 2, 3]        — stops before 4\nprint(list(range(0, 10, 3)))   # [0, 3, 6, 9]\nprint(list(range(3, 0, -1)))   # [3, 2, 1]\n\nfor i in range(3):\n    print(i)\n```\n\nA common mistake is remembering the rule for `range(n)` and forgetting it for `range(start, stop)`. The stop value is excluded in every form. The exercise asks for the total of every whole number from 1 up to and including n, so the stop you write is not the number you want to reach."
+    },
+    {
+      "type": "predict",
+      "id": "range-three",
+      "promptMd": "What is `list(range(3))`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "inclusive",
+          "md": "`[1, 2, 3]`",
+          "misconceptionId": "range-is-inclusive"
+        },
+        {
+          "id": "exclusive",
+          "md": "`[0, 1, 2]`"
+        }
+      ],
+      "answer": "exclusive",
+      "explainMd": "`range` counts from 0 and stops before the number you gave it, so `range(3)` yields 0, 1, and 2 — three values, none of them 3. Reading it as \"three times, starting at zero\" is the habit that makes loop bounds stop being a guess."
+    },
+    {
+      "type": "check",
+      "id": "range-words",
+      "kind": "cloze",
+      "promptMd": "`range(2, 9, 3)` starts at {{a}} and its last value is {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "2",
+              "md": "2"
+            },
+            {
+              "id": "0",
+              "md": "0"
+            },
+            {
+              "id": "3",
+              "md": "3"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "8",
+              "md": "8"
+            },
+            {
+              "id": "9",
+              "md": "9"
+            },
+            {
+              "id": "11",
+              "md": "11"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "2",
+        "b": "8"
+      },
+      "explainMd": "Counting by threes from 2 gives 2, 5, 8 — the next one would be 11, which is past the stop, so the run ends at 8. The stop value itself is never produced, and neither is any value beyond it, no matter what the step is."
+    },
+    {
+      "type": "code",
+      "id": "total-steps",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `total_steps(n)` so it returns the sum of every whole number from 1 up to and **including** n. `total_steps(5)` is `15`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "15",
+          "misconceptionId": "range-is-inclusive"
+        },
+        {
+          "type": "ast",
+          "query": "range("
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter adds up 0, 1, 2, 3 and 4 and gets 10. Two things are wrong with that run of numbers."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The first value should be 1, not 0, and the run has to reach n. Both are fixed by the two arguments you pass to `range`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`range(1, 4)` gives 1, 2, 3 — to include a number you name one more than it as the stop."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def total_steps(n):\n    total = 0\n    for i in range(1, n + 1):\n        total = total + i\n    return total\n\n\nprint(total_steps(5))"
+        }
+      ]
+    }
+  ],
+  "description": "A counted loop walks a path, one step per turn."
+}

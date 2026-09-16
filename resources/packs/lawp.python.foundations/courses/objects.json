@@ -1,0 +1,42 @@
+{
+  "id": "objects",
+  "title": "Objects that hold state",
+  "level": "intermediate",
+  "estimatedMinutes": 300,
+  "skillIds": [
+    "python.objects",
+    "python.objects.data"
+  ],
+  "modules": [
+    {
+      "id": "shape",
+      "title": "Shape an object",
+      "lessonIds": [
+        "class-and-instance",
+        "init-and-attributes",
+        "methods-and-self",
+        "class-vs-instance-attr"
+      ]
+    },
+    {
+      "id": "behave",
+      "title": "Make it behave",
+      "lessonIds": [
+        "dunder-str-and-repr",
+        "equality-and-hash",
+        "dataclasses",
+        "properties-not-getters"
+      ]
+    },
+    {
+      "id": "reuse",
+      "title": "Reuse without tangling",
+      "lessonIds": [
+        "inheritance-basics",
+        "super-and-mro",
+        "composition-over-inheritance",
+        "transfer-model-a-station"
+      ]
+    }
+  ]
+}

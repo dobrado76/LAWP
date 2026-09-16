@@ -1,0 +1,42 @@
+{
+  "id": "craft",
+  "title": "Prove it, then ship it",
+  "level": "advanced",
+  "estimatedMinutes": 300,
+  "skillIds": [
+    "python.craft.tests",
+    "python.craft.debug",
+    "python.craft.perf",
+    "python.security"
+  ],
+  "creationId": "field-station",
+  "modules": [
+    {
+      "id": "prove",
+      "title": "Prove it",
+      "lessonIds": [
+        "assert-and-aaa",
+        "fixtures-and-hidden-tests",
+        "mocking-time-and-io",
+        "docstrings-contracts"
+      ]
+    },
+    {
+      "id": "diagnose",
+      "title": "Diagnose and harden",
+      "lessonIds": [
+        "logging-not-print",
+        "measure-then-change",
+        "security-paths-and-eval"
+      ]
+    },
+    {
+      "id": "ship",
+      "title": "Ship",
+      "lessonIds": [
+        "transfer-test-the-fox",
+        "capstone-field-station"
+      ]
+    }
+  ]
+}

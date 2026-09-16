@@ -206,6 +206,23 @@ function renderFence(lang: string, body: string): string {
   return `<figure class="snippet"><figcaption>${esc(label)}</figcaption><pre><code>${highlightSnippet(code, key)}</code></pre></figure>`
 }
 
+export type MdAssets = { packId: string; lessonId: string }
+
+const ASSET_SRC = /^assets\/[A-Za-z0-9._-]+$/
+
+function diagramHtml(alt: string, src: string): string {
+  const safe = src.trim()
+  if (!ASSET_SRC.test(safe)) return `<p>${mdInline(alt)}</p>`
+  const cap = alt.trim() ? `<figcaption>${mdInline(alt)}</figcaption>` : ''
+  return `<figure class="diagram"><img src="${esc(safe)}" alt="${esc(alt)}" />${cap}</figure>`
+}
+
+export function rewritePackImages(html: string, packId: string, lessonId: string): string {
+  return html.replace(/src="(assets\/[A-Za-z0-9._-]+)"/g, (_, path: string) => {
+    return `src="lawp-pack://${packId}/lessons/${lessonId}/${path}"`
+  })
+}
+
 function renderBlocks(s: string): string {
   const inline = mdInline
   const out: string[] = []
@@ -217,6 +234,12 @@ function renderBlocks(s: string): string {
     }
   }
   for (const line of s.split('\n')) {
+    const image = line.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*$/)
+    if (image) {
+      close()
+      out.push(diagramHtml(image[1] ?? '', image[2] ?? ''))
+      continue
+    }
     const heading = line.match(/^(#{1,3})\s+(.+)$/)
     if (heading) {
       close()
@@ -261,7 +284,7 @@ function renderBlocks(s: string): string {
   return out.join('')
 }
 
-export function md(s: string): string {
+export function md(s: string, assets?: MdAssets): string {
   const text = s.replaceAll('\r\n', '\n')
   const fence = /```([a-zA-Z0-9_+-]*)[ \t]*\n([\s\S]*?)```/g
   const parts: string[] = []
@@ -273,7 +296,8 @@ export function md(s: string): string {
     last = m.index + m[0].length
   }
   if (last < text.length) parts.push(renderBlocks(text.slice(last)))
-  return parts.join('')
+  const html = parts.join('')
+  return assets ? rewritePackImages(html, assets.packId, assets.lessonId) : html
 }
 
 /** Drop the `## 0.2.0 — date` line; the dialog already titles the minor. */

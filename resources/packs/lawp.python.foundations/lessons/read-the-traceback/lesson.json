@@ -1,0 +1,111 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.errors",
+    "python.craft.debug"
+  ],
+  "id": "read-the-traceback",
+  "courseId": "errors",
+  "moduleId": "read",
+  "title": "Read the last line first",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A traceback is printed backwards from what you need\n\nWhen Python gives up it prints a traceback: a header, then one frame per call that was still in progress, then the error itself. The frames are listed oldest first, so the line that actually failed is at the **bottom**, immediately above the last line. That last line is the exception type and its message.\n\nThis bites because the eye starts at the top, reads `Traceback (most recent call last):` and the first `File` line, and concludes the bug is wherever the program began. That frame is only the entry point. Chasing it wastes the one piece of information the traceback was built to give you.\n\n```python\ndef average(values):\n    return sum(values) / len(values)\n\n\n# average([]) stops the program and prints, in this order:\n#   Traceback (most recent call last):\n#     File \"main.py\", line 9, in <module>\n#       average([])\n#     File \"main.py\", line 2, in average\n#       return sum(values) / len(values)\n#   ZeroDivisionError: division by zero\nprint(\"start at the bottom: the type, then the message, then the frame above it\")\n```\n\nA common mistake is reading only the type and skipping the message after the colon. `ZeroDivisionError` tells you what rule broke; `division by zero` tells you which value was wrong. The exercise asks you to pull both out of a traceback given as text, which forces you to look at the end of it rather than the beginning."
+    },
+    {
+      "type": "predict",
+      "id": "where-to-look",
+      "promptMd": "Which line of a traceback names the error that actually stopped the program?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "first",
+          "md": "The first line, `Traceback (most recent call last):`",
+          "misconceptionId": "traceback-reads-top-down"
+        },
+        {
+          "id": "last",
+          "md": "The last line, such as `ZeroDivisionError: division by zero`"
+        }
+      ],
+      "answer": "last",
+      "explainMd": "The first line is a fixed header that appears on every traceback and says nothing about your bug. The exception type and message are on the final line, and the frame just above it is the code that raised. Reading bottom-up turns a wall of text into two useful facts."
+    },
+    {
+      "type": "check",
+      "id": "frame-order",
+      "promptMd": "The `File ...` frames in a traceback are listed…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "oldest",
+          "md": "Oldest call first, so the line that failed is last"
+        },
+        {
+          "id": "newest",
+          "md": "Newest call first, so the line that failed is at the top"
+        },
+        {
+          "id": "random",
+          "md": "In no particular order"
+        }
+      ],
+      "answer": "oldest",
+      "explainMd": "That is exactly what the header promises: \"most recent call last\". The chain reads like a story — this called that, which called this — and the final frame is where it broke. Following the chain upwards is how you find which caller passed the bad value in."
+    },
+    {
+      "type": "code",
+      "id": "parse-a-traceback",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> A traceback is sitting in `TRACE` as text. Write `last_line(text)` returning its final non-blank line, and `error_type(text)` returning just the exception type from that line. Print `error_type(TRACE)`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "ZeroDivisionError"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints the header line, which means it is reading the traceback from the top. Everything else about it is already right."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Split the text into lines, drop the blank ones, and take the **last** one with `lines[-1]`. The exception type is everything before the first colon on that line, which `split(\":\")[0]` gives you."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For the text `\"a\\nb\\n\"`, keeping the non-blank lines gives `[\"a\", \"b\"]`, so `lines[-1]` is `\"b\"` and `lines[0]` is `\"a\"`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "TRACE = \"\"\"Traceback (most recent call last):\n  File \"main.py\", line 9, in <module>\n    print(average(readings))\n  File \"main.py\", line 5, in average\n    return total / len(values)\nZeroDivisionError: division by zero\n\"\"\"\n\n\ndef last_line(text):\n    lines = [line for line in text.splitlines() if line.strip()]\n    return lines[-1]\n\n\ndef error_type(text):\n    return last_line(text).split(\":\")[0]\n\n\nprint(error_type(TRACE))"
+        }
+      ]
+    }
+  ],
+  "description": "The last line of a traceback names the failure. Read from the bottom."
+}

@@ -1,0 +1,156 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 24,
+  "skillIds": [
+    "python.internals.iteration"
+  ],
+  "id": "itertools-basics",
+  "courseId": "internals",
+  "moduleId": "iteration",
+  "title": "itertools: slice, chain, group",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Lazy tools that already exist\n\n`itertools` is a small library of iterators you would otherwise hand-roll. `count()` produces numbers forever, `islice(stream, n)` takes the first `n` items of anything, `chain(a, b)` walks several streams as if they were one, and `groupby(rows, key=...)` collapses *runs* of equal keys into groups.\n\n`groupby` is the trap. It only compares each row with the one before it, so it starts a new group every time the key changes — on unsorted input you get `temp`, `wind`, `temp` as three separate groups. Sort by the same key first and each key appears in exactly one run. The group it hands you is also a lazy iterator that dies as soon as you move to the next group.\n\n```python\nfrom itertools import chain, count, groupby, islice\nfrom operator import itemgetter\n\nprint(list(islice(count(), 3)))                      # [0, 1, 2] from an endless stream\nprint(list(chain([\"a\"], [\"b\", \"c\"])))                # ['a', 'b', 'c']\n\nrows = [(\"temp\", 3), (\"wind\", 9), (\"temp\", 5)]\nfor kind, group in groupby(sorted(rows, key=itemgetter(0)), key=itemgetter(0)):\n    print(kind, [value for _, value in group])       # temp [3, 5] / wind [9]\n```\n\nA common mistake is calling `islice` on a list you already built — the saving comes from slicing something you never materialised, like `count()` or a file. The other is keeping a `groupby` group to look at later, when it has already been consumed. The exercise asks for all three tools, so read the group into a list while you hold it."
+    },
+    {
+      "type": "predict",
+      "id": "groupby-unsorted",
+      "promptMd": "`groupby` over `[(\"temp\", 3), (\"wind\", 9), (\"temp\", 5)]` keyed on the name yields how many groups?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "two",
+          "md": "Two — one per distinct name"
+        },
+        {
+          "id": "three",
+          "md": "Three — `temp`, `wind`, then `temp` again"
+        }
+      ],
+      "answer": "three",
+      "explainMd": "`groupby` groups *adjacent* equal keys, so a key that reappears later starts a second group. Sorting by the same key first is what turns \"runs\" into \"one group per key\". This is the single most common `groupby` bug and it never raises — it just quietly returns the wrong shape."
+    },
+    {
+      "type": "check",
+      "id": "islice-on-count",
+      "promptMd": "Why is `islice(count(), 3)` safe even though `count()` is endless?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "lazy",
+          "md": "`islice` pulls only the items it needs and then stops asking"
+        },
+        {
+          "id": "materialise",
+          "md": "`count()` stops at 3 once `islice` tells it the limit"
+        },
+        {
+          "id": "copy",
+          "md": "`islice` copies the stream first, then trims it"
+        }
+      ],
+      "answer": "lazy",
+      "explainMd": "Everything here is pull-based: `islice` asks `count()` for a next value three times and then reports that it is done, so the endless source is simply never asked again. That is why `list(count())` hangs while `list(islice(count(), 3))` returns instantly."
+    },
+    {
+      "type": "check",
+      "id": "itertools-words",
+      "kind": "cloze",
+      "promptMd": "`chain(a, b)` returns {{a}}, so `list(...)` around it is {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "a lazy iterator",
+              "md": "a lazy iterator"
+            },
+            {
+              "id": "a new list",
+              "md": "a new list"
+            },
+            {
+              "id": "a tuple",
+              "md": "a tuple"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "how you materialise it",
+              "md": "how you materialise it"
+            },
+            {
+              "id": "forbidden",
+              "md": "forbidden"
+            },
+            {
+              "id": "automatic",
+              "md": "automatic"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "a lazy iterator",
+        "b": "how you materialise it"
+      },
+      "explainMd": "`chain` never copies its inputs; it walks the first to exhaustion, then the next. Printing it shows `<itertools.chain object ...>`, so wrap it in `list(...)` when you want to see or index the result — and leave it lazy when you are only going to loop once."
+    },
+    {
+      "type": "code",
+      "id": "itertools-three",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Fill in three helpers with `itertools`. `labels(n)` returns the first `n` ids (`\"S0\"`, `\"S1\"`, …) taken from an endless `count()`. `merged(a, b)` chains two logs lazily without copying them. `by_kind(rows)` groups rows into `{kind: [values]}` — sort before you group. Output should be `{'temp': [3, 5, 4], 'wind': [9, 1]}`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "{'temp': [3, 5, 4], 'wind': [9, 1]}"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Three small bodies. The imports you need are already at the top of the file."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`islice(count(), n)` gives the first `n` numbers; `chain(a, b)` returns the joined iterator directly; `groupby` needs `sorted(rows, key=...)` with the *same* key it groups on."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A grouped dict is built like this: `for key, group in groupby(sorted(pairs, key=itemgetter(0)), key=itemgetter(0)): out[key] = [v for _, v in group]`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from itertools import chain, count, groupby, islice\nfrom operator import itemgetter\n\nROWS = [(\"temp\", 3), (\"wind\", 9), (\"temp\", 5), (\"wind\", 1), (\"temp\", 4)]\n\n\ndef labels(n):\n    return [f\"S{number}\" for number in islice(count(), n)]\n\n\ndef merged(a, b):\n    return chain(a, b)\n\n\ndef by_kind(rows):\n    grouped = {}\n    for kind, group in groupby(sorted(rows, key=itemgetter(0)), key=itemgetter(0)):\n        grouped[kind] = [value for _, value in group]\n    return grouped\n\n\nprint(by_kind(ROWS))"
+        }
+      ]
+    }
+  ],
+  "description": "The standard library already wrote the loops you keep rewriting."
+}

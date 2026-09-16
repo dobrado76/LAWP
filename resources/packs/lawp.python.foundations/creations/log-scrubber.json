@@ -1,0 +1,19 @@
+{
+  "id": "log-scrubber",
+  "title": "Log scrubber",
+  "briefMd": "A tool that reads a messy station log and writes a clean report you can hand to someone else.",
+  "exportKinds": [
+    "folder",
+    "zip"
+  ],
+  "steps": [
+    {
+      "lessonId": "transfer-clean-a-log",
+      "addsMd": "Normalise the messy lines."
+    },
+    {
+      "lessonId": "creation-log-scrubber",
+      "addsMd": "Read a file, write the cleaned report."
+    }
+  ]
+}

@@ -1,54 +1,99 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "compare-is-not-assign",
   "packId": "lawp.python.foundations",
-  "courseId": "repl-in-pocket",
-  "moduleId": "decisions",
-  "title": "Compare is not assign",
-  "skillIds": [
-    "python.control.if"
-  ],
-  "estimatedMinutes": 15,
   "taskRev": 1,
+  "estimatedMinutes": 14,
+  "skillIds": [
+    "python.control.if",
+    "python.types.names"
+  ],
+  "id": "compare-is-not-assign",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "One equals sign binds, two ask",
   "blocks": [
     {
       "type": "explain",
-      "md": "## `=` writes; `==` asks\n\nA single `=` writes a new value onto a name. A double `==` asks whether two values are the same and answers with `True` or `False`. An `if` needs a question, not a write. `if flag == True:` asks. `if flag = True:` tries to assign in a place Python does not allow, so the file never becomes a running program.\n\nThis bites immediately: the starter will not even run. You get a syntax error before any print, so you never see `yes`. The line looks almost right, which makes the error feel mysterious until you notice the missing second equals sign.\n\n```python\nflag = True\nif flag == True:\n    print(\"yes\")\n```\n\nA common mistake is leaving the assignment in the `if`, or deleting the test and printing `yes` with no condition. Either dodge skips the idea. The exercise asks you to fix the `if` so it asks whether `flag` is true. After the fix, the program should print `yes` and the source should contain `==`.\n"
+      "md": "## A statement and a question look almost the same\n\nA single `=` is a statement: it takes the value on the right and binds it to the name on the left. A double `==` is a question: it compares two values and produces `True` or `False`. One changes the program, the other only reports on it.\n\nThis bites inside a condition, where the two are one keystroke apart. Several languages let you assign inside an `if` and then quietly treat the assigned value as the answer, so the branch always runs and the bug hides for months. Python refuses: an `=` where a comparison belongs is a `SyntaxError` at load time, before a single line of your program runs.\n\n```python\ncount = 3             # bind: the name now holds 3\nprint(count == 3)     # True  — a question about the value\nprint(count == 4)     # False\n# if count = 3:       # SyntaxError: invalid syntax\nprint(count)          # still 3 — asking never changed it\n```\n\nA common mistake is reading the error as \"Python is being fussy\" and adding parentheses. The message is telling you the line is a statement in a place that needs a value. The exercise asks whether a count has reached the station limit, so the body of the function must ask a question and hand back the answer."
     },
     {
-      "type": "debug",
-      "id": "fix-compare",
+      "type": "predict",
+      "id": "assign-in-if",
+      "promptMd": "What happens when you run `if count = 3:` in Python?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "silent",
+          "md": "It sets `count` to 3 and the branch runs",
+          "misconceptionId": "assign-instead-of-compare"
+        },
+        {
+          "id": "syntax",
+          "md": "The file fails to load with a `SyntaxError`"
+        }
+      ],
+      "answer": "syntax",
+      "explainMd": "Python will not parse an assignment where a value is expected, so the whole file is rejected before it runs. That refusal is a feature: the bug that always takes the same branch is caught at load time instead of surviving into production. If you really want to bind and test at once, the walrus `:=` is the explicit way to say so."
+    },
+    {
+      "type": "check",
+      "id": "compare-mutates",
+      "kind": "tf",
+      "promptMd": "Evaluating `count == 3` can change what `count` holds.",
+      "answer": "false",
+      "explainMd": "It cannot. A comparison reads both sides and produces a fresh `True` or `False`; it never rebinds anything. That is why you can test the same expression as often as you like without side effects, and why an `if` condition is safe to read as a plain question about the current state."
+    },
+    {
+      "type": "code",
+      "id": "at-the-limit",
       "engine": "python",
       "entry": "main.py",
+      "promptMd": "> Finish `at_limit(count)` so it returns `True` exactly when `count` has reached `LIMIT`, and `False` otherwise. The printed line should be `True`.",
       "files": [
         {
           "path": "files/main.py",
           "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
         }
       ],
       "checks": [
         {
           "type": "stdout",
-          "equals": "yes",
+          "equals": "True",
           "misconceptionId": "assign-instead-of-compare"
         },
         {
           "type": "ast",
-          "query": "==",
-          "misconceptionId": "assign-instead-of-compare"
+          "query": "=="
+        },
+        {
+          "type": "python-assert"
         }
       ],
       "hintLadder": [
         {
           "level": 1,
           "kind": "concept",
-          "md": "The error is about assignment in a place that wants a test."
+          "md": "The starter binds a name and returns it, so it hands back the limit itself rather than an answer."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "Replace = with ==, or write `if flag:`."
+          "md": "A function that answers yes or no should end in a comparison. `==` produces the `True` or `False` you want to return."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`def is_empty(n): return n == 0` returns `True` for `0` and `False` for everything else — no `if` needed."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "LIMIT = 5\n\n\ndef at_limit(count):\n    return count == LIMIT\n\n\nprint(at_limit(5))"
         }
       ]
     }

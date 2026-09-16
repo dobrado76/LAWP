@@ -126,7 +126,9 @@ export function CheckPanel({
   return (
     <div className={`check-panel${graded ? ` is-${result}` : ''}`}>
       <p className="check-kicker">{CHECK_KIND_LABEL[kind]}</p>
-      {!hidePrompt && <div className="prose" dangerouslySetInnerHTML={{ __html: md(check.promptMd) }} />}
+      {!hidePrompt && (
+        <div className="prose" dangerouslySetInnerHTML={{ __html: md(check.promptMd, { packId, lessonId }) }} />
+      )}
       {kind === 'mcq' || kind === 'odd' || kind === 'listen' ? (
         <>
           {kind === 'listen' && check.audio ? (
@@ -266,7 +268,15 @@ export function CheckPanel({
       ) : null}
       {kind === 'bins' ? <Bins check={check} value={asMap(current)} onChange={onChange} /> : null}
       {kind === 'venn' ? <Venn check={check} value={asMap(current)} onChange={onChange} /> : null}
-      {result ? <CheckReview check={check} result={result} revealIds={revealIds} /> : null}
+      {result ? (
+        <CheckReview
+          check={check}
+          result={result}
+          revealIds={revealIds}
+          packId={packId}
+          lessonId={lessonId}
+        />
+      ) : null}
       {showCta && onSubmit && onNext ? (
         <GradeCta result={result} canAdvance={canAdvance} onSubmit={onSubmit} onNext={onNext} nextLabel={nextLabel ?? 'Next'} />
       ) : null}
@@ -370,6 +380,11 @@ export function revealsAnswer(check: CheckPrompt, result: 'pass' | 'fail' | null
   return result === 'fail' && check.diagnostic === true
 }
 
+/** Graded-check why-text. Pack/lesson ids are required so a figure in explainMd cannot throw. */
+export function checkExplainHtml(explainMd: string, packId: string, lessonId: string): string {
+  return md(explainMd, { packId, lessonId })
+}
+
 /**
  * What the learner keeps from a graded question: the verdict, the answer spelled
  * out when it is theirs to see, and why it is the answer. Being shown the right
@@ -378,11 +393,15 @@ export function revealsAnswer(check: CheckPrompt, result: 'pass' | 'fail' | null
 function CheckReview({
   check,
   result,
-  revealIds
+  revealIds,
+  packId,
+  lessonId
 }: {
   check: CheckPrompt
   result: 'pass' | 'fail'
   revealIds: string[]
+  packId: string
+  lessonId: string
 }) {
   const reveal = revealsAnswer(check, result) && revealIds.length > 0
   const named = reveal
@@ -403,7 +422,9 @@ function CheckReview({
         ) : null}
         {result === 'fail' && !reveal ? ' — change your pick and submit again, or take a hint' : null}
       </p>
-      {explain ? <div className="prose" dangerouslySetInnerHTML={{ __html: md(explain) }} /> : null}
+      {explain ? (
+        <div className="prose" dangerouslySetInnerHTML={{ __html: checkExplainHtml(explain, packId, lessonId) }} />
+      ) : null}
     </div>
   )
 }

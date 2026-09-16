@@ -1,0 +1,44 @@
+{
+  "id": "internals",
+  "title": "How Python actually runs it",
+  "level": "advanced",
+  "estimatedMinutes": 330,
+  "skillIds": [
+    "python.internals.iteration",
+    "python.internals.decorators",
+    "python.internals.context",
+    "python.typing"
+  ],
+  "modules": [
+    {
+      "id": "identity",
+      "title": "Objects and references",
+      "lessonIds": [
+        "objects-and-references",
+        "mutability-and-aliasing",
+        "copy-shallow-vs-deep"
+      ]
+    },
+    {
+      "id": "iteration",
+      "title": "Lazy iteration",
+      "lessonIds": [
+        "iterables-and-iterators",
+        "generators-yield",
+        "generator-pipelines",
+        "itertools-basics"
+      ]
+    },
+    {
+      "id": "wrap",
+      "title": "Wrap behaviour",
+      "lessonIds": [
+        "decorators-basics",
+        "decorators-with-args",
+        "context-managers",
+        "type-hints",
+        "transfer-lazy-reader"
+      ]
+    }
+  ]
+}

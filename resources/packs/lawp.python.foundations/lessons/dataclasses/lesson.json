@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.objects.data"
+  ],
+  "id": "dataclasses",
+  "courseId": "objects",
+  "moduleId": "behave",
+  "title": "Records without the boilerplate",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Declare the fields, get the plumbing\n\nPlenty of classes are just a named bundle of values, and writing `__init__`, `__repr__`, and `__eq__` for each one by hand is tedious and easy to get subtly wrong. `@dataclass` reads the annotated names in the class body and generates those methods from them, so `Reading(name: str, value: int)` gains a constructor, a readable repr, and field-by-field equality with no method bodies at all.\n\nThe annotations are what the decorator reads, so `value: int` is required for the field to be seen — a bare `value = 0` is treated as a plain class attribute and never becomes a parameter. Note that the hint is not enforced at runtime: `Reading(\"soil\", \"wet\")` builds happily. Adding `frozen=True` blocks attribute assignment after construction, raising `FrozenInstanceError`, and in exchange the class gets a `__hash__`, so frozen records work as dict keys and set members.\n\n```python\nfrom dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Reading:\n    name: str\n    value: int\n\n\na = Reading(\"soil\", 11)\nprint(a)                                      # Reading(name='soil', value=11)\nprint(a == Reading(\"soil\", 11))               # True — field-by-field\nprint(hash(a) == hash(Reading(\"soil\", 11)))   # True — frozen, so hashable\n```\n\nA common mistake is expecting `frozen=True` to freeze what the fields point at; it only stops rebinding on the instance, so a list inside a frozen record can still be appended to. The exercise rewrites `Reading` as a frozen dataclass with `name: str` and `value: int` — printing the instance must give `Reading(name='soil', value=11)`."
+    },
+    {
+      "type": "check",
+      "id": "what-dataclass-writes",
+      "promptMd": "What does `@dataclass` generate from the annotated fields?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "three",
+          "md": "`__init__`, `__repr__`, and `__eq__`"
+        },
+        {
+          "id": "getters",
+          "md": "A getter and a setter method for each field"
+        },
+        {
+          "id": "validation",
+          "md": "Runtime checks that each argument matches its annotation"
+        }
+      ],
+      "answer": "three",
+      "explainMd": "Those three cover the boring half of a record class, and options like `order=True` or `frozen=True` add more. What it never adds is type checking — the annotations are read to find the field names and order, and a wrong type still constructs without complaint."
+    },
+    {
+      "type": "check",
+      "id": "frozen-is-hashable",
+      "kind": "tf",
+      "promptMd": "`frozen=True` makes instances hashable, so a record can be used as a dict key.",
+      "answer": "true",
+      "explainMd": "Freezing means the fields cannot be rebound, so the hash computed from them stays valid for the object’s whole life — and that is exactly the promise a dict key has to make. A mutable dataclass is left unhashable, because a key whose hash drifted would be unfindable."
+    },
+    {
+      "type": "code",
+      "id": "frozen-reading",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Rewrite `Reading` as a **frozen** dataclass with fields `name: str` and `value: int`. Printing `Reading(\"soil\", 11)` should give `Reading(name='soil', value=11)`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "Reading(name='soil', value=11)"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Run the starter: it prints an address, because a hand-written class has no repr and this one has no equality either."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Import `dataclass` from `dataclasses`, decorate the class with `@dataclass(frozen=True)`, and replace the whole `__init__` with two annotated field lines."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The field lines are declarations, not assignments: `cols: int` on its own line is a required field, while `cols: int = 5` gives it a default."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Reading:\n    name: str\n    value: int\n\n\nprint(Reading(\"soil\", 11))"
+        }
+      ]
+    }
+  ],
+  "description": "A dataclass writes the boring parts of a record class for you."
+}

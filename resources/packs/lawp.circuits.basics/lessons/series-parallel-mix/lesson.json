@@ -1,0 +1,229 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "series-parallel-mix",
+  "packId": "lawp.circuits.basics",
+  "courseId": "workshop",
+  "moduleId": "keep",
+  "title": "A mix of paths",
+  "skillIds": [
+    "circuits.combine"
+  ],
+  "estimatedMinutes": 12,
+  "taskRev": 1,
+  "description": "A real desk mixes series and parallel. Light both lamps brightly by choosing the split, not the single hallway.",
+  "creation": {
+    "id": "my-circuit",
+    "step": 2,
+    "briefMd": "Wire two lamps in series or parallel and keep the layout that lights both brightly."
+  },
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Transfer: two lamps, your call\n\nYou have a porch lamp and a house lamp. Wire them in series and they share one current and one push — both look dimmer. Wire them in parallel and each sees the full battery — both can be bright. The live world starts in series. The goal is both lamps at brightness 2.\n\nThis bites when you keep the series hallway because it “uses less wire” and then wonder why both stay dim. The mix picture also reminds you: a lamp in series with a parallel pair is a later puzzle. Today, pick the split.\n\n![Series-parallel mix](assets/series-parallel-mix.svg)\n\n```text\nSERIES     both dim     (shared V)\nPARALLEL   both bright  (same V)\n```\n\nA common mistake is swapping the names. Predict first, then change the wiring so both lamps can be bright."
+    },
+    {
+      "type": "activity",
+      "id": "two-lamps",
+      "kind": "experiment",
+      "engine": "world-v1",
+      "promptMd": "Light both lamps brightly (brightness 2).",
+      "skillIds": [
+        "circuits.combine"
+      ],
+      "constraintMode": "final",
+      "predict": {
+        "promptMd": "If you leave both lamps in series, they will be…",
+        "kind": "mcq",
+        "choices": [
+          {
+            "id": "dim",
+            "md": "Dimmer — they share the push"
+          },
+          {
+            "id": "bright",
+            "md": "Both fully bright, because two lamps are always better",
+            "misconceptionId": "parallel-vs-series-mixup"
+          },
+          {
+            "id": "one",
+            "md": "One bright and one dark — the first used the current",
+            "misconceptionId": "current-gets-used-up"
+          }
+        ],
+        "answer": "dim"
+      },
+      "world": {
+        "parts": [
+          {
+            "id": "battery",
+            "type": "battery",
+            "props": {
+              "cells": 1
+            }
+          },
+          {
+            "id": "mode",
+            "type": "resistor",
+            "props": {
+              "wiring": "series",
+              "ohms": 2,
+              "label": "Wiring"
+            }
+          },
+          {
+            "id": "lampA",
+            "type": "lamp",
+            "props": {
+              "brightness": 1,
+              "label": "House"
+            }
+          },
+          {
+            "id": "lampB",
+            "type": "lamp",
+            "props": {
+              "brightness": 1,
+              "label": "Porch"
+            }
+          }
+        ],
+        "connections": [
+          {
+            "from": "battery",
+            "to": "mode"
+          },
+          {
+            "from": "mode",
+            "to": "lampA"
+          },
+          {
+            "from": "lampA",
+            "to": "lampB"
+          },
+          {
+            "from": "lampB",
+            "to": "battery"
+          }
+        ],
+        "actions": [
+          {
+            "id": "set-wiring",
+            "label": "Set wiring",
+            "target": "mode",
+            "op": "set",
+            "key": "wiring",
+            "values": [
+              "series",
+              "parallel"
+            ]
+          }
+        ],
+        "rules": [
+          {
+            "id": "series",
+            "when": [
+              {
+                "path": "mode.wiring",
+                "op": "eq",
+                "value": "series"
+              }
+            ],
+            "set": [
+              {
+                "target": "lampA",
+                "key": "brightness",
+                "value": 1
+              },
+              {
+                "target": "lampB",
+                "key": "brightness",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "id": "parallel",
+            "when": [
+              {
+                "path": "mode.wiring",
+                "op": "eq",
+                "value": "parallel"
+              }
+            ],
+            "set": [
+              {
+                "target": "lampA",
+                "key": "brightness",
+                "value": 2
+              },
+              {
+                "target": "lampB",
+                "key": "brightness",
+                "value": 2
+              }
+            ]
+          }
+        ],
+        "view": {
+          "kind": "graph",
+          "assetMap": {
+            "lamp@brightness=0": "assets/lamp-dim.svg",
+            "lamp@brightness=1": "assets/lamp-dim.svg",
+            "lamp@brightness=2": "assets/lamp-bright.svg",
+            "battery": "assets/battery.svg",
+            "resistor": "assets/resistor.svg",
+            "meter": "assets/meter.svg",
+            "voltmeter": "assets/voltmeter.svg",
+            "switch@closed=false": "assets/switch-open.svg",
+            "switch@closed=true": "assets/switch-closed.svg",
+            "fuse": "assets/fuse.svg"
+          }
+        }
+      },
+      "goal": {
+        "all": [
+          {
+            "path": "lampA.brightness",
+            "op": "eq",
+            "value": 2
+          },
+          {
+            "path": "lampB.brightness",
+            "op": "eq",
+            "value": 2
+          }
+        ]
+      },
+      "explainAfter": {
+        "promptMd": "Parallel gave each lamp the full push. Series made them share. The parts were the same; the wiring changed the story."
+      },
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two lamps start in series, both dim."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "You want both at brightness 2. That is the parallel row."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Series shares V. Parallel keeps V the same on each lamp."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Set wiring to parallel, then Check."
+        }
+      ]
+    }
+  ]
+}

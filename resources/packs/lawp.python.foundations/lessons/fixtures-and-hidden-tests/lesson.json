@@ -1,0 +1,126 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 24,
+  "skillIds": [
+    "python.craft.tests"
+  ],
+  "id": "fixtures-and-hidden-tests",
+  "courseId": "craft",
+  "moduleId": "prove",
+  "title": "Fixtures, and why the hidden test is fair",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A fixture is a known day\n\nA fixture is input you chose on purpose, small enough to hold in your head, paired with an answer you worked out by hand. It is not whatever happened to be on disk this morning. The whole value of a fixture is that you knew the answer *before* you ran the code, so a mismatch accuses the code instead of confusing you.\n\nThis bites when a test arranges real data. Real data changes, so the expected answer has to be recomputed by the very function you are testing, and the test quietly agrees with whatever the code does. Three hand-written rows with two of them in the same cell will catch a broken tally forever; a thousand rows from yesterday will catch it only until tomorrow.\n\n```python\nFIXTURE = [               # a known day: two rows in one cell\n    {\"animal\": \"fox\", \"x\": 2, \"y\": 1},\n    {\"animal\": \"owl\", \"x\": 0, \"y\": 3},\n    {\"animal\": \"fox\", \"x\": 2, \"y\": 1},\n]\n\n# The answer was worked out by hand, not by the function under test.\nEXPECTED_BUSIEST = (2, 1)\nEXPECTED_ROWS = 3\n\nprint(len(FIXTURE) == EXPECTED_ROWS)\n```\n\nA common mistake is treating the hidden test you have been running since lesson two as a trap. It is a contract: it only ever asks for the names and the answers the brief spells out, and it runs your file exactly the way you ran it. The exercise states its four clauses in the prompt, so read them as the specification and build a fixture that satisfies them."
+    },
+    {
+      "type": "check",
+      "id": "what-is-a-fixture",
+      "promptMd": "Which of these is a fixture?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "live",
+          "md": "Yesterday's whole station log, loaded from disk at the top of the test"
+        },
+        {
+          "id": "hand",
+          "md": "Three rows you wrote out, next to the answer you worked out by hand"
+        },
+        {
+          "id": "random",
+          "md": "Twenty rows generated with random coordinates each run"
+        }
+      ],
+      "answer": "hand",
+      "explainMd": "A fixture is chosen input with a known answer. Loading the real log makes the expected value move every day, and generating random rows means a failure cannot be reproduced. Small and deliberate wins: pick the rows that exercise the interesting case — a tie, an empty list, one duplicate cell — and write the answer down as a literal.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "hidden-is-a-contract",
+      "kind": "tf",
+      "promptMd": "A fair hidden test may check a name or a behaviour the brief never mentioned.",
+      "answer": "false",
+      "explainMd": "The hidden part is the *assertions*, not the requirements. Every name it imports and every answer it expects is stated in the brief, which is why a hidden test is a contract rather than a guessing game. Keeping it hidden only stops you from writing code that pattern-matches the test instead of solving the problem.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "predict",
+      "id": "empty-clause",
+      "promptMd": "Your brief says an empty log reports `None`. You never tried it. What usually happens?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fine",
+          "md": "Nothing — an empty list is a special case the language handles"
+        },
+        {
+          "id": "raises",
+          "md": "The empty case raises, because `max()` of nothing has no answer"
+        }
+      ],
+      "answer": "raises",
+      "explainMd": "The empty input is the case nobody tries by hand and every contract mentions. Reductions like `max()` and `min()` raise `ValueError` on an empty sequence, and an average divides by zero, so the guard has to be written deliberately. Read the empty clause first and answer it with an early return.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "busiest-cell",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> The contract, in full — nothing else is tested:\n>\n> 1. `FIXTURE` is a module-level list of at least three rows shaped `{\"animal\": ..., \"x\": ..., \"y\": ...}`, with the cell `(2, 1)` appearing twice.\n> 2. `busiest_cell(rows)` returns the `(x, y)` tuple that appears most often.\n> 3. On a tie it returns the smallest tuple.\n> 4. On an empty list it returns `None`.\n>\n> Print `busiest_cell(FIXTURE)`. Output should be `(2, 1)`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "(2, 1)"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two jobs here: build the known day as `FIXTURE`, and make `busiest_cell` answer the four clauses above."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Count cells first — `Counter((row[\"x\"], row[\"y\"]) for row in rows)` gives you a tally. The winner is the cell whose tally equals the highest tally, and `min(...)` over those winners settles a tie."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same two-step on names: `tally = Counter(r[\"animal\"] for r in rows)`, then `best = max(tally.values())`, then `min(n for n, c in tally.items() if c == best)`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from collections import Counter\n\nFIXTURE = [\n    {\"animal\": \"fox\", \"x\": 2, \"y\": 1},\n    {\"animal\": \"owl\", \"x\": 0, \"y\": 3},\n    {\"animal\": \"fox\", \"x\": 2, \"y\": 1},\n]\n\n\ndef busiest_cell(rows):\n    if not rows:\n        return None\n    tally = Counter((row[\"x\"], row[\"y\"]) for row in rows)\n    best = max(tally.values())\n    return min(cell for cell, seen in tally.items() if seen == best)\n\n\nprint(busiest_cell(FIXTURE))"
+        }
+      ]
+    }
+  ],
+  "description": "A fixture builds the world a test needs, and the hidden test calls your code."
+}

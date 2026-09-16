@@ -1,4 +1,9 @@
-flag = True
-# This file is wrong on purpose. The if should compare, not assign.
-if flag = True:
-    print("yes")
+LIMIT = 5
+
+
+def at_limit(count):
+    reached = LIMIT
+    return reached
+
+
+print(at_limit(5))

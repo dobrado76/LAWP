@@ -8,7 +8,79 @@
   {
     "id": "more-cells-always-brighter",
     "title": "Assumes more cells always means brighter",
-    "skillIds": ["circuits.series.current"],
-    "diagnosticBlockId": "diag-cells"
+    "skillIds": ["circuits.voltage"],
+    "followUpLessonId": "battery-as-push"
+  },
+  {
+    "id": "current-gets-used-up",
+    "title": "Thinks current is used up in the lamp",
+    "skillIds": ["circuits.current"],
+    "followUpLessonId": "series-same-current"
+  },
+  {
+    "id": "voltage-is-stuff-in-the-wire",
+    "title": "Treats voltage as stuff sitting in the wire",
+    "skillIds": ["circuits.voltage"],
+    "followUpLessonId": "voltage-is-a-difference"
+  },
+  {
+    "id": "open-loop-still-lit",
+    "title": "Thinks an open loop can still light",
+    "skillIds": ["circuits.loop"],
+    "followUpLessonId": "open-means-dark"
+  },
+  {
+    "id": "parallel-vs-series-mixup",
+    "title": "Swaps series and parallel rules",
+    "skillIds": ["circuits.parallel"],
+    "followUpLessonId": "series-vs-parallel"
+  },
+  {
+    "id": "short-is-more-power-better",
+    "title": "Treats a short as extra useful power",
+    "skillIds": ["circuits.short"],
+    "followUpLessonId": "why-a-short-hurts"
+  },
+  {
+    "id": "two-metals-needed",
+    "title": "Thinks electricity needs two different metals",
+    "skillIds": ["circuits.charge"],
+    "followUpLessonId": "what-is-charge"
+  },
+  {
+    "id": "current-leaves-and-returns-different",
+    "title": "Thinks outgoing current is larger than return current",
+    "skillIds": ["circuits.current"],
+    "followUpLessonId": "current-is-flow"
+  },
+  {
+    "id": "voltage-through-not-across",
+    "title": "Measures voltage through a wire instead of across two points",
+    "skillIds": ["circuits.measure"],
+    "followUpLessonId": "what-meters-do"
+  },
+  {
+    "id": "adding-parallel-dims",
+    "title": "Thinks a parallel lamp always steals brightness",
+    "skillIds": ["circuits.parallel"],
+    "followUpLessonId": "parallel-split"
+  },
+  {
+    "id": "fuse-is-optional",
+    "title": "Treats the fuse as optional decoration",
+    "skillIds": ["circuits.fuse"],
+    "followUpLessonId": "transfer-fuse"
+  },
+  {
+    "id": "ohms-as-brightness-only",
+    "title": "Treats resistance as a brightness knob and ignores V = I R",
+    "skillIds": ["circuits.ohms"],
+    "followUpLessonId": "ohms-law"
+  },
+  {
+    "id": "switch-is-a-dimmer",
+    "title": "Treats an ordinary switch as a dimmer",
+    "skillIds": ["circuits.switch"],
+    "followUpLessonId": "switches-break"
   }
 ]

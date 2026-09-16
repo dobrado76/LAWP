@@ -1,0 +1,121 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.async"
+  ],
+  "id": "threads-vs-processes",
+  "courseId": "waiting",
+  "moduleId": "together",
+  "title": "Threads, processes, and the GIL",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three tools, one question to ask first\n\nCPython holds a **global interpreter lock**: one thread executes Python bytecode at a time inside a process. Threads still help, because the lock is released while a thread waits on I/O — so four downloads in four threads genuinely overlap. What they cannot do is run four calculations on four cores, because only one of them can hold the lock.\n\nSo the first question is never \"threads or async\" — it is \"is this job waiting or working\". Waiting work suits `asyncio` (one thread, thousands of pending waits, no locking to think about) or a thread pool when the library you must call is blocking. Working work needs `multiprocessing`: separate processes, one interpreter and one lock each, real parallelism — paid for with startup cost and data that has to be pickled across the boundary.\n\n```python\n# Waiting on the network or the disk: overlap it.\n#   asyncio.gather(...)                 - one thread, explicit await points\n#   ThreadPoolExecutor                  - blocking libraries you cannot rewrite\n#\n# Working the CPU: give it more interpreters.\n#   ProcessPoolExecutor                 - real cores, pickled arguments\n#\n# Threads share memory, so two threads touching one list need a lock.\n# Processes share nothing, so they need a queue or a pipe instead.\n```\n\nA common mistake is adding threads to a number-crunching loop and finding it slightly slower — the GIL was never the thing making it slow, and now there is contention on top. The mirror mistake is reaching for `multiprocessing` to fetch four files, paying for four interpreters to sit and wait. Decide with the profile, not the reflex: measure whether the time goes on waiting or on working, then pick the tool that addresses that."
+    },
+    {
+      "type": "predict",
+      "id": "gil-effect",
+      "promptMd": "Four CPU-heavy calculations in four Python threads, on a four-core machine. Roughly how fast compared with running them one after another?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "four",
+          "md": "About four times faster — one per core"
+        },
+        {
+          "id": "same",
+          "md": "About the same, or slightly slower"
+        }
+      ],
+      "answer": "same",
+      "explainMd": "The GIL lets only one thread run Python bytecode at a time, so the four calculations take turns on a single core and the total barely changes — while the switching adds a little overhead of its own. Four processes would use the four cores, because each process has its own interpreter and its own lock."
+    },
+    {
+      "type": "check",
+      "id": "pick-the-tool",
+      "promptMd": "A blocking third-party client makes four network calls that mostly sit and wait. You cannot rewrite it. Best tool?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "threads",
+          "md": "A thread pool — the lock is released while each call waits"
+        },
+        {
+          "id": "processes",
+          "md": "A process pool, to dodge the GIL"
+        },
+        {
+          "id": "asyncio",
+          "md": "`asyncio.gather` over the blocking client"
+        }
+      ],
+      "answer": "threads",
+      "explainMd": "Threads are the right fit for blocking I/O: while a call waits, its thread drops the GIL and the others run, so the waits overlap. `asyncio` cannot help a blocking client — calling it inside a coroutine stalls the whole loop — and processes would pay startup and pickling costs for work that is only waiting."
+    },
+    {
+      "type": "check",
+      "id": "processes-share-memory",
+      "kind": "tf",
+      "promptMd": "Two processes started with `multiprocessing` share the same variables, so one can append to the other's list.",
+      "answer": "false",
+      "explainMd": "Each process gets its own memory and its own copy of everything, which is why arguments and results have to be pickled across the boundary. That isolation is also the appeal: no shared state means no data races and no locks, at the cost of copying anything you want to pass along."
+    },
+    {
+      "type": "check",
+      "id": "tool-words",
+      "kind": "cloze",
+      "promptMd": "A job that is mostly {{a}} wants concurrency; a job that is mostly {{b}} wants more processes.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "waiting on I/O",
+              "md": "waiting on I/O"
+            },
+            {
+              "id": "crunching numbers",
+              "md": "crunching numbers"
+            },
+            {
+              "id": "importing modules",
+              "md": "importing modules"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "crunching numbers",
+              "md": "crunching numbers"
+            },
+            {
+              "id": "waiting on I/O",
+              "md": "waiting on I/O"
+            },
+            {
+              "id": "logging",
+              "md": "logging"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "waiting on I/O",
+        "b": "crunching numbers"
+      },
+      "explainMd": "Concurrency fills in idle time, so it pays off exactly when the process is idle — waiting on I/O. Parallelism buys more workers, which is what a CPU-bound job needs, and in CPython more workers means more processes because the GIL allows only one thread of bytecode per interpreter."
+    },
+    {
+      "type": "reflect",
+      "id": "own-workload",
+      "promptMd": "Think of something slow you have written or used. Was the time going on waiting or on working — and which of the three tools would you reach for?"
+    }
+  ],
+  "description": "Threads help with waiting. Processes help with computing."
+}

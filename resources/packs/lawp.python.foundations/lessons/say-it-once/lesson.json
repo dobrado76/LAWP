@@ -1,58 +1,102 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "say-it-once",
   "packId": "lawp.python.foundations",
-  "courseId": "repl-in-pocket",
-  "moduleId": "messages",
-  "title": "Say it once",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
   "skillIds": [
+    "python.values.strings",
     "python.io.stdio"
   ],
-  "estimatedMinutes": 15,
-  "taskRev": 1,
+  "id": "say-it-once",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Say it once",
   "creation": {
     "id": "greeting-bot",
     "step": 1,
-    "briefMd": "A greeting that uses a name."
+    "briefMd": "Step one of the greeting bot: one sentence, written once, with the name dropped into the middle of it. Later steps add the checks that keep it sensible when the name is missing."
   },
   "blocks": [
     {
       "type": "explain",
-      "md": "## Print is a tool\n\nPrint is a tool for showing a message, not the message itself. The greeting lives in the values you already have — here a `name` — and `print` only sends that line to the screen. Build the line from the name so changing the name changes the greeting without rewriting the sentence by hand.\n\nThis bites when you type `Hello, Ada!` as a frozen string and ignore `name`. The first run looks right. Rename the person to `Grace` and the line still says Ada, because the program never read the variable. A greeting that cannot follow its own data is just a poster.\n\n```python\nname = \"Ada\"\nprint(f\"Hello, {name}!\")\n```\n\nA common mistake is printing a fixed `\"Hello\"` or a hardcoded full greeting. That treats print as the whole program. The exercise asks you to print `Hello, Ada!` by using the `name` value — an f-string is a good tool — so the output includes Ada because of the variable, not because you copied the letters.\n"
+      "md": "## One sentence, one place to change it\n\nAn f-string is a normal string with an `f` in front, and any `{ }` inside it is an expression that Python works out and drops into the text. The sentence stays readable because the words and the values sit where they will actually appear.\n\nThis bites when you build the sentence out of `+` instead. You end up counting spaces by hand, converting numbers with `str()`, and repeating the same greeting in three places, so a wording change means three edits and one of them gets missed. The station greets everyone who signs in, and a greeting that says `Hello, name!` because the quotes swallowed the variable is worse than no greeting at all.\n\n```python\ncrates = 4\nwhere = \"north gate\"\n\nprint(\"There are \" + str(crates) + \" crates at \" + where + \".\")\nprint(f\"There are {crates} crates at {where}.\")\nprint(f\"Half of them is {crates / 2}.\")\n```\n\nA common mistake is writing the placeholder inside a plain string and wondering why the literal word appears. Without the `f` prefix, `{name}` is just four characters plus braces. The exercise asks you to write the welcome sentence once and let the name arrive through the braces."
+    },
+    {
+      "type": "predict",
+      "id": "fstring-math",
+      "promptMd": "With `crates = 4`, what does `print(f\"{crates + 1} left\")` show?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "literal",
+          "md": "`crates + 1 left`"
+        },
+        {
+          "id": "computed",
+          "md": "`5 left`"
+        }
+      ],
+      "answer": "computed",
+      "explainMd": "Everything between the braces is evaluated as ordinary Python before the text is assembled, so `crates + 1` becomes `5` and the result is spliced in. That is also why you never need `str()` inside an f-string: the value is converted to text for you on the way in."
+    },
+    {
+      "type": "check",
+      "id": "needs-the-f",
+      "kind": "tf",
+      "promptMd": "Without the `f` prefix, `\"Hello, {name}!\"` still substitutes the value of `name`.",
+      "answer": "false",
+      "explainMd": "It does not. A plain string has no special meaning for braces, so you get the literal characters `{name}` in your output. The `f` is what tells Python to read the braces as expressions, and forgetting it is the most common reason a greeting prints the variable name instead of the person."
     },
     {
       "type": "code",
-      "id": "f-hello",
+      "id": "welcome-line",
       "engine": "python",
       "entry": "main.py",
+      "promptMd": "> Finish `welcome(name)` so it returns `Hello, Ada! Welcome to the field station.` for `\"Ada\"` — the sentence written once, with the name interpolated.",
       "files": [
         {
           "path": "files/main.py",
           "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
         }
       ],
       "checks": [
         {
           "type": "stdout",
-          "equals": "Hello, Ada!",
-          "misconceptionId": "print-is-the-program"
+          "equals": "Hello, Ada! Welcome to the field station."
         },
         {
           "type": "ast",
-          "query": "name"
+          "query": "f\""
+        },
+        {
+          "type": "python-assert"
         }
       ],
       "hintLadder": [
         {
           "level": 1,
           "kind": "concept",
-          "md": "The output must include the name Ada from the variable."
+          "md": "The starter prints the word `name` because the placeholder is inside an ordinary string."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "print(f\"Hello, {name}!\")"
+          "md": "Put `f` immediately before the opening quote, then wrap the parameter in braces where the name belongs."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`f\"Signed in: {who}\"` with `who = \"Rune\"` gives `Signed in: Rune`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def welcome(name):\n    return f\"Hello, {name}! Welcome to the field station.\"\n\n\nprint(welcome(\"Ada\"))"
         }
       ]
     }

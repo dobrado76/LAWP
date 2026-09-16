@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Unlabeled two-path wiring">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <path d="M80 200 H180" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M180 120 V280" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M180 120 H460" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M180 280 H460" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M460 120 V280" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M460 200 H560" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="40" y="176" width="50" height="48" rx="4" fill="#1f2937" stroke="#9ca3af"/>
+  <rect x="82" y="188" width="8" height="24" fill="#e6b84d"/>
+  <circle cx="320" cy="120" r="20" fill="#e6b84d" stroke="#c9a227"/>
+  <circle cx="320" cy="280" r="20" fill="#e6b84d" stroke="#c9a227"/>
+  <polygon points="200,120 188,112 188,128" fill="#2ec4b6"/>
+  <polygon points="200,280 188,272 188,288" fill="#2ec4b6"/>
+  <polygon points="500,200 488,192 488,208" fill="#2ec4b6"/>
+</svg>

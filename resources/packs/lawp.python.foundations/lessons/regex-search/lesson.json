@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.text.regex"
+  ],
+  "id": "regex-search",
+  "courseId": "text",
+  "moduleId": "patterns",
+  "title": "Find a shape, not a word",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A pattern describes what the text looks like\n\nA regular expression describes a **shape** of text rather than a literal one. `\\d{4}` means four digits in a row, wherever they are. `re.search(pattern, text)` scans the whole string for the first place that shape occurs and returns a match object, or `None` if the shape never appears.\n\nThis bites when you reach for `re.match` by name. `match` only tries the pattern at position zero, so a level word sitting in the middle of a log line is never found and you conclude the pattern is broken. `search` is the one that looks everywhere; `match` is the one that anchors to the start.\n\n```python\nimport re\n\nline = \"2041-03-02 ERR north sensor cold\"\n\nprint(re.search(r\"ERR\", line))            # a match object, not a bool\nprint(re.match(r\"ERR\", line))             # None - match only tries the start\nprint(re.search(r\"\\d{4}\", line).group())  # '2041'\nprint(re.search(r\"[A-Z]{3}\", line).group())   # 'ERR'\nprint(re.search(r\"fox\", line))            # None - no match at all\n```\n\nA common mistake is calling `.group()` on the result without checking it. When nothing matched the result is `None`, and `None.group()` raises `AttributeError` rather than telling you the pattern missed. The exercise asks for two readers over a log line, both of which have to survive a line that does not match."
+    },
+    {
+      "type": "check",
+      "id": "match-vs-search",
+      "promptMd": "`re.match(r\"ERR\", line)` on a line where `ERR` sits in the middle returns…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "none",
+          "md": "`None`"
+        },
+        {
+          "id": "match",
+          "md": "A match object for the `ERR` in the middle"
+        },
+        {
+          "id": "bool",
+          "md": "`False`"
+        }
+      ],
+      "answer": "none",
+      "explainMd": "`re.match` anchors at position zero and gives up if the pattern does not fit there, so it returns `None` rather than scanning onward. `re.search` is the scanning version. Neither returns a boolean — they return a match object or `None`, which is why `if found:` works but `== True` does not."
+    },
+    {
+      "type": "check",
+      "id": "raw-string",
+      "kind": "tf",
+      "promptMd": "The `r` prefix on `r\"\\d{4}\"` stops Python from treating the backslash as an escape, which is why patterns are written as raw strings.",
+      "answer": "true",
+      "explainMd": "Without the `r`, Python would try to interpret the backslash sequence itself before the regex engine ever saw it, and some of those sequences mean something different or nothing at all. Writing every pattern as a raw string means what you type is exactly what the engine receives."
+    },
+    {
+      "type": "code",
+      "id": "find-level-and-stamp",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `level(line)` returning `ERR`, `WARN` or `INFO` when the line contains one and `\"UNKNOWN\"` otherwise, and `stamp(line)` returning the `YYYY-MM-DD` date or `None`. Print `level(...)` for the sample line.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "ERR"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Both starter functions ignore the line entirely and answer the not-found case every time. The sample line does contain a level word."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Use `re.search` so the pattern can be found anywhere in the line, and check the result against `None` before calling `.group()`. Alternatives go in a group separated by `|`, as in `(ERR|WARN|INFO)`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For a date, the pattern `r\"\\d{4}-\\d{2}-\\d{2}\"` matches four digits, a hyphen, two digits, a hyphen, and two more."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import re\n\n\ndef level(line):\n    found = re.search(r\"ERR|WARN|INFO\", line)\n    if found is None:\n        return \"UNKNOWN\"\n    return found.group()\n\n\ndef stamp(line):\n    found = re.search(r\"\\d{4}-\\d{2}-\\d{2}\", line)\n    if found is None:\n        return None\n    return found.group()\n\n\nprint(level(\"2041-03-02 ERR north sensor cold\"))"
+        }
+      ]
+    }
+  ],
+  "description": "A pattern finds the shape of a reading, not one exact word."
+}

@@ -1,0 +1,110 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.errors",
+    "python.craft.debug"
+  ],
+  "id": "debug-swallowed-error",
+  "courseId": "errors",
+  "moduleId": "raise",
+  "title": "Debug: the error nobody heard",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Silence is not success\n\n`except: pass` is the quietest bug in Python. It catches every exception and then does nothing about it, so a program with a real fault in it runs to completion, exits zero, and prints a plausible-looking answer. There is no traceback, because the traceback was caught and dropped.\n\nThis bites hardest when the swallowed error is not the one you were guarding against. A loop meant to skip the odd unreadable value also silently skips a misspelled key — every single row — and the total comes out as zero. The output is wrong and the program looks healthy.\n\n```python\nrows = [{\"reading\": \"12\"}, {\"reading\": \"warm\"}]\n\ntotal = 0\nfor row in rows:\n    try:\n        total += int(row[\"reading\"])\n    except ValueError:      # only the failure you actually expected\n        continue\nprint(total)                # 12, and a typo in \"reading\" would still raise\n```\n\nA common mistake is narrowing the `except` and leaving `pass` behind, which still hides how many rows were skipped. The starter below totals the station readings and reports `0`. One bad row is expected; all of them are not. Widen nothing — narrow the `except` until the real failure can be heard, then fix it."
+    },
+    {
+      "type": "predict",
+      "id": "what-hides",
+      "promptMd": "A loop with `except: pass` around a dictionary lookup totals `0` instead of `19`. What is the most likely cause?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "empty",
+          "md": "The list of rows is empty"
+        },
+        {
+          "id": "key",
+          "md": "Every row raises — most likely the key name is wrong — and the bare `except` hides it"
+        }
+      ],
+      "answer": "key",
+      "explainMd": "A total of zero from a non-empty list means the accumulating line never succeeded once. A bare `except` cannot tell you that, because it treats a misspelled key exactly like the messy value you were prepared for. Narrowing it to the expected error makes the real one show itself."
+    },
+    {
+      "type": "check",
+      "id": "narrow-it",
+      "promptMd": "To make the hidden failure visible, the first thing to change is…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "narrow",
+          "md": "Replace `except:` with the specific error you expect, so anything else is reported"
+        },
+        {
+          "id": "print",
+          "md": "Add more `print` calls inside the `try` block"
+        },
+        {
+          "id": "remove",
+          "md": "Delete the loop and total the values by hand"
+        }
+      ],
+      "answer": "narrow",
+      "explainMd": "Narrowing the `except` costs one line and immediately promotes every unexpected failure back into a traceback, which then names the real problem for you. Printing from inside a block whose exception is swallowed often shows nothing, because the failing line never reaches the print."
+    },
+    {
+      "type": "debug",
+      "id": "surface-the-bug",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `total_readings(ROWS)` prints `0` when it should print `19`. Narrow the `except` so the hidden failure is reported, fix what it tells you, and also finish `skipped(rows)` so it counts the rows that genuinely are not numbers.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "19"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two of the three readings are numbers, so a total of `0` means every row failed, not one. The bare `except` is why you cannot see which error it was."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Change `except:` to `except ValueError:` and run it again. Python will now report the failure it was hiding, and the traceback names the key that does not exist in these rows."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "If a row is `{\"zone\": \"north\", \"reading\": \"12\"}`, then `row[\"value\"]` raises `KeyError` while `row[\"reading\"]` is the string you wanted."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "ROWS = [\n    {\"zone\": \"north\", \"reading\": \"12\"},\n    {\"zone\": \"east\", \"reading\": \"7\"},\n    {\"zone\": \"south\", \"reading\": \"warm\"},\n]\n\n\ndef total_readings(rows):\n    total = 0\n    for row in rows:\n        try:\n            total += int(row[\"reading\"])\n        except ValueError:\n            continue\n    return total\n\n\ndef skipped(rows):\n    count = 0\n    for row in rows:\n        try:\n            int(row[\"reading\"])\n        except ValueError:\n            count += 1\n    return count\n\n\nprint(total_readings(ROWS))"
+        }
+      ]
+    }
+  ],
+  "description": "The program claims it worked. An except is eating the failure."
+}

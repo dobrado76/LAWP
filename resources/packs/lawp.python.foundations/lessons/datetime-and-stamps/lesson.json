@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.modules"
+  ],
+  "id": "datetime-and-stamps",
+  "courseId": "process",
+  "moduleId": "inputs",
+  "title": "A stamp is a value",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Parse it, work with it, format it back\n\nA timestamp in a log is text, and text cannot be subtracted or shifted. `datetime.fromisoformat(text)` turns an ISO 8601 stamp such as `2026-03-14T06:12:00` into a `datetime`, and `.isoformat()` turns one back into that same text. Between those two calls you are holding a value that knows about hours, months, and leap years.\n\nSubtracting two datetimes gives a `timedelta` rather than a number: a span, which knows its `.days` and its `.total_seconds()` but has no `.minutes`. Adding `timedelta(minutes=15)` to a datetime gives another datetime, and it rolls over the hour, the day, and the month on the way — which is precisely what slicing digits out of the string cannot do.\n\n```python\nfrom datetime import datetime, timedelta\n\nstart = datetime.fromisoformat(\"2026-03-14T06:12:00\")\nend = datetime.fromisoformat(\"2026-03-14T07:00:00\")\n\ngap = end - start\nprint(int(gap.total_seconds() // 60))             # 48\nprint((end + timedelta(minutes=15)).isoformat())  # 2026-03-14T07:15:00\n```\n\nA common mistake is `datetime.now()` inside anything that gets checked. The answer changes every second, so the test passes once and then fails forever, and the failure looks like a bug in the arithmetic. Pin the moment instead: parse a fixed stamp, or take it as an argument. The exercise gives you two fixed stamps and never asks the clock."
+    },
+    {
+      "type": "check",
+      "id": "gap-type",
+      "promptMd": "You have two datetimes and you evaluate `end - start`. What kind of value is that?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "num",
+          "md": "A number of seconds"
+        },
+        {
+          "id": "delta",
+          "md": "A `timedelta`"
+        }
+      ],
+      "answer": "delta",
+      "explainMd": "Subtracting two points in time gives a span, and Python models a span as its own kind of value. Ask it for `.days` or `.total_seconds()` to get a number out; there is no `.minutes`, so whole minutes are `int(gap.total_seconds() // 60)`."
+    },
+    {
+      "type": "check",
+      "id": "now-in-test",
+      "promptMd": "A graded task needs \"the stamp fifteen minutes later\". Which starting point should it use?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "now",
+          "md": "`datetime.now()`"
+        },
+        {
+          "id": "fixed",
+          "md": "A fixed stamp parsed from text"
+        }
+      ],
+      "answer": "fixed",
+      "explainMd": "Anything built from the current clock produces a different answer on every run, so there is no output a test can be written against. Parsing a fixed stamp makes the run repeatable, and real programs get the same benefit by taking the moment as an argument instead of reading the clock deep inside the work."
+    },
+    {
+      "type": "code",
+      "id": "stamp-math",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `START` and `END` are ISO stamps. Print the whole minutes between them, then the ISO stamp fifteen minutes after `END` — `48 2026-03-14T07:15:00`. Do not call `datetime.now()`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "48 2026-03-14T07:15:00"
+        },
+        {
+          "type": "ast",
+          "query": "fromisoformat"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The second half of the starter is right by accident. Digit slicing cannot subtract, and it would not roll over the hour if the gap were longer."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`datetime.fromisoformat(START)` and `datetime.fromisoformat(END)` give you two values, and `end - start` gives the span between them."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A span has no `.minutes`, so whole minutes are `int(gap.total_seconds() // 60)`. And `end + timedelta(minutes=15)` is another datetime, which `.isoformat()` prints back as text."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from datetime import datetime, timedelta\n\nSTART = \"2026-03-14T06:12:00\"\nEND = \"2026-03-14T07:00:00\"\n\nstart = datetime.fromisoformat(START)\nend = datetime.fromisoformat(END)\ngap = end - start\n\nprint(int(gap.total_seconds() // 60), (end + timedelta(minutes=15)).isoformat())"
+        }
+      ]
+    }
+  ],
+  "description": "Parse a timestamp out of the log, and format one back."
+}

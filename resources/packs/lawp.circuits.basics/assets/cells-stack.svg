@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="One cell versus two cells">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="150" y="40" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">More cells add push - they do not ignore the loop</text>
+  <rect x="90" y="100" width="180" height="70" rx="6" fill="#1f2937" stroke="#9ca3af"/>
+  <text x="132" y="142" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">1 cell</text>
+  <text x="128" y="200" fill="#2ec4b6" font-size="16" font-family="Segoe UI, sans-serif">smaller push</text>
+  <rect x="370" y="86" width="180" height="50" rx="6" fill="#1f2937" stroke="#9ca3af"/>
+  <rect x="370" y="148" width="180" height="50" rx="6" fill="#1f2937" stroke="#e6b84d"/>
+  <text x="412" y="118" fill="#e8edf5" font-size="16" font-family="Segoe UI, sans-serif">cell</text>
+  <text x="412" y="180" fill="#e8edf5" font-size="16" font-family="Segoe UI, sans-serif">cell</text>
+  <text x="400" y="230" fill="#e6b84d" font-size="16" font-family="Segoe UI, sans-serif">twice the push</text>
+  <text x="70" y="300" fill="#e8edf5" font-size="16" font-family="Segoe UI, sans-serif">Two cells in series can make more current - if the path can take it.</text>
+  <text x="70" y="332" fill="#93a0b5" font-size="15" font-family="Segoe UI, sans-serif">A tight resistance or a blown fuse still wins. More cells is not always brighter.</text>
+  <text x="70" y="364" fill="#93a0b5" font-size="15" font-family="Segoe UI, sans-serif">Current is still push divided by squeeze: I H V / R.</text>
+</svg>

@@ -1,0 +1,29 @@
+{
+  "id": "modules",
+  "title": "Modules and packages",
+  "level": "intermediate",
+  "estimatedMinutes": 190,
+  "skillIds": [
+    "python.modules"
+  ],
+  "modules": [
+    {
+      "id": "files-as-modules",
+      "title": "A file is a module",
+      "lessonIds": [
+        "module-is-a-file",
+        "import-forms",
+        "main-guard"
+      ]
+    },
+    {
+      "id": "bigger",
+      "title": "Bigger than one file",
+      "lessonIds": [
+        "packages-and-init",
+        "stdlib-tour",
+        "venv-and-dependencies"
+      ]
+    }
+  ]
+}

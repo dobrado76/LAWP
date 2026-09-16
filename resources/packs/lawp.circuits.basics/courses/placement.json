@@ -1,0 +1,15 @@
+{
+  "id": "placement",
+  "title": "Where you are",
+  "level": "beginner",
+  "estimatedMinutes": 12,
+  "diagnosticLessonId": "circuits-placement",
+  "skillIds": ["circuits.charge", "circuits.current", "circuits.loop", "circuits.voltage", "circuits.ohms"],
+  "modules": [
+    {
+      "id": "diagnostic",
+      "title": "Placement",
+      "lessonIds": ["circuits-placement"]
+    }
+  ]
+}

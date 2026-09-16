@@ -49,7 +49,7 @@ npm run dist
 
 ## What you can do today
 
-**Learn.** Open **circuits** and make a lamp brighter without blowing the limit. Walk a **fox** to a beacon in Python, or take the full **JavaScript** expert path (language, DOM, Node, tests). Your edits come back when you change lessons. Restart restores starters and keeps history.
+**Learn.** Open **circuits** and make a lamp brighter without blowing the limit. Take the full **Python** path (values, the fox grid, collections, files, objects, generators, async, tests) or the full **JavaScript** expert path (language, DOM, Node, tests). Your edits come back when you change lessons. Restart restores starters and keeps history.
 
 **See why.** A miss names a misconception — or asks a diagnostic instead of faking one. Concept hints are free. Assist hints mark the attempt.
 
@@ -79,6 +79,7 @@ What is in the build: [docs/STATUS.md](docs/STATUS.md). Locked behavior: [docs/D
 | [PEDAGOGY.md](docs/PEDAGOGY.md) | Mastery, hints, misconceptions |
 | [CONTENT_MODEL.md](docs/CONTENT_MODEL.md) | Cartridges, `world-v1`, progress |
 | [AUTHORING.md](docs/AUTHORING.md) | How to make a lesson in the app |
+| [COURSE_SPEC.md](docs/COURSE_SPEC.md) | How a whole course is designed, built, and verified |
 | [CURRICULA.md](docs/CURRICULA.md) | Circuits, Python, JavaScript, React, question types |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Main / preload / renderer |
 | [IPC_CONTRACT.md](docs/IPC_CONTRACT.md) | Typed IPC |

@@ -1,2 +1,5 @@
-# Print the type name of 3 (int) on one line.
-print("?")
+def kind_of(value):
+    return "?"
+
+
+print(kind_of(3))

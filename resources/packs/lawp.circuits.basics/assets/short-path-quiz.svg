@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Unlabeled loop with a bypass wire">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <rect x="100" y="90" width="440" height="200" rx="8" fill="none" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="268" y="68" width="104" height="40" rx="5" fill="#1f2937" stroke="#9ca3af"/>
+  <rect x="360" y="78" width="10" height="20" fill="#e6b84d"/>
+  <circle cx="320" cy="290" r="22" fill="#e6b84d" stroke="#c9a227"/>
+  <circle cx="320" cy="290" r="9" fill="#d4b84a"/>
+  <path d="M140 190 H500" stroke="#2ec4b6" stroke-width="6"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Series-parallel mix">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="130" y="36" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">A mix: one lamp in series with a parallel pair</text>
+  <path d="M70 200 H160" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="40" y="176" width="40" height="48" rx="4" fill="#1f2937" stroke="#9ca3af"/>
+  <circle cx="210" cy="200" r="20" fill="#e6b84d" stroke="#f59e0b"/>
+  <text x="186" y="246" fill="#93a0b5" font-size="12" font-family="Segoe UI, sans-serif">A</text>
+  <path d="M230 200 H300" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M300 130 V270" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M300 130 H500" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M300 270 H500" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M500 130 V270" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M500 200 H590" stroke="#2ec4b6" stroke-width="4"/>
+  <circle cx="400" cy="130" r="18" fill="#fbbf24" stroke="#f59e0b"/>
+  <circle cx="400" cy="270" r="18" fill="#fbbf24" stroke="#f59e0b"/>
+  <text x="388" y="108" fill="#93a0b5" font-size="12" font-family="Segoe UI, sans-serif">B</text>
+  <text x="388" y="308" fill="#93a0b5" font-size="12" font-family="Segoe UI, sans-serif">C</text>
+  <text x="70" y="350" fill="#e8edf5" font-size="15" font-family="Segoe UI, sans-serif">A carries the whole current. B and C split what is left after A.</text>
+  <text x="70" y="378" fill="#93a0b5" font-size="14" font-family="Segoe UI, sans-serif">Open A and the pair goes dark. Open B and C can still light.</text>
+</svg>

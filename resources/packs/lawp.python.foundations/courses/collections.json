@@ -1,0 +1,45 @@
+{
+  "id": "collections",
+  "title": "Data that becomes a path",
+  "level": "beginner",
+  "estimatedMinutes": 330,
+  "skillIds": [
+    "python.collections.list",
+    "python.collections.dict",
+    "python.collections.set",
+    "python.collections.comprehension"
+  ],
+  "modules": [
+    {
+      "id": "sequences",
+      "title": "Sequences",
+      "lessonIds": [
+        "lists-index-slice",
+        "list-mutation-vs-copy",
+        "tuples-and-unpacking",
+        "sorting-with-key"
+      ]
+    },
+    {
+      "id": "mappings",
+      "title": "Mappings and sets",
+      "lessonIds": [
+        "dicts-keys",
+        "dict-get-and-setdefault",
+        "sets-and-dedupe",
+        "counting-with-counter"
+      ]
+    },
+    {
+      "id": "shape",
+      "title": "Reshape the data",
+      "lessonIds": [
+        "comprehensions-list",
+        "comprehensions-dict-set",
+        "zip-and-enumerate",
+        "nested-data-gradebook",
+        "transfer-group-records"
+      ]
+    }
+  ]
+}

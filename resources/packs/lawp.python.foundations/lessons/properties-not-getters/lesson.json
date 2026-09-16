@@ -1,0 +1,117 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.objects.data"
+  ],
+  "id": "properties-not-getters",
+  "courseId": "objects",
+  "moduleId": "behave",
+  "title": "Attribute syntax, method behaviour",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Python does not want a getter for every field\n\nIn some languages every field hides behind `getX()` in case the reading ever needs to be computed. Python does not need that insurance, because `@property` can turn a plain attribute read into a method call later without touching a single caller. So you expose the attribute, and only reach for a property when there is real work to do.\n\nA property is read with no parentheses — `probe.fahrenheit`, not `probe.fahrenheit()` — which is the whole point: callers cannot tell whether they hit stored state or a calculation. Two jobs suit it. One is a value derived from other attributes, so it can never drift out of date. The other is a guard: the matching `@name.setter` is where a bad value is rejected with a `ValueError` at the moment it is assigned rather than three functions later.\n\n```python\nclass Sensor:\n    def __init__(self, celsius):\n        self.celsius = celsius\n\n    @property\n    def fahrenheit(self):\n        return round(self.celsius * 9 / 5 + 32, 1)\n\n\nprobe = Sensor(20)\nprint(probe.fahrenheit)   # 68.0 — no parentheses, computed on the spot\nprobe.celsius = 100\nprint(probe.fahrenheit)   # 212.0 — derived, so it cannot go stale\n```\n\nA common mistake is adding parentheses out of habit; `probe.fahrenheit()` calls the number the property returned, which raises `TypeError: 'float' object is not callable`. The exercise replaces the starter’s `get_fahrenheit()` with a `fahrenheit` property, so the print line becomes `probe.fahrenheit`."
+    },
+    {
+      "type": "predict",
+      "id": "read-a-property",
+      "promptMd": "`fahrenheit` is a `@property`. How do you read it?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "plain",
+          "md": "`probe.fahrenheit`"
+        },
+        {
+          "id": "call",
+          "md": "`probe.fahrenheit()`"
+        }
+      ],
+      "answer": "plain",
+      "explainMd": "The property machinery runs the method during the attribute lookup itself, so the plain name already gives you the computed value. Adding parentheses tries to call that result — usually a number or a string — and raises `TypeError: object is not callable`."
+    },
+    {
+      "type": "check",
+      "id": "why-no-getters",
+      "promptMd": "Why does Python not need a `get_x()` for every attribute?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "later",
+          "md": "Because a plain attribute can become a property later without changing any caller"
+        },
+        {
+          "id": "private",
+          "md": "Because attributes are private by default, so nothing can reach them"
+        },
+        {
+          "id": "never",
+          "md": "Because Python has no way to run code on an attribute read"
+        }
+      ],
+      "answer": "later",
+      "explainMd": "The getter exists in other languages to protect the option of computing the value one day. `@property` hands you that option for free after the fact, so writing the wrapper up front buys nothing and costs every caller a pair of parentheses."
+    },
+    {
+      "type": "check",
+      "id": "setter-guards",
+      "kind": "tf",
+      "promptMd": "A matching `@fahrenheit.setter` is where you would reject a bad value with `ValueError`.",
+      "answer": "true",
+      "explainMd": "The setter runs on assignment, so it is the earliest place a nonsense value can be refused — the object never holds it at all. Validating at the boundary like that keeps the failure next to the mistake instead of surfacing much later in whatever code trusted the attribute."
+    },
+    {
+      "type": "code",
+      "id": "fahrenheit-property",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Replace `get_fahrenheit()` with a `fahrenheit` **property** computed from `self.celsius`, and read it without parentheses. Output should be `68.0`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "68.0"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter already computes the right number. What has to change is how callers reach it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Decorate the method with `@property` and rename it to the attribute name you want, then drop the parentheses at the call site."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Another example: `@property def area(self): return self.cols * self.rows` lets `grid.area` stay correct after `grid.cols` changes."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    def __init__(self, celsius):\n        self.celsius = celsius\n\n    @property\n    def fahrenheit(self):\n        return round(self.celsius * 9 / 5 + 32, 1)\n\n\nprobe = Sensor(20)\n\nprint(probe.fahrenheit)"
+        }
+      ]
+    }
+  ],
+  "description": "A property is an attribute that runs code when you read it."
+}

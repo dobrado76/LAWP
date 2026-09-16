@@ -1,0 +1,148 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "python.types.names",
+    "python.collections.list"
+  ],
+  "id": "mutability-and-aliasing",
+  "courseId": "internals",
+  "moduleId": "identity",
+  "title": "Some objects can be edited in place",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Mutable objects change under every label\n\nLists, dicts, and sets are mutable: their contents can change while the object stays the same object. Numbers, strings, and tuples are immutable, so every \"change\" to one of them is really a new object bound to the old name. That single split explains most of the surprises in this course.\n\nThis bites at a function boundary. A parameter is just another label on the caller's object, so `log.append(value)` inside a function edits the list the caller is still holding. Rebinding the parameter with `log = log + [value]` does the opposite: it points the local label at a fresh list and the caller sees nothing at all.\n\n```python\ndef add_reading(log, value):\n    log.append(value)        # edits the caller's list\n\ndef rebind(log, value):\n    log = log + [value]      # a new list; the caller never sees it\n\nbase = [4]\nadd_reading(base, 5)\nrebind(base, 6)\nprint(base)                  # [4, 5]\n```\n\nA common mistake is writing a helper that looks like it returns a changed copy while it is really editing the argument — or the reverse. Decide which one you mean and make the signature say so: a mutator returns `None`, a builder returns the new object. The exercise asks you to write one of each and prove the caller's list only changes for the mutator."
+    },
+    {
+      "type": "predict",
+      "id": "passed-list-changes",
+      "promptMd": "`base = [4]`, then a function whose body is `log.append(5)` is called with `base`. What is `base` afterwards?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "grew",
+          "md": "`[4, 5]`"
+        },
+        {
+          "id": "unchanged",
+          "md": "`[4]` — the function received a copy",
+          "misconceptionId": "assignment-copies-a-list"
+        }
+      ],
+      "answer": "grew",
+      "explainMd": "Passing an argument binds the parameter name to the very same object; nothing is copied on the way in. `append` mutates that object, so the caller sees the extra item. If you want the caller protected, copy inside the function with `log = list(log)` or return `log + [value]` instead."
+    },
+    {
+      "type": "check",
+      "id": "tuple-immutable",
+      "kind": "tf",
+      "promptMd": "A tuple cannot be edited in place, so a function can never change a tuple its caller is holding.",
+      "answer": "true",
+      "explainMd": "Tuples expose no method that mutates them, so the object a caller holds is safe. Careful, though: a tuple can *hold* a mutable object, and `point[0].append(1)` still edits that inner list. Immutability protects the container, not everything inside it."
+    },
+    {
+      "type": "check",
+      "id": "mutate-vs-rebind",
+      "kind": "cloze",
+      "promptMd": "`log.append(9)` {{a}} the object; `log = log + [9]` {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "mutates",
+              "md": "mutates"
+            },
+            {
+              "id": "rebinds",
+              "md": "rebinds"
+            },
+            {
+              "id": "copies",
+              "md": "copies"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "rebinds the local name",
+              "md": "rebinds the local name"
+            },
+            {
+              "id": "mutates the object",
+              "md": "mutates the object"
+            },
+            {
+              "id": "raises TypeError",
+              "md": "raises TypeError"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "mutates",
+        "b": "rebinds the local name"
+      },
+      "explainMd": "The first statement reaches through the label and edits the object every other label can see. The second builds a brand new list and moves only this one label onto it, which is why the caller notices the first and never the second. `log += [9]` is a third case: on a list it mutates in place."
+    },
+    {
+      "type": "code",
+      "id": "mutate-or-build",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Fix both helpers. `add_reading(log, value)` must append to the caller's own list and return nothing. `with_reading(log, value)` must return a new list and leave the caller's list untouched. Output should be `[4, 5] [4, 5, 6]`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "[4, 5] [4, 5, 6]"
+        },
+        {
+          "type": "ast",
+          "query": ".append("
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "One helper is meant to change the caller's list, the other is meant to be harmless. Right now they are swapped."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A mutator calls a method on the object (`log.append(value)`). A builder makes a new object and returns it (`return log + [value]`)."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For a dict the same pair looks like `data[\"k\"] = 1` (mutates) versus `return {**data, \"k\": 1}` (builds)."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def add_reading(log, value):\n    log.append(value)\n\n\ndef with_reading(log, value):\n    return log + [value]\n\n\nbase = [4]\nadd_reading(base, 5)\nfresh = with_reading(base, 6)\nprint(base, fresh)"
+        }
+      ]
+    }
+  ],
+  "description": "Two names on one mutable object see each other's changes."
+}

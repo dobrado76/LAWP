@@ -1,0 +1,111 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.collections.list"
+  ],
+  "id": "list-mutation-vs-copy",
+  "courseId": "collections",
+  "moduleId": "sequences",
+  "title": "Two names, one list",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Assignment does not copy\n\nWriting `b = a` does not build a second list. It presses a second sticky note onto the list that is already there, so `a` and `b` are two labels on one object. Appending through either name is visible through both, because there is only one list to change.\n\nThis bites the first time a helper function \"just tidies up\" the list you handed it. The caller keeps its own name, the helper keeps another, and both names lead to the same shelf, so the caller silently gets the edit. A log you meant to leave untouched comes back three lines longer.\n\n```python\na = [1, 2]\nb = a           # a second label on the same list\nb.append(3)\nprint(a)        # [1, 2, 3] - one list, seen through two names\n\nc = a.copy()    # list(a) and a[:] do the same job\nc.append(4)\nprint(a)        # [1, 2, 3] - untouched\nprint(c)        # [1, 2, 3, 4]\n```\n\nA common mistake is calling `.copy()` and then still editing the original by habit. Copying only helps if the edits go to the copy. The exercise asks for `add_reading(log, value)` that hands back a longer list while leaving the list it was given exactly as the caller left it."
+    },
+    {
+      "type": "predict",
+      "id": "alias-append",
+      "promptMd": "`a = [1]`, then `b = a`, then `b.append(2)`. What is `a`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "one",
+          "md": "`[1]` — `b` was a copy",
+          "misconceptionId": "assignment-copies-a-list"
+        },
+        {
+          "id": "two",
+          "md": "`[1, 2]` — both names point at one list"
+        }
+      ],
+      "answer": "two",
+      "explainMd": "Assignment binds another name to the same object; nothing is duplicated. `a` and `b` are two labels on one list, so an append through `b` is an append the `a` name can see. `b = a.copy()` is the line that would have made two lists."
+    },
+    {
+      "type": "check",
+      "id": "which-copies",
+      "promptMd": "Which line leaves `a` alone when you later append to the result?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "alias",
+          "md": "`b = a`",
+          "misconceptionId": "assignment-copies-a-list"
+        },
+        {
+          "id": "slice",
+          "md": "`b = a[:]`"
+        },
+        {
+          "id": "item",
+          "md": "`b = a[0]`"
+        }
+      ],
+      "answer": "slice",
+      "explainMd": "A full slice `a[:]` builds a new list holding the same items, so appending to `b` cannot reach `a`. `b = a` shares one list, and `b = a[0]` is not a list at all — it is the first item. `a.copy()` and `list(a)` are the other two ways to say `a[:]`."
+    },
+    {
+      "type": "code",
+      "id": "copy-before-append",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `add_reading(log, value)` so it returns a **new** list with `value` on the end and leaves `log` unchanged. The starter prints the result and the original on one line; both should not be the same.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "[12, 7, 19] [12, 7]"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Run the starter and read the two lists it prints. They are identical, which means the function edited the list the caller still holds."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Build a second list first — `list(log)`, `log.copy()`, or `log[:]` — then append to that one and return it. The name the caller passed in never gets an `append` call."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `def with_zero(xs): fresh = list(xs); fresh.append(0); return fresh`, calling `with_zero([1])` gives `[1, 0]` and the argument is still `[1]`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def add_reading(log, value):\n    fresh = list(log)\n    fresh.append(value)\n    return fresh\n\n\nbase = [12, 7]\nprint(add_reading(base, 19), base)"
+        }
+      ]
+    }
+  ],
+  "description": "Assigning a list does not copy it. Both names see the change."
+}

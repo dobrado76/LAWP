@@ -1,0 +1,96 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.modules"
+  ],
+  "id": "main-guard",
+  "courseId": "modules",
+  "moduleId": "files-as-modules",
+  "title": "A tool and a library at once",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Import runs the file\n\nImporting a module executes every top-level statement in it, once, the first time anybody imports it. Definitions, assignments, and loose `print` calls all run. Python records which way the file was entered in the name `__name__`: it is the string `\"__main__\"` when you ran the file directly, and the module’s own name when somebody imported it.\n\nThat is why an unguarded script becomes a bad library. Import it for the one function you wanted and its whole demo fires — output you did not ask for, a file rewritten, a long computation. Wrapping the script part in `if __name__ == \"__main__\":` keeps the definitions importable while the demo only runs on a direct run.\n\n```python\nNAME = \"Ridge\"\n\n\ndef report():\n    return NAME + \" ok\"\n\n\nif __name__ == \"__main__\":\n    print(report())   # direct run: prints. Imported: stays quiet.\n```\n\nA common mistake is believing that an import only \"makes names available\" and does not run anything, so top-level side effects feel safe. They are not. The exercise asks you to write `report()` and print it **only** under the guard, so importing your file produces no output at all."
+    },
+    {
+      "type": "predict",
+      "id": "import-runs-top-level",
+      "promptMd": "`station.py` has `print(\"loaded\")` sitting at its top level. Another file runs `import station`. What happens?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "silent",
+          "md": "Nothing prints — an import only makes names available",
+          "misconceptionId": "import-runs-nothing"
+        },
+        {
+          "id": "prints",
+          "md": "`loaded` prints — the import executes the file top to bottom"
+        }
+      ],
+      "answer": "prints",
+      "explainMd": "There is no separate \"declaration\" pass in Python. Import means run the file once and keep the names it produced, so a top-level `print` prints, a top-level loop loops, and a top-level file write writes. The guard exists precisely because import is execution."
+    },
+    {
+      "type": "check",
+      "id": "guard-keeps-quiet",
+      "kind": "tf",
+      "promptMd": "With the print moved inside `if __name__ == \"__main__\":`, importing the module produces no output.",
+      "answer": "true",
+      "explainMd": "On an import, `__name__` holds the module name — `\"station\"`, not `\"__main__\"` — so the guarded branch is skipped and only the definitions above it take effect. Run the same file directly and `__name__` is `\"__main__\"`, so the branch fires."
+    },
+    {
+      "type": "code",
+      "id": "guard-the-script",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `report()` so it returns `Ridge ok`, then print it **only** when this file is run as a script. Running it should print `Ridge ok`; importing it should print nothing.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "Ridge ok"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints at the top level, so anybody who imports it gets that line whether they wanted it or not."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Compare `__name__` to the string `\"__main__\"` and put the print inside that `if`. Leave the `def` outside it."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same shape guards anything: `if __name__ == \"__main__\": main()` runs a whole command only on a direct run."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "NAME = \"Ridge\"\n\n\ndef report():\n    return NAME + \" ok\"\n\n\nif __name__ == \"__main__\":\n    print(report())"
+        }
+      ]
+    }
+  ],
+  "description": "The main guard is why importing your script does not run it."
+}

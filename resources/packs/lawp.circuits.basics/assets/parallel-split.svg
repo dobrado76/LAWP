@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Two lamps in parallel">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="140" y="36" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">Parallel: paths split. Voltage the same. Currents add.</text>
+  <path d="M80 200 H180" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M180 120 V280" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M180 120 H460" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M180 280 H460" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M460 120 V280" stroke="#2ec4b6" stroke-width="4"/>
+  <path d="M460 200 H560" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="40" y="176" width="50" height="48" rx="4" fill="#1f2937" stroke="#9ca3af"/>
+  <text x="48" y="206" fill="#e8edf5" font-size="12" font-family="Segoe UI, sans-serif">Bat</text>
+  <circle cx="320" cy="120" r="20" fill="#fbbf24" stroke="#f59e0b"/>
+  <circle cx="320" cy="280" r="20" fill="#fbbf24" stroke="#f59e0b"/>
+  <text x="296" y="88" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">Lamp A</text>
+  <text x="296" y="324" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">Lamp B</text>
+  <polygon points="200,120 188,112 188,128" fill="#2ec4b6"/>
+  <text x="208" y="108" fill="#2ec4b6" font-size="13" font-family="Segoe UI, sans-serif" font-style="italic">I/2</text>
+  <polygon points="200,280 188,272 188,288" fill="#2ec4b6"/>
+  <text x="208" y="268" fill="#2ec4b6" font-size="13" font-family="Segoe UI, sans-serif" font-style="italic">I/2</text>
+  <polygon points="500,200 488,192 488,208" fill="#2ec4b6"/>
+  <text x="508" y="192" fill="#2ec4b6" font-size="13" font-family="Segoe UI, sans-serif" font-style="italic">I</text>
+  <text x="70" y="370" fill="#e8edf5" font-size="15" font-family="Segoe UI, sans-serif">Each lamp sees the full battery push. One lamp can go dark and the other stay lit.</text>
+</svg>

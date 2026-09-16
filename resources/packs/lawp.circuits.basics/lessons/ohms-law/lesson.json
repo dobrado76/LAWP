@@ -1,0 +1,139 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "ohms-law",
+  "packId": "lawp.circuits.basics",
+  "courseId": "resistance",
+  "moduleId": "squeeze",
+  "title": "Ohm’s law as a relation",
+  "skillIds": [
+    "circuits.ohms"
+  ],
+  "estimatedMinutes": 12,
+  "taskRev": 1,
+  "description": "V = I R ties push, flow, and squeeze together. Change one and the others must move.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three letters, one relation\n\nOhm’s law says the push, the flow, and the squeeze belong together: V = I × R. If you know two, you can find the third. Cover V and you multiply. Cover I and you divide V by R. Cover R and you divide V by I. In this pack a cell is one unit of V, so I ≈ cells ÷ ohms.\n\nThis bites when you treat the ohms knob as a brightness control that ignores the battery, or when you memorize the triangle and forget what the letters mean on a loop.\n\n![Ohm’s law triangle](assets/ohms-law.svg)\n\n```text\nV = I × R\nI = V ÷ R\nR = V ÷ I\n```\n\nA common mistake is changing R and expecting brightness to move while pretending V is not in the story. The questions ask you to compute I and to name the relation."
+    },
+    {
+      "type": "check",
+      "id": "compute-i",
+      "kind": "numeric",
+      "promptMd": "V = 4 and R = 2. What is I?",
+      "unit": "A",
+      "answer": {
+        "value": 2,
+        "tolerance": 0
+      },
+      "explainMd": "I = V ÷ R = 4 ÷ 2 = 2.",
+      "skillIds": [
+        "circuits.ohms"
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Use I = V ÷ R."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Four divided by two."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A different pair: 6 ÷ 3 is also 2."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Enter 2."
+        }
+      ]
+    },
+    {
+      "type": "check",
+      "id": "cover",
+      "kind": "cloze",
+      "promptMd": "To find current you compute {{a}}. To find voltage you compute {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "vr",
+              "md": "V ÷ R"
+            },
+            {
+              "id": "ir",
+              "md": "I × R"
+            },
+            {
+              "id": "bright",
+              "md": "whatever looks brightest",
+              "misconceptionId": "ohms-as-brightness-only"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "ir",
+              "md": "I × R"
+            },
+            {
+              "id": "vr",
+              "md": "V ÷ R"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "vr",
+        "b": "ir"
+      },
+      "explainMd": "I = V ÷ R. V = I × R. Same relation, different cover.",
+      "skillIds": [
+        "circuits.ohms"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "table-ohm",
+      "kind": "table",
+      "promptMd": "Same 2 Ω resistor. What is I for each push?",
+      "rows": [
+        {
+          "id": "one",
+          "md": "V = 2"
+        },
+        {
+          "id": "two",
+          "md": "V = 4"
+        }
+      ],
+      "choices": [
+        {
+          "id": "one",
+          "md": "1 A"
+        },
+        {
+          "id": "two",
+          "md": "2 A"
+        }
+      ],
+      "answer": {
+        "one": "one",
+        "two": "two"
+      },
+      "explainMd": "2 ÷ 2 = 1. 4 ÷ 2 = 2. Double the push, double the current if R stays put.",
+      "skillIds": [
+        "circuits.ohms"
+      ]
+    }
+  ]
+}

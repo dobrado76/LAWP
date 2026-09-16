@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.io.json"
+  ],
+  "id": "json-roundtrip",
+  "courseId": "files",
+  "moduleId": "records",
+  "title": "What survives the trip",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## JSON knows six shapes\n\nJSON is text, and it can describe six things: object, array, string, number, true or false, and null. `json.dumps(value)` writes your Python value as that text and `json.loads(text)` builds a new value from it. Anything Python can hold that JSON cannot describe is either converted on the way out or refused outright.\n\nThe conversions bite because they are silent. A tuple goes out as an array and comes back a `list`. A dict key that was the number `7` goes out as `\"7\"`, because JSON object keys are always strings, and comes back as the string. A `set`, a `datetime`, or an instance of your own class is not converted at all — `json.dumps` raises `TypeError` and names the type it refused.\n\n```python\nimport json\n\ntext = json.dumps({\"grid\": (3, 2), 7: \"fox\"})\nprint(text)                           # {\"grid\": [3, 2], \"7\": \"fox\"}\n\nback = json.loads(text)\nprint(type(back[\"grid\"]).__name__)    # list\n```\n\nA common mistake is treating a round trip as a copy and then comparing the result to the original with `==`. It will not match if any tuple or non-string key was involved, and the mismatch turns up far away from the `dumps` that caused it. The exercise makes you prove both changes once, deliberately."
+    },
+    {
+      "type": "predict",
+      "id": "tuple-out",
+      "promptMd": "What does `json.loads(json.dumps({\"a\": (1, 2)}))[\"a\"]` give you?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "tup",
+          "md": "`(1, 2)` — a tuple"
+        },
+        {
+          "id": "lst",
+          "md": "`[1, 2]` — a list"
+        }
+      ],
+      "answer": "lst",
+      "explainMd": "JSON has exactly one sequence shape, the array, so the tuple is written as `[1, 2]`. Reading that array back produces a list, because a list is what an array means in Python. The tuple-ness was information the text never carried, so there is nothing to restore it from."
+    },
+    {
+      "type": "check",
+      "id": "set-refused",
+      "promptMd": "What does `json.dumps({\"seen\": {1, 2}})` do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "arr",
+          "md": "Writes `{\"seen\": [1, 2]}` — a set becomes an array"
+        },
+        {
+          "id": "boom",
+          "md": "Raises `TypeError` — a set is not JSON-serialisable"
+        }
+      ],
+      "answer": "boom",
+      "explainMd": "A tuple is converted because JSON has an obvious equivalent. A set is not, because JSON has no unordered collection and any order chosen for you would be a guess. `json.dumps` refuses instead, so you convert it yourself with `sorted(value)` and own the order."
+    },
+    {
+      "type": "code",
+      "id": "roundtrip",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `record` holds a tuple and an integer key. Round-trip it through `json.dumps` and `json.loads` into `back`, then print the kind name of `back[\"grid\"]` and whether the string `\"7\"` is a key of `back`. Expected `list True`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "list True"
+        },
+        {
+          "type": "ast",
+          "query": "json.dumps"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Nothing in the starter ever leaves Python, so nothing can change. The trip is out to text and back again."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`json.dumps(record)` gives you the JSON text; `json.loads(text)` builds a new dict from that text. You can do both in one expression or keep the text in a name and look at it."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "On another value: `json.loads(json.dumps({\"tags\": (\"a\", \"b\")}))[\"tags\"]` is `[\"a\", \"b\"]`, and `type(...).__name__` on it is `\"list\"`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import json\n\nrecord = {\"station\": \"north\", \"grid\": (3, 2), 7: \"fox\"}\nback = json.loads(json.dumps(record))\n\nprint(type(back[\"grid\"]).__name__, \"7\" in back)"
+        }
+      ]
+    }
+  ],
+  "description": "Save a dict as text and load it back without losing the shape."
+}

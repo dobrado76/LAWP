@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Unlabeled loop with a thin return path">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <rect x="100" y="80" width="440" height="220" rx="8" fill="none" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="268" y="58" width="104" height="40" rx="5" fill="#1f2937" stroke="#9ca3af"/>
+  <rect x="360" y="68" width="10" height="20" fill="#e6b84d"/>
+  <circle cx="320" cy="300" r="24" fill="#e6b84d" stroke="#c9a227"/>
+  <circle cx="320" cy="300" r="10" fill="#d4b84a"/>
+  <path d="M118 140 H200" stroke="#2ec4b6" stroke-width="10" stroke-linecap="round"/>
+  <polygon points="216,140 196,128 196,152" fill="#2ec4b6"/>
+  <path d="M118 250 H168" stroke="#2ec4b6" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="180,250 166,244 166,256" fill="#2ec4b6"/>
+</svg>

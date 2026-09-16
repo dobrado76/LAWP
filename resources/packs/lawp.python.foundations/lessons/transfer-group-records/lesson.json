@@ -1,0 +1,113 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "python.collections.dict",
+    "python.collections.comprehension"
+  ],
+  "mastery": {
+    "requiresTransfer": true
+  },
+  "id": "transfer-group-records",
+  "courseId": "collections",
+  "moduleId": "shape",
+  "title": "Transfer: group the station records",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Same move, unfamiliar records\n\nGrouping is one move repeated: decide the bucket for an item, make sure that bucket exists, drop the item in. The bucket name can come from a letter, a date, a zone, or any field you name at call time — the loop never changes, only the expression that picks the key.\n\nThis bites when the field name is data rather than something you typed. `row.zone` is an attribute and will not work on a dictionary; `row[field]` is a lookup whose key arrives as an argument. Writing the field name into the function body is what makes a grouping helper usable exactly once.\n\n```python\nwords = [\"fox\", \"owl\", \"badger\", \"fern\"]\n\nby_letter = {}\nfor word in words:\n    by_letter.setdefault(word[0], []).append(word)\n\nprint(by_letter)          # {'f': ['fox', 'fern'], 'o': ['owl'], 'b': ['badger']}\nprint(sorted(by_letter))  # ['b', 'f', 'o']\n```\n\nA common mistake is rebuilding the bucket every time, so each group ends up holding only the last item that landed in it. The exercise asks for a `group_by(records, field)` that works for any field, and a `names_by(records, field)` that reduces each group to just the names — the same station records grouped two different ways."
+    },
+    {
+      "type": "predict",
+      "id": "group-shape",
+      "promptMd": "Grouping three records into two buckets gives you a dictionary with how many keys?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "three",
+          "md": "Three — one per record"
+        },
+        {
+          "id": "two",
+          "md": "Two — one per distinct bucket, each holding a list"
+        }
+      ],
+      "answer": "two",
+      "explainMd": "A grouping collapses many records into one key per distinct bucket value, and the value under each key is a list that can hold any number of records. The total number of records is preserved inside the lists, not in the number of keys."
+    },
+    {
+      "type": "check",
+      "id": "field-by-name",
+      "promptMd": "The bucket for a row should come from `row[field]` rather than `row[\"zone\"]` because…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "faster",
+          "md": "Variable lookups are faster than string literals"
+        },
+        {
+          "id": "reuse",
+          "md": "The caller chooses which field to group on, so the same function works for zone, shift, or anything else"
+        },
+        {
+          "id": "safe",
+          "md": "It avoids a `KeyError`"
+        }
+      ],
+      "answer": "reuse",
+      "explainMd": "Passing the field in as an argument is what turns one grouping into a reusable tool: the same five lines group by zone today and by shift tomorrow. Hard-coding the key inside the body means writing the function again for every field you care about."
+    },
+    {
+      "type": "code",
+      "id": "group-records",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `group_by(records, field)` returning `{value: [row, ...]}`, and `names_by(records, field)` returning `{value: [name, ...]}`. Print `names_by(ROWS, \"zone\")`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "{'north': ['fox', 'stoat'], 'south': ['owl']}"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Both starter functions return an empty dictionary, so nothing is being filed anywhere yet. Start with `group_by`; the second function is a small step on top of it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Loop the records. For each row, the bucket key is `row[field]`. `groups.setdefault(key, []).append(row)` files it whether or not the bucket already exists."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Given rows with a `\"colour\"` field, `group_by(rows, \"colour\")[\"red\"]` should be the list of whole rows whose colour was red — the rows themselves, not their names."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def group_by(records, field):\n    groups = {}\n    for row in records:\n        groups.setdefault(row[field], []).append(row)\n    return groups\n\n\ndef names_by(records, field):\n    return {key: [row[\"name\"] for row in rows] for key, rows in group_by(records, field).items()}\n\n\nROWS = [\n    {\"name\": \"fox\", \"zone\": \"north\", \"shift\": \"am\"},\n    {\"name\": \"owl\", \"zone\": \"south\", \"shift\": \"pm\"},\n    {\"name\": \"stoat\", \"zone\": \"north\", \"shift\": \"pm\"},\n]\nprint(names_by(ROWS, \"zone\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Group station records by a field and total each group."
+}

@@ -1,0 +1,110 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.collections.dict"
+  ],
+  "id": "dict-get-and-setdefault",
+  "courseId": "collections",
+  "moduleId": "mappings",
+  "title": "Missing keys, handled on purpose",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three answers to \"what if it is not there\"\n\nSquare brackets are strict: `counts[\"owl\"]` on a key that was never filed raises `KeyError` and stops the program. `.get(\"owl\")` is forgiving: it returns `None`, or whatever default you name as a second argument. `.setdefault(\"owl\", [])` is constructive: it files the default first if needed, then returns whatever is now stored.\n\nThis bites when you are building groups. Writing `groups[zone].append(name)` works for the second record in a zone and raises on the first, because nothing has filed an empty list yet. `setdefault` collapses that whole \"is it there yet\" dance into one line that is right both times.\n\n```python\ncounts = {\"fox\": 3}\nprint(counts.get(\"owl\"))        # None\nprint(counts.get(\"owl\", 0))     # 0\nprint(counts.get(\"fox\", 0))     # 3\n# counts[\"owl\"] would raise KeyError\n\ngroups = {}\ngroups.setdefault(\"north\", []).append(\"fox\")\ngroups.setdefault(\"north\", []).append(\"owl\")\nprint(groups)                   # {'north': ['fox', 'owl']}\n```\n\nA common mistake is using `.get()` everywhere, including where a missing key really is a bug — a silent `None` is harder to chase than a loud `KeyError`. The exercise asks for a reading lookup that falls back to zero, and a grouping function that files each name under its zone without ever checking whether the zone exists yet."
+    },
+    {
+      "type": "predict",
+      "id": "missing-bracket",
+      "promptMd": "What does `{\"fox\": 3}[\"owl\"]` do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "none",
+          "md": "Returns `None`",
+          "misconceptionId": "missing-key-returns-none"
+        },
+        {
+          "id": "raises",
+          "md": "Raises `KeyError`"
+        }
+      ],
+      "answer": "raises",
+      "explainMd": "Square brackets on a missing key raise `KeyError` and stop the program right there. The method that returns `None` instead is `.get()`, and `.get(\"owl\", 0)` returns `0`. Choosing between them is choosing whether a missing key is a bug or an expected case."
+    },
+    {
+      "type": "check",
+      "id": "setdefault-returns",
+      "promptMd": "`groups.setdefault(\"north\", [])` returns…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "value",
+          "md": "The value now stored under `\"north\"` — the existing one, or the new empty list"
+        },
+        {
+          "id": "none",
+          "md": "`None`"
+        },
+        {
+          "id": "dict",
+          "md": "The whole dictionary"
+        }
+      ],
+      "answer": "value",
+      "explainMd": "`setdefault` returns the value you can work with, which is why `groups.setdefault(zone, []).append(name)` reads as one move. If the key was already there the default is ignored entirely and the existing list comes back, so nothing you collected earlier is lost."
+    },
+    {
+      "type": "code",
+      "id": "defaults-and-groups",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `reading_for(counts, name)` returning the stored value or `0` when the key is missing, and `group_by_zone(records)` turning `(name, zone)` pairs into `{zone: [names]}`. Print `reading_for({\"fox\": 3}, \"owl\")`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "0"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter answers `None` for a missing name, and its grouping function throws away every record after the first one in each zone."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`counts.get(name, 0)` is the whole first function. For the second, `groups.setdefault(zone, []).append(name)` appends to the list that is already there, or to a fresh one it just filed."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Starting from `{}`, running `groups.setdefault(\"a\", []).append(1)` twice leaves `{\"a\": [1, 1]}` — the second call reuses the list the first one created."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def reading_for(counts, name):\n    return counts.get(name, 0)\n\n\ndef group_by_zone(records):\n    groups = {}\n    for name, zone in records:\n        groups.setdefault(zone, []).append(name)\n    return groups\n\n\nprint(reading_for({\"fox\": 3}, \"owl\"))"
+        }
+      ]
+    }
+  ],
+  "description": "A missing key raises, unless you say what to do instead."
+}

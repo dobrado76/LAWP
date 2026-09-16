@@ -11,8 +11,10 @@ import {
   DOM_TAGS,
   PLAYER_DIRS,
   PLAYER_METHODS,
+  playerMethodFor,
   type DomMember,
-  type EditorApi
+  type EditorApi,
+  type PlayerLanguage
 } from './apis'
 import { boundFinds, kindFromSelector, memberBoost, memberFits, selectorAtDot, type ElKind } from './domKind'
 
@@ -33,23 +35,33 @@ const playerRoot: Completion[] = [
   }
 ]
 
-const playerMembers: Completion[] = Object.entries(PLAYER_METHODS).map(([name, spec]) => ({
-  label: name,
-  type: 'function',
-  detail: spec.args,
-  info: `${spec.info} Example: ${spec.sample}`,
-  apply: `${name}(`,
-  boost: 98
-}))
+function playerMembersFor(language: PlayerLanguage): Completion[] {
+  return Object.keys(PLAYER_METHODS).map((name) => {
+    const spec = playerMethodFor(name, language)!
+    return {
+      label: name,
+      type: 'function',
+      detail: spec.args,
+      info: `${spec.info} Example: ${spec.sample}`,
+      apply: `${name}(`,
+      boost: 98
+    }
+  })
+}
 
-const playerPrefixed: Completion[] = Object.entries(PLAYER_METHODS).map(([name, spec]) => ({
-  label: `Player.${name}`,
-  type: 'function',
-  detail: spec.args,
-  info: `${spec.info} Example: ${spec.sample}`,
-  apply: `Player.${name}(`,
-  boost: 97
-}))
+function playerPrefixedFor(language: PlayerLanguage): Completion[] {
+  return Object.keys(PLAYER_METHODS).map((name) => {
+    const spec = playerMethodFor(name, language)!
+    return {
+      label: `Player.${name}`,
+      type: 'function',
+      detail: spec.args,
+      info: `${spec.info} Example: ${spec.sample}`,
+      apply: `Player.${name}(`,
+      boost: 97
+    }
+  })
+}
 
 const dirs: Completion[] = PLAYER_DIRS.map((dir) => ({
   label: `"${dir}"`,
@@ -95,7 +107,12 @@ function tokenFrom(context: CompletionContext): { from: number } {
   return { from: context.pos }
 }
 
-export function playerCompletionSource(context: CompletionContext): CompletionResult | null {
+export function playerCompletionSource(
+  context: CompletionContext,
+  language: PlayerLanguage = 'javascript'
+): CompletionResult | null {
+  const playerMembers = playerMembersFor(language)
+  const playerPrefixed = playerPrefixedFor(language)
   if (context.matchBefore(/Player\.move\(\s*[^)]*/)) {
     return { from: tokenFrom(context).from, options: dirs, validFor: /^["']?\w*$/ }
   }
@@ -126,8 +143,8 @@ export function playerCompletionSource(context: CompletionContext): CompletionRe
 
 export type DomCompleteOpts = { selectors?: string[]; html?: string }
 
-export function apiCompletionSource(api?: EditorApi, extras?: DomCompleteOpts) {
-  if (api === 'player-v1') return playerCompletionSource
+export function apiCompletionSource(api?: EditorApi, extras?: DomCompleteOpts, language: PlayerLanguage = 'javascript') {
+  if (api === 'player-v1') return (context: CompletionContext) => playerCompletionSource(context, language)
   if (api === 'dom-v1') {
     return (context: CompletionContext) =>
       domCompletionSource(context, extras?.selectors ?? [], extras?.html ?? '')

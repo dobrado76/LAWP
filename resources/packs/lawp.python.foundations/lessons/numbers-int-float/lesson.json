@@ -1,0 +1,123 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.values.numbers"
+  ],
+  "id": "numbers-int-float",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Whole, or not quite whole",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two ways to be a number\n\nPython keeps whole numbers and decimals apart. An `int` is a count of things — crates, steps, sensors — and a `float` is a measurement that may land between the marks. The operator you pick decides which kind you get back, so the kind is a choice you make rather than something the value decides for you.\n\nThis bites the first time you divide. `/` is true division and always hands back a float, even when the answer is exact, so a crate count quietly becomes `3.4` and then `4.0` and then a label that reads `4.0 crates`. Floats also carry a tiny rounding error, because a decimal fraction has no exact binary form, which is why `0.1 + 0.2` is not quite `0.3`.\n\n```python\nprint(7 / 2)        # 3.5  — true division, always a float\nprint(7 // 2)       # 3    — floor division keeps the whole part\nprint(7 % 2)        # 1    — the remainder that did not fit\nprint(0.1 + 0.2)    # 0.30000000000000004\n```\n\nA common mistake is reaching for `/` when you meant \"how many fit\". The station packs readings into boxes, and half a box is not a thing. The exercise asks you to hand back the number of full boxes and the leftovers, so pick the operator that keeps whole numbers instead of the one that looks like division on paper."
+    },
+    {
+      "type": "predict",
+      "id": "ten-over-five",
+      "promptMd": "What does `print(10 / 5)` show?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "two-int",
+          "md": "`2` — it divides evenly, so it stays whole",
+          "misconceptionId": "slash-is-integer-division"
+        },
+        {
+          "id": "two-float",
+          "md": "`2.0`"
+        }
+      ],
+      "answer": "two-float",
+      "explainMd": "`/` is true division and its answer is a float every time, even when nothing is left over. `10 / 5` is `2.0`, not `2`. If you want the whole-number answer, `10 // 5` gives `2` as an `int`, and `10 % 5` gives the `0` that was left behind."
+    },
+    {
+      "type": "check",
+      "id": "floor-and-rest",
+      "promptMd": "`17 // 5` and `17 % 5` are…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "three-two",
+          "md": "`3` and `2`"
+        },
+        {
+          "id": "four-three",
+          "md": "`4` and `3`"
+        },
+        {
+          "id": "three-four",
+          "md": "`3.4` and `2`"
+        }
+      ],
+      "answer": "three-two",
+      "explainMd": "`//` floors: five fits into seventeen three whole times, so `17 // 5` is `3`. `%` reports what is left over after those three, which is `2`. Together they say \"three full boxes and two readings loose\", and `3 * 5 + 2` gets you back to `17`."
+    },
+    {
+      "type": "check",
+      "id": "float-exact",
+      "kind": "tf",
+      "promptMd": "`0.1 + 0.2 == 0.3` is `True` in Python.",
+      "answer": "false",
+      "explainMd": "It is `False`. A float stores a binary fraction, and `0.1` has no exact binary form, so the sum lands on `0.30000000000000004`. This is not a Python bug — it is how almost every language stores decimals. Compare measurements with a tolerance, or use whole units, rather than testing floats for exact equality."
+    },
+    {
+      "type": "code",
+      "id": "pack-the-boxes",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> The station packs `total` readings into boxes of `per_box`. Finish `boxes_and_rest(total, per_box)` so it returns `(full_boxes, leftover)` as two whole numbers. The printed line should be `3 2`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "3 2",
+          "misconceptionId": "slash-is-integer-division"
+        },
+        {
+          "type": "ast",
+          "query": "//"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Look at what the starter prints. `3.4` is not a number of boxes — the operator handed back a float."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`//` divides and floors, so it answers \"how many whole ones fit\". `%` answers \"what was left over\"."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`13 // 4` is `3` and `13 % 4` is `1`: three full groups of four, one straggler."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def boxes_and_rest(total, per_box):\n    return (total // per_box, total % per_box)\n\n\nboxes, rest = boxes_and_rest(17, 5)\nprint(boxes, rest)"
+        }
+      ]
+    }
+  ],
+  "description": "Whole numbers and decimals behave differently, and a slash always gives a decimal."
+}

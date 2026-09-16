@@ -1,0 +1,9 @@
+{
+  "id": "the-machine",
+  "title": "Files and the machine",
+  "courseIds": [
+    "files",
+    "process"
+  ],
+  "intro": "Real input and output: the filesystem, structured records, and the process your script runs in."
+}

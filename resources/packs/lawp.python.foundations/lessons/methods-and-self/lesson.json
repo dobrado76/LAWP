@@ -1,0 +1,96 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.objects"
+  ],
+  "id": "methods-and-self",
+  "courseId": "objects",
+  "moduleId": "shape",
+  "title": "self is just the first parameter",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The instance is passed in for you\n\nA method is a function defined inside a class body whose first parameter receives the instance. `self` is the conventional name for that parameter, nothing more — you could call it `probe` and the code would still work. What makes methods feel magical is only that `probe.label()` fills the first argument in for you.\n\nOnce you see the two spellings side by side the magic drops away: `probe.label()` and `Sensor.label(probe)` reach the same code with the same object. That is also why every method needs the parameter written out, and why reading `self.name` inside a method is the only way to get at *this* sensor’s name rather than some other one.\n\n```python\nclass Sensor:\n    def __init__(self, name):\n        self.name = name\n\n    def label(self):\n        return \"sensor:\" + self.name\n\n\nwind = Sensor(\"wind\")\nprint(wind.label())          # sensor:wind\nprint(Sensor.label(wind))    # sensor:wind — the same call, spelled out\n```\n\nA common mistake is writing a method that ignores `self` and returns a fixed string, which passes the one example in front of you and fails every other instance. The exercise asks for `label(self)` built from `self.name`, so `Sensor(\"wind\").label()` has to come out as `sensor:wind` without you naming wind anywhere."
+    },
+    {
+      "type": "predict",
+      "id": "what-is-self",
+      "promptMd": "In `def label(self):`, what is `self`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "keyword",
+          "md": "A Python keyword the interpreter reserves for methods",
+          "misconceptionId": "self-is-a-keyword"
+        },
+        {
+          "id": "param",
+          "md": "An ordinary first parameter; the instance is passed into it for you"
+        }
+      ],
+      "answer": "param",
+      "explainMd": "`self` is not in Python’s keyword list — it is a naming convention everyone follows so code reads the same way everywhere. The real mechanism is the attribute lookup: `probe.label` bundles the instance with the function, then the call passes it as the first argument."
+    },
+    {
+      "type": "check",
+      "id": "two-spellings",
+      "kind": "tf",
+      "promptMd": "`probe.label()` and `Sensor.label(probe)` reach the same code with the same instance.",
+      "answer": "true",
+      "explainMd": "They are the same call written two ways. The dotted form looks up `label` on the class, binds `probe` to the first parameter, and calls it, which is exactly what the explicit form does by hand — handy to remember when a traceback shows an unexpected argument count."
+    },
+    {
+      "type": "code",
+      "id": "label-from-self",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Make `label(self)` return `\"sensor:\"` followed by **this** sensor’s name, so `Sensor(\"wind\").label()` is `sensor:wind`. Printing `probe.label()` should give `sensor:soil`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "sensor:soil"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter’s `label` returns the same text no matter which sensor calls it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Inside a method, the instance arrives as the first parameter, so `self.name` is this sensor’s own name."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A different example: `def area(self): return self.cols * self.rows` reads two attributes off whichever grid called it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    def __init__(self, name):\n        self.name = name\n\n    def label(self):\n        return \"sensor:\" + self.name\n\n\nprobe = Sensor(\"soil\")\n\nprint(probe.label())"
+        }
+      ]
+    }
+  ],
+  "description": "Self is the first parameter, not language magic."
+}

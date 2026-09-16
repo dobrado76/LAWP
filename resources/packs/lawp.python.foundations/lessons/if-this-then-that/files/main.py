@@ -1,3 +1,7 @@
-score = 72
-# Print pass if score is at least 50, else fail.
-print("fail")
+def battery_state(percent):
+    if percent > 80:
+        return "high"
+    return "low"
+
+
+print(battery_state(42))

@@ -1,0 +1,23 @@
+{
+  "id": "field-station",
+  "title": "Field station",
+  "briefMd": "The capstone: a small package that loads records, reports on them, and proves itself with tests.",
+  "exportKinds": [
+    "folder",
+    "zip"
+  ],
+  "steps": [
+    {
+      "lessonId": "transfer-report-tool",
+      "addsMd": "A reporting command."
+    },
+    {
+      "lessonId": "transfer-test-the-fox",
+      "addsMd": "Tests for the walk."
+    },
+    {
+      "lessonId": "capstone-field-station",
+      "addsMd": "The whole station, tested."
+    }
+  ]
+}

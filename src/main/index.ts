@@ -34,6 +34,20 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'lawp-play', privileges: { standard: true, supportFetchAPI: true, corsEnabled: true } }
 ])
 
+function installApplicationMenu(): void {
+  const template: Electron.MenuItemConstructorOptions[] = [
+    { role: 'fileMenu' },
+    { role: 'editMenu' },
+    { role: 'viewMenu' },
+    { role: 'windowMenu' },
+    { role: 'help', submenu: [] }
+  ]
+  if (process.platform === 'darwin') {
+    template.unshift({ role: 'appMenu' })
+  }
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+}
+
 function createWindow(): void {
   const bounds = windowConstructorOptions()
   const title = `LAWP ${app.getVersion()}`
@@ -99,6 +113,15 @@ app.whenReady().then(() => {
         return net.fetch(pathToFileURL(file).href)
       }
     }
+    const packAsset = rest.match(/^lessons\/[^/]+\/(assets\/.+)$/)
+    if (packAsset?.[1]) {
+      for (const root of roots) {
+        const file = join(root, packAsset[1])
+        if (isInside(root, file) && existsSync(file)) {
+          return net.fetch(pathToFileURL(file).href)
+        }
+      }
+    }
     return new Response('not found', { status: 404 })
   })
   protocol.handle('lawp-play', (request) => {
@@ -110,7 +133,7 @@ app.whenReady().then(() => {
     if (!file || !existsSync(file)) return new Response('not found', { status: 404 })
     return net.fetch(pathToFileURL(file).href)
   })
-  Menu.setApplicationMenu(null)
+  installApplicationMenu()
   registerIpc()
   createWindow()
   app.on('activate', () => {

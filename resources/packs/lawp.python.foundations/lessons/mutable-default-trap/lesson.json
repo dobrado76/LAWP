@@ -1,0 +1,101 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.functions"
+  ],
+  "id": "mutable-default-trap",
+  "courseId": "functions",
+  "moduleId": "define",
+  "title": "The default that remembers",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A default value is built once, not once per call\n\nThe expression after `=` in a parameter list is evaluated when the `def` statement runs — once, as the file loads — and the resulting object is stored on the function. Every later call that omits that argument is handed the very same object, not a fresh copy of it.\n\nThis bites only with values that can be changed in place: a list, a dict, a set. A default of `0` or `\"C\"` is harmless because nothing can mutate it. A default of `[]` is a shared bag: the first call drops something in, the second call finds it still there, and the function appears to remember calls it should know nothing about.\n\n```python\ndef collect(item, bag=[]):\n    bag.append(item)\n    return bag\n\n\nprint(collect(\"moss\"))          # ['moss']\nprint(collect(\"bark\"))          # ['moss', 'bark'] — same list came back\nprint(collect.__defaults__)     # (['moss', 'bark'],) — stored on the function\n```\n\nA common mistake is \"fixing\" this by clearing the bag at the top of the function, which then destroys a list the caller passed in deliberately. The safe default is `None`, with the real empty list built inside the body. The exercise asks for a `collect` that starts empty every time and still accepts a bag you hand it."
+    },
+    {
+      "type": "predict",
+      "id": "twice-called",
+      "promptMd": "With `def collect(item, bag=[])`, calling `collect(\"moss\")` and then `collect(\"bark\")` gives…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fresh",
+          "md": "`[\"moss\"]` then `[\"bark\"]`",
+          "misconceptionId": "mutable-default-is-fresh"
+        },
+        {
+          "id": "shared",
+          "md": "`[\"moss\"]` then `[\"moss\", \"bark\"]`"
+        }
+      ],
+      "answer": "shared",
+      "explainMd": "One list was created when the `def` ran, and both calls appended to it, so the second call sees the first call’s item. The list is stored on the function object itself and survives for the lifetime of the program, which is why this bug often shows up as data leaking between unrelated requests."
+    },
+    {
+      "type": "check",
+      "id": "string-default-safe",
+      "kind": "tf",
+      "promptMd": "A default of `unit=\"C\"` has the same sharing problem as a default of `bag=[]`.",
+      "answer": "false",
+      "explainMd": "It does not. The string is shared in exactly the same way, but strings are immutable, so no call can change it — the worst any call can do is rebind its own local name to a different string. Sharing is only dangerous when the shared object can be modified in place."
+    },
+    {
+      "type": "code",
+      "id": "fresh-bag",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Fix `collect(item, bag=...)` so each call with no bag starts empty, while a bag you pass in is still appended to. The printed line should be `['moss'] ['bark']`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['moss'] ['bark']",
+          "misconceptionId": "mutable-default-is-fresh"
+        },
+        {
+          "type": "ast",
+          "query": "None"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Run the starter. Both halves of the printed line are identical, because both calls returned the same list object."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Default the parameter to `None` — an immutable sentinel that nothing can mutate — and build the empty list inside the body when it is still `None`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`def note(text, lines=None):` followed by `if lines is None: lines = []` gives every defaulted call its own fresh list."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def collect(item, bag=None):\n    if bag is None:\n        bag = []\n    bag.append(item)\n    return bag\n\n\nprint(collect(\"moss\"), collect(\"bark\"))"
+        }
+      ]
+    }
+  ],
+  "description": "A default list is built once, not fresh on every call."
+}

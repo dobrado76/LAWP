@@ -1,0 +1,216 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "switches-break",
+  "packId": "lawp.circuits.basics",
+  "courseId": "workshop",
+  "moduleId": "control",
+  "title": "A switch breaks the loop",
+  "skillIds": [
+    "circuits.switch"
+  ],
+  "estimatedMinutes": 8,
+  "taskRev": 1,
+  "description": "A switch is a gap you can open and close. It is not a dimmer. Closed lights. Open is dark.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## On purpose, not a little bit\n\nA switch is a planned gap. Closed, the path is a loop and the lamp can light. Open, the path is broken and the lamp is dark. An ordinary switch is not a dimmer. It does not sit halfway and leak a cozy glow. It is a door: shut or open.\n\nThis bites when you “turn it a little” and expect half brightness. That is a different part (a variable resistor). The live world here only toggles closed and open.\n\n![Open switch and closed switch](assets/switch-states.svg)\n\n```text\nOPEN    gap    I = 0    dark\nCLOSED  path   I = 1    lit\n```\n\nA common mistake is treating the switch as a brightness knob. Toggle it closed, then Check."
+    },
+    {
+      "type": "activity",
+      "id": "close-switch",
+      "kind": "experiment",
+      "engine": "world-v1",
+      "promptMd": "Close the switch so the lamp lights.",
+      "skillIds": [
+        "circuits.switch"
+      ],
+      "constraintMode": "final",
+      "predict": {
+        "promptMd": "If you leave the switch open, the lamp…",
+        "kind": "mcq",
+        "choices": [
+          {
+            "id": "dark",
+            "md": "Stays dark — the loop is broken"
+          },
+          {
+            "id": "dim",
+            "md": "Glows dim, because a switch is a dimmer",
+            "misconceptionId": "switch-is-a-dimmer"
+          },
+          {
+            "id": "lit",
+            "md": "Still lights a little through the gap",
+            "misconceptionId": "open-loop-still-lit"
+          }
+        ],
+        "answer": "dark"
+      },
+      "world": {
+        "parts": [
+          {
+            "id": "battery",
+            "type": "battery",
+            "props": {
+              "cells": 1
+            }
+          },
+          {
+            "id": "switch",
+            "type": "switch",
+            "props": {
+              "closed": false,
+              "label": "Switch"
+            }
+          },
+          {
+            "id": "lamp",
+            "type": "lamp",
+            "props": {
+              "brightness": 0,
+              "label": "Lamp"
+            }
+          },
+          {
+            "id": "meter",
+            "type": "meter",
+            "props": {
+              "current": 0
+            }
+          }
+        ],
+        "connections": [
+          {
+            "from": "battery",
+            "to": "switch"
+          },
+          {
+            "from": "switch",
+            "to": "lamp"
+          },
+          {
+            "from": "lamp",
+            "to": "battery"
+          }
+        ],
+        "actions": [
+          {
+            "id": "toggle-switch",
+            "label": "Toggle the switch",
+            "target": "switch",
+            "op": "toggle",
+            "key": "closed"
+          }
+        ],
+        "rules": [
+          {
+            "id": "closed-on",
+            "when": [
+              {
+                "path": "switch.closed",
+                "op": "eq",
+                "value": true
+              }
+            ],
+            "set": [
+              {
+                "target": "lamp",
+                "key": "brightness",
+                "value": 2
+              },
+              {
+                "target": "meter",
+                "key": "current",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "id": "open-off",
+            "when": [
+              {
+                "path": "switch.closed",
+                "op": "eq",
+                "value": false
+              }
+            ],
+            "set": [
+              {
+                "target": "lamp",
+                "key": "brightness",
+                "value": 0
+              },
+              {
+                "target": "meter",
+                "key": "current",
+                "value": 0
+              }
+            ]
+          }
+        ],
+        "view": {
+          "kind": "graph",
+          "assetMap": {
+            "lamp@brightness=0": "assets/lamp-dim.svg",
+            "lamp@brightness=1": "assets/lamp-dim.svg",
+            "lamp@brightness=2": "assets/lamp-bright.svg",
+            "battery": "assets/battery.svg",
+            "resistor": "assets/resistor.svg",
+            "meter": "assets/meter.svg",
+            "voltmeter": "assets/voltmeter.svg",
+            "switch@closed=false": "assets/switch-open.svg",
+            "switch@closed=true": "assets/switch-closed.svg",
+            "fuse": "assets/fuse.svg"
+          }
+        }
+      },
+      "goal": {
+        "all": [
+          {
+            "path": "lamp.brightness",
+            "op": "eq",
+            "value": 2
+          }
+        ]
+      },
+      "explainAfter": {
+        "promptMd": "Closed completed the loop. Open would break it again. That is all an ordinary switch does."
+      },
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The switch starts open."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Open is a gap. Closed is a path."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Toggle once. The lamp should jump from 0 to 2."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Toggle the switch to closed, then Check."
+        }
+      ]
+    },
+    {
+      "type": "check",
+      "id": "dimmer-tf",
+      "kind": "tf",
+      "promptMd": "An ordinary switch can sit halfway and make the lamp half as bright.",
+      "answer": "false",
+      "explainMd": "A switch is open or closed. Half brightness is a different part.",
+      "skillIds": [
+        "circuits.switch"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "series-parallel",
+  "title": "Series and parallel",
+  "level": "beginner",
+  "estimatedMinutes": 36,
+  "skillIds": ["circuits.series.current", "circuits.series.voltage", "circuits.parallel"],
+  "modules": [
+    {
+      "id": "compare",
+      "title": "One path or a split",
+      "lessonIds": ["series-same-current", "parallel-split", "series-vs-parallel"]
+    }
+  ]
+}

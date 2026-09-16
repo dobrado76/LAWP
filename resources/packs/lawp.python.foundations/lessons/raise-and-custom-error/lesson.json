@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.errors"
+  ],
+  "id": "raise-and-custom-error",
+  "courseId": "errors",
+  "moduleId": "raise",
+  "title": "Raise it, and name it yourself",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Refusing is a feature\n\n`raise` is how a function says \"I will not do that\". `raise ValueError(\"zone name must not be empty\")` stops the caller in its tracks with a reason attached, which is far kinder than returning `None` and letting a wrong value travel three functions before it breaks something unrelated.\n\nThis bites when a function returns a sentinel instead of raising. The caller forgets to check, `None` flows onward, and the traceback eventually points at innocent code far from the bad input. Raising puts the failure at the exact line where the rule was broken, with a message you wrote.\n\n```python\nclass StationError(Exception):\n    \"\"\"Something the field station itself refuses to do.\"\"\"\n\n\ndef set_zone(name):\n    if not name:\n        raise ValueError(\"zone name must not be empty\")\n    if name not in (\"north\", \"east\", \"south\", \"west\"):\n        raise StationError(\"unknown zone: \" + str(name))\n    return name\n\n\nprint(set_zone(\"north\"))    # north\n```\n\nA common mistake is inventing a custom error for a failure the language already names. Bad argument values are what `ValueError` is for. Keep a custom class for rules that only your station has, and have it inherit from `Exception` so callers can catch it by name. The exercise asks you to raise and then catch your own error."
+    },
+    {
+      "type": "check",
+      "id": "why-raise",
+      "promptMd": "Raising on bad input, rather than returning `None`, mainly buys you…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "here",
+          "md": "The failure is reported at the line that broke the rule, with a message, instead of surfacing later somewhere else"
+        },
+        {
+          "id": "fast",
+          "md": "Faster code"
+        },
+        {
+          "id": "short",
+          "md": "Fewer lines in the caller, because exceptions are shorter than checks"
+        }
+      ],
+      "answer": "here",
+      "explainMd": "A sentinel like `None` only fails when somebody finally uses it, which can be far from the cause. An exception fails immediately, at the line that knew what was wrong, and carries a message explaining it. That distance between cause and symptom is most of the cost of debugging."
+    },
+    {
+      "type": "check",
+      "id": "custom-inherits",
+      "kind": "tf",
+      "promptMd": "A custom error class must inherit from `Exception`, directly or through another exception class, before you can raise it.",
+      "answer": "true",
+      "explainMd": "`raise` only accepts exception classes and instances, so `class StationError(Exception): pass` is the smallest useful custom error. Inheriting from `Exception` is also what lets a caller write `except StationError:` for your rules and `except Exception:` for everything."
+    },
+    {
+      "type": "code",
+      "id": "raise-station-error",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Make `set_zone(name)` return the name for a known zone and `raise StationError` with the offending name in the message otherwise. The starter already catches it and prints the message; make that message appear.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "unknown zone: attic"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints nothing at all. The `except` block never runs, which means `set_zone` accepted `\"attic\"` without complaint."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Check the name against the four known zones and `raise StationError(...)` when it is not one of them. Put the rejected name inside the message so the person reading the output knows what was refused."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `def pick(n):` you might write `if n < 0: raise ValueError(\"negative: \" + str(n))`, and `pick(-2)` then stops with the message `negative: -2`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class StationError(Exception):\n    \"\"\"Something the field station refuses to do.\"\"\"\n\n\ndef set_zone(name):\n    if name not in (\"north\", \"east\", \"south\", \"west\"):\n        raise StationError(\"unknown zone: \" + str(name))\n    return name\n\n\ntry:\n    set_zone(\"attic\")\nexcept StationError as err:\n    print(err)"
+        }
+      ]
+    }
+  ],
+  "description": "Raise your own error so a later catch can tell stories apart."
+}

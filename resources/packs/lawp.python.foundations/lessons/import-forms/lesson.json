@@ -1,0 +1,142 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.modules"
+  ],
+  "id": "import-forms",
+  "courseId": "modules",
+  "moduleId": "files-as-modules",
+  "title": "Four ways to spell an import",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Pick what lands in your namespace\n\n`import station` binds the module and leaves everything behind a dot. `from station import celsius` binds the function itself, so you call `celsius(212)` with no prefix. `import station as st` and `from station import celsius as to_c` do the same two jobs while letting you choose a shorter local name.\n\nThe choice matters because a reader has to work out where a name came from. `station.celsius(212)` says exactly which file owns that function; a bare `celsius(212)` needs the reader to scroll up to the imports. `from station import *` removes even that: it dumps every public name in at once, so a name collision silently shadows whichever import ran first.\n\n```python\nimport station as st\nfrom station import celsius, wind_label as gust\n\nprint(st.NAME)          # Ridge — module still available behind the alias\nprint(celsius(212))     # 100.0 — bare name, bound by the from form\nprint(gust(30))         # breezy — same function, renamed locally\n```\n\nA common mistake is reaching for `from station import *` because it saves typing, then spending an afternoon hunting the file a mystery name came from. The exercise asks for both forms deliberately: alias the module as `st` and pull `celsius` in by name, so you can feel the difference in one file."
+    },
+    {
+      "type": "check",
+      "id": "star-import-cost",
+      "promptMd": "What does `from station import *` cost you?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "origin",
+          "md": "You can no longer tell, at the call site, which module a name came from"
+        },
+        {
+          "id": "slower",
+          "md": "It makes the program measurably slower to start"
+        },
+        {
+          "id": "nothing",
+          "md": "Nothing — it is the same as listing every name by hand"
+        }
+      ],
+      "answer": "origin",
+      "explainMd": "A star import binds every public name at once, so a reader looking at `celsius(212)` has no clue whether it came from `station`, from another star import, or from this file. It also lets a later import silently shadow an earlier one, which is a bug that leaves no trace at the call site."
+    },
+    {
+      "type": "check",
+      "id": "what-each-binds",
+      "kind": "cloze",
+      "promptMd": "`from station import celsius` binds the name {{a}}. `import station as st` binds the name {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "celsius",
+              "md": "celsius"
+            },
+            {
+              "id": "station",
+              "md": "station"
+            },
+            {
+              "id": "st",
+              "md": "st"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "st",
+              "md": "st"
+            },
+            {
+              "id": "station",
+              "md": "station"
+            },
+            {
+              "id": "celsius",
+              "md": "celsius"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "celsius",
+        "b": "st"
+      },
+      "explainMd": "The `from` form reaches inside the module and binds the member itself, so `celsius` becomes a local name. The `as` form binds the whole module object under the label you chose, so `station` is not defined at all — only `st` is."
+    },
+    {
+      "type": "code",
+      "id": "both-forms",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `station.py` is read-only next door. Alias the module as `st` **and** pull `celsius` in by name. Print `celsius(212)` and `st.NAME` on one line, separated by a space. Output should be `100.0 Ridge`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station.py",
+          "role": "ro"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "100.0 Ridge"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter uses one form for both jobs. This lesson wants each form used once, in the same file."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`import station as st` binds the module under a short name; `from station import celsius` binds the function itself."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Two imports of the same module are cheap — the file is only executed once, no matter how many forms name it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import station as st\nfrom station import celsius\n\nprint(celsius(212), st.NAME)"
+        }
+      ]
+    }
+  ],
+  "description": "Import, from-import, and as bring names in differently."
+}

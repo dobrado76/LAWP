@@ -1,0 +1,118 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.values.strings",
+    "python.text.regex"
+  ],
+  "mastery": {
+    "requiresTransfer": true
+  },
+  "id": "transfer-clean-a-log",
+  "courseId": "text",
+  "moduleId": "patterns",
+  "title": "Transfer: clean the station log",
+  "creation": {
+    "id": "log-scrubber",
+    "step": 1,
+    "briefMd": "Step one of the log scrubber. Nobody at the field station writes the log the same way twice: stray spaces, shouted levels, blank lines, and notes to self starting with a hash. This step builds the normaliser — one function that turns a messy line into the one canonical form, and one that runs it over a whole log and drops what is not a record. The next step in the creation gives it a real file to read and a report to write."
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One canonical shape, chosen up front\n\nCleaning text is not a pile of tweaks; it is a decision about what the tidy version looks like, followed by the steps that get there. Decide the shape first — what is trimmed, what case each field is in, what counts as a record at all — and every line either reaches that shape or is dropped.\n\nThis bites when the steps run in an order that undoes each other. Collapsing internal whitespace before trimming the ends leaves a leading space behind; lowercasing the whole line first destroys a field you wanted upper case. The order is part of the rule, not an implementation detail.\n\n```python\nimport re\n\nmessy = \"   fox   Seen  NEAR  the  creek \"\n\ntidy = re.sub(r\"\\s+\", \" \", messy.strip())\nprint(repr(tidy))         # 'fox Seen NEAR the creek'\nprint(tidy.split(\" \", 1)) # ['fox', 'Seen NEAR the creek'] - one split, two parts\n\nprint(bool(\"# note\".startswith(\"#\")))   # True - not a record\n```\n\nA common mistake is assuming every line has the fields you expect and letting `split` unpack straight into three names, which raises `ValueError` on the first short line. The exercise asks you to normalise real station log lines: trim, collapse runs of spaces, shout the level, quieten the message, and drop blanks, comments, and anything too short to be a record."
+    },
+    {
+      "type": "predict",
+      "id": "order-matters",
+      "promptMd": "You collapse runs of whitespace before trimming the ends. What does `\"  fox   seen  \"` become?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "clean",
+          "md": "`'fox seen'`"
+        },
+        {
+          "id": "spaced",
+          "md": "`' fox seen '` — the outer spaces each collapsed to one and stayed"
+        }
+      ],
+      "answer": "spaced",
+      "explainMd": "Collapsing turns each run into a single space, including the runs at the two ends, so a lone space survives on each side. Trimming first removes the ends entirely and then the collapse only has internal runs left to deal with — same two steps, different result."
+    },
+    {
+      "type": "check",
+      "id": "drop-what",
+      "promptMd": "Which lines should a log normaliser drop rather than clean?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "nonrecords",
+          "md": "Blank lines, comment lines, and lines with too few fields to be a record"
+        },
+        {
+          "id": "upper",
+          "md": "Any line that is already upper case"
+        },
+        {
+          "id": "long",
+          "md": "Any line longer than eighty characters"
+        }
+      ],
+      "answer": "nonrecords",
+      "explainMd": "A normaliser has two answers: here is the canonical form, or this was never a record. Blanks and comments are the obvious second case, and so is a line too short to have the fields the shape requires — cleaning that one would invent data that was not there."
+    },
+    {
+      "type": "code",
+      "id": "clean-the-log",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `clean_line(line)` returning `\"<stamp> <LEVEL> <rest in lower case>\"` or `None` for a blank line, a `#` comment, or a line with fewer than three fields. Then write `clean_log(lines)` returning only the cleaned records.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['2041-03-02 ERR north sensor cold', '2041-03-02 WARN east damp']"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter returns every line exactly as it came in, comments and blanks included, so the printed list is still the mess you started with."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "In `clean_line`: strip first, return `None` for an empty result or one starting with `#`, then collapse runs of whitespace with `re.sub`. Split into at most three parts, return `None` if you got fewer, and rebuild with the level upper case and the rest lower case."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A two-step split is the useful one here: `\"a b c d\".split(\" \", 2)` gives `[\"a\", \"b\", \"c d\"]`, so the third piece keeps its own spaces."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import re\n\n\ndef clean_line(line):\n    text = line.strip()\n    if not text or text.startswith(\"#\"):\n        return None\n    text = re.sub(r\"\\s+\", \" \", text)\n    parts = text.split(\" \", 2)\n    if len(parts) < 3:\n        return None\n    stamp, level, rest = parts\n    return f\"{stamp} {level.upper()} {rest.lower()}\"\n\n\ndef clean_log(lines):\n    out = []\n    for line in lines:\n        cleaned = clean_line(line)\n        if cleaned is not None:\n            out.append(cleaned)\n    return out\n\n\nRAW = [\n    \"  2041-03-02   err   North Sensor COLD  \",\n    \"# maintenance note\",\n    \"\",\n    \"2041-03-02 warn East Damp\",\n]\nprint(clean_log(RAW))"
+        }
+      ]
+    }
+  ],
+  "description": "Normalise the messy station log into lines you can compare."
+}

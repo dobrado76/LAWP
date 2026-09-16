@@ -1,15 +1,19 @@
 {
   "id": "first-contact",
-  "title": "Cause and effect",
+  "title": "Charge and the loop",
   "level": "beginner",
-  "estimatedMinutes": 20,
-  "creationId": "my-circuit",
-  "skillIds": ["circuits.series.current"],
+  "estimatedMinutes": 42,
+  "skillIds": ["circuits.charge", "circuits.current", "circuits.loop"],
   "modules": [
     {
+      "id": "charge",
+      "title": "Charge and flow",
+      "lessonIds": ["what-is-charge", "current-is-flow"]
+    },
+    {
       "id": "the-loop",
-      "title": "The loop",
-      "lessonIds": ["what-is-a-loop", "brighter-lamp", "why-the-limit", "transfer-fuse", "keep-your-circuit"]
+      "title": "The closed path",
+      "lessonIds": ["what-is-a-loop", "open-means-dark", "diagnose-dead-lamp"]
     }
   ]
 }

@@ -36,7 +36,7 @@ Typical shapes:
 
 **Reading + questions**
 
-1. **Explain** — the idea (markdown: `##` heading, lists, `` `code` `` in a sentence, and **fenced** snippets with a language tag — ` ```javascript `, ` ```python ` — so Studio can highlight them). A bare fence with no language still becomes a block, but tag it. Do not paste code as leftover backticks around loose lines.
+1. **Explain** — the idea (markdown: `##` heading, lists, `` `code` `` in a sentence, and **fenced** snippets with a language tag — ` ```javascript `, ` ```python `, ` ```text ` — so Studio can highlight them). A bare fence with no language still becomes a block, but tag it. Do not paste code as leftover backticks around loose lines. A diagram on its own line is `![Closed loop](assets/closed-loop.svg)` after **Import picture**. Only `assets/` filenames render (no web URLs). Pack-level files in the pack’s own `assets/` folder are used when the lesson folder has no copy (D58).
 2. **Question** — pick a type (see below). Repeat for more questions.
 3. **Reflect** — optional “say it in your own words” (not auto-graded).
 
@@ -139,6 +139,7 @@ Reload **Library** and open the pack. New packs show a **Drafts** chapter. Overl
 
 ## See also
 
+- [COURSE_SPEC.md](COURSE_SPEC.md) — designing and verifying a whole course, not one lesson
 - [CONTENT_MODEL.md](CONTENT_MODEL.md) — zip layout, `world-v1`, progress
 - [PEDAGOGY.md](PEDAGOGY.md) — hints, misconceptions, mastery
 - Question types demo pack: `resources/packs/lawp.learning.questions`

@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "python.values.strings"
+  ],
+  "id": "split-and-join",
+  "courseId": "text",
+  "moduleId": "shape-text",
+  "title": "From one string to many and back",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two halves of the same trip\n\n`split` cuts a string into a list wherever it finds a separator, and `join` glues a list of strings back together with a separator between them. One line of a station log becomes fields you can work with, and the fields become a line again once you are done.\n\nThis bites because `join` reads backwards the first time. You write `\", \".join(parts)`, not `parts.join(\", \")`, because the separator is the string doing the joining and the list is what it is handed. It also bites when a part is not a string: `join` raises `TypeError` rather than converting numbers for you.\n\n```python\nline = \"north,12,ok\"\nparts = line.split(\",\")\nprint(parts)                  # ['north', '12', 'ok']\nprint(\", \".join(parts))       # 'north, 12, ok'\nprint(\"-\".join([\"x\", \"y\"]))   # 'x-y'\n\nprint(\"a b   c\".split())      # ['a', 'b', 'c'] - no argument collapses whitespace\nprint(\"a,b,,c\".split(\",\"))    # ['a', 'b', '', 'c'] - an argument keeps the gap\n```\n\nA common mistake is assuming `split(\",\")` trims for you. It does not: `\"a , b\".split(\",\")` gives `[\"a \", \" b\"]`, spaces and all. The exercise asks you to split a scruffy comma line into clean fields and then render them with a `\" | \"` separator, so both directions get exercised."
+    },
+    {
+      "type": "check",
+      "id": "join-receiver",
+      "promptMd": "In `\", \".join(parts)`, which one is the separator?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "sep",
+          "md": "The string you call `join` on — `\", \"`"
+        },
+        {
+          "id": "list",
+          "md": "The list `parts`"
+        },
+        {
+          "id": "both",
+          "md": "Neither — `join` always uses a space"
+        }
+      ],
+      "answer": "sep",
+      "explainMd": "`join` is a method on the separator, so the string before the dot is what ends up between the items. Reading it as \"glue these parts with this string\" makes the order feel right. `\"\".join(parts)` is the version with no separator at all."
+    },
+    {
+      "type": "predict",
+      "id": "split-no-arg",
+      "promptMd": "What is `\"a b   c\".split()` with no argument?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "gaps",
+          "md": "`['a', 'b', '', '', 'c']`"
+        },
+        {
+          "id": "clean",
+          "md": "`['a', 'b', 'c']`"
+        }
+      ],
+      "answer": "clean",
+      "explainMd": "`split()` with no argument treats any run of whitespace as one separator and ignores leading and trailing whitespace, so you never get empty strings. `split(\" \")` with an explicit space is the strict version, and that one does produce the empty entries."
+    },
+    {
+      "type": "code",
+      "id": "fields-and-render",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `fields(line)` splitting on commas and trimming each part, and `render(parts)` joining them with `\" | \"`. Print `render(fields(\"north , 12 ,ok\"))`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "north | 12 | ok"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Look closely at what the starter prints: the brackets and quotes are there because `render` is turning the list into text with `str`, not joining it. The fields still carry their stray spaces too."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Split on the comma, then strip each part — a list comprehension does both in one line. For `render`, call `join` on the separator string and hand it the list."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `[p.strip() for p in \"a , b\".split(\",\")]` you get `[\"a\", \"b\"]`, and `\" / \".join([\"a\", \"b\"])` is `\"a / b\"`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def fields(line):\n    return [part.strip() for part in line.split(\",\")]\n\n\ndef render(parts):\n    return \" | \".join(parts)\n\n\nprint(render(fields(\"north , 12 ,ok\")))"
+        }
+      ]
+    }
+  ],
+  "description": "Split a line into fields, then join fields back into a line."
+}

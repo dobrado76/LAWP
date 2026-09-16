@@ -1,0 +1,170 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 24,
+  "skillIds": [
+    "python.craft.tests"
+  ],
+  "id": "assert-and-aaa",
+  "courseId": "craft",
+  "moduleId": "prove",
+  "title": "Arrange, act, assert",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three beats, one call\n\nA test is three beats in a fixed order. **Arrange** an input you already know the answer for, **act** exactly once by calling the thing under test, then **assert** on the value that came back. One call in the middle keeps a failure readable: when the assertion raises, there is only one suspect.\n\nThis bites the first time you test a function that prints. `print` hands its text to the terminal and gives the caller `None`, so asserting on a printing function compares `None` with the number you wanted and fails no matter how right the screen looked. The screen is not a value. Only the return is something a test can hold, compare, and carry into the next line.\n\n```python\ndef count_rows(rows):\n    return len(rows)          # a value the caller can hold\n\n\ndef show_rows(rows):\n    print(len(rows))          # the screen gets it; the caller gets None\n\n\nrows = [\"fox at 2,1\", \"owl at 0,3\"]             # arrange\nfound = count_rows(rows)                        # act\nassert found == 2, f\"expected 2, got {found}\"   # assert\n\nprint(show_rows(rows) is None)                  # True - nothing came back\n```\n\nA common mistake is asserting against a function that only prints, watching it fail, and then loosening the assertion until it goes green. The exercise asks for a counter that **returns** its number and a `test_` function that arranges its own rows, acts once, and asserts on what came back — so the assertion can only fail for a real reason."
+    },
+    {
+      "type": "predict",
+      "id": "print-then-assert",
+      "promptMd": "Given\n\n```python\ndef bump(n):\n    print(n + 1)\n```\n\nwhat does `assert bump(1) == 2` do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "passes",
+          "md": "Passes — the screen shows `2`",
+          "misconceptionId": "test-checks-the-print"
+        },
+        {
+          "id": "fails",
+          "md": "Fails — `bump` hands back `None`, and `None == 2` is false"
+        }
+      ],
+      "answer": "fails",
+      "explainMd": "The `2` on the screen is a side effect, not the value of the call. `bump` has no `return`, so it hands back `None`, and the assertion compares `None` with `2` and raises. Swap `print(n + 1)` for `return n + 1` and the very same assertion starts telling you the truth — and you can still print the result at the call site if a human wants to read it.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "aaa-order",
+      "kind": "cloze",
+      "promptMd": "A test {{a}} a fixture, then {{b}} once, then {{c}} on the value that came back.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "arranges",
+              "md": "arranges"
+            },
+            {
+              "id": "asserts",
+              "md": "asserts"
+            },
+            {
+              "id": "acts",
+              "md": "acts"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "acts",
+              "md": "acts"
+            },
+            {
+              "id": "arranges",
+              "md": "arranges"
+            },
+            {
+              "id": "prints",
+              "md": "prints"
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "choices": [
+            {
+              "id": "asserts",
+              "md": "asserts"
+            },
+            {
+              "id": "acts",
+              "md": "acts"
+            },
+            {
+              "id": "arranges",
+              "md": "arranges"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "arranges",
+        "b": "acts",
+        "c": "asserts"
+      },
+      "explainMd": "Arrange, act, assert. Reversing the last two is the usual slip: people assert on a value they have not produced yet, or call the function twice and then cannot say which call the failure came from. Keep the act to a single line and the failure message tells you what went wrong without a debugger.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "calling-is-not-checking",
+      "kind": "tf",
+      "promptMd": "A test that calls the function but never compares anything will still fail when the answer is wrong.",
+      "answer": "false",
+      "explainMd": "Calling is not checking. A function that returns a wrong number returns it quietly, so a test with no `assert` passes forever and gives you false confidence. The only failure such a test can ever report is a crash. An assertion with a message — `assert found == 2, found` — is what turns a run into a verdict.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "count-and-test",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Station rows look like `{\"animal\": \"fox\", \"x\": 2, \"y\": 1}`.\n>\n> 1. `count_sightings(rows, animal)` must **return** how many rows have that `\"animal\"` — nothing printed inside it.\n> 2. `test_count_sightings()` must arrange its own three-row fixture, act once, and assert on the returned number.\n>\n> Call the test, then print `ok`. Output should be `ok`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "ok"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints the matching rows from inside the counter. A caller cannot compare something that only went to the screen."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Return a number instead: count the rows whose `\"animal\"` matches, and hand that count back. Then a test can bind it to a name and assert on it."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A different shape: `def loud(rows): return sum(1 for r in rows if r[\"db\"] > 50)`, tested with `found = loud(fixture)` then `assert found == 1, found`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def count_sightings(rows, animal):\n    return sum(1 for row in rows if row[\"animal\"] == animal)\n\n\ndef test_count_sightings():\n    rows = [\n        {\"animal\": \"fox\", \"x\": 2, \"y\": 1},\n        {\"animal\": \"owl\", \"x\": 0, \"y\": 3},\n        {\"animal\": \"fox\", \"x\": 4, \"y\": 4},\n    ]\n    found = count_sightings(rows, \"fox\")\n    assert found == 2, f\"expected 2 fox rows, got {found}\"\n\n\ntest_count_sightings()\nprint(\"ok\")"
+        }
+      ]
+    }
+  ],
+  "description": "Arrange, act, assert. Test the value you return, not the line you print."
+}

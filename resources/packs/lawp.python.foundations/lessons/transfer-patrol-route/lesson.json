@@ -1,0 +1,240 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.control.loops",
+    "python.control.if",
+    "python.call.move"
+  ],
+  "mastery": {
+    "requiresTransfer": true
+  },
+  "id": "transfer-patrol-route",
+  "courseId": "flow",
+  "moduleId": "repeat",
+  "title": "Transfer: the evening patrol",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A route the loops have to bend around\n\nEvery evening the fox walks the same patrol: out along the field, up to the north flag, and down the east edge to the south flag. The route is repetitive, so loops write it far more reliably than twenty hand-typed calls — and when the field changes, only the counts change.\n\nThis bites when something solid sits on the straight line. A move into a rock is refused rather than reported: the fox simply stays where it is, the run finishes without complaint, and every later move in the plan is now offset by one cell. Nothing goes wrong loudly; the patrol just ends in the wrong place.\n\n```python\nfor step in range(2):\n    Player.move(\"east\")     # two cells, then decide\n\nPlayer.move(\"south\")        # drop a row to get past whatever is ahead\n\nfor step in range(4):\n    Player.move(\"east\")     # the long run, on the clear row\n```\n\nA common mistake is writing one long eastward loop and trusting the field to be empty. Count the cells between the fox and each obstacle before you choose a loop bound, and split the run into the part before the detour and the part after it. The exercise asks for both flags and a finish at the south-east corner."
+    },
+    {
+      "type": "predict",
+      "id": "blocked-move",
+      "promptMd": "The fox is at `(2, 0)` and a rock sits at `(3, 0)`. What does `Player.move(\"east\")` do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "fault",
+          "md": "Stops the run with an error"
+        },
+        {
+          "id": "stay",
+          "md": "Nothing — the fox stays at `(2, 0)`"
+        }
+      ],
+      "answer": "stay",
+      "explainMd": "A blocked move is quietly refused: the world rejects it and the fox keeps its old position, so the run carries on as if the step had happened. That silence is why an obstacle turns into a mysterious end position rather than a crash, and why you plan the route around it instead of hoping."
+    },
+    {
+      "type": "check",
+      "id": "why-loops-here",
+      "promptMd": "Why write the patrol with loops rather than twenty `Player.move` lines?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "faster",
+          "md": "The loop version runs faster on the grid"
+        },
+        {
+          "id": "edit",
+          "md": "One bound changes when the field changes, instead of a dozen lines"
+        },
+        {
+          "id": "required",
+          "md": "The grid only accepts moves issued from a loop"
+        }
+      ],
+      "answer": "edit",
+      "explainMd": "Speed is not the point — the same moves are issued either way. The point is that the route is described by a few numbers, so widening the field means editing a bound rather than counting typed lines and hoping you added the right number. A miscount in twenty near-identical lines is nearly invisible during review."
+    },
+    {
+      "type": "code",
+      "id": "patrol-the-field",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Walk the patrol with loops. A rock blocks row 0 at `(3, 0)`, so go two east, drop south, run east along row 1, step north onto the flag at `(6, 0)`, then head down the east edge to the flag at `(6, 4)`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter runs east six times and finishes at `(2, 0)`. Four of those moves were refused by the rock and you were never told."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Break the route into runs: two east, one south, four east, one north to the flag, then four south down the edge. Each run of the same direction is a `for` loop."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A short detour looks like `for step in range(2): Player.move(\"east\")` then a single `Player.move(\"south\")` before the next loop begins."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "for step in range(2):\n    Player.move(\"east\")\n\nPlayer.move(\"south\")\n\nfor step in range(4):\n    Player.move(\"east\")\n\nPlayer.move(\"north\")\n\nfor step in range(4):\n    Player.move(\"south\")"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "boulder",
+              "type": "rock",
+              "props": {
+                "x": 3,
+                "y": 0,
+                "solid": true
+              }
+            },
+            {
+              "id": "flag-north",
+              "type": "flag",
+              "props": {
+                "x": 6,
+                "y": 0,
+                "collect": true,
+                "taken": false,
+                "label": "flag-north"
+              }
+            },
+            {
+              "id": "flag-south",
+              "type": "flag",
+              "props": {
+                "x": 6,
+                "y": 4,
+                "collect": true,
+                "taken": false,
+                "label": "flag-south"
+              }
+            },
+            {
+              "id": "pine",
+              "type": "tree",
+              "props": {
+                "x": 1,
+                "y": 3,
+                "solid": true
+              }
+            },
+            {
+              "id": "scrub",
+              "type": "tree",
+              "props": {
+                "x": 4,
+                "y": 3,
+                "solid": true
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 7,
+              "rows": 5,
+              "floor": "floor-grass"
+            },
+            "assetMap": {
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "flag-north.taken",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "path": "flag-south.taken",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 6
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 4
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "reflect",
+      "id": "patrol-notes",
+      "promptMd": "In your own words: how would you have spotted the blocked move if the fox had ended one cell short and nothing had been printed?"
+    }
+  ],
+  "description": "Plan a patrol the fox can walk without being told each step."
+}

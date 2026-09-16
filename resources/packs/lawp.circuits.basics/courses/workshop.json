@@ -1,0 +1,20 @@
+{
+  "id": "workshop",
+  "title": "Control and keep",
+  "level": "beginner",
+  "estimatedMinutes": 36,
+  "creationId": "my-circuit",
+  "skillIds": ["circuits.switch", "circuits.measure", "circuits.combine"],
+  "modules": [
+    {
+      "id": "control",
+      "title": "Switches and meters",
+      "lessonIds": ["switches-break", "what-meters-do"]
+    },
+    {
+      "id": "keep",
+      "title": "Mix and keep",
+      "lessonIds": ["series-parallel-mix", "keep-your-circuit"]
+    }
+  ]
+}

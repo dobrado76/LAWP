@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 14,
+  "skillIds": [
+    "python.control.if"
+  ],
+  "id": "compare-chaining",
+  "courseId": "flow",
+  "moduleId": "decide",
+  "title": "Between two numbers",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A range check that reads like mathematics\n\nPython lets you chain comparisons, so `0 <= x < 10` means exactly what it says on a blackboard: x is at least zero and less than ten. Under the hood Python evaluates it as the two comparisons joined by `and`, but it evaluates the middle expression only once.\n\nThis bites when the longer spelling drifts. Written out as `0 <= x and x < 10`, the name `x` appears twice, and the day someone changes one of them to `y` the check still runs and still looks plausible. It bites harder when the middle is a call: `0 <= next_reading() < 10` asks the sensor once, while the spelled-out version asks it twice and can compare two different readings.\n\n```python\nx = 7\nprint(0 <= x < 10)          # True\nprint(0 <= x and x < 10)    # True — the longer spelling\nprint(0 <= 20 < 10)         # False\nprint(3 < x <= 7)           # True — any mix of < and <=\n```\n\nA common mistake is checking only the upper edge and forgetting that a coordinate can go negative. The grid has a west wall as well as an east one. The exercise asks whether a coordinate pair is on a 7-by-5 field, so both ends of both axes need a bound."
+    },
+    {
+      "type": "predict",
+      "id": "chained-false",
+      "promptMd": "What does `print(0 <= 20 < 10)` show?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "true",
+          "md": "`True` — the first comparison holds"
+        },
+        {
+          "id": "false",
+          "md": "`False`"
+        }
+      ],
+      "answer": "false",
+      "explainMd": "A chain is true only when every link is true. `0 <= 20` holds, but `20 < 10` does not, so the whole expression is `False`. Python stops at the first failing link, which is the same short-circuiting behaviour `and` has, because that is precisely what the chain expands to."
+    },
+    {
+      "type": "check",
+      "id": "evaluated-once",
+      "kind": "tf",
+      "promptMd": "In `0 <= reading() < 10`, the function `reading()` is called exactly once.",
+      "answer": "true",
+      "explainMd": "True, and this is the real advantage of the chain over the spelled-out form. Python evaluates the middle expression a single time and reuses that value for both comparisons. Writing `0 <= reading() and reading() < 10` calls the sensor twice and can compare two different values, which produces a bug that only appears when the readings change."
+    },
+    {
+      "type": "code",
+      "id": "on-the-grid",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `on_grid(x, y)` so it is `True` only when the cell is inside the 7-by-5 field — both coordinates at least 0, x below `COLS`, y below `ROWS`. The printed line should be `True`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "True"
+        },
+        {
+          "type": "ast",
+          "query": "<="
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter guards the east and south walls but not the west and north ones, so `(-1, 2)` is reported as on the grid."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Each axis needs a lower bound and an upper bound. A chained comparison says both in one expression."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`0 <= hour < 24` rejects `-1` and `24` in one line, without repeating the name `hour` in an `and`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "COLS = 7\nROWS = 5\n\n\ndef on_grid(x, y):\n    return 0 <= x < COLS and 0 <= y < ROWS\n\n\nprint(on_grid(3, 2))"
+        }
+      ]
+    }
+  ],
+  "description": "Write a range check as one comparison, the way maths does."
+}

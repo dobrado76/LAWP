@@ -1,48 +1,96 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "types-you-can-see",
   "packId": "lawp.python.foundations",
-  "courseId": "repl-in-pocket",
-  "moduleId": "values-and-names",
-  "title": "Types you can see",
+  "taskRev": 2,
+  "estimatedMinutes": 14,
   "skillIds": [
     "python.types.names"
   ],
-  "estimatedMinutes": 15,
-  "taskRev": 1,
+  "id": "types-you-can-see",
+  "courseId": "values",
+  "moduleId": "kinds",
+  "title": "Kinds you can print",
   "blocks": [
     {
       "type": "explain",
-      "md": "## Values have kinds\n\nEvery value in Python has a kind, even when two values look similar on the page. `3` is an `int`. `\"3\"` is a `str`. They are not interchangeable: adding `1` to the number works; adding `1` to the text does not. `type(3).__name__` is a readable name for that kind, without the extra wrapper text you get from printing `type(3)` itself.\n\nThis bites when you treat `\"3\"` as a number. A later sum can crash or concatenate instead of add, and the bug is hard to see because both look like the digit three. Asking for the type makes the kind visible before you mix values that only look alike.\n\n```python\nprint(type(3).__name__)\n```\n\nA common mistake is printing the word `\"int\"` as a string you typed, or printing `type(3)` which includes extra wrapper text. The exercise asks you to print the type name of `3` so the output is exactly `int`.\n"
+      "md": "## Every value has a kind\n\nEvery value carries a kind, and `type(value)` reports it. A whole number is an `int`, a decimal is a `float`, quoted characters are a `str`, and a yes-or-no is a `bool`. The kind decides what the operators do next.\n\nThis bites the first time you add a number to a number-shaped string. `2 + 2` is `4`, but `\"2\" + \"2\"` is `\"22\"`, because `+` joins text and adds numbers. A field-station log that stores `\"2\"` where it meant `2` fails the moment something sums the column.\n\n```python\ntype(3).__name__        # 'int'\ntype(\"3\").__name__      # 'str'\ntype(3.0).__name__      # 'float'\ntype(True).__name__     # 'bool'\n```\n\nA common mistake is trusting how a value *looks* on screen: `print(3)` and `print(\"3\")` are identical to the eye. The exercise asks you to write `kind_of(value)` returning the kind name, so a hidden test can ask about several values at once."
+    },
+    {
+      "type": "predict",
+      "id": "quoted-digit",
+      "promptMd": "What is `type(\"3\").__name__`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "int",
+          "md": "`int` — it is a digit"
+        },
+        {
+          "id": "str",
+          "md": "`str` — the quotes make it text"
+        }
+      ],
+      "answer": "str",
+      "explainMd": "Quotes make text, even when the text happens to be a digit. The value is a `str`, so `+` will join it rather than add it."
+    },
+    {
+      "type": "check",
+      "id": "bool-is-kind",
+      "kind": "tf",
+      "promptMd": "`True` and `False` have their own kind in Python.",
+      "answer": "true",
+      "explainMd": "`type(True).__name__` is `bool`. Booleans are their own kind, even though they also behave like 1 and 0 in arithmetic."
     },
     {
       "type": "code",
-      "id": "print-type",
+      "id": "kind-of",
       "engine": "python",
       "entry": "main.py",
+      "promptMd": "> Write `kind_of(value)` so it returns the kind **name** as a string — `kind_of(3)` is `\"int\"`, `kind_of(\"3\")` is `\"str\"`. Print `kind_of(3)`.",
       "files": [
         {
           "path": "files/main.py",
           "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
         }
       ],
       "checks": [
         {
           "type": "stdout",
           "equals": "int"
+        },
+        {
+          "type": "ast",
+          "query": "type"
+        },
+        {
+          "type": "python-assert"
         }
       ],
       "hintLadder": [
         {
           "level": 1,
           "kind": "concept",
-          "md": "Ask the value 3 what kind it is."
+          "md": "The starter always answers the same thing. The value that arrives should decide the answer."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "type(3).__name__ prints int."
+          "md": "`type(value)` gives the type object; `.__name__` turns that into the plain string you want to return."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`type(3.5).__name__` is `\"float\"`, so the same expression works for every kind without an if-chain."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def kind_of(value):\n    return type(value).__name__\n\n\nprint(kind_of(3))"
         }
       ]
     }

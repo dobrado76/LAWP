@@ -1,0 +1,95 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.collections.list"
+  ],
+  "id": "tuples-and-unpacking",
+  "courseId": "collections",
+  "moduleId": "sequences",
+  "title": "A pair that cannot wobble",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Fixed shape, fixed size\n\nA tuple is a small group of values written with commas, usually inside round brackets. Once built it cannot be changed: no append, no item assignment. That sounds like a limitation, but it is a promise — a tuple of two numbers stays a tuple of two numbers for as long as anyone holds it.\n\nThis bites when a function returns a list of two things and a caller quietly appends a third. Nothing raises, and the bug shows up three layers away. It also bites when you unpack the wrong number of names: `x, y = (1, 2, 3)` raises `ValueError` instead of silently dropping a value, which is the tuple keeping its promise.\n\n```python\nhere = (3, 2)\nx, y = here            # unpacking: one name per slot\nprint(x, y)            # 3 2\n\nx, y = y, x            # swap, with no temporary name\nprint(x, y)            # 2 3\n\n# here[0] = 9 would raise TypeError: tuples do not change\n```\n\nA common mistake is treating a tuple as a slower list and reaching for `.append`. If the size can grow, you wanted a list all along. The exercise asks for `move(pos, dx, dy)` where `pos` is an `(x, y)` pair: unpack it, do the arithmetic, and hand back a fresh pair rather than editing the one you were given."
+    },
+    {
+      "type": "predict",
+      "id": "swap-result",
+      "promptMd": "After `x, y = 3, 2` and then `x, y = y, x`, what does `print(x, y)` show?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "same",
+          "md": "`3 2`"
+        },
+        {
+          "id": "swapped",
+          "md": "`2 3`"
+        }
+      ],
+      "answer": "swapped",
+      "explainMd": "The right-hand side is evaluated first, into the pair `(2, 3)`, and only then unpacked into the names on the left. Because the old values are already captured before any name is rebound, no temporary variable is needed and nothing is lost."
+    },
+    {
+      "type": "check",
+      "id": "tuple-immutable",
+      "kind": "tf",
+      "promptMd": "`here = (3, 2)` followed by `here[0] = 9` raises `TypeError`.",
+      "answer": "true",
+      "explainMd": "Tuples do not support item assignment, so Python raises `TypeError: tuple object does not support item assignment`. To get a different pair you build a new one, which is exactly why a tuple is safe to hand out — nobody can edit it behind your back."
+    },
+    {
+      "type": "code",
+      "id": "move-a-pair",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `move(pos, dx, dy)` where `pos` is an `(x, y)` tuple. Unpack it, add the offsets, and return a **new tuple**. Print `move((3, 2), 1, -1)`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "(4, 1)"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter hands back the pair it was given, so the fox never actually moves. The two numbers inside `pos` have to come out before you can add anything to them."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Unpack with `x, y = pos`, then build the answer with `return (x + dx, y + dy)`. A tuple cannot be edited in place, so building a new one is the only option — and the right one."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `def grow(size, by): w, h = size; return (w + by, h + by)`, calling `grow((2, 5), 1)` gives `(3, 6)`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def move(pos, dx, dy):\n    x, y = pos\n    return (x + dx, y + dy)\n\n\nprint(move((3, 2), 1, -1))"
+        }
+      ]
+    }
+  ],
+  "description": "A tuple is a fixed row you can unpack into names."
+}

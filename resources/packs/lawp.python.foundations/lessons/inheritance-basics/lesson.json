@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.objects"
+  ],
+  "id": "inheritance-basics",
+  "courseId": "objects",
+  "moduleId": "reuse",
+  "title": "A subclass that is-a base class",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Say the base class once\n\nWriting `class SoilSensor(Sensor):` says that a soil sensor **is a** sensor. Every attribute and method on `Sensor` is reachable on the subclass without being copied, and any method you redefine in the subclass body **overrides** the inherited one for those instances. `isinstance(probe, Sensor)` is then `True`, which is what lets one function handle every kind of sensor.\n\nThe detail that makes overriding powerful is that inherited methods still go through the instance. `Sensor.describe` calls `self.label()`, and on a `SoilSensor` that `self.label` finds the subclass’s version — so one inherited method changes behaviour without being touched. Apply the is-a test out loud before subclassing: \"a soil sensor is a sensor\" holds, while \"a station is a log\" does not, even though a station clearly needs a log.\n\n```python\nclass Sensor:\n    def label(self):\n        return \"sensor\"\n\n    def describe(self):\n        return self.label() + \" on the ridge\"\n\n\nclass WindSensor(Sensor):\n    def label(self):\n        return \"wind sensor\"\n\n\nw = WindSensor()\nprint(w.describe())            # wind sensor on the ridge — inherited, but overridden label\nprint(isinstance(w, Sensor))   # True\n```\n\nA common mistake is copying the base methods into the second class instead of inheriting, which passes today and drifts apart the first time one copy is fixed. The exercise gives you a `SoilSensor` that duplicates `describe`: make it subclass `Sensor`, override only `label`, and delete the copy."
+    },
+    {
+      "type": "predict",
+      "id": "override-through-self",
+      "promptMd": "`SoilSensor(Sensor)` overrides `label`. The inherited `describe` calls `self.label()`. Which `label` runs?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "base",
+          "md": "`Sensor.label`, because `describe` was defined in `Sensor`"
+        },
+        {
+          "id": "sub",
+          "md": "`SoilSensor.label`, because `self` is a `SoilSensor`"
+        }
+      ],
+      "answer": "sub",
+      "explainMd": "Attribute lookup starts at the instance’s own class and only then walks up to the base, so `self.label` finds the subclass version no matter which class the calling method was written in. That is the mechanism behind every \"override one piece, reuse the rest\" design."
+    },
+    {
+      "type": "check",
+      "id": "is-a-test",
+      "promptMd": "Which of these passes the is-a test, and so justifies a subclass?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "soil",
+          "md": "A soil sensor is-a sensor"
+        },
+        {
+          "id": "station",
+          "md": "A station is-a log"
+        },
+        {
+          "id": "reading",
+          "md": "A reading is-a station"
+        }
+      ],
+      "answer": "soil",
+      "explainMd": "Inheritance claims that the subclass can stand in for the base anywhere, so the sentence has to be true of the *thing*, not merely convenient for your code. A station keeps a log and holds readings, so those are has-a relationships and belong in attributes rather than in a base class."
+    },
+    {
+      "type": "code",
+      "id": "subclass-not-copy",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Make `SoilSensor` a subclass of `Sensor`, override only `label` so it returns `soil sensor`, and inherit `describe` instead of copying it. Output should be `soil sensor on the ridge`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "soil sensor on the ridge"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The two classes in the starter share an identical `describe`. Nothing links them, so the duplication is real."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Name the base in the class header — `class SoilSensor(Sensor):` — and then remove every method the base already provides correctly."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The remaining override does not need to know about `describe`: `describe` asks `self.label()`, and `self` is a `SoilSensor`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    def label(self):\n        return \"sensor\"\n\n    def describe(self):\n        return self.label() + \" on the ridge\"\n\n\nclass SoilSensor(Sensor):\n    def label(self):\n        return \"soil sensor\"\n\n\nprobe = SoilSensor()\n\nprint(probe.describe())"
+        }
+      ]
+    }
+  ],
+  "description": "A subclass keeps what the parent has and changes what it must."
+}

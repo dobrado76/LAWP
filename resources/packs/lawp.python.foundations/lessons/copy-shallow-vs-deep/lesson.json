@@ -1,0 +1,124 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "python.collections.list"
+  ],
+  "id": "copy-shallow-vs-deep",
+  "courseId": "internals",
+  "moduleId": "identity",
+  "title": "A copy that is only one level deep",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Shallow copies share what is inside\n\n`copy.copy(data)` builds one new container and fills it with the *same* inner objects. The outer dict or list is genuinely separate, so adding a top-level key touches only the copy. Every nested list, dict, or set inside it is still shared, because a shallow copy never looks past the first level.\n\nThis bites on station records shaped like `{\"grid\": [[0, 0]], \"name\": \"north\"}`. You take a copy, edit `copy[\"grid\"][0][0]`, and the original changes too — the two dicts are different objects pointing at one grid. `copy.deepcopy(data)` walks the whole structure and rebuilds every layer, so nothing is shared and the original is safe.\n\n```python\nimport copy\n\nbase = {\"grid\": [[0]], \"name\": \"north\"}\n\nnear = copy.copy(base)\nnear[\"grid\"][0].append(1)\nprint(base[\"grid\"])          # [[0, 1]] - the grid was shared\n\nbase = {\"grid\": [[0]], \"name\": \"north\"}\nfar = copy.deepcopy(base)\nfar[\"grid\"][0].append(1)\nprint(base[\"grid\"])          # [[0]] - untouched\n```\n\nA common mistake is trusting `list(rows)`, `rows[:]`, or `dict(record)` to protect nested data. They are all shallow, and so is `copy.copy`. Reach for `deepcopy` when the structure has layers you intend to edit, and remember it is slower because it really does rebuild everything. The exercise asks you to hand back a twin that shares nothing."
+    },
+    {
+      "type": "predict",
+      "id": "shallow-nested-edit",
+      "promptMd": "`near = copy.copy(base)` where `base = {\"grid\": [[0]]}`. After `near[\"grid\"][0].append(1)`, what is `base[\"grid\"]`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "shared",
+          "md": "`[[0, 1]]` — the inner list is shared"
+        },
+        {
+          "id": "safe",
+          "md": "`[[0]]` — a copy protects everything inside it",
+          "misconceptionId": "copy-is-always-deep"
+        }
+      ],
+      "answer": "shared",
+      "explainMd": "A shallow copy duplicates one level. `near` is a new dict, but its `\"grid\"` value is the same list object `base` points at, so appending through either name is visible through both. Only `copy.deepcopy` rebuilds the inner lists as separate objects."
+    },
+    {
+      "type": "check",
+      "id": "which-are-shallow",
+      "promptMd": "Which of these gives you a copy whose *nested* lists are independent?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "slice",
+          "md": "`rows[:]`",
+          "misconceptionId": "copy-is-always-deep"
+        },
+        {
+          "id": "ctor",
+          "md": "`list(rows)`",
+          "misconceptionId": "copy-is-always-deep"
+        },
+        {
+          "id": "deep",
+          "md": "`copy.deepcopy(rows)`"
+        }
+      ],
+      "answer": "deep",
+      "explainMd": "Slicing, `list(...)`, `dict(...)`, and `copy.copy(...)` are all one level deep: new container, same inner objects. `copy.deepcopy` recurses through the whole structure and rebuilds each layer, which is exactly why it costs more and why you only ask for it when you mean it."
+    },
+    {
+      "type": "check",
+      "id": "deepcopy-top-level",
+      "kind": "tf",
+      "promptMd": "A deep copy is also a new object at the top level, so `deepcopy(base) is base` is `False`.",
+      "answer": "true",
+      "explainMd": "Deep means \"and everything below\", not \"instead of the top\". `deepcopy` returns a new outer container whose members are new too, so both `is base` and `is base[\"grid\"]` are `False`. Equality still holds: the twin compares `==` to the original until you change one of them."
+    },
+    {
+      "type": "code",
+      "id": "deep-twin",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `deep_twin(data)` so the returned dictionary shares nothing with the original — the nested list must be its own object too. Output should be `[[0]] [[0, 1]]`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "[[0]] [[0, 1]]"
+        },
+        {
+          "type": "ast",
+          "query": "deepcopy"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter already copies, but only the outer dict. Look at what the two dicts still have in common."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The `copy` module has two functions. `copy.copy` stops at one level; `copy.deepcopy` rebuilds every layer it finds."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`copy.deepcopy([[1], [2]])` gives a new outer list whose two inner lists are also new, so appending to one of them leaves the original alone."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import copy\n\n\ndef deep_twin(data):\n    return copy.deepcopy(data)\n\n\nbase = {\"grid\": [[0]], \"name\": \"north\"}\ntwin = deep_twin(base)\ntwin[\"grid\"][0].append(1)\nprint(base[\"grid\"], twin[\"grid\"])"
+        }
+      ]
+    }
+  ],
+  "description": "A shallow copy still shares whatever is nested inside."
+}

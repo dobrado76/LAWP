@@ -1,0 +1,113 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.values.strings"
+  ],
+  "id": "fstring-formatting",
+  "courseId": "text",
+  "moduleId": "shape-text",
+  "title": "Format specs inside an f-string",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Everything after the colon is instructions\n\nInside an f-string placeholder, a colon starts a format spec: how to render this value, not which value to render. `{reading:.2f}` means \"as a fixed-point number with two decimals\". `{zone:>8}` means \"right-aligned in eight columns\". The value itself is untouched; only its text form changes.\n\nThis bites when you round with `round()` and then wonder why a column will not line up. `round(1.5, 2)` is the number `1.5` and prints as `1.5`; `f\"{1.5:.2f}\"` is the text `1.50`. One is arithmetic, the other is presentation, and a report needs the second.\n\n```python\nzone = \"north\"\nreading = 12.3456\n\nprint(f\"{reading:.2f}\")     # 12.35\nprint(f\"{zone:>8}|\")        # '   north|' - right aligned in 8 columns\nprint(f\"{zone:<8}|\")        # 'north   |' - left aligned\nprint(f\"{zone!r}\")          # 'north' - repr, quotes included\nprint(f\"{reading:8.1f}|\")   # '    12.3|' - width and precision together\n```\n\nA common mistake is confusing `!r` with a format spec — it is a conversion, it comes before the colon, and it asks for `repr(value)` rather than `str(value)`. That is how you get the quotes that show whether a value was text or a number. The exercise asks for one aligned report row and one quoted tag."
+    },
+    {
+      "type": "check",
+      "id": "spec-f",
+      "promptMd": "What does `f\"{3.14159:.2f}\"` produce?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "two",
+          "md": "`'3.14'`"
+        },
+        {
+          "id": "full",
+          "md": "`'3.14159'`"
+        },
+        {
+          "id": "int",
+          "md": "`'3'`"
+        }
+      ],
+      "answer": "two",
+      "explainMd": "`.2f` means fixed-point with exactly two digits after the decimal, rounded for display. It also pads: `f\"{3.1:.2f}\"` is `\"3.10\"`, which is what makes a column of numbers line up even when the values have different precision."
+    },
+    {
+      "type": "check",
+      "id": "bang-r",
+      "promptMd": "What does `!r` ask for in `f\"{name!r}\"`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "repr",
+          "md": "The `repr()` of the value — quotes and all, for a string"
+        },
+        {
+          "id": "reverse",
+          "md": "The value reversed"
+        },
+        {
+          "id": "round",
+          "md": "The value rounded"
+        }
+      ],
+      "answer": "repr",
+      "explainMd": "`!r` switches from `str(value)` to `repr(value)`, the developer-facing form. For text that means the quotes appear, so a log line can show the difference between the number `12` and the string `\"12\"` — exactly the distinction you need when a parse went wrong."
+    },
+    {
+      "type": "code",
+      "id": "aligned-row",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `row(zone, reading)` returning the zone left-aligned in 8 columns followed by the reading right-aligned in 7 with 2 decimals, and `tag(value)` returning the value as `repr`. Print the row in square brackets.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "[north     12.35]"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter glues the zone and the number together with a space, so nothing lines up and the reading keeps all four of its decimal digits."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Use one f-string with two placeholders. The zone spec is `<8` for left alignment in eight columns; the reading spec is `>7.2f` for right alignment in seven columns with two decimals. For `tag`, the conversion is `!r`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`f\"{'ab':<4}|\"` is `\"ab  |\"` and `f\"{1.5:>6.2f}\"` is `\"  1.50\"`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def row(zone, reading):\n    return f\"{zone:<8}{reading:>7.2f}\"\n\n\ndef tag(value):\n    return f\"{value!r}\"\n\n\nprint(f\"[{row('north', 12.3456)}]\")"
+        }
+      ]
+    }
+  ],
+  "description": "Put a value inside a sentence, with the digits and width you want."
+}

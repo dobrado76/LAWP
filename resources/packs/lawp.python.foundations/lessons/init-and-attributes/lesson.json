@@ -1,0 +1,138 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "python.objects"
+  ],
+  "id": "init-and-attributes",
+  "courseId": "objects",
+  "moduleId": "shape",
+  "title": "What the instance knows",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## __init__ runs while the object is being built\n\nA template is only useful if each thing made from it can differ. `__init__` is the method Python calls for you the moment `Sensor(\"soil\", 11)` runs, with the new object as its first argument and your arguments after it. Whatever you assign onto that object inside `__init__` becomes an attribute the rest of the program can read.\n\nThe line that matters is `self.name = name`. The bare `name` is only a parameter — a local name that vanishes when `__init__` returns — while `self.name` writes the value onto the instance, where it survives. Miss the `self.` and the value is quietly thrown away, and the attribute error shows up much later at the first read.\n\n```python\nclass Sensor:\n    def __init__(self, name, unit):\n        self.name = name      # onto the instance: survives\n        self.unit = unit\n        note = name.upper()   # local only: gone at return\n        del note\n\n\nwind = Sensor(\"wind\", \"kph\")\nprint(wind.name, wind.unit)   # wind kph\n```\n\nA common mistake is writing an `__init__` that takes no arguments and hard-codes the values, which builds one sensor beautifully and every other sensor wrong. The exercise asks for an `__init__(self, name, reading)` that stores both, so `Sensor(\"soil\", 11)` and `Sensor(\"wind\", 18)` are both possible."
+    },
+    {
+      "type": "predict",
+      "id": "when-init-runs",
+      "promptMd": "When does `__init__` run?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "construct",
+          "md": "When you call the class, before the new object comes back to you"
+        },
+        {
+          "id": "first-read",
+          "md": "The first time you read an attribute off the instance"
+        },
+        {
+          "id": "manual",
+          "md": "Only if you call `obj.__init__()` yourself"
+        }
+      ],
+      "answer": "construct",
+      "explainMd": "Calling `Sensor(\"soil\", 11)` builds a bare object, hands it to `__init__` as `self`, and only then returns it, so by the time the name is bound the attributes already exist. That is why you never call `__init__` by hand — the construction call has already done it."
+    },
+    {
+      "type": "check",
+      "id": "self-dot-matters",
+      "kind": "cloze",
+      "promptMd": "`self.name = name` stores the value on the {{a}}. The bare `name` on the right is just a {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "instance",
+              "md": "instance"
+            },
+            {
+              "id": "class",
+              "md": "class"
+            },
+            {
+              "id": "module",
+              "md": "module"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "parameter",
+              "md": "parameter"
+            },
+            {
+              "id": "attribute",
+              "md": "attribute"
+            },
+            {
+              "id": "method",
+              "md": "method"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "instance",
+        "b": "parameter"
+      },
+      "explainMd": "The left side reaches through `self` and writes onto the object being built, which is why the value outlives the call. The right side is an ordinary parameter in the method’s local scope and disappears the moment `__init__` returns."
+    },
+    {
+      "type": "code",
+      "id": "store-two-attrs",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Give `Sensor` an `__init__` that takes `name` and `reading` and stores both on the instance. Build `Sensor(\"soil\", 11)` as `probe`, then print `probe.name` and `probe.reading` separated by a space. Output should be `soil 11`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "soil 11"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter’s `__init__` accepts nothing, so the values are baked into the class rather than passed in."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Add the parameters to `__init__` and assign each one through `self` so it lands on the instance."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A second example: `def __init__(self, cols, rows): self.cols = cols; self.rows = rows` lets one class make grids of any size."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    def __init__(self, name, reading):\n        self.name = name\n        self.reading = reading\n\n\nprobe = Sensor(\"soil\", 11)\n\nprint(probe.name, probe.reading)"
+        }
+      ]
+    }
+  ],
+  "description": "Init sets up one instance with the values it needs."
+}

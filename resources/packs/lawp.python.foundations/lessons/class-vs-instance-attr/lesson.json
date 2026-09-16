@@ -1,0 +1,96 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.objects"
+  ],
+  "id": "class-vs-instance-attr",
+  "courseId": "objects",
+  "moduleId": "shape",
+  "title": "Shared by the class, or owned by the thing",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One copy on the class, one copy per instance\n\nAn assignment in the class body makes a **class** attribute: one object, looked up through every instance. An assignment through `self` in `__init__` makes an **instance** attribute: a fresh one per object. Reading `probe.UNIT` checks the instance first and then falls back to the class, which is why both spellings appear to work.\n\nFor a constant like `UNIT = \"kph\"` the sharing is exactly what you want. For a list or a dict it is a trap: `seen = []` in the class body builds **one** list when the class is defined, so appending through any instance is visible through all of them, and a \"fresh\" sensor arrives already holding another sensor’s readings. Note that `a.seen = []` is different again — assignment creates an instance attribute that shadows the class one.\n\n```python\nclass Sensor:\n    seen = []          # one list, built once, shared\n\n\na = Sensor()\nb = Sensor()\na.seen.append(18)\nprint(b.seen)          # [18] — b never appended anything\nprint(Sensor.seen)     # [18] — it was always the class's list\n```\n\nA common mistake is reading `seen = []` as \"every sensor starts with an empty list\", because that is what it looks like. The exercise keeps `UNIT` shared on purpose and asks you to move `seen` so each instance owns its own — after `a.seen.append(18)`, `len(b.seen)` must be `0`."
+    },
+    {
+      "type": "predict",
+      "id": "shared-list",
+      "promptMd": "`class Sensor: seen = []`. After `a.seen.append(\"wind\")`, what is `b.seen`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "empty",
+          "md": "`[]` — each instance got its own list",
+          "misconceptionId": "class-attr-is-per-instance"
+        },
+        {
+          "id": "shared",
+          "md": "`[\"wind\"]` — one list on the class, reached through both names"
+        }
+      ],
+      "answer": "shared",
+      "explainMd": "The list object was built once, when the `class` statement ran, and never again. Neither instance has a `seen` of its own, so both lookups fall back to the class and land on the same list — appending through one name is appending through all of them."
+    },
+    {
+      "type": "check",
+      "id": "assign-shadows",
+      "kind": "tf",
+      "promptMd": "`a.seen = []` creates an instance attribute on `a` that shadows the class attribute.",
+      "answer": "true",
+      "explainMd": "Assignment through an instance always writes on the instance, so `a` gains its own `seen` and stops seeing the class one, while `b` still falls back to the shared list. That asymmetry — mutation shared, assignment private — is what makes the bug so confusing to read."
+    },
+    {
+      "type": "code",
+      "id": "own-your-list",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Keep `UNIT = \"kph\"` shared on the class, but give each `Sensor` its own `seen` list. The script appends to `a.seen` only, so printing `len(b.seen)` should give `0`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "0"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two attributes, two lifetimes. Which of them should exist once, and which should exist per sensor?"
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A per-instance value has to be built during construction, so assign it through `self` inside `__init__`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same fix appears with default arguments: `def add(x, bag=None)` plus `if bag is None: bag = []` gives a new list per call."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    UNIT = \"kph\"\n\n    def __init__(self, name):\n        self.name = name\n        self.seen = []\n\n\na = Sensor(\"wind\")\nb = Sensor(\"soil\")\na.seen.append(18)\n\nprint(len(b.seen))"
+        }
+      ]
+    }
+  ],
+  "description": "A class attribute is shared. An instance attribute is not."
+}

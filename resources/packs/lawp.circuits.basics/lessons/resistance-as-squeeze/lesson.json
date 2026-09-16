@@ -1,0 +1,76 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "resistance-as-squeeze",
+  "packId": "lawp.circuits.basics",
+  "courseId": "resistance",
+  "moduleId": "squeeze",
+  "title": "Resistance is a squeeze",
+  "skillIds": [
+    "circuits.resistance"
+  ],
+  "estimatedMinutes": 8,
+  "taskRev": 1,
+  "description": "Resistance squeezes the path. More ohms means less current. Zero ohms is not a super lamp — it is a short.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A narrow path versus a wide one\n\nResistance is how much the path squeezes the flow. A large resistance is a narrow door: less current for the same push. A small resistance is a wide door: more current. The lamp itself has resistance. A separate resistor is a knob you can see.\n\nThis bites when you treat ohms as a brightness slider that ignores voltage, or when you chase zero ohms for “maximum light.” Zero ohms is a short. Current tries to become huge. Heat follows.\n\n![Resistance squeezes the path](assets/resistance-squeeze.svg)\n\n```text\nsame V, large R  →  small I\nsame V, small R  →  large I\nR = 0            →  short (danger)\n```\n\nA common mistake is “turn ohms to zero so it is brightest.” The questions ask you to keep resistance as a squeeze, not a cheat."
+    },
+    {
+      "type": "check",
+      "id": "what-r",
+      "kind": "mcq",
+      "promptMd": "If you raise resistance and keep the same battery, current…",
+      "choices": [
+        {
+          "id": "down",
+          "md": "Falls — the path is a tighter squeeze"
+        },
+        {
+          "id": "up",
+          "md": "Rises, because resistance is a brightness knob",
+          "misconceptionId": "ohms-as-brightness-only"
+        },
+        {
+          "id": "zero",
+          "md": "Should be set to zero for a better lamp",
+          "misconceptionId": "short-is-more-power-better"
+        }
+      ],
+      "answer": "down",
+      "explainMd": "Same push, tighter squeeze, smaller I. Zero ohms is a short, not a win.",
+      "skillIds": [
+        "circuits.resistance"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "estimate",
+      "kind": "slider",
+      "promptMd": "Same 1-cell battery. Guess the current when ohms is 2. (I ≈ 1 / ohms)",
+      "min": 0,
+      "max": 2,
+      "step": 0.25,
+      "answer": {
+        "value": 0.5,
+        "tolerance": 0.25
+      },
+      "explainMd": "1 ÷ 2 = 0.5. Nearby answers still show you have the squeeze idea.",
+      "skillIds": [
+        "circuits.resistance"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "zero-ohms",
+      "kind": "tf",
+      "promptMd": "Setting resistance to zero is the safe way to get the brightest lamp.",
+      "answer": "false",
+      "explainMd": "Zero ohms is a short. Current and heat soar. The cap fails.",
+      "skillIds": [
+        "circuits.resistance"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.values.truth"
+  ],
+  "id": "truthiness-and-none",
+  "courseId": "values",
+  "moduleId": "compare",
+  "title": "Empty, missing, and false",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Three different kinds of nothing\n\nEvery value in Python can stand in a condition, and Python has a short list of values it treats as false: `0`, `0.0`, `\"\"`, the empty list `[]`, the empty dict `{}`, and `None`. Everything else is true, including `\"0\"`, `\"False\"`, and `[0]`, because those all contain something.\n\nThis bites when you collapse \"missing\" and \"empty\" and \"zero\" into one test. A sensor that reported `0` is working perfectly; a sensor that reported nothing at all is broken. `if not reading` cannot tell those apart, so the station report marks a healthy zero-degree reading as a fault.\n\n```python\nprint(bool(0), bool(\"\"), bool([]), bool(None))   # False False False False\nprint(bool(\"0\"), bool([0]), bool(\" \"))           # True True True\nprint(None == False)                             # False\nprint(None is None)                              # True\n```\n\nA common mistake is thinking `None` is another spelling of `False`. They are different values of different kinds: `None` means \"there is no value here\" and `False` is a real answer to a yes-or-no question. The exercise asks you to label a reading, so test for `None` first and only then ask whether what remains is empty."
+    },
+    {
+      "type": "predict",
+      "id": "none-equals-false",
+      "promptMd": "What does `print(None == False)` show?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "yes",
+          "md": "`True` — both are falsy, so they are equal",
+          "misconceptionId": "none-is-false-value"
+        },
+        {
+          "id": "no",
+          "md": "`False`"
+        }
+      ],
+      "answer": "no",
+      "explainMd": "Falsy and equal are two different questions. `None` and `False` both make an `if` take the other branch, but they are not the same value, so `==` says `False`. Test for absence with `value is None` and keep `False` for genuine yes-or-no answers."
+    },
+    {
+      "type": "check",
+      "id": "which-is-truthy",
+      "promptMd": "Which of these is **true** in a condition?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "zero-str",
+          "md": "`\"0\"`"
+        },
+        {
+          "id": "empty-list",
+          "md": "`[]`"
+        },
+        {
+          "id": "zero",
+          "md": "`0`"
+        }
+      ],
+      "answer": "zero-str",
+      "explainMd": "`\"0\"` is a one-character string, and any string with characters in it is truthy — Python does not look at what the characters say. The empty list and the number zero are both on the short falsy list, so they send an `if` down the else branch."
+    },
+    {
+      "type": "code",
+      "id": "label-the-reading",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `label(value)` so it returns `\"missing\"` when the reading is `None`, `\"empty\"` when it is falsy but present (like `0` or `\"\"`), and `\"ok\"` otherwise. The printed line should be `empty`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "empty",
+          "misconceptionId": "none-is-false-value"
+        },
+        {
+          "type": "ast",
+          "query": "is None"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter asks one question, so it cannot give three answers. A zero reading is reported as missing."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Ask about absence before you ask about emptiness: `value is None` is the only test that separates \"no reading\" from \"a reading of nothing\"."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`if temp is None: return \"no sensor\"` runs before any `if not temp:` line, so a genuine `0` never reaches the second test."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def label(value):\n    if value is None:\n        return \"missing\"\n    if not value:\n        return \"empty\"\n    return \"ok\"\n\n\nprint(label(0))"
+        }
+      ]
+    }
+  ],
+  "description": "None is a real value, and empty is not the same as None."
+}

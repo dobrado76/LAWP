@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.text.regex"
+  ],
+  "id": "regex-groups-and-sub",
+  "courseId": "text",
+  "moduleId": "patterns",
+  "title": "Capture the parts, replace the rest",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Brackets remember what they matched\n\nRound brackets in a pattern do two jobs at once: they group, and they **capture**. Every captured piece is available afterwards as `found.group(1)`, `found.group(2)` and so on, with `group(0)` holding the whole match. Naming them with `(?P<name>...)` swaps the counting for something you can read.\n\nThis bites when you count groups by hand and a bracket you added for grouping shifts every number after it. Named groups sidestep the problem entirely, and `found.groupdict()` hands the whole set back as a dictionary, which is usually the shape you wanted anyway.\n\n```python\nimport re\n\nline = \"2041-03-02 ERR north sensor cold\"\n\nfound = re.search(r\"(\\d{4})-(\\d{2})-(\\d{2})\", line)\nprint(found.group(0))        # '2041-03-02' - the whole match\nprint(found.group(1))        # '2041'\n\nnamed = re.search(r\"(?P<level>ERR|WARN|INFO) (?P<zone>\\w+)\", line)\nprint(named.group(\"zone\"))   # 'north'\nprint(named.groupdict())     # {'level': 'ERR', 'zone': 'north'}\n\nprint(re.sub(r\"\\d{4}-\\d{2}-\\d{2}\", \"<date>\", line))\n```\n\nA common mistake is expecting `re.sub` to edit the string in place. It returns a new string, like every other text operation, and the original is unchanged until you assign the result. The exercise asks you to pull three named fields out of a log line and to redact the date out of another."
+    },
+    {
+      "type": "check",
+      "id": "group-zero",
+      "promptMd": "`found.group(0)` gives you…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "whole",
+          "md": "The whole matched text"
+        },
+        {
+          "id": "first",
+          "md": "The first captured bracket"
+        },
+        {
+          "id": "error",
+          "md": "An `IndexError` — groups start at 1"
+        }
+      ],
+      "answer": "whole",
+      "explainMd": "Group zero is the entire span the pattern matched, and the numbered groups start at one, counted by the position of their opening bracket. Calling `.group()` with no argument is the same as `.group(0)`, which is why it prints the whole match."
+    },
+    {
+      "type": "check",
+      "id": "sub-returns",
+      "kind": "tf",
+      "promptMd": "`re.sub(pattern, replacement, line)` returns a new string and leaves `line` unchanged.",
+      "answer": "true",
+      "explainMd": "Strings are immutable, so every regex replacement builds a new one. If you want the change to stick you write `line = re.sub(...)`. The count of replacements is available too, from `re.subn`, which returns the new string and the number of substitutions as a pair."
+    },
+    {
+      "type": "code",
+      "id": "groups-and-redact",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `parse(line)` returning `{\"stamp\": ..., \"level\": ..., \"zone\": ...}` using **named** groups, or `None` when the line does not match. Write `redact(line)` replacing any date with `<date>`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "<date> ERR north"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter hands the line straight back from `redact`, so the date is still there, and `parse` never even looks at its argument."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Name each piece with `(?P<name>...)` and read them all at once with `found.groupdict()`. For the redaction, `re.sub` takes the pattern, the text to put in its place, and the line."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "With `found = re.search(r\"(?P<a>\\w+)-(?P<b>\\w+)\", \"fox-owl\")`, `found.groupdict()` is `{\"a\": \"fox\", \"b\": \"owl\"}`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import re\n\n\ndef parse(line):\n    found = re.search(r\"(?P<stamp>\\d{4}-\\d{2}-\\d{2}) (?P<level>[A-Z]+) (?P<zone>\\w+)\", line)\n    if found is None:\n        return None\n    return found.groupdict()\n\n\ndef redact(line):\n    return re.sub(r\"\\d{4}-\\d{2}-\\d{2}\", \"<date>\", line)\n\n\nprint(redact(\"2041-03-02 ERR north\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Pull fields out of a matched line, or rewrite them."
+}

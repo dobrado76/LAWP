@@ -170,7 +170,7 @@ export function CodeEditor({ value, onChange, language, engine, path, highlightL
       >
         <span className="code-lang">{languageLabel(lang, api)}</span>
         {readOnly ? (
-          <span>Read only — page source</span>
+          <span>Read only{path ? ` — ${path.split('/').pop()}` : ''}</span>
         ) : first ? (
           <span>
             Line {first.line}:{first.column} · {first.message}

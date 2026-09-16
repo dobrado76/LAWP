@@ -100,6 +100,32 @@ describe('code run grading', () => {
     expect(out.passed).toBe(true)
   })
 
+  it('keeps the python sandbox importable for the player stub and hidden test', async () => {
+    const { executeCodeBlock } = await import('@main/runners/code')
+    const block: CodeBlock = {
+      ...playBlock(),
+      engine: 'python',
+      entry: 'main.py',
+      files: [
+        { path: 'files/main.py', role: 'edit', contents: '' },
+        {
+          path: 'files/hidden_test.py',
+          role: 'hidden-test',
+          // `import main` only resolves while the sandbox is on sys.path, which
+          // PYTHONSAFEPATH otherwise removes.
+          contents: 'import main\nimport json\nfrom pathlib import Path\n\nlog = json.loads(Path("play-log.json").read_text(encoding="utf-8"))\nassert any(row["op"] == "move" for row in log)\n'
+        }
+      ],
+      checks: [{ type: 'python-assert' }]
+    }
+    const pyWalk =
+      'Player.move("east")\nPlayer.move("east")\nPlayer.move("east")\nPlayer.move("south")\nPlayer.move("south")\n'
+    const out = await executeCodeBlock(root, block, [{ path: 'files/main.py', contents: pyWalk }])
+    expect(out.stderr).not.toMatch(/ModuleNotFoundError/)
+    expect(out.play?.passed).toBe(true)
+    expect(out.passed).toBe(true)
+  })
+
   it('runs hidden js-assert after the learner entry', async () => {
     const { executeCodeBlock } = await import('@main/runners/code')
     const block: CodeBlock = {

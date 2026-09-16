@@ -1,0 +1,121 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.async"
+  ],
+  "id": "debug-forgotten-await",
+  "courseId": "waiting",
+  "moduleId": "together",
+  "title": "Debug: the missing await",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A coroutine object where a value should be\n\nThe loudest symptom in async Python is a value that prints as `<coroutine object scan at 0x...>`. It means a coroutine function was called and never awaited, so what came back was the plan rather than the result. Python usually adds a `RuntimeWarning: coroutine ... was never awaited` on the way out.\n\nThe call site looks completely normal, which is what makes it slippery: `lines.append(scan(cell))` is valid Python and raises nothing at that line. The failure surfaces later and somewhere else — a join complaining that a coroutine is not a string, an arithmetic error on a coroutine, or output full of object repr. Trace it back to the first place a coroutine was stored instead of awaited.\n\n```python\nimport asyncio\n\nasync def scan(cell):\n    await asyncio.sleep(0)\n    return f\"{cell}: clear\"\n\nasync def broken():\n    return scan(\"north\")          # no await: hands back the plan\n\nprint(asyncio.run(broken()))      # <coroutine object scan at 0x...>\n```\n\nA common mistake is trying to fix this from the outside — wrapping the printout in `str()`, or calling `asyncio.run` a second time on the leaked coroutine. Neither touches the cause. This starter is broken on purpose: find the place a coroutine is collected without being awaited, and await it there."
+    },
+    {
+      "type": "predict",
+      "id": "what-prints",
+      "promptMd": "`lines.append(scan(cell))` inside a coroutine, where `scan` is an `async def`. What lands in the list?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "coro",
+          "md": "A coroutine object"
+        },
+        {
+          "id": "string",
+          "md": "The string `scan` returns"
+        }
+      ],
+      "answer": "coro",
+      "explainMd": "Calling a coroutine function only builds the coroutine, so that is what gets appended. The list is now full of plans nobody ran, and the first thing that treats them as strings — a `join`, an f-string, a comparison — is where you notice. `lines.append(await scan(cell))` stores the result instead."
+    },
+    {
+      "type": "check",
+      "id": "where-to-fix",
+      "promptMd": "The output shows `<coroutine object ...>`. Where is the repair?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "await",
+          "md": "At the call: `await` the coroutine so the value comes back"
+        },
+        {
+          "id": "str",
+          "md": "At the print: convert the coroutine to a string"
+        },
+        {
+          "id": "run",
+          "md": "Call `asyncio.run` again on the coroutine that leaked"
+        }
+      ],
+      "answer": "await",
+      "explainMd": "The value is missing because nobody ever ran the coroutine, so the fix belongs at the call site. Converting it to text hides the symptom and keeps the work undone, and `asyncio.run` cannot be called from inside a coroutine that is already being driven by a running loop."
+    },
+    {
+      "type": "check",
+      "id": "warning-meaning",
+      "kind": "tf",
+      "promptMd": "\"coroutine ... was never awaited\" means the coroutine was created and then thrown away without running.",
+      "answer": "true",
+      "explainMd": "Python emits that warning when a coroutine object is garbage-collected without ever having been driven. Treat it as a pointer to a missing `await` rather than noise — it names the coroutine function, which is usually enough to find the exact call."
+    },
+    {
+      "type": "debug",
+      "id": "repair-await",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> This sweep prints a coroutine object instead of the readings. Repair it so both cells are scanned and joined. Output should be `north: clear | east: clear`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "north: clear | east: clear"
+        },
+        {
+          "type": "ast",
+          "query": "await scan"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Look at what goes into `lines`, then at what `sweep` returns. One of those is a plan and not a value."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`scan(cell)` builds a coroutine; `await scan(cell)` runs it and gives you the string. The loop should collect strings, and `sweep` should return the joined text."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The repair is one keyword in one place: `lines.append(await scan(cell))`. Everything downstream then handles ordinary strings."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import asyncio\n\n\nasync def scan(cell):\n    await asyncio.sleep(0)\n    return f\"{cell}: clear\"\n\n\nasync def sweep():\n    lines = []\n    for cell in (\"north\", \"east\"):\n        lines.append(await scan(cell))\n    return \" | \".join(lines)\n\n\nprint(asyncio.run(sweep()))"
+        }
+      ]
+    }
+  ],
+  "description": "Nothing happened and nothing failed. Find the call you never awaited."
+}

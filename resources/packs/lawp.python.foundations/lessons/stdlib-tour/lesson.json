@@ -1,0 +1,168 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.modules"
+  ],
+  "id": "stdlib-tour",
+  "courseId": "modules",
+  "moduleId": "bigger",
+  "title": "Look in the standard library first",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Eight modules worth knowing by name\n\nPython ships a large standard library, already installed, with no dependency to declare. Eight of them cover most field-station work: `collections` for containers the built-ins lack, `itertools` for combining and chunking streams, `datetime` for stamps and durations, `pathlib` for paths, `json` for records that travel, `re` for patterns in text, `math` for real arithmetic, and `random` for picks and shuffles.\n\nThe habit worth building is to ask \"does the library already do this?\" before writing a loop. Hand-rolled counting, date parsing, and path gluing are where most small-script bugs live, and every one of them has a tested answer a single import away. `random` is the one to handle carefully: seed it with `random.seed(7)` whenever a result has to be repeatable, or the same code gives a different answer every run.\n\n```python\nimport random\nfrom collections import Counter\nfrom math import sqrt\n\nrandom.seed(7)\nprint(random.choice([\"soil\", \"wind\", \"temp\"]))   # same pick every run, because of the seed\nprint(Counter(\"aabbbc\").most_common(1))          # [('b', 3)]\nprint(round(sqrt(2), 3))                         # 1.414\n```\n\nA common mistake is reaching for a third-party package for something already in the box, which adds an install step and a version to keep up with for no gain. The exercise counts repeated sensor tags: use `collections.Counter` rather than building the tally dictionary by hand."
+    },
+    {
+      "type": "check",
+      "id": "reach-first",
+      "promptMd": "You need the tag that appears most often in a list. What is the first move?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "stdlib",
+          "md": "Check the standard library — `collections.Counter` already tallies and ranks"
+        },
+        {
+          "id": "byhand",
+          "md": "Write the tally loop first, then look for a library if it turns out slow"
+        },
+        {
+          "id": "install",
+          "md": "Add a counting package to `requirements.txt`"
+        }
+      ],
+      "answer": "stdlib",
+      "explainMd": "A tally loop is not wrong, and writing one once is good practice — but the library version is already tested, already handles ties in a defined order, and reads in one line. Looking first costs seconds and often removes the whole block of code you were about to write."
+    },
+    {
+      "type": "check",
+      "id": "which-module",
+      "kind": "cloze",
+      "promptMd": "Records that travel between programs: {{a}}. File and folder paths: {{b}}. A pattern inside a line of text: {{c}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "json",
+              "md": "json"
+            },
+            {
+              "id": "datetime",
+              "md": "datetime"
+            },
+            {
+              "id": "math",
+              "md": "math"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "pathlib",
+              "md": "pathlib"
+            },
+            {
+              "id": "re",
+              "md": "re"
+            },
+            {
+              "id": "random",
+              "md": "random"
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "choices": [
+            {
+              "id": "re",
+              "md": "re"
+            },
+            {
+              "id": "itertools",
+              "md": "itertools"
+            },
+            {
+              "id": "collections",
+              "md": "collections"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "json",
+        "b": "pathlib",
+        "c": "re"
+      },
+      "explainMd": "These three come up constantly: `json` turns records into text and back, `pathlib` gives you path objects that join and split correctly on every platform, and `re` searches and rewrites by pattern. Naming the right module is most of the work; the API is a docs lookup away."
+    },
+    {
+      "type": "check",
+      "id": "seed-for-repeatable",
+      "kind": "tf",
+      "promptMd": "`random.seed(7)` before the picks is what makes a graded exercise using `random` repeatable.",
+      "answer": "true",
+      "explainMd": "A fixed seed puts the generator in a known state, so the same sequence of calls yields the same values on every run and on every machine. Without it a check that compares output passes and fails at random, which teaches the learner nothing."
+    },
+    {
+      "type": "code",
+      "id": "top-tag",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `top_tag(tags)` so it returns the most common tag as `tag=count` — for `[\"wind\", \"wind\", \"soil\"]` that is `wind=2`. Use `collections.Counter`. Printing `top_tag(TAGS)` should give `soil=3`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "soil=3"
+        },
+        {
+          "type": "ast",
+          "query": "Counter"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter hands back a fixed string, so the list it was given never changes the answer."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`Counter(tags).most_common(1)` gives a one-item list of `(tag, count)` pairs — unpack the first pair and format it."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "On `\"aabbbc\"`, `Counter(...).most_common(1)` is `[(\"b\", 3)]`, so `pair[0]` is the tag and `pair[1]` is the count."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from collections import Counter\n\nTAGS = [\"soil\", \"wind\", \"soil\", \"temp\", \"soil\", \"wind\"]\n\n\ndef top_tag(tags):\n    tag, count = Counter(tags).most_common(1)[0]\n    return f\"{tag}={count}\"\n\n\nprint(top_tag(TAGS))"
+        }
+      ]
+    }
+  ],
+  "description": "Much of what you need already ships with Python."
+}

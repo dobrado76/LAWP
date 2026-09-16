@@ -1,0 +1,120 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 12,
+  "skillIds": [
+    "python.modules"
+  ],
+  "id": "venv-and-dependencies",
+  "courseId": "modules",
+  "moduleId": "bigger",
+  "title": "Where a project keeps its packages",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One environment per project\n\nA virtual environment is nothing clever: it is a folder holding its own Python interpreter and its own `site-packages`. Activate it and `import` searches that folder instead of the machine-wide one, so what this project installed is invisible to every other project. Deleting the folder undoes every install in it.\n\nInstalling everything globally works right up until two projects disagree. The log tool needs version 1 of a library, the report tool needs version 3, and one machine can only hold one global copy — so upgrading for one project silently breaks the other, usually weeks later. `requirements.txt` and the `dependencies` table in `pyproject.toml` do not contain the packages; they *declare* which ones this project needs, so anyone can rebuild the same environment from scratch.\n\n```text\npython -m venv .venv\n.venv\\Scripts\\activate\npip install -r requirements.txt\npython -m pip list\n```\n\nA common mistake is treating `requirements.txt` as documentation nobody has to keep current, then handing over a project that only runs on the machine it was written on. This lesson has no exercise to run — the sandbox has no network and no `pip` — so the questions are where you check the idea."
+    },
+    {
+      "type": "check",
+      "id": "what-a-venv-is",
+      "promptMd": "Concretely, what is a virtual environment?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "folder",
+          "md": "A folder with its own interpreter and its own installed packages, used only by this project"
+        },
+        {
+          "id": "setting",
+          "md": "A setting inside Python that hides packages you are not currently using"
+        },
+        {
+          "id": "copy",
+          "md": "A copy of your source code kept separate from the original"
+        }
+      ],
+      "answer": "folder",
+      "explainMd": "It is a directory on disk, and that is the whole trick: activating it puts that directory’s interpreter and `site-packages` first, so installs land there and imports resolve there. Nothing is hidden and your source code is not copied — you can delete the folder and rebuild it from the declared dependencies."
+    },
+    {
+      "type": "check",
+      "id": "what-requirements-declares",
+      "promptMd": "`requirements.txt` and the `dependencies` list in `pyproject.toml` both do what?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "declare",
+          "md": "Declare which packages the project needs, so someone else can rebuild the same environment"
+        },
+        {
+          "id": "contain",
+          "md": "Contain the packages themselves, so the project runs with nothing installed"
+        },
+        {
+          "id": "order",
+          "md": "Tell Python which of your own modules to import first"
+        }
+      ],
+      "answer": "declare",
+      "explainMd": "They are a shopping list, not the groceries. The install step still has to run, which is why the file lives in version control while the environment folder does not — the declaration is the part worth sharing, and it is what makes a project reproducible on a new machine."
+    },
+    {
+      "type": "check",
+      "id": "global-installs-collide",
+      "kind": "tf",
+      "promptMd": "If every project installs into the machine-wide Python, two projects cannot depend on different versions of the same library.",
+      "answer": "true",
+      "explainMd": "There is one global `site-packages`, so a library can only be present at one version at a time. Upgrading for the project you are working on quietly changes the library under every other project on that machine, and the breakage shows up whenever you next run one of them."
+    },
+    {
+      "type": "check",
+      "id": "env-vocabulary",
+      "kind": "cloze",
+      "promptMd": "The folder with the project’s own interpreter and packages is the {{a}}. The file that names what the project depends on is the {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "virtual environment",
+              "md": "virtual environment"
+            },
+            {
+              "id": "standard library",
+              "md": "standard library"
+            },
+            {
+              "id": "package",
+              "md": "package"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "requirements.txt",
+              "md": "requirements.txt"
+            },
+            {
+              "id": "__init__.py",
+              "md": "__init__.py"
+            },
+            {
+              "id": "main.py",
+              "md": "main.py"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "virtual environment",
+        "b": "requirements.txt"
+      },
+      "explainMd": "Keep the two ideas apart: the environment is the installed state on this machine, and the requirements file is the declaration you commit. `__init__.py` is unrelated — that marks a directory as a package inside your own code."
+    }
+  ],
+  "description": "A virtual environment keeps one project's packages out of another's."
+}

@@ -1,0 +1,14 @@
+{
+  "id": "safety",
+  "title": "Power, shorts, and fuses",
+  "level": "beginner",
+  "estimatedMinutes": 38,
+  "skillIds": ["circuits.power", "circuits.short", "circuits.fuse"],
+  "modules": [
+    {
+      "id": "heat",
+      "title": "Energy and danger",
+      "lessonIds": ["power-and-heat", "open-vs-short", "why-a-short-hurts", "transfer-fuse"]
+    }
+  ]
+}

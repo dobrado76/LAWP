@@ -1,0 +1,113 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.io.files"
+  ],
+  "id": "read-lines-without-slurping",
+  "courseId": "files",
+  "moduleId": "read-write",
+  "title": "One line at a time",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A file object is a line iterator\n\nA file object iterates over its own lines. `for line in f:` hands you one line per turn and never holds more than a buffer in memory, so the same three lines of code work on a four-line station log and on a four-million-line sensor dump.\n\nTwo things bite here. `f.read()` pulls the whole file into one string, which is fine for a log you can print and ruinous for a day of readings. And every line a file object hands you still carries the newline that ended it, so `line == \"ok\"` and `line.endswith(\"drift\")` quietly answer `False` on every line except possibly the last.\n\n```python\nwith open(\"station.log\", encoding=\"utf-8\") as f:\n    for line in f:\n        print(repr(line))     # '06:12 fox NE ok\\n' — the newline is part of the line\n\ntext = \"a\\nb\\n\"\nprint(text.splitlines())      # ['a', 'b'] — the newline ended a line\nprint(text.split(\"\\n\"))       # ['a', 'b', ''] — and left an empty tail\n```\n\nA common mistake is reaching for `.read()` and then splitting, out of habit. Iterate when you only need one line at a time, and strip the newline before you compare anything. The exercise counts the lines that end with one particular word, so the invisible newline decides whether you get the right answer or zero."
+    },
+    {
+      "type": "predict",
+      "id": "newline-endswith",
+      "promptMd": "A log line in the middle of a file is `\"06:40 fox E drift\\n\"`. What does `line.endswith(\"drift\")` return?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "yes",
+          "md": "`True` — the line does end with `drift`"
+        },
+        {
+          "id": "no",
+          "md": "`False` — the newline is the last character"
+        }
+      ],
+      "answer": "no",
+      "explainMd": "The newline that separated this line from the next one is still on the end of the string the file handed you, so the real final character is `\"\\n\"`. `endswith` compares the actual end, and it keeps saying `False` until you call `line.rstrip(\"\\n\")` or `line.strip()` first."
+    },
+    {
+      "type": "check",
+      "id": "split-vs-splitlines",
+      "promptMd": "For `text = \"a\\nb\\n\"`, which expression gives exactly `[\"a\", \"b\"]`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "splitlines",
+          "md": "`text.splitlines()`"
+        },
+        {
+          "id": "split",
+          "md": "`text.split(\"\\n\")`"
+        }
+      ],
+      "answer": "splitlines",
+      "explainMd": "`splitlines()` treats a newline as the thing that *ends* a line, so a trailing newline does not invent an extra item. `text.split(\"\\n\")` splits strictly between separators and hands back `[\"a\", \"b\", \"\"]`; that empty string at the end is the bug you find two functions later."
+    },
+    {
+      "type": "code",
+      "id": "count-drift",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Count the lines of `station.log` that end with `drift`, walking the file one line at a time. Do not call `.read()` or `.readlines()`. Print the count.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station.log",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "3"
+        },
+        {
+          "type": "ast",
+          "query": "for line in"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The loop is already right and the answer is already wrong. Print one line with `repr(line)` and look at what is on the end of it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Each line still carries its newline. Remove it with `line.rstrip(\"\\n\")` — or `line.strip()`, which also drops spaces — before you ask `endswith`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same habit on a different question: `for line in f:` then `if not line.strip(): blanks += 1` counts blank lines, and would count every line if you forgot the strip."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "count = 0\n\nwith open(\"station.log\", encoding=\"utf-8\") as f:\n    for line in f:\n        if line.rstrip(\"\\n\").endswith(\"drift\"):\n            count += 1\n\nprint(count)"
+        }
+      ]
+    }
+  ],
+  "description": "Walk a file one line at a time instead of loading all of it."
+}

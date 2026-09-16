@@ -9,7 +9,7 @@ const TEACHING = [
   'lawp.react.foundations',
   'lawp.circuits.basics'
 ]
-const SKIP = new Set(['js-placement'])
+const SKIP = new Set(['js-placement', 'circuits-placement'])
 const FENCE = /```(?:javascript|python|html|css|json|text|output)\b/
 
 function lessonIds(pack: string): string[] {

@@ -1,0 +1,110 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "python.values.strings"
+  ],
+  "id": "string-methods-clean",
+  "courseId": "text",
+  "moduleId": "shape-text",
+  "title": "Tidy a string without changing it",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Every method hands back a new string\n\nThe string methods you reach for most — `strip`, `lower`, `upper`, `replace` — never edit the string you called them on. They build a second string and return it. The original is immutable, so the only way to keep the tidied version is to catch what comes back.\n\nThis bites in a loop over a log file. Writing `line.strip()` on its own line looks like cleaning; it computes a tidy string and throws it away, and the comparison two lines later still sees the trailing spaces. Nothing raises, the filter simply never matches.\n\n```python\nraw = \"  North Ridge  \"\nprint(raw.strip())                      # 'North Ridge'\nprint(raw.strip().lower())              # 'north ridge'\nprint(\"north ridge\".replace(\" \", \"-\"))  # 'north-ridge'\nprint(\"ERR: cold\".startswith(\"ERR\"))    # True\nprint(repr(raw))                        # '  North Ridge  ' - still untouched\n```\n\nA common mistake is calling a method and forgetting the assignment, as in `raw.strip()` where you meant `raw = raw.strip()`. Chaining helps, because each method takes the result of the last one and the whole chain becomes one expression. The exercise asks you to turn a scruffy zone name into a clean slug in a single chain."
+    },
+    {
+      "type": "predict",
+      "id": "strip-mutates",
+      "promptMd": "`raw = \"  north  \"` then `raw.strip()` on a line by itself. What is `raw` afterwards?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "trimmed",
+          "md": "`\"north\"` — the method trimmed it",
+          "misconceptionId": "strings-mutate-in-place"
+        },
+        {
+          "id": "same",
+          "md": "`\"  north  \"` — the trimmed copy was discarded"
+        }
+      ],
+      "answer": "same",
+      "explainMd": "Strings are immutable, so `strip()` cannot change `raw`; it returns a new string, and a statement that ignores the return value simply throws it away. `raw = raw.strip()` is the line that keeps it. Every other string method behaves the same way."
+    },
+    {
+      "type": "check",
+      "id": "startswith-returns",
+      "promptMd": "`\"ERR: cold\".startswith(\"ERR\")` returns…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "bool",
+          "md": "`True` — a boolean"
+        },
+        {
+          "id": "text",
+          "md": "The matched text, `\"ERR\"`"
+        },
+        {
+          "id": "index",
+          "md": "The position `0`"
+        }
+      ],
+      "answer": "bool",
+      "explainMd": "`startswith` answers a yes-or-no question and returns a `bool`, which is why it drops straight into an `if` with no comparison. The method that hands back a position is `find`, and it returns `-1` rather than raising when there is no match."
+    },
+    {
+      "type": "code",
+      "id": "clean-a-zone",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `clean_zone(raw)` returning the name trimmed, lowercased, with spaces turned into hyphens, and `is_error(line)` returning `True` when a line starts with `ERR` in any case. Print `clean_zone(\"  North Ridge  \")`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "north-ridge"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter calls `strip()` and then returns `raw` anyway, so the tidy version is computed and dropped. `is_error` never looks at its argument at all."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Chain the three methods into one expression and return it: trim, lowercase, then replace spaces with hyphens. For `is_error`, normalise the case first so that `err:` and `ERR:` both match."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `\" Big Tree \".strip().lower().replace(\" \", \"_\")` the answer is `\"big_tree\"` — each method works on the result of the one before it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def clean_zone(raw):\n    return raw.strip().lower().replace(\" \", \"-\")\n\n\ndef is_error(line):\n    return line.strip().upper().startswith(\"ERR\")\n\n\nprint(clean_zone(\"  North Ridge  \"))"
+        }
+      ]
+    }
+  ],
+  "description": "Trim and fold a messy line into something you can compare."
+}

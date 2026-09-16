@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.functions"
+  ],
+  "id": "lambda-and-key",
+  "courseId": "functions",
+  "moduleId": "scope",
+  "title": "A function too small for a name",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One expression, handed straight to another function\n\n`lambda` builds a function from a single expression and hands it back without giving it a name. It is the same kind of object a `def` produces — you can call it, pass it, and store it — but it fits inside an argument list, which is where it earns its keep.\n\nThis bites when it is used as a substitute for `def`. A lambda cannot hold a statement, a loop, or a docstring, so the moment the logic grows the line turns unreadable and the traceback shows an anonymous frame. The one place it is clearly right is a `key=` argument: `sorted`, `min`, `max`, and friends all take a function that says what to compare.\n\n```python\ndouble = lambda n: n * 2      # legal, but a def would read better\nprint(double(4))              # 8\n\ntags = [\"owl\", \"fox-den\", \"ax\"]\nprint(sorted(tags))                        # ['ax', 'fox-den', 'owl']\nprint(sorted(tags, key=len))               # ['ax', 'owl', 'fox-den']\nprint(sorted(tags, key=lambda t: t[-1]))   # ['owl', 'fox-den', 'ax']\n```\n\nA common mistake is calling the function in the argument — `key=len(tag)` passes a number where a function belongs. Pass the function itself and let `sorted` call it once per item. The exercise sorts station tags shortest first, with ties broken alphabetically, which needs a key that returns two things at once."
+    },
+    {
+      "type": "predict",
+      "id": "key-is-a-function",
+      "promptMd": "What does `sorted(tags, key=len)` compare?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "items",
+          "md": "The tags themselves, then their lengths as a tiebreak"
+        },
+        {
+          "id": "lengths",
+          "md": "The result of calling `len` on each tag"
+        }
+      ],
+      "answer": "lengths",
+      "explainMd": "`sorted` calls the key function once per item and orders the items by whatever comes back, so `key=len` sorts purely by length and leaves equal-length tags in their original relative order. The original values are still what you get in the result — the key only decides the ordering."
+    },
+    {
+      "type": "check",
+      "id": "lambda-statements",
+      "kind": "tf",
+      "promptMd": "A `lambda` body can contain an `if` statement and a `return`.",
+      "answer": "false",
+      "explainMd": "It cannot. A lambda holds exactly one expression, and its value is returned automatically, so there is no room for statements. A conditional *expression* like `lambda n: \"hi\" if n else \"lo\"` is allowed, but the moment you want a real branch or a loop, write a `def`."
+    },
+    {
+      "type": "code",
+      "id": "sort-the-tags",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `by_length(tags)` so it sorts shortest first and breaks ties alphabetically, using a `lambda` as the key. The printed line should be `['ax', 'owl', 'fox-den', 'north-gate']`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['ax', 'owl', 'fox-den', 'north-gate']"
+        },
+        {
+          "type": "ast",
+          "query": "lambda"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter sorts alphabetically, so `fox-den` comes before `owl` even though it is much longer."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Pass a `key=` whose lambda returns the length. To break ties, return a tuple of the length and the tag — tuples compare element by element."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`sorted(words, key=lambda w: (len(w), w))` orders `[\"be\", \"ax\", \"cod\"]` as `[\"ax\", \"be\", \"cod\"]`: length first, and the two-letter pair falls through to the alphabetical part."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "TAGS = [\"fox-den\", \"owl\", \"north-gate\", \"ax\"]\n\n\ndef by_length(tags):\n    return sorted(tags, key=lambda tag: (len(tag), tag))\n\n\nprint(by_length(TAGS))"
+        }
+      ]
+    }
+  ],
+  "description": "A one-line function is usually just a sort key."
+}

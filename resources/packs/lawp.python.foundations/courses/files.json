@@ -1,0 +1,33 @@
+{
+  "id": "files",
+  "title": "Files and the filesystem",
+  "level": "intermediate",
+  "estimatedMinutes": 250,
+  "skillIds": [
+    "python.io.files",
+    "python.io.json"
+  ],
+  "creationId": "log-scrubber",
+  "modules": [
+    {
+      "id": "read-write",
+      "title": "Read and write",
+      "lessonIds": [
+        "open-and-with",
+        "read-lines-without-slurping",
+        "write-text-safely",
+        "pathlib-paths"
+      ]
+    },
+    {
+      "id": "records",
+      "title": "Structured records",
+      "lessonIds": [
+        "json-roundtrip",
+        "csv-rows",
+        "dirs-and-globs",
+        "creation-log-scrubber"
+      ]
+    }
+  ]
+}

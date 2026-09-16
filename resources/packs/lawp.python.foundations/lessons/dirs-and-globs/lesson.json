@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.io.files"
+  ],
+  "id": "dirs-and-globs",
+  "courseId": "files",
+  "moduleId": "records",
+  "title": "Finding files without guessing",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Match a pattern, then sort the answer\n\n`Path.glob(\"*.log\")` looks inside one folder and yields every entry whose name matches the pattern. `Path.rglob(\"*.log\")` runs the same match at every depth below that folder. Both are generators: they hand you paths as the filesystem reports them, one at a time, without building a list first.\n\nTwo habits keep this honest. Filesystem order is not sorted and is not the same on two machines, so wrap the result in `sorted(...)` the moment the output is printed, compared, or written to a report. And make the folder before you write into it: `folder.mkdir(parents=True, exist_ok=True)` creates every missing level and stays quiet when the folder is already there, so a second run does not raise `FileExistsError`.\n\n```python\nfrom pathlib import Path\n\nfolder = Path(\"logs\") / \"north\"\nfolder.mkdir(parents=True, exist_ok=True)\n(folder / \"day.log\").write_text(\"ok\\n\", encoding=\"utf-8\")\n\nprint([p.as_posix() for p in sorted(Path(\"logs\").rglob(\"*.log\"))])\n```\n\nA common mistake is running `glob(\"*.log\")` on the top folder, finding nothing, and concluding there are no logs when they sit one level down. Choose `rglob` when the tree has depth. The exercise builds two station folders and then finds their logs, so an unsorted answer passes on one machine and fails on the next."
+    },
+    {
+      "type": "check",
+      "id": "glob-depth",
+      "promptMd": "The only log file is `logs/north/day.log`. What does `list(Path(\"logs\").glob(\"*.log\"))` return?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "found",
+          "md": "One path — `logs/north/day.log`"
+        },
+        {
+          "id": "empty",
+          "md": "An empty list — `glob` looks in one folder only"
+        }
+      ],
+      "answer": "empty",
+      "explainMd": "`glob(\"*.log\")` matches the entries directly inside `logs`, and the only entry there is the folder `north`, whose name does not end in `.log`. To match further down you spell out the level with `glob(\"*/*.log\")`, or use `rglob(\"*.log\")`, which repeats the match at every depth."
+    },
+    {
+      "type": "check",
+      "id": "glob-order",
+      "kind": "tf",
+      "promptMd": "`Path.rglob` yields its matches in sorted order.",
+      "answer": "false",
+      "explainMd": "The order comes from the filesystem, so it can depend on the drive, the operating system, and the order the files were created in. Anything you print, compare, or write into a report should go through `sorted(...)` first, or the same script gives two different answers on two machines."
+    },
+    {
+      "type": "code",
+      "id": "build-tree",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Make `logs/north` and `logs/ridge`, each in a single `mkdir` call that survives a second run, and write a `day.log` into each. Then print the folder names of the logs `rglob` finds, sorted and space-separated — `north ridge`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "north ridge"
+        },
+        {
+          "type": "ast",
+          "query": "rglob"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Nothing exists yet, so the search finds nothing and prints an empty line. Build the two folders and their files first."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`(Path(\"logs\") / name).mkdir(parents=True, exist_ok=True)` makes both levels in one call, and `(folder / \"day.log\").write_text(\"ok\", encoding=\"utf-8\")` puts the file inside it."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Then search from the top and sort: `sorted(Path(\"logs\").rglob(\"*.log\"))`. On another tree, `rglob(\"*.csv\")` is what finds `data/2026/march.csv` without you naming the year."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from pathlib import Path\n\nfor name in (\"ridge\", \"north\"):\n    folder = Path(\"logs\") / name\n    folder.mkdir(parents=True, exist_ok=True)\n    (folder / \"day.log\").write_text(\"ok\\n\", encoding=\"utf-8\")\n\nfound = sorted(Path(\"logs\").rglob(\"*.log\"))\n\nprint(\" \".join(p.parent.name for p in found))"
+        }
+      ]
+    }
+  ],
+  "description": "Find the files that match a pattern, in one folder or all of them."
+}

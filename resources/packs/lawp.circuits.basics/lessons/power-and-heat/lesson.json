@@ -1,0 +1,74 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "power-and-heat",
+  "packId": "lawp.circuits.basics",
+  "courseId": "safety",
+  "moduleId": "heat",
+  "title": "Power, brightness, and heat",
+  "skillIds": [
+    "circuits.power"
+  ],
+  "estimatedMinutes": 10,
+  "taskRev": 1,
+  "description": "Power is how fast energy is spent. A bright lamp and a hot wire can spend the same energy in different ways.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## P = V × I\n\nPower is how fast energy is spent. A simple relation is P = V × I. A bright lamp spends energy as light (and some heat). A skinny wire with a huge current spends energy as heat. Same idea, different place.\n\nThis bites when you think “more current is always a better lamp.” Extra current in a short is extra heat in the easy wire, often while the lamp is skipped. Brightness is one use of power. Heat is another.\n\n![Light and heat are both power](assets/power-heat.svg)\n\n```text\nP = V × I\nsame V, larger I  →  larger P  →  brighter or hotter\n```\n\nA common mistake is cheering for a short as “more power.” The questions ask you to compute a small P and to say where the energy goes."
+    },
+    {
+      "type": "check",
+      "id": "compute-p",
+      "kind": "numeric",
+      "promptMd": "V = 2 and I = 1. What is P?",
+      "unit": "W",
+      "answer": {
+        "value": 2,
+        "tolerance": 0
+      },
+      "explainMd": "P = 2 × 1 = 2. Power is the product, not a third kind of juice.",
+      "skillIds": [
+        "circuits.power"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "where",
+      "kind": "mcq",
+      "promptMd": "A short around a lamp usually spends most of the extra power as…",
+      "choices": [
+        {
+          "id": "heat",
+          "md": "Heat in the easy wire"
+        },
+        {
+          "id": "better",
+          "md": "A better, brighter useful lamp",
+          "misconceptionId": "short-is-more-power-better"
+        },
+        {
+          "id": "used",
+          "md": "Current the lamp used up",
+          "misconceptionId": "current-gets-used-up"
+        }
+      ],
+      "answer": "heat",
+      "explainMd": "The easy path takes the current. That path gets hot. The lamp may even go dark.",
+      "skillIds": [
+        "circuits.power"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "p-tf",
+      "kind": "tf",
+      "promptMd": "If voltage stays the same and current doubles, power doubles.",
+      "answer": "true",
+      "explainMd": "P = V × I. Same V, double I, double P.",
+      "skillIds": [
+        "circuits.power"
+      ]
+    }
+  ]
+}

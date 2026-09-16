@@ -1,0 +1,173 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 30,
+  "skillIds": [
+    "python.craft.tests"
+  ],
+  "mastery": {
+    "requiresTransfer": true,
+    "minCorrectIndependent": 1
+  },
+  "id": "transfer-test-the-fox",
+  "courseId": "craft",
+  "moduleId": "ship",
+  "title": "Transfer: tests for the walk",
+  "creation": {
+    "id": "field-station",
+    "step": 2,
+    "briefMd": "Your field-station tool can already print a report. Now it gets a test suite. `walk.py` holds the station grid walk, written by someone else and read-only. You write the tests that prove it — the four behaviours its docstring promises, each with its own fixture — and you keep them in the tool."
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Test somebody else's function\n\nTesting code you did not write starts with reading its contract, not its body. `walk.py` promises four things: a known number of steps lands on a known cell, a move that would leave the grid is clamped to the edge, an unknown letter is ignored, and the start tuple comes back untouched. Each promise becomes one test with its own fixture and its own name, so a failure tells you which promise broke.\n\nThis bites when a test only calls the function. A call proves the code does not crash; it says nothing about the answer. The way to tell the difference is to break the implementation on purpose: if you replace `walk` with a version that never moves and your suite still reports success, the suite was decoration. Every real test fails for exactly one reason, and you should be able to say which.\n\n```python\nfrom walk import walk\n\n\ndef test_walks_west():\n    assert walk([\"w\"], start=(3, 3)) == (2, 3)\n\n\ndef test_clamps_at_the_top_edge():\n    assert walk([\"n\"] * 4, start=(1, 1)) == (1, 0)\n\n\ntest_walks_west()\ntest_clamps_at_the_top_edge()\nprint(\"2 tests ok\")\n```\n\nA common mistake is one giant `test_walk()` with eight assertions in it: the first failure hides the other seven, and the name tells you nothing. The other trap is a test whose expected value is computed by calling `walk` a second time — that always agrees with the code. Name each test after the promise it checks, and write the expected cell as a literal you worked out yourself."
+    },
+    {
+      "type": "check",
+      "id": "sabotage",
+      "promptMd": "You swap the real `walk` for one that ignores every move and returns `start`. Your suite still reports success. What does that tell you?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "good",
+          "md": "That the implementation was never the problem"
+        },
+        {
+          "id": "weak",
+          "md": "That the suite calls the function without checking its answer"
+        },
+        {
+          "id": "lucky",
+          "md": "That the fixtures happened to start on the right cells"
+        }
+      ],
+      "answer": "weak",
+      "explainMd": "A suite that cannot tell a working function from a broken one has no information in it. Deliberately breaking the code — a mutation, in testing jargon — is the cheapest way to audit your own tests: every assertion that matters should go red. If nothing changes colour, the assertions are either missing or comparing the code against itself.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "one-reason",
+      "kind": "cloze",
+      "promptMd": "Each test gets {{a}} fixture and a name saying {{b}}, so a red test points at one broken promise.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "its own",
+              "md": "its own"
+            },
+            {
+              "id": "a shared",
+              "md": "a shared"
+            },
+            {
+              "id": "the real",
+              "md": "the real"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "which promise it checks",
+              "md": "which promise it checks"
+            },
+            {
+              "id": "which line it runs",
+              "md": "which line it runs"
+            },
+            {
+              "id": "how fast it is",
+              "md": "how fast it is"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "its own",
+        "b": "which promise it checks"
+      },
+      "explainMd": "Independent fixtures mean one test cannot leave state that changes another, and a descriptive name means the failure report is already half of the diagnosis. `test_clamps_at_the_east_edge` failing tells you where to look before you have read a single line of the traceback; `test_walk` failing tells you only that something, somewhere, is wrong.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "clamp-promise",
+      "kind": "tf",
+      "promptMd": "If the contract says a move off the grid is clamped, then nine east moves on a five-wide grid must still end inside it.",
+      "answer": "true",
+      "explainMd": "Clamping means the fox stops at the edge instead of walking off, so the far edge is the answer for any number of moves past it. That makes the over-walk a perfect test case: the expected cell is the edge, it is easy to compute by hand, and an implementation that forgot the bound gives a coordinate the grid does not contain.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "four-tests",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `walk.py` is read-only — read its docstring first. Import it with exactly `from walk import walk`, then write four tests, each arranging its own fixture and asserting on the returned cell:\n>\n> - `test_walks_east()` — three `\"e\"` moves from `(0, 0)` land on `(3, 0)`.\n> - `test_stays_on_the_grid()` — nine `\"e\"` moves on the 5-wide grid still end at `x = 4`.\n> - `test_ignores_unknown_move()` — an unknown letter leaves the fox where it was.\n> - `test_returns_a_new_tuple()` — the returned tuple is not the `start` object, and `start` is unchanged.\n>\n> Call all four, then print `4 tests ok`. The hidden test also sabotages `walk` and expects your suite to notice.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/walk.py",
+          "role": "ro"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "4 tests ok"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter calls `walk` and announces success. Nothing in it compares a result to a cell you worked out yourself."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "One function per promise, each ending in an `assert`. `walk([\"e\", \"e\", \"e\"])` should equal `(3, 0)`; give the assert a message like `assert landed == (3, 0), landed` so a failure shows the real value."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Over-walking a different edge: `assert walk([\"n\"] * 3, start=(2, 1)) == (2, 0)`, because north is clamped at `y = 0`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from walk import walk\n\n\ndef test_walks_east():\n    landed = walk([\"e\", \"e\", \"e\"])\n    assert landed == (3, 0), landed\n\n\ndef test_stays_on_the_grid():\n    assert walk([\"e\"] * 9) == (4, 0), \"east is clamped at x = 4\"\n    assert walk([\"n\"] * 3) == (0, 0), \"north is clamped at y = 0\"\n\n\ndef test_ignores_unknown_move():\n    assert walk([\"z\"], start=(2, 2)) == (2, 2), \"an unknown letter is a no-op\"\n\n\ndef test_returns_a_new_tuple():\n    start = (1, 1)\n    landed = walk([\"e\"], start=start)\n    assert landed == (2, 1), landed\n    assert landed is not start, \"walk should hand back a new tuple\"\n    assert start == (1, 1), start\n\n\ntest_walks_east()\ntest_stays_on_the_grid()\ntest_ignores_unknown_move()\ntest_returns_a_new_tuple()\nprint(\"4 tests ok\")"
+        }
+      ]
+    },
+    {
+      "type": "reflect",
+      "id": "suite-audit",
+      "promptMd": "Which of your four tests would survive a `walk` that ignores the grid bounds, and what does that say about the assertion you wrote?"
+    }
+  ],
+  "description": "Write tests for the walk so a later change cannot break it quietly."
+}

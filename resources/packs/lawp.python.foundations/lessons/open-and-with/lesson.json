@@ -1,0 +1,114 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.io.files"
+  ],
+  "id": "open-and-with",
+  "courseId": "files",
+  "moduleId": "read-write",
+  "title": "The block that closes the file",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Opening a file is a promise to close it\n\nOpening a file hands you a file object and leaves you owing the operating system one thing: close it. `with open(path) as f:` makes the block keep that promise for you. The moment control leaves the indented body the file is closed, whether the body ran to the end, hit a `return`, or raised.\n\nWriting is where this bites. Text you hand to `write` sits in a buffer until the file is closed or flushed, so a tool that opens a report, writes it, and never closes it can leave an empty file on disk and no error anywhere. On Windows the same open handle also stops you renaming or deleting that file, which is the next thing a report tool wants to do.\n\n```python\nwith open(\"station.log\", encoding=\"utf-8\") as f:\n    text = f.read()\n\n# out here the file is already closed\nprint(len(text.splitlines()))\n```\n\nA common mistake is trusting the interpreter to tidy up because it usually seems to. That is reference-counting luck, not a rule, and it vanishes the moment something still holds the object or an exception is on its way up the stack. The exercise makes you write a count and read it straight back, so an unclosed file shows up as nothing on disk."
+    },
+    {
+      "type": "predict",
+      "id": "with-on-error",
+      "promptMd": "A `with open(\"report.txt\", \"w\") as out:` block raises `ValueError` halfway through the body. Is the file closed?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "leaked",
+          "md": "No — the exception jumps out before any cleanup runs"
+        },
+        {
+          "id": "closed",
+          "md": "Yes — leaving the block closes it, normally or by exception"
+        }
+      ],
+      "answer": "closed",
+      "explainMd": "That is the whole point of the block form. `with` installs the cleanup before the body starts, so the file is closed on every way out — falling off the end, a `return`, a `break`, or an exception travelling up the stack. Nothing in the body has to remember."
+    },
+    {
+      "type": "check",
+      "id": "leak-open",
+      "promptMd": "You call `out = open(\"report.txt\", \"w\", encoding=\"utf-8\")`, call `out.write(\"total=41\")`, and never close it. What is guaranteed to be on disk?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "flushed",
+          "md": "`total=41` — a file object closes itself after each write",
+          "misconceptionId": "file-closes-itself"
+        },
+        {
+          "id": "nothing",
+          "md": "Nothing yet — the text can still be sitting in a buffer"
+        }
+      ],
+      "answer": "nothing",
+      "explainMd": "Text you pass to `write` is buffered and only reaches the disk on a `flush` or a close. Nothing in the language promises either happens at a moment that helps you, so an unclosed file can be empty or half written while your program is still running — and it stays locked the whole time."
+    },
+    {
+      "type": "code",
+      "id": "with-count",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Read `station.log`, write its line count into `count.txt`, then read `count.txt` back and print what it holds. Use a `with` block for every open. Output should be `4`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station.log",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "4"
+        },
+        {
+          "type": "ast",
+          "query": "with open"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Three opens, three blocks: read the log, write the count, read the count back. The starter has the logic right and the discipline missing."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`with open(path) as f:` closes the file when the indented body ends. To write, name the mode: `with open(path, \"w\", encoding=\"utf-8\") as out:`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A different file: `with open(\"readings.txt\", encoding=\"utf-8\") as f:` then `rows = f.read().splitlines()` leaves `len(rows)` usable after the block, because the value outlived the file object."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "with open(\"station.log\", encoding=\"utf-8\") as f:\n    lines = f.read().splitlines()\n\nwith open(\"count.txt\", \"w\", encoding=\"utf-8\") as out:\n    out.write(str(len(lines)))\n\nwith open(\"count.txt\", encoding=\"utf-8\") as f:\n    print(f.read())"
+        }
+      ]
+    }
+  ],
+  "description": "The with block closes the file for you, even when something fails."
+}

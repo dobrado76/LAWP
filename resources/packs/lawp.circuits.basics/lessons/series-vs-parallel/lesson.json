@@ -1,0 +1,135 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "series-vs-parallel",
+  "packId": "lawp.circuits.basics",
+  "courseId": "series-parallel",
+  "moduleId": "compare",
+  "title": "Series versus parallel",
+  "skillIds": [
+    "circuits.series.current",
+    "circuits.parallel"
+  ],
+  "estimatedMinutes": 12,
+  "taskRev": 1,
+  "description": "Same parts, different wiring. Series keeps current the same. Parallel keeps voltage the same. Do not swap the rules.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Same lamps, different story\n\nPut two lamps in a single loop and you have series: one current, shared voltages, one gap kills both. Put them on two paths across the battery and you have parallel: same voltage, split currents, one gap leaves the other lit. The parts did not change. The wiring did.\n\nThis bites on every mixed diagram. People remember “share” and apply it to the wrong quantity. Share V in series. Share I? No — I is the same in series. In parallel, V is the same and I splits.\n\n![Series versus parallel](assets/series-vs-parallel.svg)\n\n```text\nSERIES     one path     same I     V shares\nPARALLEL   two paths    V same     I splits\n```\n\nA common mistake is swapping those two rows. The Venn and the picture question make you place each rule."
+    },
+    {
+      "type": "check",
+      "id": "venn-rules",
+      "kind": "venn",
+      "promptMd": "Put each fact in series only, both, parallel only, or neither.",
+      "sets": [
+        {
+          "id": "series",
+          "md": "Series"
+        },
+        {
+          "id": "parallel",
+          "md": "Parallel"
+        }
+      ],
+      "pieces": [
+        {
+          "id": "samei",
+          "md": "Current the same through both lamps"
+        },
+        {
+          "id": "samev",
+          "md": "Voltage the same across both lamps"
+        },
+        {
+          "id": "needloop",
+          "md": "Needs a closed path to light"
+        },
+        {
+          "id": "shortgood",
+          "md": "A short is a better lamp"
+        }
+      ],
+      "answer": {
+        "samei": "series",
+        "samev": "parallel",
+        "needloop": "both",
+        "shortgood": "out"
+      },
+      "explainMd": "Same I is series. Same V is parallel. Both need a closed path. A short is never “better.”",
+      "skillIds": [
+        "circuits.parallel"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "which-wiring",
+      "kind": "image",
+      "promptMd": "Which picture is the parallel split?",
+      "choices": [
+        {
+          "id": "par",
+          "md": "A",
+          "image": "assets/parallel-split-quiz.svg"
+        },
+        {
+          "id": "ser",
+          "md": "B",
+          "image": "assets/series-two-lamps-quiz.svg",
+          "misconceptionId": "parallel-vs-series-mixup"
+        },
+        {
+          "id": "short",
+          "md": "C",
+          "image": "assets/short-path-quiz.svg",
+          "misconceptionId": "short-is-more-power-better"
+        }
+      ],
+      "answer": "par",
+      "explainMd": "Parallel is two doors. Series is one hallway. A short is a cheat path, not a second lamp.",
+      "skillIds": [
+        "circuits.parallel"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "bins-facts",
+      "kind": "bins",
+      "promptMd": "Sort each fact.",
+      "bins": [
+        {
+          "id": "series",
+          "md": "Series"
+        },
+        {
+          "id": "parallel",
+          "md": "Parallel"
+        }
+      ],
+      "pieces": [
+        {
+          "id": "gapkills",
+          "md": "One open lamp darkens the other"
+        },
+        {
+          "id": "gaplives",
+          "md": "One open lamp leaves the other lit"
+        },
+        {
+          "id": "addI",
+          "md": "Battery current is the sum of the branches"
+        }
+      ],
+      "answer": {
+        "gapkills": "series",
+        "gaplives": "parallel",
+        "addI": "parallel"
+      },
+      "explainMd": "One path: one gap kills both. Two paths: one gap leaves a survivor, and currents add at the battery.",
+      "skillIds": [
+        "circuits.parallel"
+      ]
+    }
+  ]
+}

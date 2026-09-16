@@ -1,0 +1,134 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.objects"
+  ],
+  "id": "super-and-mro",
+  "courseId": "objects",
+  "moduleId": "reuse",
+  "title": "Letting the base do its half",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## super() picks the next class in line\n\nA subclass `__init__` usually has extra work to do, not different work. `super().__init__(name)` runs the base constructor first so it can set everything it owns, and then you add the fields that are yours. Skip that call and every attribute the base was responsible for simply never exists, which surfaces later as an `AttributeError` far from the cause.\n\n`super()` does not mean \"my parent class\" — it means \"the next class after me in this instance’s **method resolution order**\", the flat list Python builds from the whole inheritance graph. You can read it with `Cls.__mro__`, and it always ends in `object`. For a single base the distinction never shows, but with two bases it is what makes a chain of `super()` calls reach every class exactly once instead of running one twice and skipping another.\n\n```python\nclass Sensor:\n    def __init__(self, name):\n        self.name = name\n        self.ready = True\n\n\nclass WindSensor(Sensor):\n    def __init__(self, name, kph):\n        super().__init__(name)   # base sets name and ready\n        self.kph = kph\n\n\nw = WindSensor(\"wind\", 18)\nprint(w.name, w.kph, w.ready)                     # wind 18 True\nprint([c.__name__ for c in WindSensor.__mro__])   # ['WindSensor', 'Sensor', 'object']\n```\n\nA common mistake is re-assigning `self.name` in the subclass because it looks like the same job, which quietly skips everything else the base did. The exercise’s `Sensor` also sets `ready`: call `super().__init__(name)` from `SoilSensor` so `probe.ready` exists, then store `percent` yourself."
+    },
+    {
+      "type": "predict",
+      "id": "skipped-super",
+      "promptMd": "A subclass `__init__` sets `self.name` itself and never calls `super().__init__`. What happens to the other attributes the base sets?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "still",
+          "md": "They are still set — the base `__init__` runs first automatically"
+        },
+        {
+          "id": "missing",
+          "md": "They never exist, and reading one raises `AttributeError`"
+        }
+      ],
+      "answer": "missing",
+      "explainMd": "Python calls exactly one `__init__` — the most derived one — and nothing chains for you. If your override does not call up, the base constructor never runs, so any attribute only it created is absent until something reads it and fails."
+    },
+    {
+      "type": "check",
+      "id": "mro-vocabulary",
+      "kind": "cloze",
+      "promptMd": "The order `super()` follows is the {{a}}, and you can read it on a class as {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "method resolution order",
+              "md": "method resolution order"
+            },
+            {
+              "id": "class body",
+              "md": "class body"
+            },
+            {
+              "id": "call stack",
+              "md": "call stack"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "__mro__",
+              "md": "__mro__"
+            },
+            {
+              "id": "__dict__",
+              "md": "__dict__"
+            },
+            {
+              "id": "__init__",
+              "md": "__init__"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "method resolution order",
+        "b": "__mro__"
+      },
+      "explainMd": "Python flattens the inheritance graph into one linear list per class, and every attribute lookup and `super()` hop walks that list in order. Printing `Cls.__mro__` is the fastest way to answer \"who actually runs next\" when a hierarchy surprises you."
+    },
+    {
+      "type": "code",
+      "id": "call-super-init",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `SoilSensor.__init__` takes `name` and `percent`. Call `super().__init__(name)` so the base still sets `name` **and** `ready`, then store `percent`. Printing `probe.name` and `probe.percent` should give `soil 11`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "soil 11"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints the right two values, but the base constructor never ran, so `probe.ready` does not exist."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Let the base set what it owns: call `super().__init__(name)` as the first line of the subclass `__init__`, then add your own field."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same pattern outside constructors: an overridden `describe` can call `super().describe()` and append to the result rather than rewriting it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Sensor:\n    def __init__(self, name):\n        self.name = name\n        self.ready = True\n\n\nclass SoilSensor(Sensor):\n    def __init__(self, name, percent):\n        super().__init__(name)\n        self.percent = percent\n\n\nprobe = SoilSensor(\"soil\", 11)\n\nprint(probe.name, probe.percent)"
+        }
+      ]
+    }
+  ],
+  "description": "Super calls the next class in the order, not always the parent."
+}

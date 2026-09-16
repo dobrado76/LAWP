@@ -1,0 +1,102 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.functions",
+    "python.io.stdio"
+  ],
+  "id": "def-and-return",
+  "courseId": "functions",
+  "moduleId": "define",
+  "title": "Return is not print",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Showing a value and handing it back are different jobs\n\n`print` writes characters to the screen for a human to read, and then the value is gone. `return` hands a value back to whoever called the function, so the rest of the program can store it, compare it, or pass it on. A function with no `return` still returns something: `None`.\n\nThis bites the first time you try to reuse a function that only printed. `print(summary(...))` shows the line and then a second line reading `None`, because the call itself produced nothing. It bites again when a test asks the function for its answer: the text went to the screen, the test got `None`, and the failure message mentions a value you can plainly see on your terminal.\n\n```python\ndef show(text):\n    print(text.upper())          # writes to the screen, hands back nothing\n\n\ndef make(text):\n    return text.upper()          # hands the value back\n\n\nresult = show(\"fox\")\nprint(result)                    # FOX, then None\nprint(make(\"fox\") + \"!\")         # FOX! — a value you can keep using\n```\n\nA common mistake is treating the printed output as the result of the program. The screen is a side effect; the return value is the product. The exercise asks for a one-line station summary, and the `print` around the call is already written for you, so your function must hand the text back rather than print it itself."
+    },
+    {
+      "type": "predict",
+      "id": "print-then-none",
+      "promptMd": "A function that only calls `print` and has no `return` — what does the call itself evaluate to?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "text",
+          "md": "The text that was printed",
+          "misconceptionId": "print-is-the-program"
+        },
+        {
+          "id": "none",
+          "md": "`None`"
+        }
+      ],
+      "answer": "none",
+      "explainMd": "Falling off the end of a function is the same as `return None`, so the call evaluates to `None` no matter what appeared on screen. That is why `print(shout(\"fox\"))` shows the shouted word and then a lonely `None`: the first line came from inside, the second is the value the call handed back."
+    },
+    {
+      "type": "check",
+      "id": "return-ends-it",
+      "kind": "tf",
+      "promptMd": "`return` ends the function immediately, skipping any lines after it.",
+      "answer": "true",
+      "explainMd": "True. As soon as a `return` runs, the function is finished and control goes back to the caller, so nothing below it in that branch executes. This is what makes early returns a clean way to handle special cases first and leave the main path unindented at the bottom of the function."
+    },
+    {
+      "type": "code",
+      "id": "summary-line",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `summary(name, count)` so it **returns** the line `fox-den: 3`. The `print` around the call is already written, so do not print inside the function.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "fox-den: 3",
+          "misconceptionId": "print-is-the-program"
+        },
+        {
+          "type": "ast",
+          "query": "return"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Run the starter. Two lines appear, and the second one is `None` — that is the value the call handed back."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Build the text and hand it back with `return` instead of printing it. The caller already has a `print` waiting for it."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`def tag(name): return f\"[{name}]\"` can then be used as `print(tag(\"owl\"))` or `header = tag(\"owl\")`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def summary(name, count):\n    return f\"{name}: {count}\"\n\n\nprint(summary(\"fox-den\", 3))"
+        }
+      ]
+    }
+  ],
+  "description": "A function hands a value back. Printing is not returning."
+}

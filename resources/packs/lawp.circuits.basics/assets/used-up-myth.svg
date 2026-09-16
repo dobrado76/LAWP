@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Current is not used up">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="130" y="36" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">Myth vs model: current is not used up</text>
+  <rect x="24" y="56" width="284" height="300" rx="10" fill="#161b26" stroke="#e07a5f"/>
+  <text x="90" y="88" fill="#e07a5f" font-size="16" font-family="Segoe UI, sans-serif">MYTH</text>
+  <path d="M60 160 H248" stroke="#e07a5f" stroke-width="10" stroke-linecap="round"/>
+  <polygon points="262,160 240,148 240,172" fill="#e07a5f"/>
+  <path d="M60 230 H168" stroke="#e07a5f" stroke-width="3" stroke-linecap="round"/>
+  <polygon points="180,230 166,224 166,236" fill="#e07a5f"/>
+  <text x="56" y="300" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">— The lamp ate the current —</text>
+  <text x="56" y="324" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">return wire looks empty</text>
+  <rect x="332" y="56" width="284" height="300" rx="10" fill="#161b26" stroke="#2ec4b6"/>
+  <text x="410" y="88" fill="#2ec4b6" font-size="16" font-family="Segoe UI, sans-serif">MODEL</text>
+  <path d="M370 160 H548" stroke="#2ec4b6" stroke-width="8" stroke-linecap="round"/>
+  <polygon points="564,160 542,148 542,172" fill="#2ec4b6"/>
+  <text x="430" y="148" fill="#2ec4b6" font-size="13" font-family="Segoe UI, sans-serif" font-style="italic">I</text>
+  <path d="M392 230 H580" stroke="#2ec4b6" stroke-width="8" stroke-linecap="round"/>
+  <polygon points="378,230 400,218 400,242" fill="#2ec4b6"/>
+  <text x="430" y="218" fill="#2ec4b6" font-size="13" font-family="Segoe UI, sans-serif" font-style="italic">I</text>
+  <text x="364" y="300" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">same I out and back</text>
+  <text x="364" y="324" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">the lamp spends energy</text>
+</svg>

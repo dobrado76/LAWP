@@ -1,0 +1,74 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "parallel-split",
+  "packId": "lawp.circuits.basics",
+  "courseId": "series-parallel",
+  "moduleId": "compare",
+  "title": "Parallel: same voltage, split current",
+  "skillIds": [
+    "circuits.parallel"
+  ],
+  "estimatedMinutes": 12,
+  "taskRev": 1,
+  "description": "In parallel the branches share the battery voltage. Currents split. One dark lamp does not kill the other.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two doors, same height\n\nParallel means each lamp has its own path across the same two battery points. Each lamp sees the full voltage. The currents add at the battery: I_total = I_A + I_B. A second lamp does not automatically steal the first lamp’s push.\n\nThis bites when you treat every extra lamp as a dimmer, or when you swap the series rules onto a split. Series shares V and keeps I the same. Parallel keeps V the same and splits I.\n\n![Two lamps in parallel](assets/parallel-split.svg)\n\n```text\nbattery --+--> lamp A -->+--> battery\n          +--> lamp B -->+\nsame V on A and B · currents add\n```\n\nA common mistake is “adding a lamp always dims the first.” On a stiff battery the first lamp keeps its V. The questions ask you to keep those rules straight."
+    },
+    {
+      "type": "check",
+      "id": "same-v",
+      "kind": "mcq",
+      "promptMd": "Two lamps in parallel across one battery. Each lamp sees…",
+      "choices": [
+        {
+          "id": "full",
+          "md": "The full battery voltage"
+        },
+        {
+          "id": "half",
+          "md": "Half the voltage, because they share like series",
+          "misconceptionId": "parallel-vs-series-mixup"
+        },
+        {
+          "id": "dim",
+          "md": "Less voltage because the other lamp steals it",
+          "misconceptionId": "adding-parallel-dims"
+        }
+      ],
+      "answer": "full",
+      "explainMd": "Parallel branches share V. They split I. A second lamp is another door, not a thief of height.",
+      "skillIds": [
+        "circuits.parallel"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "one-out",
+      "kind": "tf",
+      "promptMd": "If one parallel lamp is removed, the other lamp must go dark.",
+      "answer": "false",
+      "explainMd": "Each branch is its own path. Opening one leaves the other.",
+      "skillIds": [
+        "circuits.parallel"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "add-i",
+      "kind": "numeric",
+      "promptMd": "Each parallel lamp draws 1 A. What is the current at the battery?",
+      "unit": "A",
+      "answer": {
+        "value": 2,
+        "tolerance": 0
+      },
+      "explainMd": "Currents add: 1 + 1 = 2 at the battery.",
+      "skillIds": [
+        "circuits.parallel"
+      ]
+    }
+  ]
+}

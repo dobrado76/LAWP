@@ -1,0 +1,14 @@
+{
+  "id": "voltage",
+  "title": "Voltage as a difference",
+  "level": "beginner",
+  "estimatedMinutes": 20,
+  "skillIds": ["circuits.voltage"],
+  "modules": [
+    {
+      "id": "push",
+      "title": "Push, not stuff",
+      "lessonIds": ["voltage-is-a-difference", "battery-as-push"]
+    }
+  ]
+}

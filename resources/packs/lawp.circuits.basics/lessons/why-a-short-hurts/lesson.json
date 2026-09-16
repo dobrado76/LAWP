@@ -1,0 +1,102 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "why-a-short-hurts",
+  "packId": "lawp.circuits.basics",
+  "courseId": "safety",
+  "moduleId": "heat",
+  "title": "Why a short hurts",
+  "skillIds": [
+    "circuits.short",
+    "circuits.power"
+  ],
+  "estimatedMinutes": 10,
+  "taskRev": 1,
+  "description": "A short is an easy extra path. Current and heat soar. That is not a brighter circuit you get to keep.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Easy path, ugly ending\n\nA short is not “more electricity, so better.” It is a low-resistance shortcut around the part that was doing the work. Current prefers the easy wire. The lamp is skipped. The easy wire and the battery take a huge I. Power P = V × I becomes heat in a thin place. That is how insulation smells and fuses exist.\n\nThis bites when a demo looks dramatic — a fat spark, a bright flash — and someone files it under “more power.” The useful lamp was the first casualty.\n\n![A short skips the lamp](assets/short-path.svg)\n\n```text\nbattery ──SHORT── battery     (huge I, heat)\n        ╲ lamp ╱              (often dark)\n```\n\nA common mistake is wiring a bypass “to help the lamp.” The questions ask you to name the danger and the reason."
+    },
+    {
+      "type": "check",
+      "id": "tier-short",
+      "kind": "tier",
+      "promptMd": "Someone adds a thick wire from one battery end to the other, skipping the lamp. What is that, and why is it bad?",
+      "choices": [
+        {
+          "id": "short",
+          "md": "A short"
+        },
+        {
+          "id": "boost",
+          "md": "A power boost for a better lamp",
+          "misconceptionId": "short-is-more-power-better"
+        }
+      ],
+      "reasons": [
+        {
+          "id": "heat",
+          "md": "Huge current becomes heat on the easy path.",
+          "when": [
+            "short"
+          ]
+        },
+        {
+          "id": "bright",
+          "md": "More metal always means a brighter useful lamp.",
+          "when": [
+            "boost"
+          ]
+        }
+      ],
+      "answer": {
+        "choice": "short",
+        "reason": "heat"
+      },
+      "explainMd": "It is a short. The easy path takes the current. Heat follows. The lamp is not helped.",
+      "skillIds": [
+        "circuits.short"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "pic-short",
+      "kind": "image",
+      "promptMd": "Which picture is the dangerous shortcut?",
+      "choices": [
+        {
+          "id": "short",
+          "md": "A",
+          "image": "assets/short-path-quiz.svg"
+        },
+        {
+          "id": "open",
+          "md": "B",
+          "image": "assets/open-loop-quiz.svg"
+        },
+        {
+          "id": "ok",
+          "md": "C",
+          "image": "assets/closed-loop-quiz.svg"
+        }
+      ],
+      "answer": "short",
+      "explainMd": "The red bypass is the short. Open is dark and usually safe. Closed is the job.",
+      "skillIds": [
+        "circuits.short"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "more-power-tf",
+      "kind": "tf",
+      "promptMd": "A short is how you give a lamp extra useful power.",
+      "answer": "false",
+      "explainMd": "A short skips the lamp and overheats the easy wire.",
+      "skillIds": [
+        "circuits.short"
+      ]
+    }
+  ]
+}

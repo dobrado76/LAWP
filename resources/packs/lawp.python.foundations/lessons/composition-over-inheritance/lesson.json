@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.objects"
+  ],
+  "id": "composition-over-inheritance",
+  "courseId": "objects",
+  "moduleId": "reuse",
+  "title": "Hold it instead of becoming it",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Has-a beats is-a most of the time\n\nInheritance is the loudest way to reuse code: it takes every public method of the base and puts it on your class, whether or not those methods make sense there. Composition is the quiet way — hold the other object in an attribute and call it. A station keeps a log, so `self.log = Log()` says exactly that and exposes only the one method the station actually wants to offer.\n\nSubclassing for reuse leaks. `class Station(Log)` gives every caller `station.add(...)`, `station.lines`, and anything the log grows later, so the station’s surface changes when a file you were only borrowing from changes. It also spends your one base class on a borrowing relationship. The smell to watch for is a hierarchy four or five deep where you have to read every level to answer what one method does — that is usually several has-a relationships wearing an is-a costume.\n\n```python\nclass Log:\n    def __init__(self):\n        self.lines = []\n\n    def add(self, line):\n        self.lines.append(line)\n\n\nclass Station:\n    def __init__(self):\n        self.log = Log()      # the station HAS a log\n\n    def record(self, line):\n        self.log.add(line)\n        return len(self.log.lines)\n\n\ns = Station()\nprint(s.record(\"wind 18\"))    # 1\nprint(isinstance(s, Log))     # False — and nothing wanted it to be\n```\n\nA common mistake is subclassing because the base already has the method you need, which is borrowing an implementation while promising to *be* that thing. The exercise starts from `class Station(Log)`: move the log into `self.log`, keep `record` working, and leave `Station` with no claim to be a log."
+    },
+    {
+      "type": "check",
+      "id": "read-the-relationship",
+      "promptMd": "Which sentence describes a station and a log correctly?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "has",
+          "md": "A station has-a log"
+        },
+        {
+          "id": "is",
+          "md": "A station is-a log"
+        },
+        {
+          "id": "either",
+          "md": "Either one — they mean the same thing in Python"
+        }
+      ],
+      "answer": "has",
+      "explainMd": "A station uses a log for one job among many; it is not a kind of log and could not stand in for one. Encoding that as an attribute keeps the log swappable and keeps the station’s public surface down to the methods a station should offer."
+    },
+    {
+      "type": "check",
+      "id": "inheritance-leaks",
+      "kind": "tf",
+      "promptMd": "Subclassing puts every public method of the base onto your class, whether or not those methods make sense there.",
+      "answer": "true",
+      "explainMd": "That is the whole point of inheritance — the subclass can stand in for the base — but it means you inherit the base’s future as well as its present. Composition exposes only what you choose to forward, so a change inside the collaborator cannot widen your own interface."
+    },
+    {
+      "type": "code",
+      "id": "compose-the-log",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `Station` currently inherits from `Log`. Rewrite it to **hold** a `Log` in `self.log` instead, keeping `record(line)` returning the number of lines so far. Output should be `1`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "1"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Ask the is-a question about the starter: is a station a kind of log? Everything the log can do is currently on the station."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Drop the base class from the header, build a `Log()` in `Station.__init__`, and reach the log through that attribute."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Forward only what you mean to offer: `record` calls `self.log.add(line)`, and callers never learn that a `Log` is in there."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Log:\n    def __init__(self):\n        self.lines = []\n\n    def add(self, line):\n        self.lines.append(line)\n\n\nclass Station:\n    def __init__(self):\n        self.log = Log()\n\n    def record(self, line):\n        self.log.add(line)\n        return len(self.log.lines)\n\n\nstation = Station()\n\nprint(station.record(\"wind 18\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Hold a helper instead of inheriting from it."
+}

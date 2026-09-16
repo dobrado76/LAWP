@@ -1,0 +1,36 @@
+{
+  "id": "values",
+  "title": "Values you can see",
+  "level": "beginner",
+  "estimatedMinutes": 240,
+  "skillIds": [
+    "python.types.names",
+    "python.values.numbers",
+    "python.values.strings",
+    "python.values.truth"
+  ],
+  "modules": [
+    {
+      "id": "kinds",
+      "title": "Kinds of values",
+      "lessonIds": [
+        "names-and-values",
+        "types-you-can-see",
+        "numbers-int-float",
+        "strings-immutable",
+        "say-it-once"
+      ]
+    },
+    {
+      "id": "compare",
+      "title": "Compare and branch",
+      "lessonIds": [
+        "truthiness-and-none",
+        "compare-is-not-assign",
+        "equality-vs-identity",
+        "boolean-logic",
+        "transfer-classify-value"
+      ]
+    }
+  ]
+}

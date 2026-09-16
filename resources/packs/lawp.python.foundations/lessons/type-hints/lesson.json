@@ -1,0 +1,123 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.typing"
+  ],
+  "id": "type-hints",
+  "courseId": "internals",
+  "moduleId": "wrap",
+  "title": "Hints are documentation, not guards",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Annotations are data on the function\n\nAn annotation records what you *intend*: `def average(values: list[int]) -> float`. Python stores it in `average.__annotations__` and then ignores it completely. Nothing is converted, nothing is rejected, and no check happens at call time — the payoff comes from editors, `mypy`, and the next person reading the signature.\n\nThis bites when a hint is treated as a guarantee. `average(\"12\")` still runs, and the failure — if there is one — arrives later and somewhere else. Write the hint to describe the contract you mean: `list[int]` for a list of whole numbers, `str | None` (the same thing as `Optional[str]`) when the value is genuinely allowed to be missing.\n\n```python\ndef average(values: list[int]) -> float:\n    return sum(values) / len(values)\n\ndef label(name: str | None) -> str:\n    return name if name is not None else \"unnamed\"\n\nprint(average.__annotations__[\"values\"])   # list[int] - just stored data\nprint(label(7))                            # 7 - the hint never stopped it\n```\n\nA common mistake is writing `str | None` on a parameter and then forgetting the `None` branch in the body — the hint documents the case, it does not handle it. The exercise asks you to annotate both functions and print one annotation back, so you can see it is an ordinary value living on the function object."
+    },
+    {
+      "type": "predict",
+      "id": "hint-at-runtime",
+      "promptMd": "`def average(values: list[int]) -> float` is called as `average([\"1\", \"2\"])`. What does Python do about the hint?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "raises",
+          "md": "Raises a `TypeError` before the body runs",
+          "misconceptionId": "hints-are-enforced"
+        },
+        {
+          "id": "ignores",
+          "md": "Nothing — the body runs and fails or succeeds on its own"
+        }
+      ],
+      "answer": "ignores",
+      "explainMd": "Hints are never checked at runtime. The call goes through, and this particular body then fails inside `sum` because strings cannot be added to `0` — an error about `sum`, not about your annotation. A type checker run before you ship is what turns the hint into a real guard."
+    },
+    {
+      "type": "check",
+      "id": "optional-meaning",
+      "promptMd": "What does `name: str | None` tell a reader?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "either",
+          "md": "The value is either a string or `None`, and the body should cope with both"
+        },
+        {
+          "id": "default",
+          "md": "The parameter defaults to `None`"
+        },
+        {
+          "id": "checked",
+          "md": "Python will reject anything else",
+          "misconceptionId": "hints-are-enforced"
+        }
+      ],
+      "answer": "either",
+      "explainMd": "`str | None` is a union: two allowed shapes, and the body owes you a branch for the `None` case. It says nothing about defaults — `name: str | None = None` is what adds one. `Optional[str]` from `typing` means exactly the same union in older code."
+    },
+    {
+      "type": "check",
+      "id": "annotations-visible",
+      "kind": "tf",
+      "promptMd": "Annotations are readable at runtime through the function's `__annotations__` dictionary.",
+      "answer": "true",
+      "explainMd": "They are stored as an ordinary dict keyed by parameter name, plus `\"return\"` for the result. Tools like `dataclasses`, `pydantic`, and `typing.get_type_hints` read that dict, which is how a hint can drive real behaviour — but only because a library chose to look."
+    },
+    {
+      "type": "code",
+      "id": "annotate-two",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Annotate both functions — `average` takes a `list[int]` and returns a `float`; `label` takes `str | None` and returns a `str` — and make `label(None)` return `\"unnamed\"`. Output should be `2.0 unnamed list[int]`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2.0 unnamed list[int]"
+        },
+        {
+          "type": "ast",
+          "query": "-> float"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two things are missing: the annotations, and the `None` branch inside `label`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A parameter is annotated as `name: type` and the result after the parameter list as `-> type`. Use the built-in generic `list[int]` and the union `str | None`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`def clamp(value: int, top: int) -> int:` annotates two parameters and the result; the body is unchanged by any of it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def average(values: list[int]) -> float:\n    return sum(values) / len(values)\n\n\ndef label(name: str | None) -> str:\n    return name if name is not None else \"unnamed\"\n\n\nprint(average([1, 2, 3]), label(None), average.__annotations__.get(\"values\", \"missing\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Hints say what a function takes, and nothing checks them at runtime."
+}

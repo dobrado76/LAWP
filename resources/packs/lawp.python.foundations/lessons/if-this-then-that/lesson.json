@@ -1,48 +1,139 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "if-this-then-that",
   "packId": "lawp.python.foundations",
-  "courseId": "repl-in-pocket",
-  "moduleId": "decisions",
-  "title": "If this, then that",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
   "skillIds": [
     "python.control.if"
   ],
-  "estimatedMinutes": 20,
-  "taskRev": 1,
+  "id": "if-this-then-that",
+  "courseId": "flow",
+  "moduleId": "decide",
+  "title": "If this, then that",
   "blocks": [
     {
       "type": "explain",
-      "md": "## A branch is a choice\n\nA branch is a choice the program makes after it asks a question. `if score >= 50:` picks one path when the comparison is true. The other path is `else`. The test uses comparison (`>=`), not assignment (`=`). Only one of those paths should run for a given score.\n\nThis bites when you print `\"fail\"` for every score, or when you write `if score = 50` and Python refuses to run. A score of `72` is already a pass, so a one-path script that always fails is lying about the data you were given. The number is sitting right there; the `if` has to look at it.\n\n```python\nscore = 72\nif score >= 50:\n    print(\"pass\")\nelse:\n    print(\"fail\")\n```\n\nA common mistake is mixing `=` into the test, or printing a canned word without looking at `score`. The exercise asks you to print `pass` when `score` is at least `50` (it is `72`), and to use a real `if` so the choice comes from the comparison.\n"
+      "md": "## A branch, and the whitespace that defines it\n\nAn `if` runs its body only when the condition is true. `elif` adds another question that is asked only when every question above it came out false, and `else` catches everything that is left. Python tries them top to bottom and stops at the first match, so at most one branch of the chain ever runs.\n\nThis bites in two ways. Indentation is not decoration here — it is the syntax that says which lines belong to the branch, so a line pulled back to the margin runs every time regardless of the condition. And a chain of separate `if` statements is not the same as `if`/`elif`: separate ifs are all asked, so two of them can both fire and the second answer overwrites the first.\n\n```python\nlevel = 42\n\nif level > 80:\n    print(\"high\")\nelif level > 20:\n    print(\"steady\")\nelse:\n    print(\"low\")\n\nprint(\"checked\")     # outside the chain — always runs\n```\n\nA common mistake is leaving a hole in the chain: two branches that cover the extremes and nothing for the middle, so an ordinary value falls through to the wrong answer. The exercise asks for three battery states, so make sure every percentage from 0 to 100 lands on exactly one of them."
+    },
+    {
+      "type": "predict",
+      "id": "which-branch",
+      "promptMd": "With `level = 42` in the chain above, what is printed?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "high",
+          "md": "`high`"
+        },
+        {
+          "id": "steady",
+          "md": "`steady`"
+        },
+        {
+          "id": "both",
+          "md": "`steady` and then `low`"
+        }
+      ],
+      "answer": "steady",
+      "explainMd": "`42 > 80` is false, so the first branch is skipped and Python asks the `elif`. `42 > 20` is true, so `steady` prints and the whole chain ends there — the `else` is never reached. Only one branch of an if/elif/else chain ever runs, no matter how many of the later conditions would also have been true."
+    },
+    {
+      "type": "check",
+      "id": "chain-words",
+      "kind": "cloze",
+      "promptMd": "A branch body is marked by {{a}}, and a question asked only when the ones above it failed uses {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "indentation",
+              "md": "indentation"
+            },
+            {
+              "id": "braces",
+              "md": "braces"
+            },
+            {
+              "id": "a semicolon",
+              "md": "a semicolon"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "elif",
+              "md": "elif"
+            },
+            {
+              "id": "if",
+              "md": "if"
+            },
+            {
+              "id": "else",
+              "md": "else"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "indentation",
+        "b": "elif"
+      },
+      "explainMd": "Python uses indentation where other languages use braces, so the four spaces in front of a line are load-bearing syntax rather than style. `elif` chains a further question onto the same decision, which is what guarantees only one branch runs; writing a second plain `if` would ask that question unconditionally."
     },
     {
       "type": "code",
-      "id": "pass-mark",
+      "id": "battery-state",
       "engine": "python",
       "entry": "main.py",
+      "promptMd": "> Finish `battery_state(percent)` so it returns `\"high\"` above 80, `\"steady\"` above 20, and `\"low\"` otherwise. The printed line should be `steady`.",
       "files": [
         {
           "path": "files/main.py",
           "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
         }
       ],
       "checks": [
         {
           "type": "stdout",
-          "equals": "pass"
+          "equals": "steady"
+        },
+        {
+          "type": "ast",
+          "query": "elif"
+        },
+        {
+          "type": "python-assert"
         }
       ],
       "hintLadder": [
         {
           "level": 1,
           "kind": "concept",
-          "md": "72 is at least 50."
+          "md": "The starter has two answers for three situations, so everything that is not high is reported as low."
         },
         {
           "level": 2,
           "kind": "concept",
-          "md": "if score >= 50: print(\"pass\")"
+          "md": "Add a middle question with `elif`. It is only asked when the `if` above it was false, so you can write `percent > 20` without repeating `and percent <= 80`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`if n > 10: return \"big\"` then `elif n > 0: return \"small\"` then `return \"none\"` splits the number line into three without any overlap."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def battery_state(percent):\n    if percent > 80:\n        return \"high\"\n    elif percent > 20:\n        return \"steady\"\n    else:\n        return \"low\"\n\n\nprint(battery_state(42))"
         }
       ]
     }

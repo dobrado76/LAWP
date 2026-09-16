@@ -1,0 +1,123 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 30,
+  "skillIds": [
+    "python.security"
+  ],
+  "id": "security-paths-and-eval",
+  "courseId": "craft",
+  "moduleId": "diagnose",
+  "title": "Refuse the string you were handed",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Untrusted text is not code, and a name is not a path\n\nTwo habits close most of the holes a small tool can have. Never hand untrusted text to `eval` or `exec`: they run it with all your privileges, so `\"__import__('shutil').rmtree('.')\"` is a valid expression. And never trust a filename: resolve it to an absolute path first, then check that the folder you allow is one of its parents, and refuse it otherwise.\n\nThis bites as path traversal. `\"../../secrets.txt\"` is a perfectly ordinary-looking name, and `root / name` happily builds a path that climbs out of the folder you meant to serve. Checking the raw string for `\"..\"` is not enough either — `\"sub/../../x\"` hides the climb in the middle, and a symlink hides it entirely. Only the resolved path tells the truth, because resolving is what collapses `..` and follows links.\n\n```python\nfrom pathlib import Path\n\nroot = Path(\"notes\").resolve()\n\n\ndef inside(name):\n    target = (root / name).resolve()\n    return target == root or root in target.parents\n\n\nprint(inside(\"fox.txt\"))            # True\nprint(inside(\"../secret.txt\"))      # False\nprint(inside(\"sub/../../secret\"))   # False - resolve collapsed the climb\n```\n\nA common mistake is validating before resolving: `if \"..\" in name` rejects the obvious attempt, passes the clever one, and rejects innocent names too. The exercise wants the check after `resolve()`, a `ValueError` for anything that escapes, and a number parser that refuses text it cannot read instead of evaluating it."
+    },
+    {
+      "type": "predict",
+      "id": "eval-untrusted",
+      "promptMd": "A note field arrives as the text `__import__(\"os\").listdir(\".\")`. What does `eval` on that text do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "text",
+          "md": "Returns the characters — `eval` only understands numbers"
+        },
+        {
+          "id": "runs",
+          "md": "Imports `os` and lists the directory, because it is a legal expression"
+        }
+      ],
+      "answer": "runs",
+      "explainMd": "`eval` compiles and runs whatever you give it, with your process's permissions. An expression can import modules, read files, and reach the network, so any untrusted text becomes code the moment it touches `eval`. When you genuinely need a literal back out of a string, `int()`, `float()`, `json.loads()` and `ast.literal_eval()` each parse a value and refuse anything that is not one.",
+      "skillIds": [
+        "python.security"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "dotdot-check",
+      "promptMd": "Is rejecting any name that contains `\"..\"` a sufficient traversal guard?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "enough",
+          "md": "Yes — a path is a string, so filtering the dangerous characters filters the danger",
+          "misconceptionId": "paths-are-just-strings"
+        },
+        {
+          "id": "resolve",
+          "md": "No — resolve the path first and check its parents, because the climb can also come from a link or an absolute name"
+        }
+      ],
+      "answer": "resolve",
+      "explainMd": "A path is a place on a filesystem, and only the filesystem can say where a name lands. `resolve()` collapses `..`, follows symlinks, and makes the path absolute — after that, `root in target.parents` is a question about location rather than spelling. String filtering also has false positives: a legitimate file called `notes..txt` is not an attack.",
+      "skillIds": [
+        "python.security"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "absolute-name",
+      "kind": "tf",
+      "promptMd": "An absolute name like `/etc/passwd` passed as the filename also escapes a naive `root / name`.",
+      "answer": "true",
+      "explainMd": "Joining an absolute path onto a root discards the root — `Path(\"notes\") / \"/etc/passwd\"` is just `/etc/passwd`. That is documented behaviour, not a bug, and it is a second reason the guard has to look at the resolved result rather than at the pieces you glued together. One check after `resolve()` covers `..`, links, and absolute names at once.",
+      "skillIds": [
+        "python.security"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "safe-read-and-parse",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> The program already creates `notes/fox.txt` and a `secret.txt` outside it. Keep that setup.\n>\n> 1. `read_note(name)` resolves `ROOT / name`, and returns the text only when the resolved path is `ROOT` itself or has `ROOT` among its parents.\n> 2. Anything that escapes raises `ValueError`. A name that stays inside but does not exist must still raise `FileNotFoundError`.\n> 3. `safe_number(text)` returns the whole number in `text`, or `None` when it is not one. No `eval`, no `exec`.\n>\n> Print `read_note(\"fox.txt\").strip()`. Output should be `fox at 2,1`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "fox at 2,1"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter joins the name straight onto `ROOT` and calls `eval` on whatever text it is handed. Both of those trust the caller completely."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Resolve both sides: `root = ROOT.resolve()` and `target = (root / name).resolve()`. Allow it when `target == root or root in target.parents`, and `raise ValueError(...)` otherwise. For the number, `try: return int(text.strip())` and answer `None` in the `except ValueError`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same guard for a write: `dest = (root / name).resolve()`, refuse unless `root in dest.parents`, and only then `dest.write_text(...)` — so a crafted name cannot overwrite something outside the folder."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from pathlib import Path\n\nROOT = Path(\"notes\")\nROOT.mkdir(exist_ok=True)\n(ROOT / \"fox.txt\").write_text(\"fox at 2,1\\n\", encoding=\"utf-8\")\nPath(\"secret.txt\").write_text(\"station passphrase: badger\\n\", encoding=\"utf-8\")\n\n\ndef read_note(name):\n    \"\"\"Read one note from ROOT, or refuse to leave it.\"\"\"\n    root = ROOT.resolve()\n    target = (root / name).resolve()\n    if target != root and root not in target.parents:\n        raise ValueError(f\"refusing to read outside the notes folder: {name!r}\")\n    return target.read_text(encoding=\"utf-8\")\n\n\ndef safe_number(text):\n    \"\"\"Return the whole number in text, or None when it is not one.\"\"\"\n    try:\n        return int(text.strip())\n    except (TypeError, ValueError):\n        return None\n\n\nprint(read_note(\"fox.txt\").strip())"
+        }
+      ]
+    }
+  ],
+  "description": "Never trust a path or a string of code that came from outside."
+}

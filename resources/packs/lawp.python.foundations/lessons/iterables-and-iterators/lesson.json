@@ -1,0 +1,164 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.internals.iteration"
+  ],
+  "id": "iterables-and-iterators",
+  "courseId": "internals",
+  "moduleId": "iteration",
+  "title": "What a for loop actually does",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two words: iterable and iterator\n\nAn **iterable** is anything that can hand out an iterator when you call `iter()` on it. An **iterator** is the thing that actually walks: it answers `__next__()` with the next item and raises `StopIteration` when it has nothing left. A list is an iterable and can produce many independent iterators; an iterator is usually its own iterable, so `iter(it) is it`.\n\nThis matters because `for` is not magic. Python calls `iter()` on your object once, then calls `__next__()` over and over inside an invisible `try`, and stops the moment `StopIteration` arrives. Every laziness feature later in this course — generators, `itertools`, file objects — is just an object that implements those two methods.\n\n```python\nroute = iter([\"north\", \"east\"])   # a list iterator\n\nwhile True:\n    try:\n        cell = next(route)\n    except StopIteration:\n        break\n    print(cell)\n\n# the for loop above, written out longhand\n```\n\nA common mistake is returning something other than `self` from `__iter__`, or forgetting to raise `StopIteration` at the end — the first breaks `for x in obj`, the second loops forever. The exercise asks you to finish an iterator class, so both methods have to be right before a plain `list(...)` around it can work."
+    },
+    {
+      "type": "predict",
+      "id": "for-calls-what",
+      "promptMd": "What does `for cell in route:` call on `route` before the first item arrives?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "iter",
+          "md": "`iter(route)`"
+        },
+        {
+          "id": "len",
+          "md": "`len(route)`"
+        },
+        {
+          "id": "next",
+          "md": "`next(route)` straight away"
+        }
+      ],
+      "answer": "iter",
+      "explainMd": "`for` starts by asking the object for an iterator with `iter()`, then calls `next()` on that iterator repeatedly. It never needs `len`, which is why a `for` loop happily walks a file or a generator whose length nobody knows in advance."
+    },
+    {
+      "type": "check",
+      "id": "stop-iteration-role",
+      "promptMd": "How does a `for` loop know when to stop?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "stop",
+          "md": "The iterator raises `StopIteration` and the loop catches it"
+        },
+        {
+          "id": "none",
+          "md": "The iterator returns `None`"
+        },
+        {
+          "id": "length",
+          "md": "The loop compares a counter with `len()`"
+        }
+      ],
+      "answer": "stop",
+      "explainMd": "`StopIteration` is the end-of-stream signal, and the `for` statement catches it for you — which is why you never write that `except` yourself. Returning `None` would not end anything: `None` is a perfectly good item, and the loop would take it and ask for the next one."
+    },
+    {
+      "type": "check",
+      "id": "iter-words",
+      "kind": "cloze",
+      "promptMd": "Calling `iter()` on a list gives you an {{a}}; calling `iter()` on that result gives you {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "iterator",
+              "md": "iterator"
+            },
+            {
+              "id": "iterable",
+              "md": "iterable"
+            },
+            {
+              "id": "copy of the list",
+              "md": "copy of the list"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "the same object back",
+              "md": "the same object back"
+            },
+            {
+              "id": "a fresh iterator",
+              "md": "a fresh iterator"
+            },
+            {
+              "id": "None",
+              "md": "None"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "iterator",
+        "b": "the same object back"
+      },
+      "explainMd": "An iterator is required to return itself from `__iter__`, so `iter(it) is it` holds. That convention is what lets you drop a half-consumed iterator straight into a `for` loop and pick up where you left off instead of starting over."
+    },
+    {
+      "type": "code",
+      "id": "route-iterator",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `Route` so it is its own iterator: `__iter__` hands back the object itself and `__next__` returns the next cell, raising `StopIteration` once the route runs out. Print `list(Route([1, 2, 3]))`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "[1, 2, 3]"
+        },
+        {
+          "type": "ast",
+          "query": "StopIteration"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "`__next__` currently gives up immediately, so `list(...)` sees an empty stream."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Keep a position on the instance. If it has reached the end, raise `StopIteration`; otherwise read the cell there, move the position on by one, and return the cell."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A countdown iterator does the same thing in reverse: store `self.left`, raise when it hits zero, else decrement and return it."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "class Route:\n    def __init__(self, cells):\n        self.cells = cells\n        self.pos = 0\n\n    def __iter__(self):\n        return self\n\n    def __next__(self):\n        if self.pos >= len(self.cells):\n            raise StopIteration\n        cell = self.cells[self.pos]\n        self.pos += 1\n        return cell\n\n\nprint(list(Route([1, 2, 3])))"
+        }
+      ]
+    }
+  ],
+  "description": "A for loop asks for an iterator and calls next until it stops."
+}

@@ -1,6 +1,211 @@
 [
-  { "id": "python.types.names", "title": "Names and values", "prereqIds": [] },
-  { "id": "python.call.move", "title": "Call a move", "prereqIds": ["python.types.names"] },
-  { "id": "python.control.if", "title": "Decisions", "prereqIds": ["python.types.names"] },
-  { "id": "python.io.stdio", "title": "Messages", "prereqIds": ["python.types.names"] }
+  {
+    "id": "python.types.names",
+    "title": "Names and values",
+    "prereqIds": []
+  },
+  {
+    "id": "python.values.numbers",
+    "title": "Numbers",
+    "prereqIds": [
+      "python.types.names"
+    ]
+  },
+  {
+    "id": "python.values.strings",
+    "title": "Strings",
+    "prereqIds": [
+      "python.types.names"
+    ]
+  },
+  {
+    "id": "python.values.truth",
+    "title": "Truthiness and None",
+    "prereqIds": [
+      "python.types.names"
+    ]
+  },
+  {
+    "id": "python.control.if",
+    "title": "Decisions",
+    "prereqIds": [
+      "python.values.truth"
+    ]
+  },
+  {
+    "id": "python.control.loops",
+    "title": "Loops",
+    "prereqIds": [
+      "python.control.if"
+    ]
+  },
+  {
+    "id": "python.call.move",
+    "title": "Call a move",
+    "prereqIds": [
+      "python.types.names"
+    ]
+  },
+  {
+    "id": "python.functions",
+    "title": "Functions",
+    "prereqIds": [
+      "python.control.if"
+    ]
+  },
+  {
+    "id": "python.functions.scope",
+    "title": "Scope and closures",
+    "prereqIds": [
+      "python.functions"
+    ]
+  },
+  {
+    "id": "python.io.stdio",
+    "title": "Messages in and out",
+    "prereqIds": [
+      "python.types.names"
+    ]
+  },
+  {
+    "id": "python.collections.list",
+    "title": "Lists and tuples",
+    "prereqIds": [
+      "python.control.loops"
+    ]
+  },
+  {
+    "id": "python.collections.dict",
+    "title": "Dictionaries",
+    "prereqIds": [
+      "python.collections.list"
+    ]
+  },
+  {
+    "id": "python.collections.set",
+    "title": "Sets",
+    "prereqIds": [
+      "python.collections.list"
+    ]
+  },
+  {
+    "id": "python.collections.comprehension",
+    "title": "Comprehensions",
+    "prereqIds": [
+      "python.collections.list"
+    ]
+  },
+  {
+    "id": "python.errors",
+    "title": "Errors and recovery",
+    "prereqIds": [
+      "python.functions"
+    ]
+  },
+  {
+    "id": "python.text.regex",
+    "title": "Patterns in text",
+    "prereqIds": [
+      "python.values.strings"
+    ]
+  },
+  {
+    "id": "python.io.files",
+    "title": "Files",
+    "prereqIds": [
+      "python.errors"
+    ]
+  },
+  {
+    "id": "python.io.json",
+    "title": "Structured records",
+    "prereqIds": [
+      "python.io.files",
+      "python.collections.dict"
+    ]
+  },
+  {
+    "id": "python.modules",
+    "title": "Modules and packages",
+    "prereqIds": [
+      "python.functions"
+    ]
+  },
+  {
+    "id": "python.objects",
+    "title": "Classes and instances",
+    "prereqIds": [
+      "python.functions"
+    ]
+  },
+  {
+    "id": "python.objects.data",
+    "title": "Data objects",
+    "prereqIds": [
+      "python.objects"
+    ]
+  },
+  {
+    "id": "python.internals.iteration",
+    "title": "Iterators and generators",
+    "prereqIds": [
+      "python.collections.list"
+    ]
+  },
+  {
+    "id": "python.internals.decorators",
+    "title": "Decorators",
+    "prereqIds": [
+      "python.functions.scope"
+    ]
+  },
+  {
+    "id": "python.internals.context",
+    "title": "Context managers",
+    "prereqIds": [
+      "python.io.files"
+    ]
+  },
+  {
+    "id": "python.typing",
+    "title": "Type hints",
+    "prereqIds": [
+      "python.functions"
+    ]
+  },
+  {
+    "id": "python.async",
+    "title": "Async and waiting",
+    "prereqIds": [
+      "python.functions"
+    ]
+  },
+  {
+    "id": "python.craft.tests",
+    "title": "Tests",
+    "prereqIds": [
+      "python.functions"
+    ]
+  },
+  {
+    "id": "python.craft.debug",
+    "title": "Debugging",
+    "prereqIds": [
+      "python.errors"
+    ]
+  },
+  {
+    "id": "python.craft.perf",
+    "title": "Measuring speed",
+    "prereqIds": [
+      "python.collections.list"
+    ]
+  },
+  {
+    "id": "python.security",
+    "title": "Safe by default",
+    "prereqIds": [
+      "python.io.files"
+    ]
+  }
 ]

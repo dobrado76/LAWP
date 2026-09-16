@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.collections.comprehension"
+  ],
+  "id": "comprehensions-list",
+  "courseId": "collections",
+  "moduleId": "shape",
+  "title": "The loop that is an expression",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Build the list, do not grow it\n\nA list comprehension writes \"make a new list out of these items\" as a single expression. `[f(x) for x in xs if p(x)]` reads left to right as: keep every `x` in `xs` that passes `p`, and put `f(x)` in the result. It replaces the three-line pattern of create-empty-list, loop, append.\n\nThis bites when the comprehension starts doing more than shaping. A comprehension that also prints, writes a file, or updates a counter is a loop wearing a costume, and it is harder to read than the loop was. Reach for a comprehension when the only product is the new list.\n\n```python\nreadings = [12, 7, 19, 3, 22]\n\nstrong = []\nfor value in readings:\n    if value > 10:\n        strong.append(value)\nprint(strong)                                 # [12, 19, 22]\n\nprint([value for value in readings if value > 10])   # the same list\nprint([value * 2 for value in readings])             # [24, 14, 38, 6, 44]\n```\n\nA common mistake is putting the condition in the wrong place: the `if` at the end filters items out, while an `if ... else` before the `for` chooses between two values and keeps every item. The exercise asks for labelled readings above a threshold, so the filtering `if` is the one you want."
+    },
+    {
+      "type": "check",
+      "id": "comp-order",
+      "promptMd": "In `[f(x) for x in xs if p(x)]`, what happens to an item where `p(x)` is `False`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "kept",
+          "md": "`f(x)` still runs and the result is kept"
+        },
+        {
+          "id": "skipped",
+          "md": "It is skipped, so nothing is added for it"
+        },
+        {
+          "id": "none",
+          "md": "`None` is added in its place"
+        }
+      ],
+      "answer": "skipped",
+      "explainMd": "The trailing `if` is a filter: items that fail it never reach the expression on the left, and nothing is appended for them. That is why the result can be shorter than the input, and why `[v for v in xs if False]` is an empty list rather than a list of `None`."
+    },
+    {
+      "type": "predict",
+      "id": "comp-result",
+      "promptMd": "What is `[v * 10 for v in [1, 2, 3] if v != 2]`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "three",
+          "md": "`[10, 20, 30]`"
+        },
+        {
+          "id": "two",
+          "md": "`[10, 30]`"
+        }
+      ],
+      "answer": "two",
+      "explainMd": "The filter drops the `2` before the multiplication ever happens, so only `1` and `3` reach `v * 10`. Two items in, two items out — the length of a filtered comprehension follows the filter, not the input."
+    },
+    {
+      "type": "code",
+      "id": "label-strong",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `labels(readings)` returning `\"<value> mV\"` for every reading **above 10**, using a list comprehension rather than an append loop.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "['12 mV', '19 mV', '22 mV']"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter labels every reading, including the quiet ones. The shape is right; the comprehension is missing its filter."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A filter goes at the end, after the `for` clause: `[expr for item in items if condition]`. Only items where the condition is true reach `expr`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`[n for n in [1, 5, 9] if n > 4]` is `[5, 9]` — the `1` never reaches the expression on the left."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def labels(readings):\n    return [f\"{value} mV\" for value in readings if value > 10]\n\n\nprint(labels([12, 7, 19, 3, 22]))"
+        }
+      ]
+    }
+  ],
+  "description": "Build a new list from an old one in one line."
+}

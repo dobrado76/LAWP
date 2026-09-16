@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "python.modules"
+  ],
+  "id": "module-is-a-file",
+  "courseId": "modules",
+  "moduleId": "files-as-modules",
+  "title": "A file is a module",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Importing binds a namespace\n\nEvery `.py` file on the import path is already a module — you do not declare one. When another file runs `import station`, Python finds `station.py`, runs it once from top to bottom, and binds the single name `station` to a module object holding everything that file defined at its top level.\n\nThe word \"import\" makes people picture the text of the other file being pasted in where the import sits. It is not. Nothing from `station.py` lands in your namespace except the one name `station`, so `label()` on its own is still an undefined name and only `station.label()` reaches the function.\n\n```python\n# station.py holds NAME = \"Ridge\" and def label(): ...\nimport station\n\nprint(type(station).__name__)   # module — one object, not pasted text\nprint(station.NAME)             # Ridge — reach through the module\nprint(station.label())          # Ridge station\n```\n\nA common mistake is typing the answer the module would have produced instead of asking the module for it, which looks identical on screen and breaks the moment the module changes. The exercise ships a read-only `station.py` next to your file: import it and print `station.label()` rather than the words it happens to return today."
+    },
+    {
+      "type": "predict",
+      "id": "what-import-binds",
+      "promptMd": "After `import station`, what does the name `station` hold?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "text",
+          "md": "A copy of the text of `station.py`, spliced in where the import sits"
+        },
+        {
+          "id": "module",
+          "md": "A module object whose attributes are the top-level names in `station.py`"
+        }
+      ],
+      "answer": "module",
+      "explainMd": "Python runs the file once and wraps the names it defined in a module object, then binds that one object to `station`. That is why you reach attributes through a dot: the names live on the module, not in your file."
+    },
+    {
+      "type": "check",
+      "id": "no-bare-name",
+      "kind": "tf",
+      "promptMd": "After `import station`, you can call `label()` with no prefix because the import brought the function in.",
+      "answer": "false",
+      "explainMd": "Only the name `station` was bound. `label` still lives as an attribute of that module object, so `label()` on its own raises `NameError` while `station.label()` works. The `from` form is what binds a bare name, and that comes next."
+    },
+    {
+      "type": "code",
+      "id": "reach-through-module",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `station.py` sits next to your file, read-only. Import it and print `station.label()`. Output should be `Ridge station`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station.py",
+          "role": "ro"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "Ridge station"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter types the words that `station.py` would have produced. Nothing asks the module anything."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Bind the module first with `import station`, then reach a top-level name through the dot: `station.label()`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same shape works for data as well as functions — after `import station`, `station.SENSORS` is that file’s list."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import station\n\nprint(station.label())"
+        }
+      ]
+    }
+  ],
+  "description": "Every Python file is already a module."
+}

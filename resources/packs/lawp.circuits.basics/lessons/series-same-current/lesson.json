@@ -1,0 +1,94 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "series-same-current",
+  "packId": "lawp.circuits.basics",
+  "courseId": "series-parallel",
+  "moduleId": "compare",
+  "title": "Series: one current, shared voltages",
+  "skillIds": [
+    "circuits.series.current",
+    "circuits.series.voltage"
+  ],
+  "estimatedMinutes": 12,
+  "taskRev": 1,
+  "description": "In series there is one path. The current is the same through every part. The voltages add up to the battery.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## One path, one current\n\nSeries means the parts share a single path. Charge that goes through lamp A must go through lamp B. So the current is the same number at A and at B. The voltages are not the same: they share the battery’s push. Two equal lamps each take about half.\n\nThis bites when you think the first lamp used the current up, so the second must be dimmer because it “got leftovers.” Both lamps see the same I. They may both look dimmer than a single lamp, because each gets only part of V.\n\n![Two lamps in series](assets/series-two-lamps.svg)\n\n```text\nbattery → lamp A → lamp B → battery\nsame I everywhere\nVA + VB = Vbattery\n```\n\nA common mistake is drawing a fat arrow into A and a thin arrow into B. The questions ask what stays the same along the path, and what the lamps share."
+    },
+    {
+      "type": "check",
+      "id": "same-i",
+      "kind": "tf",
+      "promptMd": "In series, the current through the second lamp is smaller because the first lamp used some up.",
+      "answer": "false",
+      "explainMd": "One path, one current. The first lamp spends energy, not amps.",
+      "skillIds": [
+        "circuits.series.current"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "share-v",
+      "kind": "table",
+      "promptMd": "Two equal lamps in series on one battery. What is true?",
+      "rows": [
+        {
+          "id": "i",
+          "md": "Current through A and B"
+        },
+        {
+          "id": "v",
+          "md": "Voltage across A and B"
+        }
+      ],
+      "choices": [
+        {
+          "id": "same",
+          "md": "The same"
+        },
+        {
+          "id": "share",
+          "md": "They share the battery"
+        }
+      ],
+      "answer": {
+        "i": "same",
+        "v": "share"
+      },
+      "explainMd": "I is the same. V is shared. Do not swap those rules with parallel.",
+      "skillIds": [
+        "circuits.series.voltage"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "one-gap",
+      "kind": "mcq",
+      "promptMd": "If lamp A burns out and opens, lamp B…",
+      "choices": [
+        {
+          "id": "dark",
+          "md": "Goes dark — the only path is broken"
+        },
+        {
+          "id": "lit",
+          "md": "Stays lit on its own branch",
+          "misconceptionId": "parallel-vs-series-mixup"
+        },
+        {
+          "id": "brighter",
+          "md": "Gets brighter because it eats the leftover current",
+          "misconceptionId": "current-gets-used-up"
+        }
+      ],
+      "answer": "dark",
+      "explainMd": "Series is one path. One open part darkens the rest.",
+      "skillIds": [
+        "circuits.series.current"
+      ]
+    }
+  ]
+}

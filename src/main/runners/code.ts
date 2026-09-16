@@ -149,6 +149,10 @@ export async function executeCodeBlock(
   } else if (block.engine === 'python') {
     const bin = await findPython()
     await assertPython3(bin)
+    // PYTHONSAFEPATH keeps the interpreter from importing out of whatever directory
+    // it was launched from. The sandbox is the one directory that must stay
+    // importable: it holds the player stub, the learner's module, and its fixtures.
+    const pyEnv = { PYTHONPATH: cwd, ...extraEnv }
     let boot = entry
     if (play) {
       const stubs = stubsDir()
@@ -161,12 +165,25 @@ export async function executeCodeBlock(
       boot = '_boot.py'
     }
     const launched = pythonBinArgs(bin, [boot, ...argv])
-    result = await runProcess(launched.bin, launched.args, cwd, timeout, extraEnv)
+    result = await runProcess(launched.bin, launched.args, cwd, timeout, pyEnv)
     if (play) playLogAfterRun = readPlayLog(cwd)
     if (grade && hidden && block.checks.some((c) => c.type === 'python-assert')) {
       const hiddenName = sandboxName(hidden.path)
-      const assertLaunch = pythonBinArgs(bin, [hiddenName, ...argv])
-      const assertRun = await runProcess(assertLaunch.bin, assertLaunch.args, cwd, timeout, extraEnv)
+      let assertEntry = hiddenName
+      if (play) {
+        // A hidden test on a play lesson may `import main`, which replays the
+        // learner's calls. Give that import the same Player the first run had.
+        writeSandboxFile(
+          cwd,
+          '_assert_boot.py',
+          `import builtins\nimport runpy\nfrom _lawp_player import Player\nbuiltins.Player = Player\nrunpy.run_path(${JSON.stringify(
+            hiddenName
+          )}, run_name="__main__")\n`
+        )
+        assertEntry = '_assert_boot.py'
+      }
+      const assertLaunch = pythonBinArgs(bin, [assertEntry, ...argv])
+      const assertRun = await runProcess(assertLaunch.bin, assertLaunch.args, cwd, timeout, pyEnv)
       result = mergeAssertRun(result, assertRun)
     }
   } else if (block.engine === 'javascript') {

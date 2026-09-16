@@ -8,6 +8,42 @@ Versioning is `MAJOR.MINOR.PATCH` (`package.json`).
 - **MINOR** — user-visible capability. Update this file **and** [RELEASE_NOTES.md](RELEASE_NOTES.md) (what changed since the last minor). The app shows those notes once per minor.
 - **MAJOR** — breaking change to cartridges, progress, or AppData. Same as minor, plus a clear migration note.
 
+### Course production spec (D61)
+
+- **[docs/COURSE_SPEC.md](docs/COURSE_SPEC.md) is the contract for building a course in any subject** — the one document an AI agent reads before authoring a pack. It covers the subject brief and its refused scope, choosing between a code engine, `world-v1`, and diagrams; the path laws (nothing before what it is made of, recovery before risk, the dense theory course late, every course ends in transfer); the skill DAG and the misconception budget; the four-movement explain with its word floor and no-answer-leakage rule; the task contract; the hint ladder; the placement battery; how to generate a large pack with parallel authors; what actually makes the loop feel like play; and the verification gates. It was written from what the JavaScript, Python, and circuits packs taught us, not from theory
+- **The subject-agnostic bars are executable.** `tests/course-spec.test.ts` holds them against **every** bundled pack at once, so a new subject inherits them without anyone remembering to copy a test: an explain and a retrieval block in every lesson, a worked example in every explain, a hidden test and a contiguous hint ladder ending in assist on every code task, a misconception graph that is declared and followed up, and `requiresTransfer` on every transfer and capstone. Review-copy depth is a ratchet — the pre-spec debt per pack is recorded and may only fall
+
+### Fixed by the new gates
+
+- `brighter-lamp` had no explanation at all — the learner ran the experiment and moved on with an anecdote instead of an idea. It now ends with a debrief: brightness follows current, current is cells ÷ resistance, and the goal was the brightest lamp **under** the cap rather than the largest number
+- `transfer-fuse` (circuits) and `capstone-field-station` (Python) were not marked `requiresTransfer`, so neither counted toward mastery the way a transfer is supposed to. The Python generator now sets it from the lesson id, so no author can forget it again
+
+### Python pack
+
+- **Python is a zero-to-hero path** (`lawp.python.foundations`, 114 lessons, six tracks): values and names, the fox on the grid, functions and closures, collections, errors, text and regex, files and `pathlib`, the process, modules and packages, objects, references and generators and decorators and context managers, async, then tests, logging, measurement, and a capstone field-station tool. It replaces the seven-lesson Course 1 stub. Still no NumPy, pandas, ML, or web frameworks
+- Every code lesson carries a hidden `python-assert` test, a four-rung hint ladder, and a starter that runs cleanly while still failing its check. `tests/py-lessons.test.ts` runs every one of them through the real interpreter, so an unreachable answer or an already-passing starter fails the build
+- The pack is generated from `scripts/py-curriculum/` the way the JavaScript pack is, with the path order locked by `tests/py-curriculum.test.ts`
+
+### Editor (D60)
+
+- **Python gets diagnostics that name the fix.** A missing colon says which statement needs one, a single `=` in a condition says to use `==`, and `print "x"` says to wrap the message in parentheses. Before this, all three came back as "something here is not valid". A half-typed last line is now reported as unfinished rather than wrong, so the editor stops shouting while you type
+- Completion follows the language: a Python grid lesson gets `Player` alongside Python's own locals and builtins, and its `wait` example is `Player.wait(2)` rather than JavaScript's `await Player.wait(2)`. The status bar reads **Python · Player**
+- **Files a lesson ships for you to read are now visible.** A companion module or a fixture the exercise opens appears read-only under the editor, named. An exercise could previously tell you to `import station` with no way to see `station.py`
+
+### Fixed
+
+- **Python play lessons could not run at all.** `PYTHONSAFEPATH` took the sandbox off `sys.path`, so `walk-the-fox` died on `ModuleNotFoundError: _lawp_player` before the learner's first line. The sandbox is now put on the path explicitly, which also lets a lesson ship a companion module and lets a hidden test `import main` (D59)
+- A hidden test on a Python play lesson now runs with `Player` bound, so re-importing the learner's file to check it does not raise
+- Submitting a circuits question no longer blanks Studio. The graded review under a check was calling markdown with pack/lesson ids that were never passed in, so React threw and the window went black (no chrome, no toast)
+- The native menu bar is hidden until **Alt** (auto-hide). Clearing the application menu had removed File / View / Toggle Developer Tools entirely
+
+### Electricity pack
+
+- **Circuits is a real beginner electricity path** (`lawp.circuits.basics`, 23 lessons): placement, charge and current, closed vs open loops, voltage as a difference, Ohm’s law, series and parallel, power and heat, shorts and fuses, switches, meters, a two-lamp transfer, and the kept creation. Still beginner — not electrical-engineer expert
+- Teaching is diagrams first: original dark-UI SVGs in pack `assets/`, `![alt](assets/…)` figures in explain (D58), image / hotspot / place checks, and a `world-v1` graph view that actually shows part art and wires. `brighter-lamp` stays play-first
+- Authored misconceptions now cover used-up current, voltage-as-stuff, open-still-lit, more-cells-always, series/parallel mixup, short-as-more-power, two-metals, fuse-optional, switch-as-dimmer, and the original current cap
+- Question diagrams no longer give the answer away: hotspot / place / image-choice items use unlabeled `*-quiz.svg` variants (no “Lamp on”, “GAP”, “SHORT”, or named captions). Learn still labels Battery, Lamp, and the idea. Current is a teal arrowhead on the wire plus a small italic *I*, not a jagged lightning bolt
+
 ## 0.2.0 — 2026-09-15
 
 First product minor. Package/spec numbering was previously `0.3.3`; this release is **0.2.0**.

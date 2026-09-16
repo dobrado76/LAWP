@@ -1,0 +1,116 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.io.stdio"
+  ],
+  "id": "argv-and-env",
+  "courseId": "process",
+  "moduleId": "inputs",
+  "title": "What the world handed you",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Arguments and environment arrive before your first line\n\nA script does not ask for its input; it is handed some at the moment it starts. `sys.argv` is the list of words from the command line, and `sys.argv[0]` is the script itself, so the first thing the caller actually asked for is `sys.argv[1]`. `os.environ` is the dictionary of environment variables the process inherited.\n\nBoth surfaces are text, always. `sys.argv[2]` is the string `\"3\"` and never the number 3, so a missing `int(...)` turns up much later as a joined string or a `TypeError`. And both can be absent: indexing past the end of `argv` raises `IndexError`, and `os.environ[\"MODE\"]` raises `KeyError`, which is why `os.environ.get(\"MODE\", \"normal\")` is the form worth learning first.\n\n```python\nimport os\nimport sys\n\nprint(sys.argv)                                  # ['main.py', 'ridge', '3']\nprint(sys.argv[1], int(sys.argv[2]) * 2)         # ridge 6\nprint(os.environ.get(\"STATION_MODE\", \"normal\"))  # quiet, if something set it\n```\n\nA common mistake is reading `sys.argv[0]` as the first argument and printing the script name back at the user. Count from one. This lesson runs your file with `ridge 3` on the command line and `STATION_MODE=quiet` in the environment, and nothing else: `FOX_NAME` is deliberately unset, so your default has to do real work."
+    },
+    {
+      "type": "check",
+      "id": "argv-zero",
+      "promptMd": "Your script starts as `python report.py ridge 3`. What is `sys.argv[0]`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "first",
+          "md": "`\"ridge\"` — the first argument"
+        },
+        {
+          "id": "script",
+          "md": "`\"report.py\"` — the script being run"
+        }
+      ],
+      "answer": "script",
+      "explainMd": "The list includes the program itself at index 0, the way the operating system hands it over. Real arguments start at index 1, so `sys.argv[1:]` is the slice that means \"what the caller asked for\" and `len(sys.argv) - 1` is how many things they asked for."
+    },
+    {
+      "type": "check",
+      "id": "env-missing",
+      "promptMd": "`MODE` is not set in the environment. What does `os.environ[\"MODE\"]` do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "none",
+          "md": "Returns `None`"
+        },
+        {
+          "id": "boom",
+          "md": "Raises `KeyError`"
+        }
+      ],
+      "answer": "boom",
+      "explainMd": "`os.environ` is a mapping, so square brackets on a missing name raise `KeyError` exactly as a dict would. `os.environ.get(\"MODE\")` hands back `None` instead, and `os.environ.get(\"MODE\", \"normal\")` lets you name the fallback you actually want to run with."
+    },
+    {
+      "type": "code",
+      "id": "read-inputs",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Print four things on one line: the station from `sys.argv[1]`, the number in `sys.argv[2]` doubled, `STATION_MODE` from the environment with default `normal`, and `FOX_NAME` from the environment with default `fox`. Expected `ridge 6 quiet fox`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "ridge 6 quiet fox"
+        },
+        {
+          "type": "ast",
+          "query": "sys.argv[1]"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Two of the four values are already right. The station and the count are being invented instead of read."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`sys.argv[1]` is the station and `sys.argv[2]` is the count as text, so the doubled number is `int(sys.argv[2]) * 2`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For the environment: `os.environ.get(\"STATION_MODE\", \"normal\")` gives the value when something set it and `\"normal\"` when nothing did — no `KeyError` either way, which is what the unset `FOX_NAME` is there to prove."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import os\nimport sys\n\nstation = sys.argv[1]\ncount = int(sys.argv[2]) * 2\nmode = os.environ.get(\"STATION_MODE\", \"normal\")\nname = os.environ.get(\"FOX_NAME\", \"fox\")\n\nprint(station, count, mode, name)"
+        }
+      ],
+      "argv": [
+        "ridge",
+        "3"
+      ],
+      "env": {
+        "STATION_MODE": "quiet"
+      }
+    }
+  ],
+  "description": "A script can read the words you typed and the settings around it."
+}

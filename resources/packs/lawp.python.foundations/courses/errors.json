@@ -1,0 +1,30 @@
+{
+  "id": "errors",
+  "title": "Errors you can recover from",
+  "level": "intermediate",
+  "estimatedMinutes": 190,
+  "skillIds": [
+    "python.errors"
+  ],
+  "modules": [
+    {
+      "id": "read",
+      "title": "Read the failure",
+      "lessonIds": [
+        "read-the-traceback",
+        "try-except-specific",
+        "else-and-finally"
+      ]
+    },
+    {
+      "id": "raise",
+      "title": "Raise and recover",
+      "lessonIds": [
+        "raise-and-custom-error",
+        "eafp-vs-lbyl",
+        "debug-swallowed-error",
+        "transfer-safe-parse"
+      ]
+    }
+  ]
+}

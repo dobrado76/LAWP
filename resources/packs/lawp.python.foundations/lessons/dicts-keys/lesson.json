@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.collections.dict"
+  ],
+  "id": "dicts-keys",
+  "courseId": "collections",
+  "moduleId": "mappings",
+  "title": "Look it up by name",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A shelf with labels instead of numbers\n\nA dictionary stores values under names you choose rather than positions Python chose. `station[\"fox\"]` reads the value filed under `\"fox\"`, and `station[\"badger\"] = 5` files a new one. The name is called the key, and looking one up does not depend on how many keys there are.\n\nThis bites when you loop over a dictionary expecting the values. A plain `for name in station:` walks the **keys**, so the body sees `\"fox\"`, not `3`. Summing that loop gives you a count of names instead of a total of sightings, and nothing raises to tell you.\n\n```python\nstation = {\"fox\": 3, \"owl\": 1}\nprint(station[\"fox\"])          # 3\nstation[\"badger\"] = 5          # a new key, filed on the spot\n\nfor name in station:           # keys\n    print(name, station[name])\n\nprint(list(station.values()))  # [3, 1, 5]\nprint(list(station.items()))   # [('fox', 3), ('owl', 1), ('badger', 5)]\n```\n\nA common mistake is assuming a dictionary needs its keys declared up front. Assigning to a key that does not exist creates it; assigning to one that does replaces the value. The exercise asks you to total the sightings and list the names seen, so you have to reach both the keys and the values of the same dictionary."
+    },
+    {
+      "type": "check",
+      "id": "iterate-default",
+      "promptMd": "A plain `for name in station:` loop walks the…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "keys",
+          "md": "Keys"
+        },
+        {
+          "id": "values",
+          "md": "Values"
+        },
+        {
+          "id": "pairs",
+          "md": "Key and value together, as a pair"
+        }
+      ],
+      "answer": "keys",
+      "explainMd": "Iterating a dictionary hands you its keys, which is why `station[name]` inside the loop is how you reach the value. If you want both at once, ask for them: `for name, count in station.items():` unpacks each pair into two names."
+    },
+    {
+      "type": "check",
+      "id": "insert-by-assign",
+      "kind": "tf",
+      "promptMd": "`station[\"badger\"] = 5` adds the key when it is not already there.",
+      "answer": "true",
+      "explainMd": "Assignment to a key either creates it or replaces its value — there is no separate insert step. That is different from reading: `station[\"badger\"]` on a key that does not exist raises `KeyError` rather than quietly creating it."
+    },
+    {
+      "type": "code",
+      "id": "total-sightings",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `total_sightings(counts)` returning the sum of every value, and `names_seen(counts)` returning the keys as a sorted list. Print `total_sightings({\"fox\": 3, \"owl\": 1, \"badger\": 5})`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "9"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints `3`, which is the number of keys, not the number of sightings. The loop is walking names and counting them."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Inside the loop the name is the key; the value is `counts[name]`. Add that value to the running total instead of adding one. For the second function, `sorted(counts)` already sorts the keys."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `{\"a\": 2, \"b\": 4}`, adding `counts[name]` each time gives `6`, while adding `1` each time gives `2`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def total_sightings(counts):\n    total = 0\n    for name in counts:\n        total += counts[name]\n    return total\n\n\ndef names_seen(counts):\n    return sorted(counts)\n\n\nprint(total_sightings({\"fox\": 3, \"owl\": 1, \"badger\": 5}))"
+        }
+      ]
+    }
+  ],
+  "description": "A dict stores a value under a key you choose."
+}

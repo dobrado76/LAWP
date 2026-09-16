@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.values.strings"
+  ],
+  "id": "encoding-bytes-vs-str",
+  "courseId": "text",
+  "moduleId": "patterns",
+  "title": "Text is not storage",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two types, one conversion in each direction\n\nA `str` is text: a sequence of characters, with no opinion about how they are stored. A `bytes` is storage: a sequence of numbers from 0 to 255, with no opinion about what they mean. `encode` turns text into bytes and `decode` turns bytes back into text, and both need to be told which encoding to use.\n\nThis bites the moment a character needs more than one byte. In UTF-8 an accented letter takes two bytes and many symbols take three, so `len(text)` and `len(text.encode(\"utf-8\"))` disagree. Code that measures the wrong one truncates a file in the middle of a character and produces bytes nothing can decode.\n\n```python\ntext = \"caf\\u00e9\"          # four characters: c, a, f, e-with-accent\nraw = text.encode(\"utf-8\")  # five bytes: the accent takes two\n\nprint(type(raw).__name__)   # bytes\nprint(len(text), len(raw))  # 4 5\nprint(raw.decode(\"utf-8\") == text)   # True\nprint(\"fox\".encode(\"utf-8\"))         # b'fox'\n```\n\nA common mistake is leaving the encoding out and letting the platform choose. The same program then reads one thing on your machine and another on someone else's, and the failure shows up as mangled characters rather than an error. Name UTF-8 every time. The exercise asks you to measure the real storage size and prove a round trip."
+    },
+    {
+      "type": "check",
+      "id": "bytes-vs-str",
+      "promptMd": "`\"fox\".encode(\"utf-8\")` gives you…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "bytes",
+          "md": "A `bytes` object"
+        },
+        {
+          "id": "str",
+          "md": "Another `str`"
+        },
+        {
+          "id": "list",
+          "md": "A list of integers"
+        }
+      ],
+      "answer": "bytes",
+      "explainMd": "`encode` always produces `bytes`, which display with a `b` prefix as `b'fox'`. It is a distinct type, not a string that looks odd: you cannot concatenate it with a `str`, and doing so raises `TypeError` rather than converting silently."
+    },
+    {
+      "type": "check",
+      "id": "name-the-codec",
+      "kind": "tf",
+      "promptMd": "Naming the encoding explicitly, as in `text.encode(\"utf-8\")`, is safer than relying on the platform default.",
+      "answer": "true",
+      "explainMd": "The default depends on the operating system and its locale, so the same code can behave differently on two machines and the mismatch shows up as corrupted characters rather than an exception. UTF-8 handles every character and is the sane default to state out loud."
+    },
+    {
+      "type": "code",
+      "id": "measure-the-bytes",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `byte_length(text)` returning how many **bytes** the text takes in UTF-8, and `roundtrip(text)` returning the text after an encode and a decode. Print `byte_length(\"caf\\u00e9\")`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "5"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints `4`, which is the number of characters. The accented letter is one character and more than one byte, so the two counts are not the same thing."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Encode the text first and measure that: `len(text.encode(\"utf-8\"))`. For the round trip, encode and then decode with the same encoding named on both sides."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `\"na\\u00efve\"` there are five characters but six bytes in UTF-8, because the dotted letter takes two."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def byte_length(text):\n    return len(text.encode(\"utf-8\"))\n\n\ndef roundtrip(text):\n    return text.encode(\"utf-8\").decode(\"utf-8\")\n\n\nprint(byte_length(\"caf\\u00e9\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Bytes are not text. Decode them on purpose."
+}

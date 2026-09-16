@@ -1,0 +1,125 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 22,
+  "skillIds": [
+    "python.io.files",
+    "python.io.stdio"
+  ],
+  "mastery": {
+    "requiresTransfer": true
+  },
+  "id": "transfer-report-tool",
+  "courseId": "process",
+  "moduleId": "reach",
+  "title": "Transfer: one command, start to finish",
+  "creation": {
+    "id": "field-station",
+    "step": 1,
+    "briefMd": "Step 1 of the field station. A command you can actually run: it takes a station name, reads the records file off disk, and prints one line another program can read. Later steps add tests and the rest of the package."
+  },
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The wiring is the new part\n\nA reporting command is three things you already have, joined up. The caller names what they want on the command line, the records come off disk in a format that survives a comma inside a field, and the answer goes to `stdout` as one line something else can read. Nothing here is a new idea; the wiring is.\n\nKeep the reading and the counting inside a function that takes the path and the station, and keep the command line outside it. That is what lets a test call the function directly with no command line at all, and it is what makes a station with nothing logged return zeros instead of raising — because \"nothing logged\" is an answer, not a failure.\n\n```python\nimport csv\nimport sys\n\n\ndef loudest(path):\n    best = (\"\", -1)\n    with open(path, encoding=\"utf-8\", newline=\"\") as f:\n        for row in csv.DictReader(f):\n            if int(row[\"drift\"]) > best[1]:\n                best = (row[\"station\"], int(row[\"drift\"]))\n    return best\n\n\nstation, drift = loudest(\"records.csv\")\nprint(station, drift, len(sys.argv) - 1)\n```\n\nA common mistake is reading `sys.argv` inside the function, which makes it answerable only from a command line and moves the missing-argument crash into the middle of the work. Take the station as a parameter. The hidden test calls your function with stations you were not shown, including one that never appears in the file."
+    },
+    {
+      "type": "check",
+      "id": "argv-in-function",
+      "promptMd": "Where should `sys.argv[1]` be read in a small reporting tool?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "inside",
+          "md": "Inside the function that does the work, so it always has a station"
+        },
+        {
+          "id": "outside",
+          "md": "Outside it, and passed in as a parameter"
+        }
+      ],
+      "answer": "outside",
+      "explainMd": "A function that reads the command line can only answer one question, and only when a command line exists. Passing the station in makes the same function usable from a test, from a loop over every station, and from another tool — and it moves the missing-argument error out to where the caller can explain it."
+    },
+    {
+      "type": "check",
+      "id": "missing-station",
+      "promptMd": "Your `summarise(path, station)` is asked about a station that appears nowhere in the file. What should it return?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "boom",
+          "md": "It should raise, so the caller knows"
+        },
+        {
+          "id": "zero",
+          "md": "`(0, 0)` — no rows, so no readings"
+        }
+      ],
+      "answer": "zero",
+      "explainMd": "Zero rows is a real answer rather than an error: a station with nothing logged today has a count of zero and a total of zero. Raising forces every caller to wrap the call in a `try`, and it erases the difference between \"nothing was logged\" and \"I could not read the file at all\"."
+    },
+    {
+      "type": "code",
+      "id": "report-tool",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Finish `summarise(path, station)` so it returns `(count, total)` for the rows of `records.csv` whose `station` matches, then print the station from `sys.argv[1]`, the count, and the total — `ridge 2 5`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/records.csv",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "ridge 2 5"
+        },
+        {
+          "type": "ast",
+          "query": "sys.argv[1]"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The function is a stub that answers zero for everything. All it needs is already in its two parameters: the path and the station name."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Open the path with `newline=\"\"`, walk `csv.DictReader(f)`, skip the rows whose `station` does not match, and count and total the rest. `row[\"drift\"]` is text, so `int(...)` it."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Outside the function the station comes from the command line. On another file you would write `count, total = summarise(\"march.csv\", sys.argv[1])` and print the three values on one line."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import csv\nimport sys\n\n\ndef summarise(path, station):\n    count = 0\n    total = 0\n    with open(path, encoding=\"utf-8\", newline=\"\") as f:\n        for row in csv.DictReader(f):\n            if row[\"station\"] != station:\n                continue\n            count += 1\n            total += int(row[\"drift\"])\n    return count, total\n\n\nstation = sys.argv[1]\ncount, total = summarise(\"records.csv\", station)\n\nprint(station, count, total)"
+        }
+      ],
+      "argv": [
+        "ridge"
+      ]
+    }
+  ],
+  "description": "Turn the station log into a report a person can read."
+}

@@ -1,0 +1,245 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "python.control.loops",
+    "python.call.move"
+  ],
+  "id": "nested-loops-grid",
+  "courseId": "flow",
+  "moduleId": "repeat",
+  "title": "A loop inside a loop",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Rows on the outside, cells on the inside\n\nPut one loop inside another and the inner one runs to completion on every single pass of the outer one. Three outer passes over a four-step inner loop is twelve steps, not seven. That is the natural shape of anything rectangular: the outer loop picks the row, the inner loop walks it.\n\nThis bites when the two loops share a counter name, or when a line that belongs to the outer loop is indented one level too far and ends up running once per cell. Indentation is the only thing that says which loop a statement belongs to, so a stray four spaces turns \"step south once per row\" into \"step south after every cell\".\n\n```python\nfor row in range(3):\n    for step in range(4):\n        print(row, step, end=\" \")\n    print()          # once per row, because it sits in the outer body\n\n# 0 0 0 1 0 2 0 3\n# 1 0 1 1 1 2 1 3\n# 2 0 2 1 2 2 2 3\n```\n\nA common mistake is stepping to the next row on the last pass too, which walks the fox into the wall below the field. On a grid the move is simply refused and the fox stays put, so the run looks fine and the count is wrong. The exercise sweeps three rows of a five-wide field and collects a coin at the east end of each."
+    },
+    {
+      "type": "predict",
+      "id": "how-many-steps",
+      "promptMd": "How many times does `Player.move` run in a `for row in range(3)` loop whose body is a `for step in range(4)` loop with one move in it?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "seven",
+          "md": "7 — three plus four"
+        },
+        {
+          "id": "twelve",
+          "md": "12"
+        }
+      ],
+      "answer": "twelve",
+      "explainMd": "The inner loop restarts and runs all four of its passes on every pass of the outer loop, so the moves multiply rather than add: three rows times four steps is twelve. Nested loops are how a one-dimensional instruction covers a two-dimensional area, and the total is always the product."
+    },
+    {
+      "type": "check",
+      "id": "nesting-words",
+      "kind": "cloze",
+      "promptMd": "The {{a}} loop chooses the row. A line that should run once per row belongs in the {{b}} loop body.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "outer",
+              "md": "outer"
+            },
+            {
+              "id": "inner",
+              "md": "inner"
+            },
+            {
+              "id": "either",
+              "md": "either"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "outer",
+              "md": "outer"
+            },
+            {
+              "id": "inner",
+              "md": "inner"
+            },
+            {
+              "id": "neither",
+              "md": "neither"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "outer",
+        "b": "outer"
+      },
+      "explainMd": "The outer loop advances once per row, so anything that happens per row — stepping south, printing a newline, resetting a running total — sits directly in its body at the shallower indentation. Push that line one level deeper and it becomes a per-cell action, which is the single most common nested-loop bug."
+    },
+    {
+      "type": "code",
+      "id": "sweep-the-rows",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Sweep all three rows of the field with a loop inside a loop: run east across the row, run back west, then step south — but not after the last row. Pick up all three coins and finish at `(0, 2)`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter runs one row and stops. Three rows means an outer loop wrapped around the run you already have."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The field is five wide, so each run is four moves. Inside the outer loop: four east, four west, then one south — and guard that last south so the third row does not try to step off the field."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A sweep of two rows would be `for row in range(2):` around `for step in range(3): Player.move(\"east\")` and its matching westward loop."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "for row in range(3):\n    for step in range(4):\n        Player.move(\"east\")\n    for step in range(4):\n        Player.move(\"west\")\n    if row < 2:\n        Player.move(\"south\")"
+        }
+      ],
+      "play": {
+        "api": "player-v1",
+        "playerId": "fox",
+        "world": {
+          "parts": [
+            {
+              "id": "fox",
+              "type": "fox",
+              "props": {
+                "x": 0,
+                "y": 0,
+                "rot": 0,
+                "label": "Fox"
+              }
+            },
+            {
+              "id": "coin-a",
+              "type": "coin",
+              "props": {
+                "x": 4,
+                "y": 0,
+                "collect": true,
+                "taken": false,
+                "label": "coin-a"
+              }
+            },
+            {
+              "id": "coin-b",
+              "type": "coin",
+              "props": {
+                "x": 4,
+                "y": 1,
+                "collect": true,
+                "taken": false,
+                "label": "coin-b"
+              }
+            },
+            {
+              "id": "coin-c",
+              "type": "coin",
+              "props": {
+                "x": 4,
+                "y": 2,
+                "collect": true,
+                "taken": false,
+                "label": "coin-c"
+              }
+            }
+          ],
+          "connections": [],
+          "actions": [],
+          "rules": [],
+          "view": {
+            "kind": "grid",
+            "grid": {
+              "cols": 5,
+              "rows": 3,
+              "floor": "floor-stone"
+            },
+            "assetMap": {
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
+            }
+          }
+        },
+        "goal": {
+          "all": [
+            {
+              "path": "fox.x",
+              "op": "eq",
+              "value": 0
+            },
+            {
+              "path": "fox.y",
+              "op": "eq",
+              "value": 2
+            },
+            {
+              "path": "coin-a.taken",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "path": "coin-b.taken",
+              "op": "eq",
+              "value": true
+            },
+            {
+              "path": "coin-c.taken",
+              "op": "eq",
+              "value": true
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "description": "A loop inside a loop sweeps the grid row by row."
+}

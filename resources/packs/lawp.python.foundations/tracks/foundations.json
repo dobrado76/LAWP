@@ -1,6 +1,11 @@
 {
   "id": "foundations",
-  "title": "The REPL in your pocket",
-  "courseIds": ["repl-in-pocket"],
-  "intro": "Think, then run. Python Course 1."
+  "title": "Foundations",
+  "courseIds": [
+    "placement",
+    "values",
+    "flow",
+    "functions"
+  ],
+  "intro": "What a value is, how a decision branches, and how a call moves the fox. Lists come after, not before."
 }

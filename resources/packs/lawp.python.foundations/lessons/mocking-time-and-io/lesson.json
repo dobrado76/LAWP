@@ -1,0 +1,130 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 28,
+  "skillIds": [
+    "python.craft.tests"
+  ],
+  "id": "mocking-time-and-io",
+  "courseId": "craft",
+  "moduleId": "prove",
+  "title": "Hand it the clock",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Seams, not surgery\n\nA function that calls `time.time()` or opens a file itself has no seam: every run sees a different world, so the same input can give two answers. Adding a parameter for the clock and a parameter for the reader turns each of those into a seam. The real ones stay as defaults, so production code calls `report()` and reads nothing new, while a test calls `report(fake_lines, lambda: 1700)` and gets the same string every time.\n\nThis bites as a test that passes today and fails in December, or passes on your machine and fails where the log file is missing. Reaching for a patching library to swap `time.time` out from under the module hides the same problem behind more machinery: the dependency is still invisible in the signature, and the patch has to be undone. A parameter is honest — the signature says out loud what the function needs.\n\n```python\nimport time\n\n\ndef real_clock():\n    return int(time.time())\n\n\ndef elapsed(started, clock=real_clock):\n    return clock() - started\n\n\n# Production passes nothing and gets the real clock.\n# A test passes a clock that cannot drift.\nprint(elapsed(1000, clock=lambda: 1042))   # 42, forever\n```\n\nA common mistake is injecting the clock and then calling the real reader anyway, or calling the injected reader twice and asserting on only one of the calls. The exercise gives you a real reader and a real clock already written; your job is to put both behind parameters, read the lines exactly once, and print a line that does not move."
+    },
+    {
+      "type": "predict",
+      "id": "stamp-drift",
+      "promptMd": "A test asserts `report()` starts with the current whole second. It passes now. What happens when it runs again a second later?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "stable",
+          "md": "It passes — the value is read from the same clock"
+        },
+        {
+          "id": "drifts",
+          "md": "It fails — the clock moved, so the expected string is already stale"
+        }
+      ],
+      "answer": "drifts",
+      "explainMd": "Anything read from the real world at call time — the clock, the filesystem, the network — makes the expected value a moving target. Either the test recomputes the answer with the same call it is testing (and then proves nothing), or it goes red on its own. Injecting a clock that returns a fixed number makes the answer a constant you can write down.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "inject-vs-patch",
+      "promptMd": "Why prefer passing the clock in over replacing `time.time` globally for the duration of a test?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "faster",
+          "md": "Because a parameter runs faster than a patch"
+        },
+        {
+          "id": "honest",
+          "md": "Because the signature then states what the function depends on, and nothing global has to be put back"
+        },
+        {
+          "id": "nopatch",
+          "md": "Because patching a module is impossible in Python"
+        }
+      ],
+      "answer": "honest",
+      "explainMd": "Patching works, and the stdlib ships `unittest.mock` for the cases where you cannot change the code. But it reaches into a module from outside, leaves global state that must be restored, and hides the dependency from anyone reading the signature. A parameter with a real default gives you the same test with none of that: the seam is visible, local, and undoes itself when the call returns.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "default-is-production",
+      "kind": "tf",
+      "promptMd": "Giving `clock` a default of the real clock means production code keeps calling `report()` with no arguments.",
+      "answer": "true",
+      "explainMd": "That is the whole trick, and it is why dependency injection costs almost nothing here. Callers who do not care keep the short call and get the real world; the test passes its own fakes and gets a fixed world. The default is evaluated once when `def` runs, so hand it the function object itself — not a call to it.",
+      "skillIds": [
+        "python.craft.tests"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "inject-clock-and-reader",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> `station.log` is read-only, and `read_station_log()` plus `real_clock()` are already written.\n>\n> Rewrite `report` as `report(read_lines=read_station_log, clock=real_clock)`: call `read_lines()` **once**, count the lines containing `\"fox\"`, and return `f\"{clock()} fox={n}\"`.\n>\n> Then print the report with your own fakes so the output cannot drift: a reader returning `[\"fox at 2,1\", \"owl at 0,3\", \"fox at 4,4\"]` and a clock returning `1700`. Output should be `1700 fox=2`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station.log",
+          "role": "ro"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "1700 fox=2"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter reaches for `read_station_log()` and `real_clock()` from inside the function body. Those two calls are the reason the output changes every run."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Move both into the parameter list with the real ones as defaults: `def report(read_lines=read_station_log, clock=real_clock):`. Inside, call the parameters — never the originals."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same seam elsewhere: `def greet(name, now=real_clock): return f\"{now()} hello {name}\"`, which a test calls as `greet(\"fox\", now=lambda: 5)`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import time\nfrom pathlib import Path\n\n\ndef read_station_log():\n    return Path(\"station.log\").read_text(encoding=\"utf-8\").splitlines()\n\n\ndef real_clock():\n    return int(time.time())\n\n\ndef report(read_lines=read_station_log, clock=real_clock):\n    lines = read_lines()\n    foxes = sum(1 for line in lines if \"fox\" in line)\n    return f\"{clock()} fox={foxes}\"\n\n\ndef fake_lines():\n    return [\"fox at 2,1\", \"owl at 0,3\", \"fox at 4,4\"]\n\n\nprint(report(fake_lines, lambda: 1700))"
+        }
+      ]
+    }
+  ],
+  "description": "Fake the clock and the disk so a test never waits or writes."
+}

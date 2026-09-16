@@ -1,0 +1,9 @@
+{
+  "id": "language",
+  "title": "The language under the hood",
+  "courseIds": [
+    "internals",
+    "waiting"
+  ],
+  "intro": "Iteration, laziness, decorators, context managers, and types. Taught after you have written real programs."
+}

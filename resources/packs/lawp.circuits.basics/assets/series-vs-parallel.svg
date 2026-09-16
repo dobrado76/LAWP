@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Series versus parallel">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <text x="200" y="36" fill="#e8edf5" font-size="18" font-family="Segoe UI, sans-serif">Same parts, different wiring</text>
+  <rect x="24" y="56" width="284" height="300" rx="10" fill="#161b26" stroke="#2a3344"/>
+  <text x="110" y="86" fill="#e6b84d" font-size="16" font-family="Segoe UI, sans-serif">SERIES</text>
+  <rect x="70" y="110" width="190" height="150" fill="none" stroke="#2ec4b6" stroke-width="3"/>
+  <circle cx="110" cy="260" r="14" fill="#e6b84d"/>
+  <circle cx="220" cy="260" r="14" fill="#e6b84d"/>
+  <text x="70" y="320" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">same I - shared V</text>
+  <text x="70" y="340" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">one gap kills both</text>
+  <rect x="332" y="56" width="284" height="300" rx="10" fill="#161b26" stroke="#2a3344"/>
+  <text x="410" y="86" fill="#7eb6ff" font-size="16" font-family="Segoe UI, sans-serif">PARALLEL</text>
+  <path d="M380 200 H400 V130 H550 V200" fill="none" stroke="#2ec4b6" stroke-width="3"/>
+  <path d="M400 270 H550 V200" fill="none" stroke="#2ec4b6" stroke-width="3"/>
+  <circle cx="475" cy="130" r="14" fill="#fbbf24"/>
+  <circle cx="475" cy="270" r="14" fill="#fbbf24"/>
+  <text x="380" y="320" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">same V - split I</text>
+  <text x="380" y="340" fill="#93a0b5" font-size="13" font-family="Segoe UI, sans-serif">one gap leaves the other</text>
+</svg>

@@ -1,0 +1,112 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 20,
+  "skillIds": [
+    "python.errors"
+  ],
+  "mastery": {
+    "requiresTransfer": true
+  },
+  "id": "transfer-safe-parse",
+  "courseId": "errors",
+  "moduleId": "raise",
+  "title": "Transfer: a parser that never raises",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Report the failure, do not become it\n\nSome functions sit at the edge of a program, where messy input is normal rather than exceptional. Those are worth writing so they never raise: they return the value **and** an honest note about whether it worked. The caller then decides what to do, with the reason in hand.\n\nThis bites when the honest note gets dropped. A parser that answers `None` for both \"the value was zero\" and \"that was not a number\" has thrown away the distinction its caller needed. Returning a pair — the value, and the reason it failed — keeps success and failure telling different stories.\n\n```python\ndef as_bool_safe(raw):\n    text = str(raw).strip().lower()\n    if text in (\"yes\", \"true\", \"1\"):\n        return True, None\n    if text in (\"no\", \"false\", \"0\"):\n        return False, None\n    return None, \"not a yes or no: \" + repr(raw)\n\n\nprint(as_bool_safe(\" YES \"))   # (True, None)\nprint(as_bool_safe(\"maybe\"))   # (None, \"not a yes or no: 'maybe'\")\n```\n\nA common mistake is stripping and checking by hand until every shape of bad input has its own branch — you will always miss one. Wrap the conversion in `try` instead and let the conversion itself decide. The exercise asks for `parse_int_safe(raw)` and a `parse_all(raws)` that sorts a whole column into values and problems."
+    },
+    {
+      "type": "predict",
+      "id": "pair-shape",
+      "promptMd": "A safe parser returns `(value, reason)`. For a successful parse of `\" 12 \"`, what comes back?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "both",
+          "md": "`(12, \"ok\")`"
+        },
+        {
+          "id": "clean",
+          "md": "`(12, None)` — a reason only appears when something failed"
+        }
+      ],
+      "answer": "clean",
+      "explainMd": "Keeping the reason empty on success means a caller can test one thing: `if reason is None`. Filling it with a cheerful `\"ok\"` forces every caller to compare against a magic string, and the first typo in that string is a bug nobody sees."
+    },
+    {
+      "type": "check",
+      "id": "never-raises",
+      "promptMd": "What makes a function \"never raises\" in practice?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "try",
+          "md": "Every operation that can fail is inside a `try`, and the `except` returns a failure report instead of propagating"
+        },
+        {
+          "id": "checks",
+          "md": "It checks the input type before doing anything"
+        },
+        {
+          "id": "bare",
+          "md": "It wraps the body in `except: pass`"
+        }
+      ],
+      "answer": "try",
+      "explainMd": "Type checks can only cover the shapes you thought of, and `except: pass` hides the reason rather than reporting it. The workable version is a `try` around the risky conversion whose `except` turns the exception into a returned value the caller can read and act on."
+    },
+    {
+      "type": "code",
+      "id": "parse-int-safe",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `parse_int_safe(raw)` returning `(value, None)` on success and `(None, reason)` on failure, for **any** input without raising. Then write `parse_all(raws)` returning `(values, problems)`. Print `parse_int_safe(\" 12 \")`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "(12, None)"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter returns a bare number rather than a pair, and it will stop the program the first time it meets something that is not a number."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Convert inside a `try:` and return `int(str(raw).strip()), None`. In the `except (TypeError, ValueError):` return `None` together with a reason string that mentions the offending value. `parse_all` then loops and sorts each result into one of two lists."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For a similar `parse_float_safe`, `parse_float_safe(\"x\")` should give `(None, \"not a number: x\")` while `parse_float_safe(\"1.5\")` gives `(1.5, None)`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def parse_int_safe(raw):\n    try:\n        return int(str(raw).strip()), None\n    except (TypeError, ValueError):\n        return None, \"not a whole number: \" + repr(raw)\n\n\ndef parse_all(raws):\n    values = []\n    problems = []\n    for raw in raws:\n        value, reason = parse_int_safe(raw)\n        if reason is None:\n            values.append(value)\n        else:\n            problems.append(reason)\n    return values, problems\n\n\nprint(parse_int_safe(\" 12 \"))"
+        }
+      ]
+    }
+  ],
+  "description": "Read a messy log line without crashing on the bad ones."
+}

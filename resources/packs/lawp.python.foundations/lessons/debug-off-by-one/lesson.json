@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.control.loops"
+  ],
+  "id": "debug-off-by-one",
+  "courseId": "flow",
+  "moduleId": "repeat",
+  "title": "Debug: one step too far",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The last valid index is one less than the length\n\nA sequence of n items has indexes `0` through `n - 1`. `len` reports n, so the last index is always `len(thing) - 1`, and `range(len(thing))` produces exactly the valid indexes and nothing else. Reaching for index n is reaching past the end.\n\nThis bites the moment a `+ 1` is added to a loop bound \"to be safe\". The loop walks one position past the data and Python raises `IndexError: string index out of range`. Read the traceback backwards: the last frame names the line, and the line names the index expression that went too far.\n\n```python\ndigits = \"abc\"\nprint(len(digits))                # 3\nprint(digits[0], digits[2])       # a c\nprint(list(range(len(digits))))   # [0, 1, 2] — every valid index, once\n# digits[3] raises IndexError: string index out of range\n```\n\nA common mistake is patching the symptom by wrapping the body in a `try` instead of fixing the bound. The loop is asking a question about a position that does not exist, and no amount of catching makes that position appear. The code below already crashes — your job is to repair the range so it walks every digit exactly once."
+    },
+    {
+      "type": "predict",
+      "id": "crash-line",
+      "promptMd": "The station readings are `\"37152\"`. Which index does `range(len(digits) + 1)` reach that `\"37152\"` does not have?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "four",
+          "md": "`4` — the last digit"
+        },
+        {
+          "id": "five",
+          "md": "`5`"
+        }
+      ],
+      "answer": "five",
+      "explainMd": "The string has five characters, so `len` is 5 and the valid indexes are 0 through 4. Adding one to the bound makes the loop also try index 5, which is one past the end, and that is the position that raises `IndexError`. Removing the `+ 1` makes the run exactly as long as the data."
+    },
+    {
+      "type": "check",
+      "id": "len-is-last",
+      "kind": "tf",
+      "promptMd": "`len(text)` is a valid index into `text`.",
+      "answer": "false",
+      "explainMd": "It is not, unless the string is empty — and then nothing is valid. Indexing starts at 0, so a string of length 5 stops at index 4 and `text[5]` raises `IndexError`. Holding on to \"last index is len minus one\" removes most off-by-one bugs before you ever write them."
+    },
+    {
+      "type": "debug",
+      "id": "repair-the-scan",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> This scan of the station readings crashes with an `IndexError`. Repair the loop bound so it walks every digit exactly once, and the highest digit `7` is printed.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "7"
+        },
+        {
+          "type": "ast",
+          "query": "range(len("
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "Run it and read the last frame of the traceback. It names the line and the index that did not exist."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The valid indexes of a five-character string are 0 to 4. `range(len(digits))` already produces exactly those — the `+ 1` asks for one more."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `\"abc\"`, `range(len(\"abc\"))` gives 0, 1, 2. That is three passes for three characters, which is what a full scan needs."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "READINGS = \"37152\"\n\n\ndef highest(digits):\n    best = 0\n    for i in range(len(digits)):\n        value = int(digits[i])\n        if value > best:\n            best = value\n    return best\n\n\nprint(highest(READINGS))"
+        }
+      ]
+    }
+  ],
+  "description": "The patrol stops one cell short. Find the off-by-one."
+}

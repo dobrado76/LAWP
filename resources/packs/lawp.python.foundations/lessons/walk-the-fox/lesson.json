@@ -1,54 +1,132 @@
 {
   "kind": "lesson",
   "schemaVersion": 1,
-  "id": "walk-the-fox",
   "packId": "lawp.python.foundations",
-  "courseId": "repl-in-pocket",
-  "moduleId": "on-the-grid",
-  "title": "Walk the fox",
+  "taskRev": 2,
+  "estimatedMinutes": 15,
   "skillIds": [
     "python.call.move"
   ],
-  "estimatedMinutes": 15,
-  "taskRev": 1,
+  "id": "walk-the-fox",
+  "courseId": "flow",
+  "moduleId": "decide",
+  "title": "Walk the fox",
   "blocks": [
     {
       "type": "explain",
-      "md": "## A call is a step\n\nA call is a step the fox takes on the grid. `Player.move` walks one cell in the direction you name. `\"east\"` increases **x**. `\"south\"` increases **y**. The beacon does not come to you; you walk onto it. One call changes one coordinate by one, so a far target is several calls, not one magic teleport.\n\nThis bites when you think a single call drops the fox on the beacon, or when you mix up the axes and walk west or north instead. After one east from `(0, 0)` the fox is at `(1, 0)`, not still at the origin and not already at `(3, 2)`.\n\n```python\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"south\")\nPlayer.move(\"south\")\n```\n\nA common mistake is writing the coordinates as numbers in `move`, or stopping after one step. The exercise asks you to walk the fox from `(0, 0)` onto the beacon at `(3, 2)` — three east calls and two south calls. Order does not matter.\n"
+      "md": "## A call is a step\n\nA call is one step the fox takes. `Player.move(\"east\")` walks a single cell in the direction you name. East increases **x**, south increases **y**. The beacon never comes to you; you walk onto it.\n\nThis bites when you expect one call to cover the whole distance, or when you mix the axes and walk north where you meant south. From `(0, 0)`, one east call leaves the fox at `(1, 0)` — not at the origin, and not already on a far beacon.\n\n```python\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"south\")\nPlayer.move(\"south\")\n```\n\nA common mistake is passing coordinates instead of a direction, or stopping after one step. The exercise asks you to walk from `(0, 0)` onto the beacon at `(3, 2)`: three east calls and two south calls, in any order."
     },
     {
       "type": "predict",
       "id": "where-after-east",
-      "promptMd": "The fox starts at (0, 0). After one `Player.move(\"east\")`, where is it?",
+      "promptMd": "The fox starts at `(0, 0)`. After one `Player.move(\"east\")`, where is it?",
       "kind": "mcq",
       "choices": [
         {
           "id": "same",
-          "md": "Still at (0, 0)"
+          "md": "Still at `(0, 0)`"
         },
         {
           "id": "east",
-          "md": "At (1, 0)"
+          "md": "At `(1, 0)`"
         }
       ],
-      "answer": "east"
+      "answer": "east",
+      "explainMd": "One call is one cell. East adds 1 to x, so the fox lands on `(1, 0)` and waits there for the next call. Nothing moves the fox except a call you wrote, and no single call ever covers the whole distance."
+    },
+    {
+      "type": "check",
+      "id": "axis-words",
+      "kind": "cloze",
+      "promptMd": "Moving east changes {{a}}. Moving south changes {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "x",
+              "md": "x"
+            },
+            {
+              "id": "y",
+              "md": "y"
+            },
+            {
+              "id": "both",
+              "md": "both"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "y",
+              "md": "y"
+            },
+            {
+              "id": "x",
+              "md": "x"
+            },
+            {
+              "id": "both",
+              "md": "both"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "x",
+        "b": "y"
+      },
+      "explainMd": "East and west move along x: east adds 1, west subtracts 1. North and south move along y, and on this grid y grows downward, so south adds 1 and north subtracts 1. Mixing the two axes is the usual reason a walk lands one cell off."
     },
     {
       "type": "code",
       "id": "reach-beacon",
       "engine": "python",
       "entry": "main.py",
-      "promptMd": "> Walk the fox onto the beacon at `(3, 2)`.",
+      "promptMd": "> Walk the fox from `(0, 0)` onto the beacon at `(3, 2)`.",
       "files": [
         {
           "path": "files/main.py",
           "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The beacon is at x=3, y=2. One call changes one coordinate by one."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "That is three east calls and two south calls. Order does not matter."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "From `(0, 0)`, two east calls and one south call would land on `(2, 1)`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Player.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"east\")\nPlayer.move(\"south\")\nPlayer.move(\"south\")"
         }
       ],
       "play": {
         "api": "player-v1",
         "playerId": "fox",
-        "guided": true,
         "world": {
           "parts": [
             {
@@ -78,11 +156,31 @@
             "kind": "grid",
             "grid": {
               "cols": 5,
-              "rows": 5
+              "rows": 5,
+              "floor": "floor-stone"
             },
             "assetMap": {
-              "fox": "fox.svg",
-              "beacon": "beacon.svg"
+              "fox": "fox.png",
+              "owl": "owl.png",
+              "robot": "robot.png",
+              "beacon": "beacon.png",
+              "rock": "rock.png",
+              "wall": "wall.png",
+              "crate": "crate.png",
+              "tree": "tree.png",
+              "bush": "bush.png",
+              "barrel": "barrel.png",
+              "coin": "coin.png",
+              "key": "key.png",
+              "glint": "glint.png",
+              "gem": "gem.png",
+              "star": "star.png",
+              "scroll": "scroll.png",
+              "chest": "chest.png",
+              "flag": "flag.png",
+              "spike": "spike.png",
+              "fire": "fire.png",
+              "hole": "hole.png"
             }
           }
         },
@@ -99,25 +197,9 @@
               "value": 2
             }
           ]
-        }
-      },
-      "hintLadder": [
-        {
-          "level": 1,
-          "kind": "concept",
-          "md": "Beacon is at x=3, y=2. One move changes one coordinate by 1."
         },
-        {
-          "level": 2,
-          "kind": "concept",
-          "md": "You need three east calls and two south calls. Order does not matter."
-        },
-        {
-          "level": 4,
-          "kind": "assist",
-          "md": "Player.move(\"east\") three times, then Player.move(\"south\") twice."
-        }
-      ]
+        "guided": true
+      }
     }
   ],
   "description": "Call a step so the fox walks one cell on the grid."

@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.errors"
+  ],
+  "id": "eafp-vs-lbyl",
+  "courseId": "errors",
+  "moduleId": "raise",
+  "title": "Ask first, or try and recover",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Two styles with two different blind spots\n\nLook Before You Leap checks that an operation will work, then does it. Easier to Ask Forgiveness than Permission just does it and handles the failure. Python leans on the second, because a `try` block states the operation once, while a guard has to predict every way it could go wrong.\n\nThis bites when the guard is incomplete. `if zone in rows:` proves the key exists and says nothing about whether the list behind it has anything in it, so `rows[zone][0]` still raises. Each extra condition is another chance to forget one, and the code drifts away from the operation it is guarding.\n\n```python\ncounts = {\"fox\": 3}\n\n# Look before you leap: ask, then act.\nif \"owl\" in counts:\n    print(counts[\"owl\"])\nelse:\n    print(0)\n\n# Easier to ask forgiveness: act, then handle.\ntry:\n    print(counts[\"owl\"])\nexcept KeyError:\n    print(0)\n```\n\nA common mistake is treating one style as always correct. A cheap check that is expected to fail most of the time reads better as a guard; anything with several failure modes, or where the state could change between the check and the act, reads better inside a `try`. The exercise gives you two lookups whose guards are awkward and whose `try` blocks are not."
+    },
+    {
+      "type": "predict",
+      "id": "eafp-shape",
+      "promptMd": "Which shape is the idiom Python calls EAFP?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "guard",
+          "md": "Test every precondition with `if`, then perform the operation"
+        },
+        {
+          "id": "try",
+          "md": "Perform the operation inside `try`, and handle the failure in `except`"
+        }
+      ],
+      "answer": "try",
+      "explainMd": "EAFP stands for \"easier to ask forgiveness than permission\": do the thing, catch the specific failure. The operation appears once, in its normal form, and the recovery sits next to it. LBYL is the other shape — useful, but it makes you enumerate the failures in advance."
+    },
+    {
+      "type": "check",
+      "id": "lbyl-gap",
+      "promptMd": "The guard `if zone in rows:` can still be followed by a crash because…",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "partial",
+          "md": "It only proves the key exists — the value behind it can still be empty or the wrong shape"
+        },
+        {
+          "id": "slow",
+          "md": "`in` is too slow on large dictionaries"
+        },
+        {
+          "id": "nolists",
+          "md": "Dictionaries cannot hold lists"
+        }
+      ],
+      "answer": "partial",
+      "explainMd": "A guard only covers the condition it names. `rows[zone][0]` needs the key **and** a non-empty list, so a single `in` check leaves an `IndexError` waiting. A `try` around the whole expression covers both failures with one `except (KeyError, IndexError):`."
+    },
+    {
+      "type": "code",
+      "id": "try-then-recover",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Rewrite both functions in the EAFP style. `as_number(value)` returns a float or `None`; `first_reading(rows, zone)` returns the first reading or `None`. Print both for the starter values.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "12.5 None"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter guards instead of trying, and its guard for `as_number` is wrong: `\"12.5\".isdigit()` is `False` because of the dot, so a perfectly good number comes back as `None`."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Put `return float(value)` inside a `try:` and catch `(TypeError, ValueError)`. Put `return rows[zone][0]` inside a `try:` and catch `(KeyError, IndexError)`. Each function then states its operation once."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `def head(xs):` writing `try: return xs[0]` with `except IndexError: return None` handles the empty list without ever measuring its length."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def as_number(value):\n    try:\n        return float(value)\n    except (TypeError, ValueError):\n        return None\n\n\ndef first_reading(rows, zone):\n    try:\n        return rows[zone][0]\n    except (KeyError, IndexError):\n        return None\n\n\nprint(as_number(\"12.5\"), first_reading({\"north\": []}, \"north\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Ask forgiveness or look before you leap, and know which one fits."
+}

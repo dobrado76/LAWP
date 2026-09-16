@@ -40,3 +40,19 @@ describe('fenced snippets', () => {
   })
 })
 
+describe('diagram images', () => {
+  it('renders a pack asset as a figure and rewrites the src', () => {
+    const html = md('See this:\n\n![Closed loop](assets/closed-loop.svg)\n', { packId: 'p', lessonId: 'l' })
+    expect(html).toContain('class="diagram"')
+    expect(html).toContain('lawp-pack://p/lessons/l/assets/closed-loop.svg')
+    expect(html).toContain('Closed loop')
+    expect(html).toContain('<p>See this:</p>')
+  })
+
+  it('drops remote image sources', () => {
+    const html = md('![x](https://evil.example/a.png)')
+    expect(html).not.toContain('https://')
+    expect(html).not.toContain('evil.example')
+  })
+})
+

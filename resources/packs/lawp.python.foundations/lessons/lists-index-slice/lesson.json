@@ -1,0 +1,142 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.collections.list"
+  ],
+  "id": "lists-index-slice",
+  "courseId": "collections",
+  "moduleId": "sequences",
+  "title": "Index from zero, slice to before",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A numbered shelf\n\nA list is a numbered shelf, and the numbering starts at zero. The first reading sits at index `0`, the fifth at index `4`. A negative index counts backwards from the far end, so `readings[-1]` is the shortest way to say \"whatever is last\".\n\nThis bites at both ends of a slice. `readings[1:4]` starts **at** index 1 but stops **before** index 4, so it hands back three items and never touches the fourth. It bites again when you forget that a slice builds a second list: the original shelf is still exactly as it was.\n\n```python\nreadings = [12, 7, 19, 3, 22]\nprint(readings[0])     # 12  - the first item\nprint(readings[-1])    # 22  - the last item\nprint(readings[1:4])   # [7, 19, 3] - from 1, stopping before 4\nprint(readings[:2])    # [12, 7] - a missing start means \"from the beginning\"\nprint(readings)        # unchanged: slicing never edits the original\n```\n\nA common mistake is reaching for `readings[len(readings)]` when you want the last item. That index is one step past the end and raises `IndexError`. The exercise asks for two small functions over one list of station readings, so you have to say \"from here to there\" and \"the last one\" without counting positions by hand."
+    },
+    {
+      "type": "predict",
+      "id": "slice-window",
+      "promptMd": "`readings = [12, 7, 19, 3, 22]`. What is `readings[1:4]`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "four",
+          "md": "`[7, 19, 3, 22]`"
+        },
+        {
+          "id": "three",
+          "md": "`[7, 19, 3]`"
+        }
+      ],
+      "answer": "three",
+      "explainMd": "A slice is half-open: it includes the start index and stops just before the end index. Indexes 1, 2 and 3 are taken, index 4 is not, so you get three items. A quick way to predict the length is `end - start`, which here is `4 - 1`."
+    },
+    {
+      "type": "check",
+      "id": "negative-last",
+      "kind": "tf",
+      "promptMd": "`readings[-1]` reads the last item of the list.",
+      "answer": "true",
+      "explainMd": "Negative indexes count from the end, so `-1` is the last item, `-2` the one before it. This is why you rarely need the length of a list to reach its tail, and why `readings[-1]` keeps working after the list grows."
+    },
+    {
+      "type": "check",
+      "id": "slice-words",
+      "kind": "cloze",
+      "promptMd": "In `readings[1:4]`, index 1 is {{a}} and index 4 is {{b}}.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "included",
+              "md": "included"
+            },
+            {
+              "id": "excluded",
+              "md": "excluded"
+            },
+            {
+              "id": "ignored",
+              "md": "ignored"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "excluded",
+              "md": "excluded"
+            },
+            {
+              "id": "included",
+              "md": "included"
+            },
+            {
+              "id": "doubled",
+              "md": "doubled"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "included",
+        "b": "excluded"
+      },
+      "explainMd": "Python slices include the start and exclude the end. Saying it out loud as \"from 1, stopping before 4\" keeps the count right, and it is the same rule `range(1, 4)` follows when it yields 1, 2, 3."
+    },
+    {
+      "type": "code",
+      "id": "slice-readings",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `middle_three(readings)` so it returns the second, third, and fourth readings, and `last(readings)` so it returns the final one. Print `middle_three([12, 7, 19, 3, 22])`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "[7, 19, 3]"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The second item is at index 1, not index 2. Counting starts at zero, so write the indexes down before you write the slice."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "A slice is `list[start:end]` and it stops *before* `end`. To take three items starting at index 1, the end index is 4. For the final item, a negative index saves you from measuring the list."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "For `codes = [\"a\", \"b\", \"c\", \"d\"]`, `codes[1:3]` is `[\"b\", \"c\"]` and `codes[-1]` is `\"d\"`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def middle_three(readings):\n    return readings[1:4]\n\n\ndef last(readings):\n    return readings[-1]\n\n\nprint(middle_three([12, 7, 19, 3, 22]))"
+        }
+      ]
+    }
+  ],
+  "description": "An index reaches one item. A slice takes a run of them."
+}

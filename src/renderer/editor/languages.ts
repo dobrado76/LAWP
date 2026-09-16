@@ -21,7 +21,7 @@ const LABELS: Record<EditorLanguage, string> = {
 
 export function languageLabel(lang: EditorLanguage, api?: EditorApi): string {
   if (lang === 'javascript' && api === 'dom-v1') return 'JavaScript · DOM'
-  if (lang === 'javascript' && api === 'player-v1') return 'JavaScript · Player'
+  if (api === 'player-v1' && (lang === 'javascript' || lang === 'python')) return `${LABELS[lang]} · Player`
   return LABELS[lang]
 }
 
@@ -38,7 +38,7 @@ export function languageFromEngine(engine?: string, path?: string): EditorLangua
 }
 
 export function languageExtension(lang: EditorLanguage, api?: EditorApi, extras?: DomCompleteOpts): Extension {
-  const complete = apiCompletionSource(api, extras)
+  const complete = apiCompletionSource(api, extras, lang === 'python' ? 'python' : 'javascript')
   if (lang === 'python') {
     return complete
       ? [python(), pythonLanguage.data.of({ autocomplete: complete })]

@@ -1,0 +1,22 @@
+{
+  "id": "placement",
+  "title": "Where you are",
+  "level": "beginner",
+  "estimatedMinutes": 25,
+  "skillIds": [
+    "python.types.names",
+    "python.control.loops",
+    "python.collections.list",
+    "python.functions"
+  ],
+  "diagnosticLessonId": "py-placement",
+  "modules": [
+    {
+      "id": "diagnostic",
+      "title": "Placement",
+      "lessonIds": [
+        "py-placement"
+      ]
+    }
+  ]
+}

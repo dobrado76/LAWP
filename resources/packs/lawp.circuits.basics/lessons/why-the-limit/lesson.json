@@ -3,18 +3,20 @@
   "schemaVersion": 1,
   "id": "why-the-limit",
   "packId": "lawp.circuits.basics",
-  "courseId": "first-contact",
-  "moduleId": "the-loop",
+  "courseId": "resistance",
+  "moduleId": "experiment",
   "title": "Why the limit",
   "skillIds": [
-    "circuits.series.current"
+    "circuits.series.current",
+    "circuits.fuse"
   ],
-  "estimatedMinutes": 3,
-  "taskRev": 1,
+  "estimatedMinutes": 8,
+  "taskRev": 2,
+  "description": "Too much current can damage a part even when the loop is complete. A safe limit is a ceiling, not a target you try to hit.",
   "blocks": [
     {
       "type": "explain",
-      "md": "## Too much current\n\nCurrent is not a score you maximize. If current goes past the cap, wires and the lamp heat up. Brightness is one goal; **safe current** is the other. In this one-cell loop, current is about `1 / ohms`. The cap we gave you is **2**, so ohms of `1` gives current `1` (bright enough and under the cap) while ohms of `0.25` gives current `4`.\n\nThis bites when you chase the brightest looking setting and pick `0.25` or `0`. The lamp may look great in a sloppy model, then the constraint fails. Heat is the real-world version of that failure. A brighter bulb that melts its own wire is not a brighter circuit you get to keep.\n\n```text\nbattery → resistor(1 Ω) → lamp → battery\ncurrent ≈ 1 / 1 = 1    (under the cap of 2)\n```\n\nA common mistake is setting resistance to `0` so current is huge, or to `0.25` so current is `4`. The question asks which move is safer when you want a brighter lamp in this one-cell loop. Pick the resistance that raises brightness without crossing `2`.\n"
+      "md": "## Too much current\n\nCurrent is not a score you maximize. If current goes past the cap, wires and the lamp heat up. Brightness is one goal; safe current is the other. In this one-cell loop, current is about 1 / ohms. The cap we gave you is 2, so ohms of 1 gives current 1 (bright enough and under the cap) while ohms of 0.25 gives current 4.\n\nThis bites when you chase the brightest looking setting and pick 0.25 or 0. The lamp may look great in a sloppy model, then the constraint fails. Heat is the real-world version of that failure.\n\n![A fuse sits on the loop](assets/fuse-loop.svg)\n\n```text\nbattery → resistor(1 Ω) → lamp → battery\ncurrent ≈ 1 / 1 = 1    (under the cap of 2)\n```\n\nA common mistake is setting resistance to 0 so current is huge. The question asks which move is safer when you want a brighter lamp."
     },
     {
       "type": "check",
@@ -29,12 +31,12 @@
         },
         {
           "id": "quarter",
-          "md": "Set resistance to 0.25 (current 4)",
+          "md": "Set resistance to 0.25",
           "misconceptionId": "ignores-current-limit"
         },
         {
           "id": "one",
-          "md": "Set resistance to 1 (current 1, brighter, under the cap)"
+          "md": "Set resistance to 1"
         }
       ],
       "answer": "one",
@@ -52,9 +54,57 @@
           "level": 2,
           "kind": "concept",
           "md": "1 / 0.25 = 4, which is over."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "1 / 1 = 1, which is bright enough and safe."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "Pick resistance 1."
         }
       ]
+    },
+    {
+      "type": "check",
+      "id": "sort-i",
+      "kind": "bins",
+      "promptMd": "Sort these currents. The cap is 2.",
+      "bins": [
+        {
+          "id": "safe",
+          "md": "Under the cap"
+        },
+        {
+          "id": "hot",
+          "md": "Over the cap"
+        }
+      ],
+      "pieces": [
+        {
+          "id": "one",
+          "md": "1"
+        },
+        {
+          "id": "four",
+          "md": "4"
+        },
+        {
+          "id": "half",
+          "md": "0.5"
+        }
+      ],
+      "answer": {
+        "one": "safe",
+        "four": "hot",
+        "half": "safe"
+      },
+      "explainMd": "4 is over. 1 and 0.5 are under.",
+      "skillIds": [
+        "circuits.series.current"
+      ]
     }
-  ],
-  "description": "Learn why too much current is a problem, and what a safe limit is for."
+  ]
 }

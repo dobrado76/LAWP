@@ -1,0 +1,113 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 17,
+  "skillIds": [
+    "python.io.stdio"
+  ],
+  "id": "exit-codes-and-stderr",
+  "courseId": "process",
+  "moduleId": "inputs",
+  "title": "Two streams and one number",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## The verdict is a number, not a sentence\n\nA process ends with a number. Zero means it did what it was asked; anything else means it did not, and that number is the only part of your run a shell, a scheduled task, or a calling script looks at. `sys.exit(0)` and `sys.exit(1)` state it deliberately instead of leaving it to whatever happened last.\n\nThe two output streams matter for the same reason. `stdout` is the answer — the thing another program reads or a file captures. `stderr` is the commentary: warnings, skipped lines, progress. Print a warning to `stdout` and it lands in the middle of the answer, so the next program in the pipeline tries to parse the words `skipping oops` as data.\n\n```python\nimport sys\n\nprint(\"total=41\")                            # the answer\nprint(\"skipping line 2\", file=sys.stderr)    # the commentary\nsys.exit(0)                                  # the verdict\n```\n\nA common mistake is `print(\"error: ...\")` followed by a normal end, which tells every caller the run succeeded and lets a scheduled job carry on with nothing. Decide what failure means for this tool and exit non-zero for exactly that. Here a file with some unreadable lines is still a success; only a file with nothing usable is a failure."
+    },
+    {
+      "type": "check",
+      "id": "exit-zero-lies",
+      "promptMd": "Your script prints `error: no readings` and then reaches the end of the file normally. What does the shell that started it see?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "failed",
+          "md": "A failure — it printed an error"
+        },
+        {
+          "id": "ok",
+          "md": "Success — the exit code is 0"
+        }
+      ],
+      "answer": "ok",
+      "explainMd": "Nothing reads your words. Falling off the end of the script is exit code 0, which every caller takes as \"it worked\", so the scheduled job carries on and the installer reports success. The message and the exit code have to agree, and only something like `sys.exit(1)` sets the second one."
+    },
+    {
+      "type": "check",
+      "id": "which-stream",
+      "promptMd": "Your tool prints a report another program will read, plus a warning about one line it skipped. Where does the warning go?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "out",
+          "md": "`stdout`, with the report"
+        },
+        {
+          "id": "err",
+          "md": "`stderr`, so the report stays clean"
+        }
+      ],
+      "answer": "err",
+      "explainMd": "Whoever captures your output wants the report and nothing else in it. `stderr` is a second stream the caller can show a human, redirect into a log, or discard without touching the data, which is why diagnostics belong there even when nothing has actually gone wrong yet."
+    },
+    {
+      "type": "code",
+      "id": "stream-split",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Total the lines of `readings.txt` that are whole numbers. Send one warning per unreadable line to `sys.stderr`, print only the total on `stdout`, and finish with `sys.exit(0)` when at least one number was usable. Expected `30`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/readings.txt",
+          "role": "fixture"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "30"
+        },
+        {
+          "type": "ast",
+          "query": "sys.stderr"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The total is already right. The problem is that the warning is standing in the middle of the answer, where the next program will read it."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`print(value, file=sys.stderr)` sends that one line to the error stream instead of the answer stream. Everything else you print stays on `stdout`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "Then state the verdict out loud: count the numbers you actually used and end with `sys.exit(0 if used else 1)`, so a file with nothing usable is the only failure."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import sys\n\ntotal = 0\nused = 0\n\nwith open(\"readings.txt\", encoding=\"utf-8\") as f:\n    for line in f:\n        line = line.strip()\n        if not line.isdigit():\n            print(\"skipping\", line, file=sys.stderr)\n            continue\n        total += int(line)\n        used += 1\n\nprint(total)\nsys.exit(0 if used else 1)"
+        }
+      ]
+    }
+  ],
+  "description": "A tool reports failure with an exit code, not a printed apology."
+}

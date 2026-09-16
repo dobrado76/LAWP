@@ -1,0 +1,32 @@
+{
+  "id": "text",
+  "title": "Text you can trust",
+  "level": "intermediate",
+  "estimatedMinutes": 200,
+  "skillIds": [
+    "python.values.strings",
+    "python.text.regex"
+  ],
+  "modules": [
+    {
+      "id": "shape-text",
+      "title": "Shape text",
+      "lessonIds": [
+        "string-methods-clean",
+        "split-and-join",
+        "slicing-text",
+        "fstring-formatting"
+      ]
+    },
+    {
+      "id": "patterns",
+      "title": "Patterns",
+      "lessonIds": [
+        "regex-search",
+        "regex-groups-and-sub",
+        "encoding-bytes-vs-str",
+        "transfer-clean-a-log"
+      ]
+    }
+  ]
+}

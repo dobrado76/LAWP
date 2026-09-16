@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.functions"
+  ],
+  "id": "keyword-args",
+  "courseId": "functions",
+  "moduleId": "define",
+  "title": "Call it by name",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Arguments that say what they are\n\nAny parameter can be filled by name at the call site: `line(\"fox seen\", stamp=\"1215\")`. Keyword arguments may appear in any order, they may skip over defaults you are happy with, and they turn the call itself into documentation of what each value means.\n\nThis bites hardest with a run of same-typed arguments. `report(tag, True, False, True)` is unreadable at a glance and silently wrong if two of the flags swap, because nothing about the types complains. The same call written as `report(tag, trimmed=True, dated=True)` says what it wants and is immune to reordering.\n\n```python\ndef report(name, trimmed=False, upper=False, dated=False):\n    text = name.strip() if trimmed else name\n    if upper:\n        text = text.upper()\n    return text + \" @0900\" if dated else text\n\n\nprint(report(\" fox \", True, False, True))          # who remembers the order?\nprint(report(\" fox \", trimmed=True, dated=True))   # obvious, and skips upper\n```\n\nA common mistake is handing a value positionally and landing it in the wrong parameter — the call still runs, it just means something else. The exercise has a log line with a level and a timestamp, both defaulted, and you need to override only the second one. There is exactly one way to do that."
+    },
+    {
+      "type": "predict",
+      "id": "wrong-slot",
+      "promptMd": "For `def line(text, level=\"info\", stamp=\"0900\")`, what does `line(\"fox seen\", \"1215\")` return?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "stamped",
+          "md": "`1215 info fox seen`"
+        },
+        {
+          "id": "level",
+          "md": "`0900 1215 fox seen`"
+        }
+      ],
+      "answer": "level",
+      "explainMd": "Positional arguments are matched left to right, so the second value lands in `level`, not in `stamp`. The call runs happily and the timestamp ends up where the severity belongs. Nothing but a keyword can skip over a parameter you want to leave at its default."
+    },
+    {
+      "type": "check",
+      "id": "keyword-order",
+      "kind": "tf",
+      "promptMd": "Keyword arguments can be given in any order at the call site.",
+      "answer": "true",
+      "explainMd": "True — once an argument is named, its position stops mattering, so `line(\"x\", stamp=\"1215\", level=\"warn\")` and the reverse do the same thing. The one rule is that all positional arguments have to come before the first keyword one, because Python still matches those by position."
+    },
+    {
+      "type": "code",
+      "id": "named-call",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Leave the function as it is and fix the **call** so the timestamp lands in `stamp` and the level keeps its default. The printed line should be `1215 info fox seen`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "1215 info fox seen"
+        },
+        {
+          "type": "ast",
+          "query": "stamp="
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The function is already right. Look at what the printed line puts where, and compare it with the order of the parameters."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The second positional slot is `level`. To reach `stamp` while leaving `level` alone, name it in the call."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "`pour(cup, amount=200)` fills only `amount`, no matter how many defaulted parameters sit between it and `cup`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def line(text, level=\"info\", stamp=\"0900\"):\n    return f\"{stamp} {level} {text}\"\n\n\nprint(line(\"fox seen\", stamp=\"1215\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Name the arguments at the call so their order stops mattering."
+}

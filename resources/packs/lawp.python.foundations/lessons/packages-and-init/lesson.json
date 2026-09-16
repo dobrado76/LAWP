@@ -1,0 +1,153 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 18,
+  "skillIds": [
+    "python.modules"
+  ],
+  "id": "packages-and-init",
+  "courseId": "modules",
+  "moduleId": "bigger",
+  "title": "A folder full of modules",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A package is a directory with a front door\n\nWhen one file stops being enough you put the modules in a directory and add `__init__.py`. That file marks the directory as a regular package and runs the first time anybody imports it, so `import station` executes `station/__init__.py` and `station.report` executes `station/report.py`. The `__init__.py` is the package’s front door: what it re-exports is what callers see first.\n\nKeep the front door thin. A little `NAME = \"Ridge\"` and a few `from station.report import line` lines are fine; real work in `__init__.py` runs on every import of anything in the package. Inside the package, `from .sensors import value` is a **relative** import — the dot means \"this package\" — while `from station.sensors import value` spells the same target **absolutely**, which is what callers outside must use.\n\n```python\n# station/__init__.py\n#     NAME = \"Ridge\"\n#     from station.report import line\n# station/report.py\n#     from .sensors import value   <- relative: the dot is this package\nfrom station import line\n\nprint(line(\"wind\"))     # wind=18 — reached through the front door\n```\n\nA common mistake is drilling straight into the deepest module — `import station.sensors` then `station.sensors.value(\"wind\")` — and rebuilding by hand what the package already offers. The exercise ships a read-only `station/` package whose `__init__.py` re-exports `line`; import `line` from the package and print `line(\"wind\")`."
+    },
+    {
+      "type": "check",
+      "id": "what-init-does",
+      "promptMd": "What does adding `__init__.py` to a directory do?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "marks",
+          "md": "Marks it as a regular package and runs when the package is first imported"
+        },
+        {
+          "id": "lists",
+          "md": "Lists which files in the directory are allowed to be imported"
+        },
+        {
+          "id": "required",
+          "md": "Is required in every subdirectory of a project, package or not"
+        }
+      ],
+      "answer": "marks",
+      "explainMd": "The file does two jobs at once: it tells Python this directory is a regular package, and its body executes on first import, which is where a thin set of re-exports belongs. It never lists or restricts the other modules — those stay importable as `station.report` whether or not the front door mentions them."
+    },
+    {
+      "type": "check",
+      "id": "relative-vs-absolute",
+      "kind": "cloze",
+      "promptMd": "`from .sensors import value` is a {{a}} import. `from station.sensors import value` is an {{b}} import.",
+      "blanks": [
+        {
+          "id": "a",
+          "choices": [
+            {
+              "id": "relative",
+              "md": "relative"
+            },
+            {
+              "id": "absolute",
+              "md": "absolute"
+            },
+            {
+              "id": "star",
+              "md": "star"
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "choices": [
+            {
+              "id": "absolute",
+              "md": "absolute"
+            },
+            {
+              "id": "relative",
+              "md": "relative"
+            },
+            {
+              "id": "star",
+              "md": "star"
+            }
+          ]
+        }
+      ],
+      "answer": {
+        "a": "relative",
+        "b": "absolute"
+      },
+      "explainMd": "The leading dot means \"the package this module already lives in\", so a relative import survives renaming the package. An absolute import names the path from the top of the import path down, which is the only form that works from outside the package."
+    },
+    {
+      "type": "code",
+      "id": "through-the-front-door",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> The read-only `station/` package re-exports `line` from its `__init__.py`. Import `line` from the package and print `line(\"wind\")`. Output should be `wind=18`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        },
+        {
+          "path": "files/station/__init__.py",
+          "role": "ro",
+          "contents": "NAME = \"Ridge\"\n\nfrom station.report import line\n"
+        },
+        {
+          "path": "files/station/report.py",
+          "role": "ro",
+          "contents": "from .sensors import value\n\n\ndef line(name):\n    return f\"{name}={value(name)}\"\n"
+        },
+        {
+          "path": "files/station/sensors.py",
+          "role": "ro",
+          "contents": "READINGS = {\"temp\": 4, \"wind\": 18, \"soil\": 11}\n\n\ndef value(name):\n    return READINGS[name]\n"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "wind=18"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter reaches past the front door into `station.sensors` and glues the label together itself."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The package already re-exports the function you want, so `from station import line` is enough."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same idea outside Python: you ring the doorbell rather than climbing through a back window you happen to know about."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "from station import line\n\nprint(line(\"wind\"))"
+        }
+      ]
+    }
+  ],
+  "description": "A folder of modules becomes a package you can import from."
+}

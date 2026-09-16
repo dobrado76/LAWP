@@ -1,0 +1,99 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 15,
+  "skillIds": [
+    "python.values.strings"
+  ],
+  "id": "slicing-text",
+  "courseId": "text",
+  "moduleId": "shape-text",
+  "title": "Slices work on text too",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## A string is a sequence of characters\n\nEverything you learned about slicing a list works on a string, because a string is a sequence too. `code[:2]` takes the first two characters, `code[-3:]` takes the last three, and the result is always a new string — the original is immutable and stays exactly as it was.\n\nThis bites when a slice reaches past the end. Indexing one character too far raises `IndexError`, but slicing silently clamps: `\"fox\"[0:99]` is just `\"fox\"`. That forgiveness is useful and it also means a slice with the wrong numbers can quietly return less than you expected instead of complaining.\n\n```python\ncode = \"NR-2041-fox\"\nprint(code[:2])      # 'NR'\nprint(code[3:7])     # '2041'\nprint(code[-3:])     # 'fox'\nprint(code[::2])     # 'N-01fx' - every second character\nprint(code[::-1])    # 'xof-1402-RN' - a step of -1 reverses\nprint(code[0:99])    # 'NR-2041-fox' - clamped, not an error\n```\n\nA common mistake is reaching for a loop to reverse a string when `text[::-1]` already does it. The third number in a slice is the step, and a negative step walks backwards. The exercise asks for three small readers over a station code, one of which is that reversal."
+    },
+    {
+      "type": "check",
+      "id": "reverse-slice",
+      "promptMd": "What is `\"fox\"[::-1]`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "rev",
+          "md": "`'xof'`"
+        },
+        {
+          "id": "same",
+          "md": "`'fox'`"
+        },
+        {
+          "id": "last",
+          "md": "`'x'`"
+        }
+      ],
+      "answer": "rev",
+      "explainMd": "The third slot in a slice is the step. Leaving the start and end empty means \"the whole thing\", and a step of `-1` walks it backwards, so the characters come out in reverse order as a brand new string."
+    },
+    {
+      "type": "check",
+      "id": "slice-out-of-range",
+      "kind": "tf",
+      "promptMd": "`'fox'[0:99]` raises `IndexError`.",
+      "answer": "false",
+      "explainMd": "Slicing clamps to the ends of the sequence, so an over-long slice just returns what is there — `\"fox\"`. Plain indexing is the strict one: `\"fox\"[99]` really does raise `IndexError`. It is worth knowing which of the two will warn you."
+    },
+    {
+      "type": "code",
+      "id": "read-a-code",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> A station code looks like `\"NR-2041-fox\"`. Write `station_code(code)` for the first two characters, `year(code)` for the four digits, and `reversed_tag(code)` for the whole thing backwards. Print `year(\"NR-2041-fox\")`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2041"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints `204`, which is three digits, not four. Count the positions in `\"NR-2041-fox\"` before you adjust the slice."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "The year starts at index 3, and a slice stops **before** its end index, so four digits means an end of 7. For the reversal, remember the third slice slot is the step."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "In `\"AB-1999-owl\"`, `code[:2]` is `\"AB\"` and `code[3:7]` is `\"1999\"`."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def station_code(code):\n    return code[:2]\n\n\ndef year(code):\n    return code[3:7]\n\n\ndef reversed_tag(code):\n    return code[::-1]\n\n\nprint(year(\"NR-2041-fox\"))"
+        }
+      ]
+    }
+  ],
+  "description": "Take a run of characters by position, forwards or backwards."
+}

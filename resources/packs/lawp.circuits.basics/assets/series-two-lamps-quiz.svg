@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Unlabeled one-path two-lamp loop">
+  <rect width="640" height="400" fill="#0e1118"/>
+  <rect x="90" y="80" width="460" height="230" rx="8" fill="none" stroke="#2ec4b6" stroke-width="4"/>
+  <rect x="268" y="58" width="104" height="40" rx="5" fill="#1f2937" stroke="#9ca3af"/>
+  <rect x="360" y="68" width="10" height="20" fill="#e6b84d"/>
+  <circle cx="200" cy="310" r="22" fill="#e6b84d" stroke="#c9a227"/>
+  <circle cx="440" cy="310" r="22" fill="#e6b84d" stroke="#c9a227"/>
+  <polygon points="90,180 82,200 98,200" fill="#2ec4b6"/>
+  <polygon points="550,210 558,190 542,190" fill="#2ec4b6"/>
+</svg>

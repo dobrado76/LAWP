@@ -1,0 +1,109 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 16,
+  "skillIds": [
+    "python.modules"
+  ],
+  "id": "subprocess-idea",
+  "courseId": "process",
+  "moduleId": "reach",
+  "title": "A list, not a sentence",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Running another program means handing over a list\n\nRunning another program means asking the operating system to start it with a list of arguments. `subprocess.run([\"python\", \"report.py\", \"--station\", \"ridge\"])` hands that list over unchanged: the first item is the program to start, and every other item arrives on the far side as exactly one argument, spaces and punctuation included.\n\n`shell=True` is a different request. It hands one string to the system shell and lets the shell decide where each argument begins and ends, so spaces split, quotes disappear, and `;`, `&&`, `|`, and `>` stop being text and become instructions. Build that string out of a note somebody else typed and you have handed them the shell.\n\n```python\nimport subprocess\n\nnote = \"fox drift; then quiet\"\ncommand = [\"python\", \"report.py\", \"--note\", note]\n\nprint(len(command), command[-1])      # 4 fox drift; then quiet\nsubprocess.run(command, check=True)   # the note arrives whole, as one argument\n\n# subprocess.run(\"python report.py --note \" + note, shell=True)\n#   the shell would read \"; then quiet\" as a second command to run\n```\n\nA common mistake is reaching for `shell=True` to get a wildcard or a pipe and then leaving it there once the arguments start coming from data. Keep the list form and do the joining, globbing, or redirecting in Python. This sandbox cannot start another program at all, so the exercise builds the argument list and inspects it instead of running it."
+    },
+    {
+      "type": "check",
+      "id": "list-vs-shell",
+      "promptMd": "A note field contains `fox drift; then quiet`. You build `\"python report.py --note \" + note` and run it with `shell=True`. What happens?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "onearg",
+          "md": "The whole note is passed as one argument"
+        },
+        {
+          "id": "two",
+          "md": "`python report.py --note fox drift` runs, and then `then quiet` runs as a second command"
+        }
+      ],
+      "answer": "two",
+      "explainMd": "The shell parses that string before anything starts: spaces separate arguments and `;` separates commands. At that point the note is no longer data, it is syntax — which is the entire shape of a command injection, and the reason the list form exists at all."
+    },
+    {
+      "type": "check",
+      "id": "first-item",
+      "promptMd": "In the list form, what is the first item of the list?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "script",
+          "md": "The script to run"
+        },
+        {
+          "id": "prog",
+          "md": "The program to start; the script is the next item"
+        }
+      ],
+      "answer": "prog",
+      "explainMd": "The operating system starts a program and hands it the rest of the list as arguments, so `[\"python\", \"report.py\", \"--station\", \"ridge\"]` starts `python` and `report.py` arrives as its first argument. That mirrors `sys.argv` on the other side, where index 0 is the script and real arguments begin at index 1."
+    },
+    {
+      "type": "code",
+      "id": "build-argv",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Write `build_command(station, note)` returning the argument list that would run `python report.py --station <station> --note <note>`. Print how many items it has and whether the note survived as one item — `6 True`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "6 True"
+        },
+        {
+          "type": "ast",
+          "query": "def build_command"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter builds one sentence and the print gives it away: the length is a character count and the last item is a single letter."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "Return a list instead: the program, then the script, then each flag and its value as two separate items. Nothing gets quoted and nothing gets joined."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "A different command, same shape: `[\"python\", \"clean.py\", \"--in\", path]` is four items, and `path` arrives whole even when it contains a space."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "def build_command(station, note):\n    return [\"python\", \"report.py\", \"--station\", station, \"--note\", note]\n\n\ncmd = build_command(\"ridge\", \"fox drift; then quiet\")\n\nprint(len(cmd), cmd[-1] == \"fox drift; then quiet\")"
+        }
+      ]
+    }
+  ],
+  "description": "Run another program and read what it said."
+}

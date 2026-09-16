@@ -1,0 +1,8 @@
+{
+  "id": "craft",
+  "title": "Craft",
+  "courseIds": [
+    "craft"
+  ],
+  "intro": "Prove it works, find out why it does not, and make it fast enough. Then ship the capstone."
+}

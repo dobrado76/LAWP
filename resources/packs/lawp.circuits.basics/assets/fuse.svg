@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 28" width="80" height="28" role="img" aria-label="Fuse">
+  <rect x="14" y="6" width="52" height="16" rx="8" fill="#1e2533" stroke="#e07a5f" stroke-width="2"/>
+  <path d="M4 14 H14" stroke="#2ec4b6" stroke-width="2"/>
+  <path d="M66 14 H76" stroke="#2ec4b6" stroke-width="2"/>
+  <path d="M24 14 H56" stroke="#e07a5f" stroke-width="2" stroke-dasharray="3 3"/>
+</svg>

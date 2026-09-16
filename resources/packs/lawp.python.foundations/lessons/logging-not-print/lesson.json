@@ -1,0 +1,126 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "packId": "lawp.python.foundations",
+  "taskRev": 1,
+  "estimatedMinutes": 26,
+  "skillIds": [
+    "python.craft.debug"
+  ],
+  "id": "logging-not-print",
+  "courseId": "craft",
+  "moduleId": "diagnose",
+  "title": "Logging has a volume knob",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## Levels and destinations\n\nA log record carries a **level** — debug, info, warning, error, critical — and goes to a **destination** you configure once, at the edge of the program. That gives you two knobs `print` does not have: turn the volume down to warnings in normal use and up to debug while you are hunting a bug, and send the stream to a file instead of the screen without touching a single call site.\n\nThis bites hardest in code other people call. A library that prints writes into its caller's output whether the caller wanted it or not — it corrupts a program whose stdout is a report, and there is no way to switch it off short of editing the library. `logging` inverts that: the library records, the application decides where the records go and how loud they are.\n\n```python\nimport logging\n\nlogging.basicConfig(\n    filename=\"run.log\",\n    level=logging.DEBUG,\n    format=\"%(levelname)s %(message)s\",   # no timestamp, so the file is predictable\n)\nlog = logging.getLogger(\"station\")\n\nlog.debug(\"checking cell %s,%s\", 2, 1)   # only in the file when level is DEBUG\nlog.warning(\"cell %s,%s is off the grid\", 9, 0)\nprint(\"2\")                               # the answer - the one thing stdout owes\n```\n\nA common mistake is calling `logging.warning(...)` with an f-string you built yourself, or leaving a debugging `print` in beside the log call. The exercise grades both sides: the log file has to contain a warning naming the offending cell and one info summary, and stdout has to contain exactly one thing — the number the function returned."
+    },
+    {
+      "type": "check",
+      "id": "library-must-not-print",
+      "promptMd": "A library function you wrote is being called by a script whose stdout is piped into another tool. Why is `print(\"skipped a row\")` a bug?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "slow",
+          "md": "Because printing is slower than logging"
+        },
+        {
+          "id": "stream",
+          "md": "Because it injects your text into the caller's data stream, and the caller cannot turn it off"
+        },
+        {
+          "id": "never",
+          "md": "Because `print` cannot write text longer than one line"
+        }
+      ],
+      "answer": "stream",
+      "explainMd": "Stdout belongs to the application, not to the library. A stray `print` becomes a row in someone's report or a line in someone's JSON, and the only fix is editing your code. A log record goes wherever the application configured — a file, stderr, nowhere at all — and the level decides whether it is emitted, so the same library is quiet in production and chatty under investigation.",
+      "skillIds": [
+        "python.craft.debug"
+      ]
+    },
+    {
+      "type": "predict",
+      "id": "level-filter",
+      "promptMd": "With `level=logging.WARNING` configured, which calls reach the destination: `log.debug(...)`, `log.info(...)`, `log.warning(...)`?",
+      "kind": "mcq",
+      "choices": [
+        {
+          "id": "all",
+          "md": "All three — the level only changes the prefix"
+        },
+        {
+          "id": "warn",
+          "md": "Only the warning; the other two are dropped"
+        }
+      ],
+      "answer": "warn",
+      "explainMd": "The level is a threshold, not a label: anything below it is discarded before it is formatted. That is what makes it safe to leave a `log.debug` on every interesting line — it costs almost nothing while the threshold is higher, and raising the threshold to `DEBUG` in one place turns the whole trail back on without you editing any call.",
+      "skillIds": [
+        "python.craft.debug"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "lazy-format",
+      "kind": "tf",
+      "promptMd": "`log.debug(\"cell %s,%s\", x, y)` lets logging skip building the message when debug records are switched off.",
+      "answer": "true",
+      "explainMd": "Passing the values as arguments defers the formatting until a handler actually wants the record, so a filtered-out debug line costs one level comparison. Building the text yourself with an f-string does the work first and throws it away — harmless once, wasteful inside a loop over a large log, and it also loses the structured arguments that some handlers record separately.",
+      "skillIds": [
+        "python.craft.debug"
+      ]
+    },
+    {
+      "type": "code",
+      "id": "log-the-scan",
+      "engine": "python",
+      "entry": "main.py",
+      "promptMd": "> Move the noise off stdout.\n>\n> 1. Configure logging once at module level: `filename=\"run.log\"`, level `DEBUG`, format `\"%(levelname)s %(message)s\"`.\n> 2. `check_rows(rows)` returns how many rows sit inside a 5×5 grid (`0 <= x < 5` and `0 <= y < 5`).\n> 3. Every off-grid row gets a `warning` naming its `x` and `y`; the end gets one `info` summary.\n> 4. Exactly one `print` survives in the file: the returned number.\n>\n> Print `check_rows(ROWS)`. Output should be `2`.",
+      "files": [
+        {
+          "path": "files/main.py",
+          "role": "edit"
+        },
+        {
+          "path": "files/hidden_test.py",
+          "role": "hidden-test"
+        }
+      ],
+      "checks": [
+        {
+          "type": "stdout",
+          "equals": "2"
+        },
+        {
+          "type": "python-assert"
+        }
+      ],
+      "hintLadder": [
+        {
+          "level": 1,
+          "kind": "concept",
+          "md": "The starter prints three different things. Two of them are diagnostics, and only one is the answer."
+        },
+        {
+          "level": 2,
+          "kind": "concept",
+          "md": "`logging.basicConfig(filename=\"run.log\", level=logging.DEBUG, format=\"%(levelname)s %(message)s\")` at the top, then `log = logging.getLogger(\"station\")`, then swap each diagnostic `print` for `log.warning(...)` or `log.info(...)`."
+        },
+        {
+          "level": 3,
+          "kind": "concept",
+          "md": "The same move elsewhere: `log.warning(\"battery low: %s%%\", pct)` replaces `print(\"battery low:\", pct)` and stops polluting a report that is being piped somewhere."
+        },
+        {
+          "level": 4,
+          "kind": "assist",
+          "md": "import logging\n\nlogging.basicConfig(\n    filename=\"run.log\",\n    level=logging.DEBUG,\n    format=\"%(levelname)s %(message)s\",\n)\nlog = logging.getLogger(\"station\")\n\nROWS = [{\"x\": 0, \"y\": 0}, {\"x\": 9, \"y\": 0}, {\"x\": 4, \"y\": 4}]\n\n\ndef check_rows(rows):\n    good = 0\n    for row in rows:\n        if 0 <= row[\"x\"] < 5 and 0 <= row[\"y\"] < 5:\n            log.debug(\"cell %s,%s is on the grid\", row[\"x\"], row[\"y\"])\n            good += 1\n        else:\n            log.warning(\"cell %s,%s is off the 5x5 grid\", row[\"x\"], row[\"y\"])\n    log.info(\"%s of %s rows are on the grid\", good, len(rows))\n    return good\n\n\nprint(check_rows(ROWS))"
+        }
+      ]
+    }
+  ],
+  "description": "A log has levels and a destination. Print has neither."
+}

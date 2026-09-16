@@ -10,10 +10,10 @@ export type DomMember = {
 
 export const PLAYER_DIRS = ['north', 'south', 'east', 'west'] as const
 
-export const PLAYER_METHODS: Record<
-  string,
-  { args: string; info: string; sample: string }
-> = {
+/** `python` overrides the blurb where the two languages genuinely differ. */
+export type PlayerMethod = { args: string; info: string; sample: string; python?: { info?: string; sample?: string } }
+
+export const PLAYER_METHODS: Record<string, PlayerMethod> = {
   move: {
     args: '"north" | "south" | "east" | "west"',
     info: 'Walk one cell. Rocks block. The edge clamps.',
@@ -37,8 +37,17 @@ export const PLAYER_METHODS: Record<
   wait: {
     args: 'ticks',
     info: 'Pause replay that many ticks. Returns a Promise. The fox does not move.',
-    sample: 'await Player.wait(2)'
+    sample: 'await Player.wait(2)',
+    python: { info: 'Pause replay that many ticks. The fox does not move.', sample: 'Player.wait(2)' }
   }
+}
+
+export type PlayerLanguage = 'javascript' | 'python'
+
+export function playerMethodFor(name: string, language: PlayerLanguage): PlayerMethod | undefined {
+  const spec = PLAYER_METHODS[name]
+  if (!spec || language !== 'python' || !spec.python) return spec
+  return { ...spec, info: spec.python.info ?? spec.info, sample: spec.python.sample ?? spec.sample }
 }
 
 export const DOM_DOCUMENT: Record<string, DomMember> = {

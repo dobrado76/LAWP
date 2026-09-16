@@ -1,0 +1,254 @@
+{
+  "kind": "lesson",
+  "schemaVersion": 1,
+  "id": "circuits-placement",
+  "packId": "lawp.circuits.basics",
+  "courseId": "placement",
+  "moduleId": "diagnostic",
+  "title": "Placement: what electricity already does in your head",
+  "skillIds": [
+    "circuits.charge",
+    "circuits.current",
+    "circuits.loop",
+    "circuits.voltage",
+    "circuits.ohms"
+  ],
+  "estimatedMinutes": 12,
+  "taskRev": 1,
+  "description": "Ten short questions mark which later lessons to take slowly. Wrong answers do not lock you out.",
+  "blocks": [
+    {
+      "type": "explain",
+      "md": "## No knobs yet\n\nTen short questions about a lamp, a battery, and a path. Wrong answers do not lock you out — they mark which later lessons to take slowly.\n\nPick the picture or the sentence that matches how a real loop behaves, not the story you wish were true. Later you will change a live circuit and see the lamp answer you.\n\n```text\nbattery → resistor → lamp → battery\n```\n"
+    },
+    {
+      "type": "check",
+      "id": "closed-or-not",
+      "kind": "image",
+      "diagnostic": true,
+      "promptMd": "Which picture can light a lamp?",
+      "choices": [
+        {
+          "id": "closed",
+          "md": "A",
+          "image": "assets/closed-loop-quiz.svg"
+        },
+        {
+          "id": "open",
+          "md": "B",
+          "image": "assets/open-loop-quiz.svg",
+          "misconceptionId": "open-loop-still-lit"
+        },
+        {
+          "id": "short",
+          "md": "C",
+          "image": "assets/short-path-quiz.svg",
+          "misconceptionId": "short-is-more-power-better"
+        }
+      ],
+      "answer": "closed",
+      "explainMd": "Charge needs a closed path out of the battery and back. An open gap is dark. A short skips the lamp and overheats the easy wire.",
+      "skillIds": [
+        "circuits.loop"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "used-up",
+      "kind": "tf",
+      "diagnostic": true,
+      "promptMd": "In a series loop the current coming back to the battery is smaller because the lamp used it up.",
+      "answer": "false",
+      "explainMd": "Current is the same all the way around one path. The lamp spends energy. The charge itself comes home.",
+      "skillIds": [
+        "circuits.current"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "voltage-stuff",
+      "kind": "mcq",
+      "diagnostic": true,
+      "promptMd": "Voltage is best thought of as…",
+      "choices": [
+        {
+          "id": "diff",
+          "md": "A difference — a push between two points"
+        },
+        {
+          "id": "stuff",
+          "md": "A stuff that sits inside the wire",
+          "misconceptionId": "voltage-is-stuff-in-the-wire"
+        },
+        {
+          "id": "metals",
+          "md": "Something that only works with two different metals",
+          "misconceptionId": "two-metals-needed"
+        }
+      ],
+      "answer": "diff",
+      "explainMd": "Voltage is a difference you measure across two points. It is not juice stored in copper, and it does not require two kinds of metal.",
+      "skillIds": [
+        "circuits.voltage"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "ohm-numeric",
+      "kind": "numeric",
+      "diagnostic": true,
+      "promptMd": "If the push is 6 and the resistance is 3, what is the current? (I = V ÷ R)",
+      "unit": "A",
+      "answer": {
+        "value": 2,
+        "tolerance": 0
+      },
+      "explainMd": "I = V ÷ R = 6 ÷ 3 = 2. Resistance is not a brightness knob that ignores the relation.",
+      "skillIds": [
+        "circuits.ohms"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "series-i",
+      "kind": "mcq",
+      "diagnostic": true,
+      "promptMd": "Two lamps share one path (series). The current through the second lamp is…",
+      "choices": [
+        {
+          "id": "same",
+          "md": "The same as through the first"
+        },
+        {
+          "id": "less",
+          "md": "Less, because the first lamp used some up",
+          "misconceptionId": "current-gets-used-up"
+        },
+        {
+          "id": "zero",
+          "md": "Zero on the return wire",
+          "misconceptionId": "current-leaves-and-returns-different"
+        }
+      ],
+      "answer": "same",
+      "explainMd": "One path, one current. Series lamps share that current. They do not eat it on the way to the next lamp.",
+      "skillIds": [
+        "circuits.series.current"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "parallel-v",
+      "kind": "mcq",
+      "diagnostic": true,
+      "promptMd": "Two lamps sit on two paths across the same battery (parallel). Each lamp sees…",
+      "choices": [
+        {
+          "id": "full",
+          "md": "The full battery voltage"
+        },
+        {
+          "id": "half",
+          "md": "Half the voltage, always",
+          "misconceptionId": "parallel-vs-series-mixup"
+        },
+        {
+          "id": "dim",
+          "md": "A dimmer share because the other lamp steals it",
+          "misconceptionId": "adding-parallel-dims"
+        }
+      ],
+      "answer": "full",
+      "explainMd": "Parallel branches see the same voltage. Currents split. A second lamp does not automatically steal the first lamp’s push.",
+      "skillIds": [
+        "circuits.parallel"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "short-good",
+      "kind": "mcq",
+      "diagnostic": true,
+      "promptMd": "A thick extra wire skips the lamp and joins the battery ends. That is…",
+      "choices": [
+        {
+          "id": "bad",
+          "md": "A short — huge current and heat"
+        },
+        {
+          "id": "good",
+          "md": "More power, so a better circuit",
+          "misconceptionId": "short-is-more-power-better"
+        },
+        {
+          "id": "open",
+          "md": "The same as opening a switch",
+          "misconceptionId": "open-loop-still-lit"
+        }
+      ],
+      "answer": "bad",
+      "explainMd": "A short is an easy extra path. Current soars, heat soars, and the lamp is often skipped. That is not a brighter win.",
+      "skillIds": [
+        "circuits.short"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "more-cells",
+      "kind": "mcq",
+      "diagnostic": true,
+      "promptMd": "Adding cells to a loop always makes the lamp brighter, no matter the resistance or the fuse.",
+      "choices": [
+        {
+          "id": "no",
+          "md": "False — the loop and the limit still matter"
+        },
+        {
+          "id": "yes",
+          "md": "True — more cells always means brighter",
+          "misconceptionId": "more-cells-always-brighter"
+        }
+      ],
+      "answer": "no",
+      "explainMd": "More cells add push. Current is still push divided by squeeze, and a fuse can open. Extra cells are not a free brightness cheat.",
+      "skillIds": [
+        "circuits.voltage"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "two-metals",
+      "kind": "tf",
+      "diagnostic": true,
+      "promptMd": "A circuit only works if the battery and the lamp are made of two different metals.",
+      "answer": "false",
+      "explainMd": "You need a closed path and a difference (a push). Two different metals are a history story, not the rule.",
+      "skillIds": [
+        "circuits.charge"
+      ]
+    },
+    {
+      "type": "check",
+      "id": "fuse-opt",
+      "kind": "tf",
+      "diagnostic": true,
+      "promptMd": "A fuse is optional decoration. You can skip it if you want the lamp as bright as possible.",
+      "choices": [
+        {
+          "id": "true",
+          "md": "True",
+          "misconceptionId": "fuse-is-optional"
+        },
+        {
+          "id": "false",
+          "md": "False"
+        }
+      ],
+      "answer": "false",
+      "explainMd": "A fuse is a planned weak point. Skipping it so you can overshoot current is how wires melt. The limit is part of the win.",
+      "skillIds": [
+        "circuits.fuse"
+      ]
+    }
+  ]
+}

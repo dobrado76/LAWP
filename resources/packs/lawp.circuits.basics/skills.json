@@ -1,4 +1,18 @@
 [
-  { "id": "circuits.series.current", "title": "Current in a series loop", "prereqIds": [] },
-  { "id": "circuits.series.resistance", "title": "Resistance and brightness", "prereqIds": ["circuits.series.current"] }
+  { "id": "circuits.charge", "title": "Charge as a property", "prereqIds": [] },
+  { "id": "circuits.current", "title": "Current as flow", "prereqIds": ["circuits.charge"] },
+  { "id": "circuits.loop", "title": "A closed loop", "prereqIds": ["circuits.current"] },
+  { "id": "circuits.voltage", "title": "Voltage as a difference", "prereqIds": ["circuits.loop"] },
+  { "id": "circuits.resistance", "title": "Resistance as a squeeze", "prereqIds": ["circuits.voltage"] },
+  { "id": "circuits.ohms", "title": "Ohm’s law as a relation", "prereqIds": ["circuits.resistance"] },
+  { "id": "circuits.series.current", "title": "Current in a series loop", "prereqIds": ["circuits.ohms"] },
+  { "id": "circuits.series.resistance", "title": "Resistance and brightness", "prereqIds": ["circuits.series.current"] },
+  { "id": "circuits.series.voltage", "title": "Voltages share in series", "prereqIds": ["circuits.series.current"] },
+  { "id": "circuits.parallel", "title": "Parallel split", "prereqIds": ["circuits.series.current"] },
+  { "id": "circuits.power", "title": "Power, brightness, and heat", "prereqIds": ["circuits.ohms"] },
+  { "id": "circuits.short", "title": "Open versus short", "prereqIds": ["circuits.loop"] },
+  { "id": "circuits.fuse", "title": "Limits and fuses", "prereqIds": ["circuits.short"] },
+  { "id": "circuits.switch", "title": "Switches break the loop", "prereqIds": ["circuits.loop"] },
+  { "id": "circuits.measure", "title": "What meters do", "prereqIds": ["circuits.voltage", "circuits.current"] },
+  { "id": "circuits.combine", "title": "Series-parallel mix", "prereqIds": ["circuits.parallel"] }
 ]
