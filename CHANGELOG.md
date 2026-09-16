@@ -33,6 +33,7 @@ The Python minor: a 114-lesson zero-to-hero path, a real editor under every codi
 
 - **A renamed or deleted course no longer leaves an orphan behind.** `write-pack.mjs` wrote the courses it knew about and never removed the ones `structure.mjs` had dropped, so a stale `courses/repl-in-pocket.json` from the old seven-lesson pack kept double-listing four lessons and failing the catalog test in a file nobody had edited. `tracks/`, `courses/`, and `creations/` are now pruned to what the run actually wrote
 - A lesson can ship a fixture in a subfolder (`data/station.log`). The writer created `files/` but not the parent of the file itself, so a nested fixture threw at generation time even though the sandbox handled it fine
+- **Six Python lessons shipped without the log they read.** A blanket `*.log` in `.gitignore` quietly excluded every `.log` fixture, so the lessons worked on the machine that generated them and arrived empty everywhere else. Pack content is now exempt from that rule, and `tests/course-spec.test.ts` fails if anything under `resources/packs` is git-ignored — a file that exists locally but is not tracked passes every `existsSync` check and is simply missing on a fresh clone
 
 ### Editor (D60)
 

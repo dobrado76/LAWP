@@ -165,7 +165,8 @@ describe('pack content reaches the clone', () => {
     try {
       ignored = execFileSync('git', ['ls-files', '--others', '--ignored', '--exclude-standard', 'resources/packs'], {
         cwd: process.cwd(),
-        encoding: 'utf8'
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore']
       })
     } catch {
       return // no git here; CI still checks
