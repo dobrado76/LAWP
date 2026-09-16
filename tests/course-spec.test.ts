@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -149,6 +150,27 @@ describe.each(ALL_PACKS)('%s keeps its graphs honest', (packId) => {
       .filter((m) => m.followUpLessonId && !lessonIds.has(m.followUpLessonId))
       .map((m) => m.id)
     expect(dangling).toEqual([])
+  })
+})
+
+describe('pack content reaches the clone', () => {
+  /**
+   * A lesson file that exists here but is git-ignored passes every `existsSync`
+   * check on the machine that generated it and is simply absent on CI. A blanket
+   * `*.log` once hid six Python fixtures that way, and the pack only broke after
+   * the push. Nothing under `resources/packs` may be ignored.
+   */
+  it('tracks every file a pack ships', () => {
+    let ignored: string
+    try {
+      ignored = execFileSync('git', ['ls-files', '--others', '--ignored', '--exclude-standard', 'resources/packs'], {
+        cwd: process.cwd(),
+        encoding: 'utf8'
+      })
+    } catch {
+      return // no git here; CI still checks
+    }
+    expect(ignored.split('\n').filter(Boolean)).toEqual([])
   })
 })
 

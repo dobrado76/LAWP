@@ -6,6 +6,8 @@ dist/
 out/types-node/
 out/types-web/
 *.log
+# ...but a lesson may ship a .log as a fixture, and that is pack content, not a build artefact.
+!resources/packs/**/*.log
 .DS_Store
 Thumbs.db
 /LAWP.code-workspace
