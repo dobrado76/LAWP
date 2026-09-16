@@ -1,6 +1,6 @@
 # Product status
 
-**LAWP 0.2.0.** This is what the installed / `npm run dev` app does. Limits are stated as limits, not as a build schedule. Changelog: [CHANGELOG.md](../CHANGELOG.md). This minor: [RELEASE_NOTES.md](../RELEASE_NOTES.md).
+**LAWP 0.3.0.** This is what the installed / `npm run dev` app does. Limits are stated as limits, not as a build schedule. Changelog: [CHANGELOG.md](../CHANGELOG.md). This minor: [RELEASE_NOTES.md](../RELEASE_NOTES.md).
 
 ## In the app
 

@@ -8,6 +8,10 @@ Versioning is `MAJOR.MINOR.PATCH` (`package.json`).
 - **MINOR** — user-visible capability. Update this file **and** [RELEASE_NOTES.md](RELEASE_NOTES.md) (what changed since the last minor). The app shows those notes once per minor.
 - **MAJOR** — breaking change to cartridges, progress, or AppData. Same as minor, plus a clear migration note.
 
+## 0.3.0 — 2026-09-16
+
+The Python minor: a 114-lesson zero-to-hero path, a real editor under every coding exercise, and a written-and-tested contract for building any course after this one.
+
 ### Course production spec (D61)
 
 - **[docs/COURSE_SPEC.md](docs/COURSE_SPEC.md) is the contract for building a course in any subject** — the one document an AI agent reads before authoring a pack. It covers the subject brief and its refused scope, choosing between a code engine, `world-v1`, and diagrams; the path laws (nothing before what it is made of, recovery before risk, the dense theory course late, every course ends in transfer); the skill DAG and the misconception budget; the four-movement explain with its word floor and no-answer-leakage rule; the task contract; the hint ladder; the placement battery; how to generate a large pack with parallel authors; what actually makes the loop feel like play; and the verification gates. It was written from what the JavaScript, Python, and circuits packs taught us, not from theory
@@ -23,6 +27,12 @@ Versioning is `MAJOR.MINOR.PATCH` (`package.json`).
 - **Python is a zero-to-hero path** (`lawp.python.foundations`, 114 lessons, six tracks): values and names, the fox on the grid, functions and closures, collections, errors, text and regex, files and `pathlib`, the process, modules and packages, objects, references and generators and decorators and context managers, async, then tests, logging, measurement, and a capstone field-station tool. It replaces the seven-lesson Course 1 stub. Still no NumPy, pandas, ML, or web frameworks
 - Every code lesson carries a hidden `python-assert` test, a four-rung hint ladder, and a starter that runs cleanly while still failing its check. `tests/py-lessons.test.ts` runs every one of them through the real interpreter, so an unreachable answer or an already-passing starter fails the build
 - The pack is generated from `scripts/py-curriculum/` the way the JavaScript pack is, with the path order locked by `tests/py-curriculum.test.ts`
+- All 114 lessons carry Library card copy, an icon, and tags, so no Python card ships blank
+
+### Pack generator
+
+- **A renamed or deleted course no longer leaves an orphan behind.** `write-pack.mjs` wrote the courses it knew about and never removed the ones `structure.mjs` had dropped, so a stale `courses/repl-in-pocket.json` from the old seven-lesson pack kept double-listing four lessons and failing the catalog test in a file nobody had edited. `tracks/`, `courses/`, and `creations/` are now pruned to what the run actually wrote
+- A lesson can ship a fixture in a subfolder (`data/station.log`). The writer created `files/` but not the parent of the file itself, so a nested fixture threw at generation time even though the sandbox handled it fine
 
 ### Editor (D60)
 

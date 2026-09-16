@@ -71,7 +71,7 @@ Predict  →  Act (world or code)  →  See  →  Explain
 
 ## Docs
 
-What is in the build: [docs/STATUS.md](docs/STATUS.md). Locked behavior: [docs/DECISIONS.md](docs/DECISIONS.md). Version **0.2.0** — [CHANGELOG.md](CHANGELOG.md), this minor: [RELEASE_NOTES.md](RELEASE_NOTES.md).
+What is in the build: [docs/STATUS.md](docs/STATUS.md). Locked behavior: [docs/DECISIONS.md](docs/DECISIONS.md). Version **0.3.0** — [CHANGELOG.md](CHANGELOG.md), this minor: [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
 | File | What it defines |
 | --- | --- |

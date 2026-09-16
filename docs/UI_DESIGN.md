@@ -14,7 +14,7 @@ Desktop **learning studio**, not a marketing site and not a code-editor clone of
 ## Chrome
 
 ```
-┌─ LAWP 0.2.0 (native Windows title) ─────────────────────────────┐
+┌─ LAWP 0.3.0 (native Windows title) ─────────────────────────────┐
 │ icon Home · Library · Studio · Practice · Author        icon Settings │
 │ (Lucide icons + tooltips; active route keeps the teal border)         │
 ├──────────────┬──────────────────────────────────────────────────┤

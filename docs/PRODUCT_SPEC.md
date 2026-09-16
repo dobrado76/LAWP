@@ -2,7 +2,7 @@
 
 **App:** LAWP (Learn Anything While Playing)  
 **Platform:** Windows-first Electron desktop  
-**App / spec version:** 0.2.0 (`MAJOR.MINOR.PATCH` in `package.json`)
+**App / spec version:** 0.3.0 (`MAJOR.MINOR.PATCH` in `package.json`)
 
 ## Problem
 

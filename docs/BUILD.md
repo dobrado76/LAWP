@@ -21,7 +21,7 @@ Put installers and unpackaged output in **`release/`** (gitignored). `npm run di
 
 ## GitHub Release (tags only)
 
-[`.github/workflows/build-windows.yml`](../.github/workflows/build-windows.yml) runs on `v*` tags (and optional `workflow_dispatch` for check-only). It typechecks, tests, then `npm run dist:nobump` and attaches `release/LAWP-*.exe` to the GitHub Release. It does **not** upload workflow artifacts. Push a tag that matches `package.json` (for example `v0.2.0`).
+[`.github/workflows/build-windows.yml`](../.github/workflows/build-windows.yml) runs on `v*` tags (and optional `workflow_dispatch` for check-only). It typechecks, tests, then `npm run dist:nobump` and attaches `release/LAWP-*.exe` to the GitHub Release. It does **not** upload workflow artifacts. Push a tag that matches `package.json` (for example `v0.3.0`).
 
 ## Shared AppData (required)
 
